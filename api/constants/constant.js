@@ -11,6 +11,7 @@ module.exports = {
         INVALID_USER: "Tên đăng nhập đã tồn tại!",
         BINDING_ERROR: "Lỗi ràng buộc",
         DATA_FAIL: "Lỗi dữ liệu",
+        USER_FAIL: "ID User không chính xác. Vui lòng kiểm tra lại hoặc liên hệ với admin.",
     },
 
     USER_ROLE: {

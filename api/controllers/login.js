@@ -12,13 +12,14 @@ module.exports = {
         database.connectDatabase().then(async db => {
             try {
                 var data = await mUser(db).findOne({
-                    where: { UserName: body.userName, Password: body.password },
+                    where: { Username: body.userName, Password: body.password },
                 })
                 if (data) {
                     var obj = {
                         id: data.ID,
-                        userName: data.Username,
+                        username: data.Username,
                         password: data.Password,
+                        name: data.FullName,
                     }
                     payload = {
                         "Username": req.body.userName,

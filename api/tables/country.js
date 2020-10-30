@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 module.exports = function (db) {
-    var table = db.define('ManufacturingIndustry', {
+    var table = db.define('Country', {
         ID: {
             type: Sequelize.BIGINT,
             primaryKey: true,

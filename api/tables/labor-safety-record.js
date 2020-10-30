@@ -9,6 +9,10 @@ module.exports = function (db) {
         },
         ProfileName: Sequelize.STRING,
         Description: Sequelize.STRING,
+        Code: Sequelize.STRING,
+        NumberEmployees: Sequelize.INTEGER,
+        IDProFManufacturing: Sequelize.BIGINT,
+        NumberFullTimeStaff: Sequelize.INTEGER,
     });
 
     return table;
