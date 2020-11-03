@@ -10,7 +10,7 @@ module.exports = function (db) {
         FullName: Sequelize.STRING,
         Sex: Sequelize.STRING,
         YearOfBirth: Sequelize.DATE,
-        Nationality: Sequelize.STRING,
+        IDNationality: Sequelize.BIGINT,
         Address: Sequelize.STRING,
         CMND: Sequelize.STRING,
         EmployeeCode: Sequelize.STRING,

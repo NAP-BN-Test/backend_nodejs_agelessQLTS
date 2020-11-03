@@ -29,7 +29,7 @@ module.exports = {
                     FullName: body.fullName ? body.fullName : '',
                     Sex: body.sex ? body.sex : '',
                     YearOfBirth: body.yearOfBirth ? moment(body.yearOfBirth).format('YYYY-MM-DD') : null,
-                    Nationality: body.nationality ? body.nationality : '',
+                    IDNationality: body.idNationality ? body.idNationality : '',
                     Address: body.address ? body.address : '',
                     CMND: body.cmnd ? body.cmnd : '',
                     EmployeeCode: body.employeeCode ? body.employeeCode : '',
@@ -63,8 +63,8 @@ module.exports = {
                         update.push({ key: 'Sex', value: body.sex });
                     if (body.yearOfBirth || body.yearOfBirth === '')
                         update.push({ key: 'YearOfBirth', value: body.yearOfBirth });
-                    if (body.nationality || body.nationality === '')
-                        update.push({ key: 'Nationality', value: body.nationality });
+                    if (body.idNationality || body.idNationality === '')
+                        update.push({ key: 'IDNationality', value: body.nationaidNationalitylity });
                     if (body.address || body.address === '')
                         update.push({ key: 'Address', value: body.address });
                     if (body.cmnd || body.cmnd === '')
@@ -123,6 +123,7 @@ module.exports = {
     // get_list_labor_management_book
     getListLaborManagementBook: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.checkServerInvalid(body.userID).then(async db => {
             if (db) {
                 try {
@@ -221,7 +222,7 @@ module.exports = {
                                 fullName: element.FullName ? element.FullName : '',
                                 sex: element.Sex ? element.Sex : '',
                                 yearOfBirth: element.YearOfBirth ? element.YearOfBirth : null,
-                                nationality: element.Nationality ? element.Nationality : '',
+                                // nationality: element.Nationality ? element.Nationality : '',
                                 address: element.Address ? element.Address : '',
                                 cmnd: element.CMND ? element.CMND : '',
                                 employeeCode: element.EmployeeCode ? element.EmployeeCode : '',
