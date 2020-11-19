@@ -1,15 +1,13 @@
 const Sequelize = require('sequelize');
 
 module.exports = function (db) {
-    var table = db.define('BranchManagement', {
+    var table = db.define('tblDMNation', {
         ID: {
             type: Sequelize.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
-        Brand: Sequelize.STRING,
-        ProductionLine: Sequelize.STRING,
-        Teams: Sequelize.STRING,
+        NationName: Sequelize.STRING,
     });
 
     return table;

@@ -38,7 +38,7 @@ let connect = require('./api/database')
 
 connect.connectDatabase();
 
-const port = process.env.PORT || 3201
+const port = process.env.PORT || 3202
 
 server.listen(port, function () {
     console.log('http://localhost:' + port);

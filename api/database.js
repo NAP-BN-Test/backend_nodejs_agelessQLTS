@@ -1,7 +1,5 @@
 const Result = require('./constants/result');
 const Sequelize = require('sequelize');
-const mCustomer = require('./tables/customer-user/customer');
-const mUser = require('./tables/customer-user/user');
 const Constant = require('./constants/constant');
 
 async function connectDatabase(dbName, user, pass, ip) {
@@ -36,7 +34,7 @@ module.exports = {
         user: 'sa',
         password: '1234',
         server: 'localhost',
-        database: 'LABOR_CONTRACT',
+        database: 'AGELESS_QLNB',
         options: {
             encrypt: false,
         },
@@ -51,8 +49,8 @@ module.exports = {
         },
     },
     connectDatabase: async function () {
-        const db = new Sequelize('CustomerUser', 'sa', '1234', {
-            host: 'localhost',
+        const db = new Sequelize(this.config.database, this.config.user, this.config.password, {
+            host: this.config.server,
             dialect: 'mssql',
             operatorsAliases: '0',
             // Bắt buộc phải có
@@ -81,7 +79,7 @@ module.exports = {
     checkServerInvalid: async function (userID) {
         let customer;
         try {
-            await connectDatabase('CustomerUser', 'sa', '1234', 'localhost').then(async dbCustomer => {
+            await connectDatabase(this.config.database, this.config.user, this.config.password, this.config.server).then(async dbCustomer => {
                 let user = await mUser(dbCustomer).findOne({
                     where: {
                         ID: userID

@@ -1,14 +1,16 @@
 const Sequelize = require('sequelize');
+const { SELECT } = require('sequelize/types/lib/query-types');
 
 module.exports = function (db) {
-    var table = db.define('AdministrativeFunctions', {
+    var table = db.define('tblDMHangHoa', {
         ID: {
             type: Sequelize.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
-        Code: Sequelize.STRING,
         Name: Sequelize.STRING,
+        Code: Sequelize.STRING,
+        IDDMLoaiTaiSan: Sequelize.BIGINT,
     });
 
     return table;

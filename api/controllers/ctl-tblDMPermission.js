@@ -2,26 +2,25 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mFactoryManagement = require('../tables/factory-management')
+var mtblDMPermission = require('../tables/tblDMPermission');
 var database = require('../database');
-async function deleteRelationshipFactoryManagement(db, listID) {
-    // chưa xong
-    await mFactoryManagement(db).destroy({
+async function deleteRelationshiptblDMPermission(db, listID) {
+    await mtblDMPermission(db).destroy({
         where: {
-            IDLaborBook: { [Op.in]: listID }
+            ID: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    // add_factory_management
-    addFactoryManagement: (req, res) => {
+    deleteRelationshiptblDMPermission,
+    // add_tbl_dmpermission
+    addtblDMPermission: (req, res) => {
         let body = req.body;
-        database.checkServerInvalid(body.userID).then(async db => {
+        database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mFactoryManagement(db).create({
-                        Building: body.building ? body.building : 'null',
-                        OutdoorArea: body.outdoorArea ? body.outdoorArea : '',
+                    mtblDMPermission(db).create({
+                        PermissionName: body.permissionName ? body.permissionName : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -38,18 +37,16 @@ module.exports = {
             }
         })
     },
-    // update_factory_management
-    updateFactoryManagement: (req, res) => {
+    // update_tbl_dmpermission
+    updatetblDMPermission: (req, res) => {
         let body = req.body;
-        database.checkServerInvalid(body.userID).then(async db => {
+        database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.building || body.building === '')
-                        update.push({ key: 'Building', value: body.building });
-                    if (body.outdoorArea || body.outdoorArea === '')
-                        update.push({ key: 'OutdoorArea', value: body.outdoorArea });
-                    database.updateTable(update, mFactoryManagement(db), body.id).then(response => {
+                    if (body.permissionName || body.permissionName === '')
+                        update.push({ key: 'PermissionName', value: body.permissionName });
+                    database.updateTable(update, mtblDMPermission(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -65,15 +62,15 @@ module.exports = {
             }
         })
     },
-    // delete_factory_management
-    deleteFactoryManagement: (req, res) => {
+    // delete_tbl_dmpermission
+    deletetblDMPermission: (req, res) => {
         let body = req.body;
-        database.checkServerInvalid(body.userID).then(async db => {
+        database.connectDatabase().then(async db => {
             let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshipFactoryManagement(db, listID);
+                    await deleteRelationshiptblDMPermission(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -88,22 +85,51 @@ module.exports = {
             }
         })
     },
-    // get_list_factory_management
-    getListFactoryManagement: (req, res) => {
+    // get_list_tbl_dmpermission
+    getListtblDMPermission: (req, res) => {
         let body = req.body;
-        database.checkServerInvalid(body.userID).then(async db => {
+        database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mFactoryManagement(db).findAll({
+                    var data = JSON.parse(body.dataSearch)
+
+                    if (data.search) {
+                        where = [
+                            { PermissionName: { [Op.like]: '%' + data.search + '%' } },
+                        ];
+                    } else {
+                        where = [
+                            { PermissionName: { [Op.ne]: '%%' } },
+                        ];
+                    }
+                    let whereOjb = { [Op.or]: where };
+                    if (data.items) {
+                        for (var i = 0; i < data.items.length; i++) {
+                            let userFind = {};
+                            if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                                userFind['PermissionName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                        }
+                    }
+                    mtblDMPermission(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
+                        where: whereOjb,
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                building: element.Building ? element.Building : '',
-                                outdoorArea: element.OutdoorArea ? element.OutdoorArea : '',
+                                permissionName: element.PermissionName ? element.PermissionName : '',
                             }
                             array.push(obj);
                         });
@@ -124,18 +150,18 @@ module.exports = {
             }
         })
     },
-    // get_list_name_factory_management
-    getListNameFactoryManagement: (req, res) => {
+    // get_list_name_tbl_dmpermission
+    getListNametblDMPermission: (req, res) => {
         let body = req.body;
-        database.checkServerInvalid(body.userID).then(async db => {
+        database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mFactoryManagement(db).findAll().then(data => {
+                    mtblDMPermission(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                building: element.Building ? element.Building : '',
+                                permissionName: element.PermissionName ? element.PermissionName : '',
                             }
                             array.push(obj);
                         });

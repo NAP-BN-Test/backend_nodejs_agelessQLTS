@@ -1,14 +1,13 @@
 const Sequelize = require('sequelize');
 
 module.exports = function (db) {
-    var table = db.define('FactoryManagement', {
+    var table = db.define('tblDMChucVu', {
         ID: {
             type: Sequelize.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
-        Building: Sequelize.STRING,
-        OutdoorArea: Sequelize.STRING,
+        PositionName: Sequelize.STRING,
     });
 
     return table;
