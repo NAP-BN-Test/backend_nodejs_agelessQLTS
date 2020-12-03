@@ -2,28 +2,25 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMHangHoa = require('../tables/tblDMHangHoa');
-var mtblDMLoaiTaiSan = require('../tables/tblDMLoaiTaiSan');
+var mtblDMLoaiTaiKhoanKeToan = require('../tables/tblDMLoaiTaiKhoanKeToan')
 var database = require('../database');
-async function deleteRelationshiptblDMHangHoa(db, listID) {
-    await mtblDMHangHoa(db).destroy({
+async function deleteRelationshiptblDMLoaiTaiKhoanKeToan(db, listID) {
+    await mtblDMLoaiTaiKhoanKeToan(db).destroy({
         where: {
             IDLaborBook: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblDMHangHoa,
-    // add_tbl_dmhanghoa
-    addtblDMHangHoa: (req, res) => {
+    deleteRelationshiptblDMLoaiTaiKhoanKeToan,
+    // add_tbl_dmloai_taikhoan_ketoan
+    addtblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
-                        IDDMLoaiTaiSan: body.idDMLoaiTaiSan ? body.idDMLoaiTaiSan : '',
+                    mtblDMLoaiTaiKhoanKeToan(db).create({
+                        TypeName: body.typeName ? body.typeName : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -40,24 +37,16 @@ module.exports = {
             }
         })
     },
-    // update_tbl_dmhanghoa
-    updatetblDMHangHoa: (req, res) => {
+    // update_tbl_dmloai_taikhoan_ketoan
+    updatetblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
-                    if (body.idDMLoaiTaiSan || body.idDMLoaiTaiSan === '') {
-                        if (body.idDMLoaiTaiSan === '')
-                            update.push({ key: 'IDDMLoaiTaiSan', value: null });
-                        else
-                            update.push({ key: 'IDDMLoaiTaiSan', value: body.idDMLoaiTaiSan });
-                    }
-                    database.updateTable(update, mtblDMHangHoa(db), body.id).then(response => {
+                    if (body.typeName || body.typeName === '')
+                        update.push({ key: 'TypeName', value: body.typeName });
+                    database.updateTable(update, mtblDMLoaiTaiKhoanKeToan(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -73,15 +62,15 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_dmhanghoa
-    deletetblDMHangHoa: (req, res) => {
+    // delete_tbl_dmloai_taikhoan_ketoan
+    deletetblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblDMHangHoa(db, listID);
+                    await deleteRelationshiptblDMLoaiTaiKhoanKeToan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -96,44 +85,31 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_dmhanghoa
-    getListtblDMHangHoa: (req, res) => {
+    // get_list_tbl_dmloai_taikhoan_ketoan
+    getListtblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = []
+                    var whereOjb = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
                             where = [
-                                { Name: { [Op.like]: '%' + data.search + '%' } },
-                                { Code: { [Op.like]: '%' + data.search + '%' } },
+                                { TypeName: { [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { Name: { [Op.ne]: '%%' } },
+                                { TypeName: { [Op.ne]: '%%' } },
                             ];
                         }
                         let whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'MÃ HÀNG HÓA') {
-                                    userFind['Code'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                                if (data.items[i].fields['name'] === 'TÊN HÀNG HÓA') {
-                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                                    userFind['TypeName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -147,36 +123,23 @@ module.exports = {
                             }
                         }
                     }
-                    var tblDMHangHoa = mtblDMHangHoa(db);
-                    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan' })
-                    tblDMHangHoa.findAll({
-                        include: [
-                            {
-                                model: mtblDMLoaiTaiSan(db),
-                                required: false,
-                            },
-                        ],
+                    mtblDMLoaiTaiKhoanKeToan(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb
-                    }).then(async data => {
+                        where: whereOjb,
+                    }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
-                                idDMLoaiTaiSan: element.IDDMLoaiTaiSan ? element.IDDMLoaiTaiSan : null,
-                                nameDMLoaiTaiSan: element.tblDMLoaiTaiSan ? element.tblDMLoaiTaiSan.Name : null,
+                                typeName: element.TypeName ? element.TypeName : '',
                             }
                             array.push(obj);
                         });
-                        var count = await tblDMHangHoa.count({ where: whereOjb })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
                         }
                         res.json(result);
                     })
@@ -190,18 +153,18 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_dmhanghoa
-    getListNametblDMHangHoa: (req, res) => {
+    // get_list_name_tbl_dmloai_taikhoan_ketoan
+    getListNametblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).findAll().then(data => {
+                    mtblDMLoaiTaiKhoanKeToan(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                typeName: element.TypeName ? element.TypeName : '',
                             }
                             array.push(obj);
                         });

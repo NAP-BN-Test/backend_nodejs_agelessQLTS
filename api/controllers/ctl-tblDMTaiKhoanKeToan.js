@@ -2,25 +2,28 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMChucVu = require('../tables/tblDMChucVu');
+var mtblDMTaiKhoanKeToan = require('../tables/tblDMTaiKhoanKeToan')
 var database = require('../database');
-async function deleteRelationshiptblDMChucVu(db, listID) {
-    await mtblDMChucVu(db).destroy({
+async function deleteRelationshiptblDMTaiKhoanKeToan(db, listID) {
+    await mtblDMTaiKhoanKeToan(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            IDLaborBook: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblDMChucVu,
-    // add_tbl_dmChucVu
-    addtblDMChucVu: (req, res) => {
+    deleteRelationshiptblDMTaiKhoanKeToan,
+    // add_tbl_dmtaikhoan_ketoan
+    addtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMChucVu(db).create({
-                        PositionName: body.positionName ? body.positionName : '',
+                    mtblDMTaiKhoanKeToan(db).create({
+                        AccountingCodeI: body.accountingCodeI ? body.accountingCodeI : '',
+                        AccountingCodeII: body.accountingCodeII ? body.accountingCodeII : '',
+                        AccountingName: body.accountingName ? body.accountingName : '',
+                        IDLoaiTaiKhoanKeToan: body.idLoaiTaiKhoanKeToan ? body.idLoaiTaiKhoanKeToan : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -37,16 +40,26 @@ module.exports = {
             }
         })
     },
-    // update_tbl_dmChucVu
-    updatetblDMChucVu: (req, res) => {
+    // update_tbl_dmtaikhoan_ketoan
+    updatetblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.positionName || body.positionName === '')
-                        update.push({ key: 'PositionName', value: body.positionName });
-                    database.updateTable(update, mtblDMChucVu(db), body.id).then(response => {
+                    if (body.accountingCodeI || body.accountingCodeI === '')
+                        update.push({ key: 'AccountingCodeI', value: body.accountingCodeI });
+                    if (body.accountingCodeII || body.accountingCodeII === '')
+                        update.push({ key: 'AccountingCodeII', value: body.accountingCodeII });
+                    if (body.accountingName || body.accountingName === '')
+                        update.push({ key: 'AccountingName', value: body.accountingName });
+                    if (body.idLoaiTaiKhoanKeToan || body.idLoaiTaiKhoanKeToan === '') {
+                        if (body.idLoaiTaiKhoanKeToan === '')
+                            update.push({ key: 'IDLoaiTaiKhoanKeToan', value: null });
+                        else
+                            update.push({ key: 'IDLoaiTaiKhoanKeToan', value: body.idLoaiTaiKhoanKeToan });
+                    }
+                    database.updateTable(update, mtblDMTaiKhoanKeToan(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -62,15 +75,15 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_dmChucVu
-    deletetblDMChucVu: (req, res) => {
+    // delete_tbl_dmtaikhoan_ketoan
+    deletetblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblDMChucVu(db, listID);
+                    await deleteRelationshiptblDMTaiKhoanKeToan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -85,63 +98,63 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_dmChucVu
-    getListtblDMChucVu: (req, res) => {
+    // get_list_tbl_dmtaikhoan_ketoan
+    getListtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
-                    if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                    var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { PositionName: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { PositionName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        let whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN CHỨC VỤ') {
-                                    userFind['PositionName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
+                    if (data.search) {
+                        where = [
+                            { FullName: { [Op.like]: '%' + data.search + '%' } },
+                            { Address: { [Op.like]: '%' + data.search + '%' } },
+                            { CMND: { [Op.like]: '%' + data.search + '%' } },
+                            { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                        ];
+                    } else {
+                        where = [
+                            { FullName: { [Op.ne]: '%%' } },
+                        ];
+                    }
+                    let whereOjb = { [Op.or]: where };
+                    if (data.items) {
+                        for (var i = 0; i < data.items.length; i++) {
+                            let userFind = {};
+                            if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                                userFind['accountingName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
                                 }
                             }
                         }
                     }
-                    mtblDMChucVu(db).findAll({
+                    mtblDMTaiKhoanKeToan(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
-                    }).then(async data => {
+                    }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                positionName: element.PositionName ? element.PositionName : '',
+                                accountingCodeI: element.AccountingCodeI ? element.AccountingCodeI : '',
+                                accountingCodeII: element.AccountingCodeII ? element.AccountingCodeII : '',
+                                accountingName: element.AccountingName ? element.AccountingName : '',
+                                idLoaiTaiKhoanKeToan: element.IDLoaiTaiKhoanKeToan ? element.IDLoaiTaiKhoanKeToan : '',
                             }
                             array.push(obj);
                         });
-                        var count = await mtblDMChucVu(db).count({ where: whereOjb })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
                         }
                         res.json(result);
                     })
@@ -155,18 +168,18 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_dmChucVu
-    getListNametblDMChucVu: (req, res) => {
+    // get_list_name_tbl_dmtaikhoan_ketoan
+    getListNametblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMChucVu(db).findAll().then(data => {
+                    mtblDMTaiKhoanKeToan(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                positionName: element.PositionName ? element.PositionName : '',
+                                accountingName: element.AccountingName ? element.AccountingName : '',
                             }
                             array.push(obj);
                         });

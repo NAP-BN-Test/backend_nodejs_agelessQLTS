@@ -2,28 +2,27 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMHangHoa = require('../tables/tblDMHangHoa');
-var mtblDMLoaiTaiSan = require('../tables/tblDMLoaiTaiSan');
+var mtblDMBoPhan = require('../tables/tblDMBoPhan')
 var database = require('../database');
-async function deleteRelationshiptblDMHangHoa(db, listID) {
-    await mtblDMHangHoa(db).destroy({
+async function deleteRelationshiptblDMBoPhan(db, listID) {
+    await mtblDMBoPhan(db).destroy({
         where: {
             IDLaborBook: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblDMHangHoa,
-    // add_tbl_dmhanghoa
-    addtblDMHangHoa: (req, res) => {
+    deleteRelationshiptblDMBoPhan,
+    // add_tbl_dm_bophan
+    addtblDMBoPhan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
-                        IDDMLoaiTaiSan: body.idDMLoaiTaiSan ? body.idDMLoaiTaiSan : '',
+                    mtblDMBoPhan(db).create({
+                        DepartmentCode: body.departmentCode ? body.departmentCode : '',
+                        DepartmentName: body.departmentName ? body.departmentName : '',
+                        IDChiNhanh: body.idChiNhanh ? body.idChiNhanh : null,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -40,24 +39,24 @@ module.exports = {
             }
         })
     },
-    // update_tbl_dmhanghoa
-    updatetblDMHangHoa: (req, res) => {
+    // update_tbl_dm_bophan
+    updatetblDMBoPhan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
-                    if (body.idDMLoaiTaiSan || body.idDMLoaiTaiSan === '') {
-                        if (body.idDMLoaiTaiSan === '')
-                            update.push({ key: 'IDDMLoaiTaiSan', value: null });
+                    if (body.departmentCode || body.departmentCode === '')
+                        update.push({ key: 'DepartmentCode', value: body.departmentCode });
+                    if (body.departmentName || body.departmentName === '')
+                        update.push({ key: 'DepartmentName', value: body.departmentName });
+                    if (body.idChiNhanh || body.idChiNhanh === '') {
+                        if (body.idChiNhanh === '')
+                            update.push({ key: 'IDChiNhanh', value: null });
                         else
-                            update.push({ key: 'IDDMLoaiTaiSan', value: body.idDMLoaiTaiSan });
+                            update.push({ key: 'IDChiNhanh', value: body.idChiNhanh });
                     }
-                    database.updateTable(update, mtblDMHangHoa(db), body.id).then(response => {
+                    database.updateTable(update, mtblDMBoPhan(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -73,15 +72,14 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_dmhanghoa
-    deletetblDMHangHoa: (req, res) => {
+    // delete_tbl_dm_bophan
+    deletetblDMBoPhan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblDMHangHoa(db, listID);
+                    await deleteRelationshiptblDMBoPhan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -96,44 +94,34 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_dmhanghoa
-    getListtblDMHangHoa: (req, res) => {
+    // get_list_tbl_dm_bophan
+    getListtblDMBoPhan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = []
+                    var whereOjb = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
                             where = [
-                                { Name: { [Op.like]: '%' + data.search + '%' } },
-                                { Code: { [Op.like]: '%' + data.search + '%' } },
+                                { FullName: { [Op.like]: '%' + data.search + '%' } },
+                                { Address: { [Op.like]: '%' + data.search + '%' } },
+                                { CMND: { [Op.like]: '%' + data.search + '%' } },
+                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { Name: { [Op.ne]: '%%' } },
+                                { FullName: { [Op.ne]: '%%' } },
                             ];
                         }
                         let whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'MÃ HÀNG HÓA') {
-                                    userFind['Code'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                                if (data.items[i].fields['name'] === 'TÊN HÀNG HÓA') {
-                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -147,31 +135,22 @@ module.exports = {
                             }
                         }
                     }
-                    var tblDMHangHoa = mtblDMHangHoa(db);
-                    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan' })
-                    tblDMHangHoa.findAll({
-                        include: [
-                            {
-                                model: mtblDMLoaiTaiSan(db),
-                                required: false,
-                            },
-                        ],
+                    mtblDMBoPhan(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb
+                        where: whereOjb,
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
-                                idDMLoaiTaiSan: element.IDDMLoaiTaiSan ? element.IDDMLoaiTaiSan : null,
-                                nameDMLoaiTaiSan: element.tblDMLoaiTaiSan ? element.tblDMLoaiTaiSan.Name : null,
+                                departmentCode: element.DepartmentCode ? element.DepartmentCode : '',
+                                departmentName: element.DepartmentName ? element.DepartmentName : '',
+                                idChiNhanh: element.IDChiNhanh ? element.IDChiNhanh : null,
                             }
                             array.push(obj);
                         });
-                        var count = await tblDMHangHoa.count({ where: whereOjb })
+                        var count = await mtblDMBoPhan(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -190,18 +169,18 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_dmhanghoa
-    getListNametblDMHangHoa: (req, res) => {
+    // get_list_name_tbl_dm_bophan
+    getListNametblDMBoPhan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).findAll().then(data => {
+                    mtblDMBoPhan(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                departmentName: element.DepartmentName ? element.DepartmentName : '',
                             }
                             array.push(obj);
                         });

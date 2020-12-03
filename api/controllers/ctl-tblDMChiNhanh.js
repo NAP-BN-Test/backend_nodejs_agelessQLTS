@@ -2,28 +2,38 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMHangHoa = require('../tables/tblDMHangHoa');
-var mtblDMLoaiTaiSan = require('../tables/tblDMLoaiTaiSan');
+var mtblDMChiNhanh = require('../tables/tblDMChiNhanh')
+var mtblDMBoPhan = require('../tables/tblDMBoPhan')
 var database = require('../database');
-async function deleteRelationshiptblDMHangHoa(db, listID) {
-    await mtblDMHangHoa(db).destroy({
+async function deleteRelationshiptblDMChiNhanh(db, listID) {
+    await mtblDMBoPhan(db).update({
+        IDChiNhanh: null
+    }, {
         where: {
-            IDLaborBook: { [Op.in]: listID }
+            IDChiNhanh: { [Op.in]: listID }
+        }
+    })
+    await mtblDMChiNhanh(db).destroy({
+        where: {
+            ID: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblDMHangHoa,
-    // add_tbl_dmhanghoa
-    addtblDMHangHoa: (req, res) => {
+    deleteRelationshiptblDMChiNhanh,
+    // add_tbl_dm_chinhanh
+    addtblDMChiNhanh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
-                        IDDMLoaiTaiSan: body.idDMLoaiTaiSan ? body.idDMLoaiTaiSan : '',
+                    mtblDMChiNhanh(db).create({
+                        BranchCode: body.branchCode ? body.branchCode : '',
+                        BranchName: body.branchName ? body.branchName : '',
+                        Address: body.address ? body.address : '',
+                        PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
+                        FaxNumber: body.faxNumber ? body.faxNumber : '',
+                        Email: body.email ? body.email : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -40,24 +50,26 @@ module.exports = {
             }
         })
     },
-    // update_tbl_dmhanghoa
-    updatetblDMHangHoa: (req, res) => {
+    // update_tbl_dm_chinhanh
+    updatetblDMChiNhanh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
-                    if (body.idDMLoaiTaiSan || body.idDMLoaiTaiSan === '') {
-                        if (body.idDMLoaiTaiSan === '')
-                            update.push({ key: 'IDDMLoaiTaiSan', value: null });
-                        else
-                            update.push({ key: 'IDDMLoaiTaiSan', value: body.idDMLoaiTaiSan });
-                    }
-                    database.updateTable(update, mtblDMHangHoa(db), body.id).then(response => {
+                    if (body.branchCode || body.branchCode === '')
+                        update.push({ key: 'BranchCode', value: body.branchCode });
+                    if (body.branchName || body.branchName === '')
+                        update.push({ key: 'BranchName', value: body.branchName });
+                    if (body.address || body.address === '')
+                        update.push({ key: 'Address', value: body.address });
+                    if (body.phoneNumber || body.phoneNumber === '')
+                        update.push({ key: 'PhoneNumber', value: body.phoneNumber });
+                    if (body.faxNumber || body.faxNumber === '')
+                        update.push({ key: 'FaxNumber', value: body.faxNumber });
+                    if (body.email || body.email === '')
+                        update.push({ key: 'Email', value: body.email });
+                    database.updateTable(update, mtblDMChiNhanh(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -73,15 +85,14 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_dmhanghoa
-    deletetblDMHangHoa: (req, res) => {
+    // delete_tbl_dm_chinhanh
+    deletetblDMChiNhanh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblDMHangHoa(db, listID);
+                    await deleteRelationshiptblDMChiNhanh(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -96,44 +107,34 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_dmhanghoa
-    getListtblDMHangHoa: (req, res) => {
+    // get_list_tbl_dm_chinhanh
+    getListtblDMChiNhanh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = []
+                    var whereOjb = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
                             where = [
-                                { Name: { [Op.like]: '%' + data.search + '%' } },
-                                { Code: { [Op.like]: '%' + data.search + '%' } },
+                                { FullName: { [Op.like]: '%' + data.search + '%' } },
+                                { Address: { [Op.like]: '%' + data.search + '%' } },
+                                { CMND: { [Op.like]: '%' + data.search + '%' } },
+                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { Name: { [Op.ne]: '%%' } },
+                                { FullName: { [Op.ne]: '%%' } },
                             ];
                         }
                         let whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'MÃ HÀNG HÓA') {
-                                    userFind['Code'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                                if (data.items[i].fields['name'] === 'TÊN HÀNG HÓA') {
-                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -147,31 +148,25 @@ module.exports = {
                             }
                         }
                     }
-                    var tblDMHangHoa = mtblDMHangHoa(db);
-                    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan' })
-                    tblDMHangHoa.findAll({
-                        include: [
-                            {
-                                model: mtblDMLoaiTaiSan(db),
-                                required: false,
-                            },
-                        ],
+                    mtblDMChiNhanh(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb
+                        where: whereOjb,
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
-                                idDMLoaiTaiSan: element.IDDMLoaiTaiSan ? element.IDDMLoaiTaiSan : null,
-                                nameDMLoaiTaiSan: element.tblDMLoaiTaiSan ? element.tblDMLoaiTaiSan.Name : null,
+                                branchCode: body.BranchCode ? body.BranchCode : '',
+                                branchName: body.BranchName ? body.BranchName : '',
+                                address: body.Address ? body.Address : '',
+                                phoneNumber: body.PhoneNumber ? body.PhoneNumber : '',
+                                faxNumber: body.FaxNumber ? body.FaxNumber : '',
+                                email: body.Email ? body.Email : '',
                             }
                             array.push(obj);
                         });
-                        var count = await tblDMHangHoa.count({ where: whereOjb })
+                        var count = await mtblDMChiNhanh(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -190,18 +185,18 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_dmhanghoa
-    getListNametblDMHangHoa: (req, res) => {
+    // get_list_name_tbl_dm_chinhanh
+    getListNametblDMChiNhanh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).findAll().then(data => {
+                    mtblDMChiNhanh(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                branchName: element.BranchName ? element.BranchName : '',
                             }
                             array.push(obj);
                         });

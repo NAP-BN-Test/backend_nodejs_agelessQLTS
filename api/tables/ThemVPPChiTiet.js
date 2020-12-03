@@ -1,15 +1,17 @@
 const Sequelize = require('sequelize');
 
 module.exports = function (db) {
-    var table = db.define('tblDMHangHoa', {
+    var table = db.define('ThemVPPChiTiet', {
         ID: {
             type: Sequelize.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
-        Name: Sequelize.STRING,
-        Code: Sequelize.STRING,
-        IDDMLoaiTaiSan: Sequelize.BIGINT,
+        IDVanPhongPham: Sequelize.BIGINT,
+        IDThemVPP: Sequelize.BIGINT,
+        Amount: Sequelize.FLOAT,
+        Describe: Sequelize.STRING,
+
     });
 
     return table;

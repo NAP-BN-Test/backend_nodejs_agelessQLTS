@@ -7,7 +7,7 @@ var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblDMNhanvien(db).destroy({
         where: {
-            IDLaborBook: { [Op.in]: listID }
+            ID: { [Op.in]: listID }
         }
     })
 }
@@ -27,7 +27,7 @@ module.exports = {
                         IDNation: body.idNation ? body.idNation : null,
                         PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
                         Gender: body.gender ? body.gender : '',
-                        IDPhongBan: body.idPhongBan ? body.idPhongBan : null,
+                        IDBoPhan: body.idBoPhan ? body.idBoPhan : null,
                         IDChucVu: body.idChucVu ? body.idChucVu : null,
                         TaxCode: body.taxCode ? body.taxCode : '',
                         BankNumber: body.bankNumber ? body.bankNumber : '',
@@ -84,11 +84,11 @@ module.exports = {
                         update.push({ key: 'PhoneNumber', value: body.phoneNumber });
                     if (body.gender || body.gender === '')
                         update.push({ key: 'Gender', value: body.gender });
-                    if (body.idPhongBan || body.idPhongBan === '') {
-                        if (body.idPhongBan === '')
-                            update.push({ key: 'IDPhongBan', value: null });
+                    if (body.idBoPhan || body.idBoPhan === '') {
+                        if (body.idBoPhan === '')
+                            update.push({ key: 'IDBoPhan', value: null });
                         else
-                            update.push({ key: 'IDPhongBan', value: body.idPhongBan });
+                            update.push({ key: 'IDBoPhan', value: body.idBoPhan });
                     }
                     if (body.idChucVu || body.idChucVu === '') {
                         if (body.idChucVu === '')
@@ -197,69 +197,72 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var data = JSON.parse(body.dataSearch)
+                    let whereOjb = []
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
 
-                    if (data.search) {
-                        where = [
-                            { StaffCode: { [Op.like]: '%' + data.search + '%' } },
-                            { StaffName: { [Op.like]: '%' + data.search + '%' } },
-                            { Address: { [Op.like]: '%' + data.search + '%' } },
-                        ];
-                    } else {
-                        where = [
-                            { StaffName: { [Op.ne]: '%%' } },
-                        ];
-                    }
-                    let whereOjb = { [Op.or]: where };
-                    if (data.items) {
-                        for (var i = 0; i < data.items.length; i++) {
-                            let userFind = {};
-                            if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
-                                userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                if (data.items[i].conditionFields['name'] == 'And') {
-                                    whereOjb[Op.and] = userFind
+                        if (data.search) {
+                            where = [
+                                { StaffCode: { [Op.like]: '%' + data.search + '%' } },
+                                { StaffName: { [Op.like]: '%' + data.search + '%' } },
+                                { Address: { [Op.like]: '%' + data.search + '%' } },
+                            ];
+                        } else {
+                            where = [
+                                { StaffName: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
+                                    userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
                                 }
-                                if (data.items[i].conditionFields['name'] == 'Or') {
-                                    whereOjb[Op.or] = userFind
+                                if (data.items[i].fields['name'] === 'TÊN NHÂN VIÊN') {
+                                    userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
                                 }
-                                if (data.items[i].conditionFields['name'] == 'Not') {
-                                    whereOjb[Op.not] = userFind
+                                if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
+                                    userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
                                 }
-                            }
-                            if (data.items[i].fields['name'] === 'TÊN NHÂN VIÊN') {
-                                userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                if (data.items[i].conditionFields['name'] == 'And') {
-                                    whereOjb[Op.and] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Or') {
-                                    whereOjb[Op.or] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Not') {
-                                    whereOjb[Op.not] = userFind
-                                }
-                            }
-                            if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
-                                userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                if (data.items[i].conditionFields['name'] == 'And') {
-                                    whereOjb[Op.and] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Or') {
-                                    whereOjb[Op.or] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Not') {
-                                    whereOjb[Op.not] = userFind
-                                }
-                            }
-                            if (data.items[i].fields['name'] === 'EMAIL') {
-                                userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                if (data.items[i].conditionFields['name'] == 'And') {
-                                    whereOjb[Op.and] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Or') {
-                                    whereOjb[Op.or] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Not') {
-                                    whereOjb[Op.not] = userFind
+                                if (data.items[i].fields['name'] === 'EMAIL') {
+                                    userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
                                 }
                             }
                         }
@@ -280,7 +283,7 @@ module.exports = {
                                 idNation: element.IDNation ? element.IDNation : null,
                                 phoneNumber: element.PhoneNumber ? element.PhoneNumber : '',
                                 gender: element.Gender ? element.Gender : '',
-                                idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
+                                idBoPhan: element.IDBoPhan ? element.IDBoPhan : null,
                                 idChucVu: element.IDChucVu ? element.IDChucVu : null,
                                 baxCode: element.TaxCode ? element.TaxCode : '',
                                 bankNumber: element.BankNumber ? element.BankNumber : '',

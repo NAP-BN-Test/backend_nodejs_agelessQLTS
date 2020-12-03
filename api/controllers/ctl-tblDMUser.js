@@ -6,6 +6,8 @@ var mtblDMUser = require('../tables/tblDMUser');
 var mtblDMNhanvien = require('../tables/tblDMNhanvien');
 var mtblDMPermission = require('../tables/tblDMPermission');
 var database = require('../database');
+let jwt = require('jsonwebtoken');
+
 async function deleteRelationshiptblDMUser(db, listID) {
     await mtblDMUser(db).destroy({
         where: {
@@ -23,7 +25,7 @@ module.exports = {
                 try {
                     mtblDMUser(db).create({
                         Username: body.username ? body.username : '',
-                        Password: body.password ? body.password : '',
+                        Password: body.password ? body.password : '123456a$',
                         IDNhanvien: body.idNhanvien ? body.idNhanvien : null,
                         Active: body.active ? body.active : '',
                         IDPermission: body.idPermission ? body.idPermission : null,
@@ -113,44 +115,47 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var data = JSON.parse(body.dataSearch)
+                    let whereOjb = [];
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
 
-                    if (data.search) {
-                        where = [
-                            { Username: { [Op.like]: '%' + data.search + '%' } },
-                            { Password: { [Op.like]: '%' + data.search + '%' } },
-                        ];
-                    } else {
-                        where = [
-                            { Username: { [Op.ne]: '%%' } },
-                        ];
-                    }
-                    let whereOjb = { [Op.or]: where };
-                    if (data.items) {
-                        for (var i = 0; i < data.items.length; i++) {
-                            let userFind = {};
-                            if (data.items[i].fields['name'] === 'TÊN ĐĂNG NHẬP') {
-                                userFind['Username'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                if (data.items[i].conditionFields['name'] == 'And') {
-                                    whereOjb[Op.and] = userFind
+                        if (data.search) {
+                            where = [
+                                { Username: { [Op.like]: '%' + data.search + '%' } },
+                                { Password: { [Op.like]: '%' + data.search + '%' } },
+                            ];
+                        } else {
+                            where = [
+                                { Username: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'TÊN ĐĂNG NHẬP') {
+                                    userFind['Username'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
                                 }
-                                if (data.items[i].conditionFields['name'] == 'Or') {
-                                    whereOjb[Op.or] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Not') {
-                                    whereOjb[Op.not] = userFind
-                                }
-                            }
-                            if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
-                                userFind['Active'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                if (data.items[i].conditionFields['name'] == 'And') {
-                                    whereOjb[Op.and] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Or') {
-                                    whereOjb[Op.or] = userFind
-                                }
-                                if (data.items[i].conditionFields['name'] == 'Not') {
-                                    whereOjb[Op.not] = userFind
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['Active'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
                                 }
                             }
                         }
@@ -172,6 +177,7 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
+                        where: whereOjb
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {
@@ -235,5 +241,55 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    login: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            try {
+                var data = await mtblDMUser(db).findOne({
+                    where: { UserName: body.userName, Password: body.password },
+                })
+                if (data) {
+                    if (!data.Active) {
+                        return res.json(Result.LOGIN_FAIL)
+                    }
+                    var obj = {
+                        id: data.ID,
+                        name: data.Name,
+                        userName: data.UserName,
+                        password: data.Password,
+                        // list: data.tblPrices
+                    }
+                    payload = {
+                        "Username": req.body.userName,
+                        // standard fields
+                        // - Xác thực người tạo
+                        "iss": "Tungnn",
+                    }
+                    let token = jwt.sign(payload,
+                        'abcdxys',
+                        {
+                            algorithm: "HS256",
+                            expiresIn: '24h' // expires in 24 hours
+                        }
+                    );
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: '',
+                        obj: obj,
+                        token: token
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.LOGIN_FAIL)
+
+                }
+            } catch (error) {
+                console.log(error);
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        }, error => {
+            res.json(error)
+        })
+    },
 }

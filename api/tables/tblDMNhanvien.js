@@ -14,7 +14,7 @@ module.exports = function (db) {
         IDNation: Sequelize.BIGINT,
         PhoneNumber: Sequelize.STRING,
         Gender: Sequelize.STRING,
-        IDPhongBan: Sequelize.BIGINT,
+        IDBoPhan: Sequelize.BIGINT,
         IDChucVu: Sequelize.BIGINT,
         TaxCode: Sequelize.STRING,
         BankNumber: Sequelize.STRING,
