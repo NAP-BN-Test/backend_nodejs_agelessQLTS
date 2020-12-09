@@ -145,6 +145,7 @@ module.exports = {
                             }
                         }
                     }
+                    let stt = 1;
                     mtblVanPhongPham(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -153,6 +154,7 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 vppCode: element.VPPCode ? element.VPPCode : '',
                                 vppName: element.VPPName ? element.VPPName : '',
@@ -161,6 +163,7 @@ module.exports = {
                                 remainingAmount: element.RemainingAmount ? element.RemainingAmount : null,
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var count = await mtblVanPhongPham(db).count({ where: whereOjb, })
                         var result = {

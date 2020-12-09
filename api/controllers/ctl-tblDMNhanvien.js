@@ -3,6 +3,9 @@ const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblDMNhanvien = require('../tables/tblDMNhanvien');
+var mtblDMChiNhanh = require('../tables/tblDMChiNhanh')
+var mtblDMBoPhan = require('../tables/tblDMBoPhan')
+
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblDMNhanvien(db).destroy({
@@ -267,14 +270,31 @@ module.exports = {
                             }
                         }
                     }
-                    mtblDMNhanvien(db).findAll({
+                    let stt = 1;
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
+                    let tblDMBoPhan = mtblDMBoPhan(db);
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
+
+                    tblDMNhanvien.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
+                        include: [
+                            {
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'bophan',
+                                include: [{
+                                    model: mtblDMChiNhanh(db)
+                                }]
+                            },
+                        ],
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 staffCode: element.StaffCode ? element.StaffCode : '',
                                 staffName: element.StaffName ? element.StaffName : '',
@@ -284,6 +304,10 @@ module.exports = {
                                 phoneNumber: element.PhoneNumber ? element.PhoneNumber : '',
                                 gender: element.Gender ? element.Gender : '',
                                 idBoPhan: element.IDBoPhan ? element.IDBoPhan : null,
+                                departmentName: element.bophan ? element.bophan.DepartmentName : null,
+                                departmentCode: element.bophan ? element.bophan.DepartmentCode : null,
+                                branchCode: element.bophan ? element.bophan.tblDMChiNhanh ? element.bophan.tblDMChiNhanh.BranchCode : null : null,
+                                branchName: element.bophan ? element.bophan.tblDMChiNhanh ? element.bophan.tblDMChiNhanh.BranchName : null : null,
                                 idChucVu: element.IDChucVu ? element.IDChucVu : null,
                                 baxCode: element.TaxCode ? element.TaxCode : '',
                                 bankNumber: element.BankNumber ? element.BankNumber : '',
@@ -301,6 +325,7 @@ module.exports = {
                                 email: element.Email ? element.Email : '',
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var result = {
                             array: array,

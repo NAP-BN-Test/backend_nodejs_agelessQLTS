@@ -169,6 +169,7 @@ module.exports = {
                             }
                         }
                     }
+                    let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
@@ -204,6 +205,7 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 idIDNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                                 nameIDNhanVien: element.NhanVien.StaffName ? element.NhanVien.StaffName : null,
@@ -221,6 +223,7 @@ module.exports = {
                                 namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var count = await tblYeuCauMuaSam.count({ where: whereOjb })
                         var result = {

@@ -147,6 +147,7 @@ module.exports = {
                             }
                         }
                     }
+                    let stt = 1;
                     mtblDMLoaiTaiSan(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -155,10 +156,12 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 name: element.Name ? element.Name : '',
                                 code: element.Code ? element.Code : '',
                             }
+                            stt += 1;
                             array.push(obj);
                         });
                         var count = await mtblDMLoaiTaiSan(db).count({ where: whereOjb })

@@ -147,6 +147,7 @@ module.exports = {
                             }
                         }
                     }
+                    let stt = 1;
                     var tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan' })
                     tblDMHangHoa.findAll({
@@ -163,12 +164,14 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 name: element.Name ? element.Name : '',
                                 code: element.Code ? element.Code : '',
                                 idDMLoaiTaiSan: element.IDDMLoaiTaiSan ? element.IDDMLoaiTaiSan : null,
                                 nameDMLoaiTaiSan: element.tblDMLoaiTaiSan ? element.tblDMLoaiTaiSan.Name : null,
                             }
+                            stt += 1;
                             array.push(obj);
                         });
                         var count = await tblDMHangHoa.count({ where: whereOjb })

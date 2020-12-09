@@ -172,6 +172,7 @@ module.exports = {
                         }
                     }
                     let tblThemVPP = mtblThemVPP(db);
+                    let stt = 1;
                     tblThemVPP.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDNhaCungCap', sourceKey: 'IDNhaCungCap', as: 'ncc' })
                     tblThemVPP.hasMany(mThemVPPChiTiet(db), { foreignKey: 'IDThemVPP', as: 'line' })
                     tblThemVPP.findAll({
@@ -194,6 +195,7 @@ module.exports = {
                         var array = [];
                         for (var j = 0; j < data.length; j++) {
                             var obj = {
+                                stt: stt,
                                 id: Number(data[j].ID),
                                 idNhaCungCap: data[j].IDNhaCungCap ? data[j].IDNhaCungCap : null,
                                 nameNhaCungCap: data[j].ncc ? data[j].ncc.SupplierName : null,
@@ -215,6 +217,7 @@ module.exports = {
 
                             }
                             array.push(obj);
+                            stt += 1;
                         }
                         var count = await mtblThemVPP(db).count({ where: whereOjb, })
                         var result = {

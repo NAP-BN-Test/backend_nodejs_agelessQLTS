@@ -145,6 +145,7 @@ module.exports = {
                             }
                         }
                     }
+                    let stt = 1;
                     mtblDMNhaCungCap(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -152,6 +153,7 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 supplierCode: element.SupplierCode ? element.SupplierCode : '',
                                 supplierName: element.SupplierName ? element.SupplierName : '',
@@ -164,6 +166,7 @@ module.exports = {
                                 email: element.Email ? element.Email : '',
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var result = {
                             array: array,

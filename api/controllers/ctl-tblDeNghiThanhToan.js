@@ -178,6 +178,7 @@ module.exports = {
                             }
                         }
                     }
+                    let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
@@ -207,6 +208,7 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                                 nameNhanVien: element.NhanVien ? element.NhanVien.StaffName : '',
@@ -220,6 +222,7 @@ module.exports = {
                                 trangThaiPheDuyetLD: element.trangThaiPheDuyetLD ? element.trangThaiPheDuyetLD : '',
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var count = await mtblDeNghiThanhToan(db).count({ where: whereOjb, })
                         var result = {

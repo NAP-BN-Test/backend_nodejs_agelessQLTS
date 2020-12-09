@@ -164,6 +164,7 @@ module.exports = {
                     let tblDMUser = mtblDMUser(db); // bắt buộc
                     tblDMUser.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien' })
                     tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission' })
+                    let count = await tblDMUser.count({ where: whereOjb })
                     tblDMUser.findAll({
                         include: [
                             {
@@ -180,21 +181,26 @@ module.exports = {
                         where: whereOjb
                     }).then(data => {
                         var array = [];
+                        let stt = 1
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
-                                username: element.Username ? element.Username : '',
+                                userName: element.Username ? element.Username : '',
                                 password: element.Password ? element.Password : '',
                                 idNhanvien: element.IDNhanvien ? element.IDNhanvien : null,
-                                nameNhanvien: element.tblDMNhanvien ? element.tblDMNhanvien.StaffName : null,
+                                staffName: element.tblDMNhanvien ? element.tblDMNhanvien.StaffName : '',
+                                staffCode: element.tblDMNhanvien ? element.tblDMNhanvien.StaffCode : '',
                                 active: element.Active ? element.Active : '',
                                 idPermission: element.IDPermission ? element.IDPermission : null,
-                                namePermission: element.tblDMPermission ? element.tblDMPermission.PermissionName : null,
+                                permissionName: element.tblDMPermission ? element.tblDMPermission.PermissionName : '',
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var result = {
                             array: array,
+                            count: count,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -255,8 +261,7 @@ module.exports = {
                     }
                     var obj = {
                         id: data.ID,
-                        name: data.Name,
-                        userName: data.UserName,
+                        userName: data.Username,
                         password: data.Password,
                         // list: data.tblPrices
                     }

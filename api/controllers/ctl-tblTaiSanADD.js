@@ -220,6 +220,7 @@ module.exports = {
                             }
                         }
                     }
+                    let stt = 1;
                     let tblTaiSanADD = mtblTaiSanADD(db);
                     tblTaiSanADD.hasMany(mtblTaiSan(db), { foreignKey: 'IDTaiSanADD', as: 'add' })
                     tblTaiSanADD.findAll({
@@ -237,12 +238,14 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 idNhaCungCap: element.IDNhaCungCap ? element.IDNhaCungCap : null,
                                 date: element.Date ? element.Date : null,
                                 line: element.add
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var count = await mtblTaiSan(db).count({ where: whereOjb })
                         var result = {
