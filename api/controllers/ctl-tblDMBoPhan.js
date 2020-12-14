@@ -2,9 +2,19 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMBoPhan = require('../tables/tblDMBoPhan')
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
+var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
+var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
+var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
+
 var database = require('../database');
 async function deleteRelationshiptblDMBoPhan(db, listID) {
+    await mtblTaiSanBanGiao(db).update({
+        IDBoPhanSoHuu: null,
+    }, { where: { IDBoPhanSoHuu: { [Op.in]: listID } } })
+    await mtblPhanPhoiVPP(db).update({
+        IDBoPhanSoHuu: null,
+    }, { where: { IDBoPhanSoHuu: { [Op.in]: listID } } })
     await mtblDMBoPhan(db).destroy({
         where: {
             IDLaborBook: { [Op.in]: listID }
@@ -101,54 +111,33 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
-                    if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
-
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        let whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    mtblDMBoPhan(db).findAll({
+                    var stt = 1;
+                    let tblDMBoPhan = mtblDMBoPhan(db);
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
+                    tblDMBoPhan.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
+                        include: [
+                            {
+                                model: mtblDMChiNhanh(db),
+                                required: false,
+                                as: 'chinhanh'
+                            },
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 departmentCode: element.DepartmentCode ? element.DepartmentCode : '',
                                 departmentName: element.DepartmentName ? element.DepartmentName : '',
-                                idChiNhanh: element.IDChiNhanh ? element.IDChiNhanh : null,
+                                branchID: element.IDChiNhanh ? element.IDChiNhanh : null,
+                                branchName: element.IDChiNhanh ? element.chinhanh.BranchName : null,
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var count = await mtblDMBoPhan(db).count({ where: whereOjb, })
                         var result = {

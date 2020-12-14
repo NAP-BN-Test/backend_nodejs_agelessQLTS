@@ -2,11 +2,11 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblThemVPP = require('../tables/tblThemVPP')
-var mtblDMNhaCungCap = require('../tables/tblDMNhaCungCap');
-var mtblFileAttach = require('../tables/tblFileAttach');
-var mThemVPPChiTiet = require('../tables/ThemVPPChiTiet');
-var mtblVanPhongPham = require('../tables/tblVanPhongPham')
+var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
+var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
+var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 var database = require('../database');
 async function deleteRelationshipTBLThemVPP(db, listID) {
@@ -83,7 +83,7 @@ module.exports = {
                                 Name: body.fileAttach[j].fileName,
                                 Link: body.fileAttach[j].link,
                             }, {
-                                where: { ID: fileAttach[j].idFileAttach }
+                                where: { ID: body.fileAttach[j].idFileAttach }
                             })
                     if (body.line.length > 0)
                         for (var i = 0; i < body.line.length; i++)

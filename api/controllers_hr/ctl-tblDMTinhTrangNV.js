@@ -2,28 +2,59 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
-var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
+var mtblDMTinhTrangNV = require('../tables/hrmanage/tblDMTinhTrangNV')
 var database = require('../database');
-async function deleteRelationshiptblDMHangHoa(db, listID) {
-    await mtblDMHangHoa(db).destroy({
+async function deleteRelationshiptblDMTinhTrangNV(db, listID) {
+    await mtblDMTinhTrangNV(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblDMHangHoa,
-    // add_tbl_dmhanghoa
-    addtblDMHangHoa: (req, res) => {
+    deleteRelationshiptblDMTinhTrangNV,
+    //  get_detail_tbl_dm_tinhtrangnv
+    detailtblDMTinhTrangNV: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
-                        IDDMLoaiTaiSan: body.idDMLoaiTaiSan ? body.idDMLoaiTaiSan : '',
+                    mtblDMTinhTrangNV(db).findOne({ where: { ID: body.id } }).then(data => {
+                        if (data) {
+                            var obj = {
+                                id: data.ID,
+                                statusName: data.StatusName,
+                                statusCode: data.StatusCode,
+                            }
+                            var result = {
+                                obj: obj,
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        } else {
+                            res.json(Result.NO_DATA_RESULT)
+
+                        }
+
+                    })
+                } catch (error) {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // add_tbl_dm_tinhtrangnv
+    addtblDMTinhTrangNV: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblDMTinhTrangNV(db).create({
+                        StatusName: body.statusName ? body.statusName : '',
+                        StatusCode: body.statusCode ? body.statusCode : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -40,24 +71,18 @@ module.exports = {
             }
         })
     },
-    // update_tbl_dmhanghoa
-    updatetblDMHangHoa: (req, res) => {
+    // update_tbl_dm_tinhtrangnv
+    updatetblDMTinhTrangNV: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
-                    if (body.idDMLoaiTaiSan || body.idDMLoaiTaiSan === '') {
-                        if (body.idDMLoaiTaiSan === '')
-                            update.push({ key: 'IDDMLoaiTaiSan', value: null });
-                        else
-                            update.push({ key: 'IDDMLoaiTaiSan', value: body.idDMLoaiTaiSan });
-                    }
-                    database.updateTable(update, mtblDMHangHoa(db), body.id).then(response => {
+                    if (body.statusCode || body.statusCode === '')
+                        update.push({ key: 'StatusCode', value: body.statusCode });
+                    if (body.statusName || body.statusName === '')
+                        update.push({ key: 'StatusName', value: body.statusName });
+                    database.updateTable(update, mtblDMTinhTrangNV(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -73,15 +98,14 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_dmhanghoa
-    deletetblDMHangHoa: (req, res) => {
+    // delete_tbl_dm_tinhtrangnv
+    deletetblDMTinhTrangNV: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblDMHangHoa(db, listID);
+                    await deleteRelationshiptblDMTinhTrangNV(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -96,44 +120,31 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_dmhanghoa
-    getListtblDMHangHoa: (req, res) => {
+    // get_list_tbl_dm_tinhtrangnv
+    getListtblDMTinhTrangNV: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = []
+                    var whereOjb = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
                             where = [
-                                { Name: { [Op.like]: '%' + data.search + '%' } },
-                                { Code: { [Op.like]: '%' + data.search + '%' } },
+                                { StatusName: { [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { Name: { [Op.ne]: '%%' } },
+                                { StatusName: { [Op.ne]: '%%' } },
                             ];
                         }
                         let whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'MÃ HÀNG HÓA') {
-                                    userFind['Code'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                                if (data.items[i].fields['name'] === 'TÊN HÀNG HÓA') {
-                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'TÊN TRẠNG THÁI') {
+                                    userFind['StatusName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -148,33 +159,23 @@ module.exports = {
                         }
                     }
                     let stt = 1;
-                    var tblDMHangHoa = mtblDMHangHoa(db);
-                    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan' })
-                    tblDMHangHoa.findAll({
-                        include: [
-                            {
-                                model: mtblDMLoaiTaiSan(db),
-                                required: false,
-                            },
-                        ],
+                    mtblDMTinhTrangNV(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb
+                        where: whereOjb,
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
-                                idDMLoaiTaiSan: element.IDDMLoaiTaiSan ? element.IDDMLoaiTaiSan : null,
-                                nameDMLoaiTaiSan: element.tblDMLoaiTaiSan ? element.tblDMLoaiTaiSan.Name : null,
+                                statusName: element.StatusName ? element.StatusName : '',
+                                statusCode: element.StatusCode ? element.StatusCode : '',
                             }
-                            stt += 1;
                             array.push(obj);
+                            stt += 1;
                         });
-                        var count = await tblDMHangHoa.count({ where: whereOjb })
+                        var count = await mtblDMTinhTrangNV(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -193,18 +194,18 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_dmhanghoa
-    getListNametblDMHangHoa: (req, res) => {
+    // get_list_name_tbl_dm_tinhtrangnv
+    getListNametblDMTinhTrangNV: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).findAll().then(data => {
+                    mtblDMTinhTrangNV(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                statusName: element.StatusName ? element.StatusName : '',
                             }
                             array.push(obj);
                         });

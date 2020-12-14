@@ -2,50 +2,75 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
-var mtblTaiSanHistory = require('../tables/qlnb/tblTaiSanHistory')
+var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
+var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
 var database = require('../database');
-async function deleteRelationshiptblTaiSanBanGiao(db, listID) {
-    await mtblTaiSanBanGiao(db).destroy({
+async function deleteRelationshiptblNghiLe(db, listID) {
+    await mtblNghiLe(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblTaiSanBanGiao,
-    // add_tbl_taisan_bangiao
-    addtblTaiSanBanGiao: (req, res) => {
+    deleteRelationshiptblNghiLe,
+    //  get_detail_tbl_nghiLe
+    addtblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    // {
-                    //     idNhanVienBanGiao,
-                    //     idNhanVienSoHuu,
-                    //     idBoPhanSoHuu,
-                    //     date,
-                    //     listHistory: [
-                    //         {
-                    //            idTaiSan,
-                    //            dateThuHoi
-                    //         }
-                    //     ]
+                    let tblNghiLe = mtblNghiLe(db);
+                    tblNghiLe.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'loaiChamCong' })
 
-                    // }
-                    mtblTaiSanBanGiao(db).create({
-                        IDNhanVienBanGiao: body.idNhanVienBanGiao ? body.idNhanVienBanGiao : null,
-                        IDNhanVienSoHuu: body.idNhanVienSoHuu ? body.idNhanVienSoHuu : '',
-                        IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : '',
-                        Date: body.date ? body.date : '',
-                    }).then(async data => {
-                        for (var i = 0; i < body.listHistory; i++) {
-                            await mtblTaiSanHistory(db).create({
-                                IDTaiSan: body.listHistory[i].idTaiSan,
-                                IDTaiSanBanGiao: data.ID,
-                                DateThuHoi: body.listHistory[i].dateThuHoi,
-                            })
+                    tblNghiLe.findOne(
+                        {
+                            where: { ID: body.id },
+                            include: [
+                                {
+                                    model: mtblLoaiChamCong(db),
+                                    required: false,
+                                    as: 'loaiChamCong'
+                                },
+                            ],
                         }
+                    ).then(data => {
+                        if (data) {
+                            var obj = {
+                                id: data.ID,
+                                nameLoaiChamCong: data.loaiChamCong.Name,
+                                codeLoaiChamCong: data.loaiChamCong.Code,
+                            }
+                            var result = {
+                                obj: obj,
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        } else {
+                            res.json(Result.NO_DATA_RESULT)
+
+                        }
+
+                    })
+                } catch (error) {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // add_tbl_nghiLe
+    addtblNghiLe: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblNghiLe(db).create({
+                        Code: body.code ? body.code : '',
+                        Name: body.name ? body.name : '',
+                    }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -61,60 +86,18 @@ module.exports = {
             }
         })
     },
-    // update_tbl_taisan_bangiao
-    updatetblTaiSanBanGiao: (req, res) => {
+    // update_tbl_nghiLe
+    updatetblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
-                // {
-                //     idNhanVienBanGiao,
-                //     idNhanVienSoHuu,
-                //     idBoPhanSoHuu,
-                //     date,
-                //     id,
-                //     listHistory: [
-                //         {
-                //            idTaiSan,
-                //            dateThuHoi,
-                //            idHistory
-                //         }
-                //     ]
-
-                // }
                 try {
                     let update = [];
-                    if (body.idNhanVienBanGiao || body.idNhanVienBanGiao === '') {
-                        if (body.idNhanVienBanGiao === '')
-                            update.push({ key: 'IDNhanVienBanGiao', value: null });
-                        else
-                            update.push({ key: 'IDNhanVienBanGiao', value: body.idNhanVienBanGiao });
-                    }
-                    if (body.idNhanVienSoHuu || body.idNhanVienSoHuu === '') {
-                        if (body.idNhanVienSoHuu === '')
-                            update.push({ key: 'IDNhanVienSoHuu', value: null });
-                        else
-                            update.push({ key: 'IDNhanVienSoHuu', value: body.idNhanVienSoHuu });
-                    }
-                    if (body.idBoPhanSoHuu || body.idBoPhanSoHuu === '') {
-                        if (body.idBoPhanSoHuu === '')
-                            update.push({ key: 'IDBoPhanSoHuu', value: null });
-                        else
-                            update.push({ key: 'IDBoPhanSoHuu', value: body.idBoPhanSoHuu });
-                    }
-                    if (body.date || body.date === '') {
-                        if (body.date === '')
-                            update.push({ key: 'Date', value: null });
-                        else
-                            update.push({ key: 'Date', value: body.date });
-                    }
-                    for (var i = 0; i < body.listHistory; i++) {
-                        await mtblTaiSanHistory(db).update({
-                            IDTaiSan: body.listHistory[i].idTaiSan,
-                            IDTaiSanBanGiao: body.id,
-                            DateThuHoi: body.listHistory[i].dateThuHoi,
-                        }, { where: { ID: body.listHistory[i].idHistory } })
-                    }
-                    database.updateTable(update, mtblTaiSanBanGiao(db), body.id).then(response => {
+                    if (body.code || body.code === '')
+                        update.push({ key: 'Code', value: body.code });
+                    if (body.name || body.name === '')
+                        update.push({ key: 'Name', value: body.name });
+                    database.updateTable(update, mtblNghiLe(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -130,14 +113,14 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_taisan_bangiao
-    deletetblTaiSanBanGiao: (req, res) => {
+    // delete_tbl_nghiLe
+    deletetblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblTaiSanBanGiao(db, listID);
+                    await deleteRelationshiptblNghiLe(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -152,8 +135,8 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_taisan_bangiao
-    getListtblTaiSanBanGiao: (req, res) => {
+    // get_list_tbl_nghiLe
+    getListtblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -193,31 +176,24 @@ module.exports = {
                             }
                         }
                     }
-                    let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
-                    tblTaiSanBanGiao.hasMany(mtblTaiSanHistory(db), { foreignKey: 'IDTaiSanBanGiao', as: 'history' })
-
-                    tblTaiSanBanGiao.findAll({
+                    let stt = 1;
+                    mtblNghiLe(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
-                                model: mtblTaiSanHistory(db),
-                                required: false,
-                                as: 'history'
-                            },
-                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
-                                date: element.Date ? element.Date : '',
-                                history: element.history
+                                name: element.Name ? element.Name : '',
+                                code: element.Code ? element.Code : '',
                             }
                             array.push(obj);
+                            stt += 1;
                         });
-                        var count = await mtblTaiSanBanGiao(db).count({ where: whereOjb, })
+                        var count = await mtblNghiLe(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -236,4 +212,36 @@ module.exports = {
             }
         })
     },
+    // get_list_name_tbl_nghiLe
+    getListNametblNghiLe: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblNghiLe(db).findAll().then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                name: element.Name ? element.Name : '',
+                            }
+                            array.push(obj);
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    }
 }

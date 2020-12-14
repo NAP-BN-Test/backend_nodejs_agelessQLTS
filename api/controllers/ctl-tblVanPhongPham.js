@@ -2,9 +2,19 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblVanPhongPham = require('../tables/tblVanPhongPham')
+var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
+var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
+
+var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
+
 var database = require('../database');
 async function deleteRelationshiptblVanPhongPham(db, listID) {
+    await mThemVPPChiTiet(db).update({
+        IDVanPhongPham: null,
+    }, { where: { IDVanPhongPham: { [Op.in]: listID } } })
+    await mtblPhanPhoiVPPChiTiet(db).update({
+        IDVanPhongPham: null,
+    }, { where: { IDVanPhongPham: { [Op.in]: listID } } })
     await mtblVanPhongPham(db).destroy({
         where: {
             ID: { [Op.in]: listID }
@@ -116,22 +126,33 @@ module.exports = {
 
                         if (data.search) {
                             where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                                { VPPName: { [Op.like]: '%' + data.search + '%' } },
+                                { VPPCode: { [Op.like]: '%' + data.search + '%' } },
+
                             ];
                         } else {
                             where = [
-                                { FullName: { [Op.ne]: '%%' } },
+                                { VPPName: { [Op.ne]: '%%' } },
                             ];
                         }
                         let whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'TÊN VPP') {
+                                    userFind['VPPName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ VPP') {
+                                    userFind['VPPCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

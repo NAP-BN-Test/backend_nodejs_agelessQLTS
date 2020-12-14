@@ -14,6 +14,7 @@ module.exports = function (app) {
     var tblThemVPP = require('./controllers/ctl-tblThemVPP');
     var tblDeNghiThanhToan = require('./controllers/ctl-tblDeNghiThanhToan');
     var tblTaiSanBanGiao = require('./controllers/ctl-tblTaiSanBanGiao');
+    var tblPhanPhoiVPP = require('./controllers/ctl-tblPhanPhoiVPP');
 
     //---------------------------------------------------------------- Menu Quản lý danh mục--------------------------------------------------------------------------------------
     // Quản lý account
@@ -38,11 +39,15 @@ module.exports = function (app) {
     // Quản lý chi nhánh
     app.route('/qlnb/add_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.addtblDMChiNhanh);
     app.route('/qlnb/update_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.updatetblDMChiNhanh);
-    app.route('/qlnb/delete_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListtblDMChiNhanh);
+    app.route('/qlnb/get_list_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListtblDMChiNhanh);
     app.route('/qlnb/delete_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.deletetblDMChiNhanh);
 
     //  Quản lý nhân viên
-    app.route('/qlnb/get_list_tbl_dmnhanvien').post(tblDMNhanvien.getListtblDMNhanvien);
+    app.route('/qlnb/get_list_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListtblDMNhanvien);
+
+    // Lịch sử sử dụng của nhân viên 
+    app.route('/qlnb/get_list_history_nhanvien').post(checkToken.checkToken, tblDMNhanvien.getListHistoryNhanVien);
+
 
     //  Quản lý loại tài sản
     app.route('/qlnb/add_tbl_dmloaitaisan').post(checkToken.checkToken, tblDMLoaiTaiSan.addtblDMLoaiTaiSan);
@@ -77,7 +82,7 @@ module.exports = function (app) {
     // Đề nghị mua sắm
     app.route('/qlnb/add_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.addtblYeuCauMuaSam);
     app.route('/qlnb/update_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.updatetblYeuCauMuaSam);
-    app.route('/qlnb/get_list_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.getListtblYeuCauMuaSam);
+    app.route('/qlnb/get_list_tbl_yeucaumuasam').post(tblYeuCauMuaSam.getListtblYeuCauMuaSam);
     app.route('/qlnb/delete_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.deletetblYeuCauMuaSam);
     // app.route('/qlnb/get_list_name_tbl_yeucaumuasam').post(checkToken.checkToken ,tblYeuCauMuaSam.getListNametblYeuCauMuaSam);
 
@@ -87,19 +92,19 @@ module.exports = function (app) {
     // lấy name nhân viên ---- dòng 24
     //---------------------------------------------------------------- Menu quản lý tài sản --------------------------------------------------------------------------------------
 
-    app.route('/qlnb/add_tbl_taisan_bangiao').post(tblTaiSanBanGiao.addtblTaiSanBanGiao);
-    app.route('/qlnb/update_tbl_taisan_bangiao').post(tblTaiSanBanGiao.updatetblTaiSanBanGiao);
+    app.route('/qlnb/add_tbl_taisan_bangiao').post(checkToken.checkToken, tblTaiSanBanGiao.addtblTaiSanBanGiao);
+    app.route('/qlnb/update_tbl_taisan_bangiao').post(checkToken.checkToken, tblTaiSanBanGiao.updatetblTaiSanBanGiao);
     // app.route('/qlnb/get_list_tbl_taisan_bangiao').post(tblTaiSanBanGiao.deleteRelationshiptblTaiSanBanGiao);
     // app.route('/qlnb/get_list_tbl_taisan_bangiao').post(tblTaiSanBanGiao.addtblTaiSanBanGiao);
 
 
 
-    app.route('/qlnb/add_tbl_TaiSanADD').post(tblTaiSan.addtblTaiSanADD);
-    app.route('/qlnb/update_tbl_TaiSanADD').post(tblTaiSan.updatetblTaiSanADD);
-    app.route('/qlnb/delete_tbl_TaiSanADD').post(tblTaiSan.deleteRelationshiptblTaiSanADD);
-    app.route('/qlnb/get_list_tbl_TaiSanADD').post(tblTaiSan.getListtblTaiSanADD);
-    app.route('/qlnb/get_list_tbl_TaiSan_ChuaSuDung').post(tblTaiSan.getListtblTaiSanChuaSuDung);
-    app.route('/qlnb/get_list_tbl_TaiSan_TheoDoi').post(tblTaiSan.getListtblTaiSanTheoDoi);
+    app.route('/qlnb/add_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.addtblTaiSanADD);
+    app.route('/qlnb/update_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.updatetblTaiSanADD);
+    app.route('/qlnb/delete_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.deleteRelationshiptblTaiSanADD);
+    app.route('/qlnb/get_list_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanADD);
+    app.route('/qlnb/get_list_tbl_taisan_chuasudung').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanChuaSuDung);
+    app.route('/qlnb/get_list_tbl_taisan_theodoi').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanTheoDoi);
 
 
 
@@ -109,6 +114,12 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_them_vpp').post(checkToken.checkToken, tblThemVPP.deleteRelationshipTBLThemVPP);
     app.route('/qlnb/get_list_tbl_them_vpp').post(tblThemVPP.getListTBLThemVPP);
     app.route('/qlnb/get_list_name_tbl_them_vpp').post(checkToken.checkToken, tblThemVPP.getListNameTBLThemVPP);
+
+
+    app.route('/qlnb/add_tbl_phanphoi_vpp').post(checkToken.checkToken, tblPhanPhoiVPP.addTBLPhanPhoiVPP);
+    app.route('/qlnb/update_tbl_phanphoi_vpp').post(checkToken.checkToken, tblPhanPhoiVPP.updateTBLPhanPhoiVPP);
+    app.route('/qlnb/delete_tbl_phanphoi_vpp').post(checkToken.checkToken, tblPhanPhoiVPP.deleteRelationshipTBLPhanPhoiVPP);
+    app.route('/qlnb/get_list_tbl_phanphoi_vpp').post(tblPhanPhoiVPP.getListTBLPhanPhoiVPP);
 
     // get list name NCC dòng 63
 
@@ -121,5 +132,12 @@ module.exports = function (app) {
     app.route('/qlnb/approval_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.approvalDeNghiThanhToan);
     var zalo = require('./controllers/zalo');
     app.route('/zalo').post(zalo.zalo);
+
+
+
+
+
+
+    // ************************************************************** QUẢN LÝ NHÂN SỰ **********************************************************************************************
 
 }

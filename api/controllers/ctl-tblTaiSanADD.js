@@ -2,18 +2,22 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblTaiSan = require('../tables/tblTaiSan')
-var mtblTaiSanADD = require('../tables/tblTaiSanADD')
-var mtblDMHangHoa = require('../tables/tblDMHangHoa');
-var mtblDMLoaiTaiSan = require('../tables/tblDMLoaiTaiSan');
-var mtblTaiSanBanGiao = require('../tables/tblTaiSanBanGiao')
-var mtblTaiSanHistory = require('../tables/tblTaiSanHistory')
-var mtblDMBoPhan = require('../tables/tblDMBoPhan')
-var mtblDMNhanvien = require('../tables/tblDMNhanvien');
+var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
+var mtblTaiSanADD = require('../tables/qlnb/tblTaiSanADD')
+var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
+var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
+var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
+var mtblTaiSanHistory = require('../tables/qlnb/tblTaiSanHistory')
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 
 var database = require('../database');
 async function deleteRelationshiptblTaiSanADD(db, listID) {
-    // thanhlytai san chưa xóa
+    await mtblTaiSanHistory(db).update({
+        IDTaiSan: null,
+    }, {
+        where: { IDTaiSan: { [Op.in]: listID } }
+    })
     await mtblTaiSan(db).destroy({
         where: {
             IDTaiSanADD: { [Op.in]: listID }
@@ -37,19 +41,26 @@ module.exports = {
     // add_tbl_TaiSanADD
     addtblTaiSanADD: (req, res) => {
         let body = req.body;
+        console.log(body);
+        body.taisan = JSON.parse(body.taisan)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblTaiSanADD(db).create({
-                        IDNhaCungCap: body.idNhaCungCap,
-                        Date: body.date,
+                        IDNhaCungCap: body.idNhaCungCap ? body.idNhaCungCap : null,
+                        Date: moment(body.date).format('YYYY-MM-DD HH:mm:ss.SSS') ? body.date : null,
                     }).then(async data => {
+                        if (body.fileAttach > 0)
+                            await mtblFileAttach(db).create({
+                                Name: body.fileAttach.fileName,
+                                Link: body.fileAttach.link,
+                                IDTaiSanADD: data.ID,
+                            })
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
-                                IDLoaiTaiSan: body.taisan[i].idLoaiTaiSan ? body.taisan[i].idLoaiTaiSan : '',
+                                // IDLoaiTaiSan: body.taisan[i].idLoaiTaiSan ? body.taisan[i].idLoaiTaiSan : '',
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
-                                IDTaiSanADD: data.ID ? data.ID : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
                                 GuaranteeMonth: body.taisan[i].guaranteeMonth ? body.taisan[i].guaranteeMonth : null,
                                 IDTaiSanDiKem: body.taisan[i].idTaiSanDiKem ? body.taisan[i].idTaiSanDiKem : null,
@@ -92,19 +103,26 @@ module.exports = {
                         else
                             update.push({ key: 'Date', value: body.date });
                     }
-                    for (var i = 0; i < body.taisan.length; i++) {
-                        mtblTaiSan(db).update({
-                            IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
-                            IDLoaiTaiSan: body.taisan[i].idLoaiTaiSan ? body.taisan[i].idLoaiTaiSan : '',
-                            Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
-                            IDTaiSanADD: body.id ? body.id : '',
-                            Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
-                            GuaranteeMonth: body.taisan[i].guaranteeMonth ? body.taisan[i].guaranteeMonth : null,
-                            IDTaiSanDiKem: body.taisan[i].idTaiSanDiKem ? body.taisan[i].idTaiSanDiKem : null,
-                            SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
-                            Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
-                        }, { where: { ID: body.taisan[i].idTaiSanADD } })
-                    }
+                    body.taisan = JSON.parse(body.taisan)
+                    if (body.taisan.length > 0)
+                        for (var i = 0; i < body.taisan.length; i++) {
+                            mtblTaiSan(db).update({
+                                IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
+                                Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
+                                IDTaiSanADD: body.id ? body.id : '',
+                                Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
+                                GuaranteeMonth: body.taisan[i].guaranteeMonth ? body.taisan[i].guaranteeMonth : null,
+                                IDTaiSanDiKem: body.taisan[i].idTaiSanDiKem ? body.taisan[i].idTaiSanDiKem : null,
+                                SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
+                                Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
+                            }, { where: { ID: body.taisan[i].idTaiSanADD } })
+                        }
+                    if (body.fileAttach.length > 0)
+                        for (var j = 0; j < body.fileAttach.length; j++)
+                            await mtblFileAttach(db).update({
+                                Name: body.fileAttach[j].fileName,
+                                Link: body.fileAttach[j].link,
+                            }, { where: { where: { ID: body.fileAttach[j].idFileAttach } } })
                     database.updateTable(update, mtblTaiSanADD(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -186,40 +204,40 @@ module.exports = {
                             ID: { [Op.in]: listIDTaiSanADD }
                         })
                     }
-                    if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                    // if (body.dataSearch) {
+                    //     var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    //     if (data.search) {
+                    //         where = [
+                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
+                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
+                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
+                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                    //         ];
+                    //     } else {
+                    //         where = [
+                    //             { FullName: { [Op.ne]: '%%' } },
+                    //         ];
+                    //     }
+                    //     whereOjb = { [Op.or]: where };
+                    //     if (data.items) {
+                    //         for (var i = 0; i < data.items.length; i++) {
+                    //             let userFind = {};
+                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                    //                 if (data.items[i].conditionFields['name'] == 'And') {
+                    //                     whereOjb[Op.and] = userFind
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
+                    //                     whereOjb[Op.or] = userFind
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
+                    //                     whereOjb[Op.not] = userFind
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     let stt = 1;
                     let tblTaiSanADD = mtblTaiSanADD(db);
                     tblTaiSanADD.hasMany(mtblTaiSan(db), { foreignKey: 'IDTaiSanADD', as: 'add' })
@@ -296,41 +314,43 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
+                        // if (data.search) {
+                        //     where = [
+                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
+                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
+                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                        //     ];
+                        // } else {
+                        //     where = [
+                        //         { FullName: { [Op.ne]: '%%' } },
+                        //     ];
+                        // }
+                        // whereOjb = { [Op.or]: where };
+                        // if (data.items) {
+                        //     for (var i = 0; i < data.items.length; i++) {
+                        //         let userFind = {};
+                        //         if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
+                        //             userFind['SerialNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //             if (data.items[i].conditionFields['name'] == 'And') {
+                        //                 whereOjb[Op.and] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Or') {
+                        //                 whereOjb[Op.or] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Not') {
+                        //                 whereOjb[Op.not] = userFind
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
-                    tblTaiSan.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDLoaiTaiSan', sourceKey: 'IDLoaiTaiSan', as: 'loaitaisan' })
+                    let tblDMHangHoa = mtblDMHangHoa(db);
+                    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
+
                     tblTaiSan.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -342,14 +362,16 @@ module.exports = {
                                 as: 'taisan'
                             },
                             {
-                                model: mtblDMHangHoa(db),
+                                model: tblDMHangHoa,
                                 required: false,
-                                as: 'hanghoa'
-                            },
-                            {
-                                model: mtblDMLoaiTaiSan(db),
-                                required: false,
-                                as: 'loaitaisan'
+                                as: 'hanghoa',
+                                include: [
+                                    {
+                                        model: mtblDMLoaiTaiSan(db),
+                                        required: false,
+                                        as: 'loaitaisan'
+                                    },
+                                ],
                             },
                         ],
                     }).then(async data => {
@@ -362,8 +384,8 @@ module.exports = {
                                 idDMHangHoa: element.IDDMHangHoa ? element.IDDMHangHoa : null,
                                 nameDMHangHoa: element.hanghoa ? element.hanghoa.Name : '',
                                 codeDMHangHoa: element.hanghoa ? element.hanghoa.Code : '',
-                                idLoaiTaiSan: element.IDLoaiTaiSan ? element.IDLoaiTaiSan : null,
-                                nameLoaiTaiSan: element.loaitaisan ? element.loaitaisan.Name : '',
+                                idLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.ID : '' : null,
+                                nameLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.Name : '' : null,
                                 codeLoaiTaiSan: element.loaitaisan ? element.loaitaisan.Code : '',
                                 unit: element.Unit ? element.Unit : null,
                                 serialNumber: element.SerialNumber ? element.SerialNumber : null,
@@ -417,44 +439,45 @@ module.exports = {
                         ID: { [Op.notIn]: listIDTaiSan }
                     })
 
-                    if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                    // if (body.dataSearch) {
+                    //     var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    //     if (data.search) {
+                    //         where = [
+                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
+                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
+                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
+                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                    //         ];
+                    //     } else {
+                    //         where = [
+                    //             { FullName: { [Op.ne]: '%%' } },
+                    //         ];
+                    //     }
+                    //     whereOjb = { [Op.or]: where };
+                    //     if (data.items) {
+                    //         for (var i = 0; i < data.items.length; i++) {
+                    //             let userFind = {};
+                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                    //                 if (data.items[i].conditionFields['name'] == 'And') {
+                    //                     whereOjb[Op.and] = userFind
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
+                    //                     whereOjb[Op.or] = userFind
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
+                    //                     whereOjb[Op.not] = userFind
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
-                    tblTaiSan.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDLoaiTaiSan', sourceKey: 'IDLoaiTaiSan', as: 'loaitaisan' })
+                    let tblDMHangHoa = mtblDMHangHoa(db);
+                    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
                     tblTaiSan.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -466,15 +489,22 @@ module.exports = {
                                 as: 'taisan'
                             },
                             {
-                                model: mtblDMHangHoa(db),
+                                model: tblDMHangHoa,
                                 required: false,
-                                as: 'hanghoa'
+                                as: 'hanghoa',
+                                include: [
+                                    {
+                                        model: mtblDMLoaiTaiSan(db),
+                                        required: false,
+                                        as: 'loaitaisan'
+                                    },
+                                ],
                             },
-                            {
-                                model: mtblDMLoaiTaiSan(db),
-                                required: false,
-                                as: 'loaitaisan'
-                            },
+                            // {
+                            //     model: mtblDMLoaiTaiSan(db),
+                            //     required: false,
+                            //     as: 'loaitaisan'
+                            // },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -508,9 +538,9 @@ module.exports = {
                                 idDMHangHoa: data[i].IDDMHangHoa ? data[i].IDDMHangHoa : null,
                                 nameDMHangHoa: data[i].hanghoa ? data[i].hanghoa.Name : '',
                                 codeDMHangHoa: data[i].hanghoa ? data[i].hanghoa.Code : '',
-                                idLoaiTaiSan: data[i].IDLoaiTaiSan ? data[i].IDLoaiTaiSan : null,
-                                nameLoaiTaiSan: data[i].loaitaisan ? data[i].loaitaisan.Name : '',
-                                codeLoaiTaiSan: data[i].loaitaisan ? data[i].loaitaisan.Code : '',
+                                idLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.ID : '' : null,
+                                nameLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Name : '' : null,
+                                codeLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Code : '' : null,
                                 unit: data[i].Unit ? data[i].Unit : null,
                                 employeeName: bangiao ? bangiao.nhanvien ? bangiao.nhanvien.StaffName : '' : '',
                                 departmentName: bangiao ? bangiao.bophan ? bangiao.bophan.DepartmentName : '' : '',

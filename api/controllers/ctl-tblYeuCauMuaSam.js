@@ -2,15 +2,16 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblYeuCauMuaSam = require('../tables/tblYeuCauMuaSam')
-var mtblDMNhanvien = require('../tables/tblDMNhanvien');
-var mtblDMHangHoa = require('../tables/tblDMHangHoa');
+var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
+var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
     await mtblYeuCauMuaSam(db).destroy({
         where: {
-            IDLaborBook: { [Op.in]: listID }
+            ID: { [Op.in]: listID }
         }
     })
 }
@@ -26,14 +27,28 @@ module.exports = {
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDPhongBan: body.idPhongBan ? body.idPhongBan : null,
                         RequireDate: body.requireDate ? body.requireDate : null,
-                        IDDMHangHoa: body.idDMHangHoa ? body.idDMHangHoa : '',
-                        Amount: body.amount ? body.amount : null,
-                        Specifications: body.specifications ? body.specifications : '',
                         Reason: body.reason ? body.reason : '',
                         Status: body.status ? body.status : '',
                         IDPheDuyet1: body.idPheDuyet1 ? body.idPheDuyet1 : null,
                         IDPheDuyet2: body.idPheDuyet2 ? body.idPheDuyet2 : null,
-                    }).then(data => {
+                    }).then(async data => {
+                        body.fileAttach = JSON.parse(body.fileAttach)
+                        if (body.fileAttach.length > 0)
+                            for (var j = 0; j < body.fileAttach.length; j++)
+                                await mtblFileAttach(db).create({
+                                    Name: body.fileAttach[j].fileName,
+                                    Link: body.fileAttach[j].link,
+                                    IDVanPhongPham: data.ID,
+                                })
+                        body.line = JSON.parse(body.line)
+                        if (body.line.length > 0)
+                            for (var i = 0; i < body.line.length; i++) {
+                                await mtblYeuCauMuaSamDetail(db).create({
+                                    IDYeuCauMuaSam: data.ID,
+                                    IDDMHangHoa: body.line[i].idDMHangHoa,
+                                    Amount: body.line[i].amount
+                                })
+                            }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -74,22 +89,40 @@ module.exports = {
                         else
                             update.push({ key: 'RequireDate', value: body.requireDate });
                     }
-                    if (body.amount || body.amount === '') {
-                        if (body.amount === '')
-                            update.push({ key: 'Amount', value: null });
-                        else
-                            update.push({ key: 'Amount', value: body.amount });
-                    }
-                    if (body.tsName || body.tsName === '')
-                        update.push({ key: 'TSName', value: body.tsName });
-                    if (body.fileAttach || body.fileAttach === '')
-                        update.push({ key: 'FileAttach', value: body.fileAttach });
-                    if (body.specifications || body.specifications === '')
-                        update.push({ key: 'Specifications', value: body.specifications });
+                    if (body.fileAttach.length > 0)
+                        for (var j = 0; j < body.fileAttach.length; j++)
+                            await mtblFileAttach(db).update({
+                                Name: body.fileAttach[j].fileName,
+                                Link: body.fileAttach[j].link,
+                            }, {
+                                where: { ID: body.fileAttach[j].idFileAttach }
+                            })
+                    if (body.line.length > 0)
+                        for (var i = 0; i < body.line.length; i++) {
+                            await mtblYeuCauMuaSamDetail(db).update({
+                                IDYeuCauMuaSam: data.ID,
+                                IDDMHangHoa: body.line[i].idDMHangHoa,
+                                Amount: body.line[i].amount
+                            }, {
+                                where: { ID: body.line[i].idLine }
+                            })
+                        }
                     if (body.reason || body.reason === '')
                         update.push({ key: 'Reason', value: body.reason });
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
+                    if (body.idPheDuyet2 || body.idPheDuyet2 === '') {
+                        if (body.idPheDuyet2 === '')
+                            update.push({ key: 'IDPheDuyet2', value: null });
+                        else
+                            update.push({ key: 'IDPheDuyet2', value: body.idPheDuyet2 });
+                    }
+                    if (body.idPheDuyet1 || body.idPheDuyet1 === '') {
+                        if (body.idPheDuyet1 === '')
+                            update.push({ key: 'IDPheDuyet1', value: null });
+                        else
+                            update.push({ key: 'IDPheDuyet1', value: body.idPheDuyet1 });
+                    }
                     database.updateTable(update, mtblYeuCauMuaSam(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -142,30 +175,30 @@ module.exports = {
 
                         if (data.search) {
                             where = [
-                                { TSName: { [Op.like]: '%' + data.search + '%' } },
+                                // { TSName: { [Op.like]: '%' + data.search + '%' } },
 
                             ];
                         } else {
                             where = [
-                                { TSName: { [Op.ne]: '%%' } },
+                                // { TSName: { [Op.ne]: '%%' } },
                             ];
                         }
                         whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['TSName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
+                                // if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                                //     userFind['TSName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                //     if (data.items[i].conditionFields['name'] == 'And') {
+                                //         whereOjb[Op.and] = userFind
+                                //     }
+                                //     if (data.items[i].conditionFields['name'] == 'Or') {
+                                //         whereOjb[Op.or] = userFind
+                                //     }
+                                //     if (data.items[i].conditionFields['name'] == 'Not') {
+                                //         whereOjb[Op.not] = userFind
+                                //     }
+                                // }
                             }
                         }
                     }
@@ -174,7 +207,8 @@ module.exports = {
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
-                    tblYeuCauMuaSam.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'HangHoa' })
+                    tblYeuCauMuaSam.hasMany(mtblYeuCauMuaSamDetail(db), { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+                    // tblYeuCauMuaSam.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'HangHoa' })
                     tblYeuCauMuaSam.findAll({
                         include: [
                             {
@@ -193,10 +227,10 @@ module.exports = {
                                 as: 'PheDuyet2',
                             },
                             {
-                                model: mtblDMHangHoa(db),
+                                model: mtblYeuCauMuaSamDetail(db),
                                 required: false,
-                                as: 'HangHoa',
-                            }
+                                as: 'line',
+                            },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -211,16 +245,13 @@ module.exports = {
                                 nameIDNhanVien: element.NhanVien.StaffName ? element.NhanVien.StaffName : null,
                                 idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
                                 requireDate: element.RequireDate ? element.RequireDate : null,
-                                idDMHangHoa: element.IDDMHangHoa ? element.IDDMHangHoa : '',
-                                nameDMHangHoa: element.HangHoa ? element.HangHoa.Name : '',
-                                amount: element.Amount ? element.Amount : null,
-                                specifications: element.Specifications ? element.Specifications : '',
                                 reason: element.Reason ? element.Reason : '',
                                 status: element.Status ? element.Status : '',
                                 idPheDuyet1: element.IDPheDuyet1 ? element.IDPheDuyet1 : null,
                                 namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
                                 idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
                                 namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
+                                line: element.line,
                             }
                             array.push(obj);
                             stt += 1;

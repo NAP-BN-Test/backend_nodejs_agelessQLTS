@@ -1,10 +1,11 @@
-const Constant = require('../constants/constant');
+
 const Op = require('sequelize').Op;
+const Constant = require('../constants/constant');
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMUser = require('../tables/tblDMUser');
-var mtblDMNhanvien = require('../tables/tblDMNhanvien');
-var mtblDMPermission = require('../tables/tblDMPermission');
+var mtblDMUser = require('../tables/constants/tblDMUser');
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblDMPermission = require('../tables/constants/tblDMPermission');
 var database = require('../database');
 let jwt = require('jsonwebtoken');
 
@@ -133,6 +134,30 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                if (data.items[i].fields['name'] === 'TÊN ĐẦY ĐỦ') {
+                                    userFind['staffName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
+                                    userFind['staffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'TÊN ĐĂNG NHẬP') {
                                     userFind['Username'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -147,6 +172,30 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
                                     userFind['Active'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'QUYỀN THỰC HIỆN') {
+                                    var permission = [];
+                                    await mtblDMPermission(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { PermissionName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            permission.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDPermission'] = { [Op.in]: permission }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

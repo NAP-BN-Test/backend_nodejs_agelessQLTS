@@ -8,7 +8,6 @@ module.exports = function (db) {
             autoIncrement: true
         },
         IDDMHangHoa: Sequelize.BIGINT,
-        IDLoaiTaiSan: Sequelize.BIGINT,
         Unit: Sequelize.STRING,
         IDTaiSanADD: Sequelize.BIGINT,
         TSNBCode: Sequelize.BIGINT,

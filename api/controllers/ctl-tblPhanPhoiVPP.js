@@ -2,11 +2,13 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblPhanPhoiVPP = require('../tables/tblPhanPhoiVPP')
-var mtblDMBoPhan = require('../tables/tblDMBoPhan')
-var mtblDMNhanvien = require('../tables/tblDMNhanvien');
+var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
+var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var database = require('../database');
-var mtblVanPhongPham = require('../tables/tblVanPhongPham')
+var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
+
 async function deleteRelationshipTBLPhanPhoiVPP(db, listID) {
     await mtblPhanPhoiVPP(db).destroy({
         where: {
@@ -16,19 +18,27 @@ async function deleteRelationshipTBLPhanPhoiVPP(db, listID) {
 }
 module.exports = {
     deleteRelationshipTBLPhanPhoiVPP,
-    // add_tbl_them_vpp
+    // add_tbl_phanphoi_vpp
     addTBLPhanPhoiVPP: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblPhanPhoiVPP(db).create({
-                        IDVanPhongPham: body.idVanPhongPham ? body.idVanPhongPham : null,
-                        IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
-                        IDBoPhan: body.idBoPhan ? body.idBoPhan : null,
+                        IDNhanVienSoHuu: body.idNhanVienSoHuu ? body.idNhanVienSoHuu : null,
+                        IDNhanVienBanGiao: body.idNhanVienBanGiao ? body.idNhanVienBanGiao : null,
+                        IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : null,
                         Date: body.date ? body.date : null,
-                        Amount: body.amount ? body.amount : null,
-                    }).then(data => {
+                    }).then(async data => {
+                        if (data)
+                            for (var i = 0; i < body.line; i++) {
+                                await mtblPhanPhoiVPPChiTiet(db).create({
+                                    IDPhanPhoiVPP: data.ID,
+                                    IDVanPhongPham: body.line[i].idVanPhongPham ? body.line[i].idVanPhongPham : null,
+                                    Amount: body.line[i].amount ? body.line[i].amount : null,
+                                    Describe: body.line[i].describe ? body.line[i].describe : '',
+                                })
+                            }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -44,30 +54,30 @@ module.exports = {
             }
         })
     },
-    // update_tbl_them_vpp
+    // update_tbl_phanphoi_vpp
     updateTBLPhanPhoiVPP: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.idVanPhongPham || body.idVanPhongPham === '') {
-                        if (body.idVanPhongPham === '')
-                            update.push({ key: 'IDVanPhongPham', value: null });
+                    if (body.idNhanVienSoHuu || body.idNhanVienSoHuu === '') {
+                        if (body.idNhanVienSoHuu === '')
+                            update.push({ key: 'IDNhanVienSoHuu', value: null });
                         else
-                            update.push({ key: 'IDVanPhongPham', value: body.idVanPhongPham });
+                            update.push({ key: 'IDNhanVienSoHuu', value: body.idNhanVienSoHuu });
                     }
-                    if (body.idNhanVien || body.idNhanVien === '') {
-                        if (body.idNhanVien === '')
-                            update.push({ key: 'IDNhanVien', value: null });
+                    if (body.idNhanVienBanGiao || body.idNhanVienBanGiao === '') {
+                        if (body.idNhanVienBanGiao === '')
+                            update.push({ key: 'IDNhanVienBanGiao', value: null });
                         else
-                            update.push({ key: 'IDNhanVien', value: body.idNhanVien });
+                            update.push({ key: 'IDNhanVienBanGiao', value: body.idNhanVienBanGiao });
                     }
-                    if (body.idBoPhan || body.idBoPhan === '') {
-                        if (body.idBoPhan === '')
-                            update.push({ key: 'IDBoPhan', value: null });
+                    if (body.idBoPhanSoHuu || body.idBoPhanSoHuu === '') {
+                        if (body.idBoPhanSoHuu === '')
+                            update.push({ key: 'IDBoPhanSoHuu', value: null });
                         else
-                            update.push({ key: 'IDBoPhan', value: body.idBoPhan });
+                            update.push({ key: 'IDBoPhanSoHuu', value: body.idBoPhanSoHuu });
                     }
                     if (body.amount || body.amount === '') {
                         if (body.amount === '')
@@ -80,6 +90,14 @@ module.exports = {
                             update.push({ key: 'Date', value: null });
                         else
                             update.push({ key: 'Date', value: body.date });
+                    }
+                    for (var i = 0; i < body.line; i++) {
+                        await mtblPhanPhoiVPPChiTiet(db).create({
+                            IDPhanPhoiVPP: body.id,
+                            IDVanPhongPham: body.line[i].idVanPhongPham ? body.line[i].idVanPhongPham : null,
+                            Amount: body.line[i].amount ? body.line[i].amount : null,
+                            Describe: body.line[i].describe ? body.line[i].describe : '',
+                        }, { where: { ID: body.line[i].idLine } })
                     }
                     database.updateTable(update, mtblPhanPhoiVPP(db), body.id).then(response => {
                         if (response == 1) {
@@ -97,7 +115,7 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_them_vpp
+    // delete_tbl_phanphoi_vpp
     deleteTBLPhanPhoiVPP: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -119,7 +137,7 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_them_vpp
+    // get_list_tbl_phanphoi_vpp
     getListTBLPhanPhoiVPP: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -129,55 +147,70 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        let whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
+                        // if (data.search) {
+                        //     where = [
+                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
+                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
+                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                        //     ];
+                        // } else {
+                        //     where = [
+                        //         { FullName: { [Op.ne]: '%%' } },
+                        //     ];
+                        // }
+                        // let whereOjb = { [Op.or]: where };
+                        // if (data.items) {
+                        //     for (var i = 0; i < data.items.length; i++) {
+                        //         let userFind = {};
+                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //             if (data.items[i].conditionFields['name'] == 'And') {
+                        //                 whereOjb[Op.and] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Or') {
+                        //                 whereOjb[Op.or] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Not') {
+                        //                 whereOjb[Op.not] = userFind
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                     let tblPhanPhoiVPP = mtblPhanPhoiVPP(db);
-                    tblPhanPhoiVPP.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
-                    tblPhanPhoiVPP.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
-                    tblPhanPhoiVPP.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                    let tblPhanPhoiVPPChiTiet = mtblPhanPhoiVPPChiTiet(db);
+                    tblPhanPhoiVPP.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienBanGiao', sourceKey: 'IDNhanVienBanGiao', as: 'nvbg' })
+                    tblPhanPhoiVPP.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nvsh' })
+                    tblPhanPhoiVPP.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bp' })
+                    tblPhanPhoiVPP.hasMany(tblPhanPhoiVPPChiTiet, { foreignKey: 'IDPhanPhoiVPP', as: 'line' })
+                    tblPhanPhoiVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
                     tblPhanPhoiVPP.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [
                             {
-                                model: mtblVanPhongPham(db),
+                                model: tblPhanPhoiVPPChiTiet,
                                 required: false,
-                                as: 'vpp'
+                                as: 'line',
+                                include: [
+                                    {
+                                        model: mtblVanPhongPham(db),
+                                        required: false,
+                                        as: 'vpp'
+                                    },
+                                ]
                             },
                             {
                                 model: mtblDMNhanvien(db),
                                 required: false,
-                                as: 'nv'
+                                as: 'nvbg'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nvsh'
                             },
                             {
                                 model: mtblDMBoPhan(db),
@@ -190,14 +223,14 @@ module.exports = {
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                idVanPhongPham: element.IDVanPhongPham ? element.IDVanPhongPham : null,
-                                nameVanPhongPham: element.vpp.VPPName ? element.vpp.VPPName : null,
-                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
-                                nameNhanVien: element.nv.StaffName ? element.nv.StaffName : null,
-                                idBoPhan: element.IDBoPhan ? element.IDBoPhan : null,
-                                nameBoPhan: element.bp.DepartmentName ? element.bp.DepartmentName : null,
+                                idNhanVienBanGiao: element.IDNhanVienBanGiao ? element.IDNhanVienBanGiao : null,
+                                nameNhanVienBanGiao: element.nvbg.StaffName ? element.nvbg.StaffName : '',
+                                idNhanVienSoHuu: element.IDNhanVienSoHuu ? element.IDNhanVienSoHuu : null,
+                                nameNhanVienSoHuu: element.nvsh.StaffName ? element.nvsh.StaffName : '',
+                                idBoPhanSoHuu: element.IDBoPhanSoHuu ? element.IDBoPhanSoHuu : null,
+                                nameBoPhanSoHuu: element.bp.DepartmentName ? element.bp.DepartmentName : null,
                                 date: element.Date ? element.Date : null,
-                                amount: element.Amount ? element.Amount : null,
+                                line: element.line,
                             }
                             array.push(obj);
                         });
@@ -220,7 +253,7 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_them_vpp
+    // get_list_name_tbl_phanphoi_vpp
     getListNameTBLPhanPhoiVPP: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {

@@ -2,7 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMPermission = require('../tables/tblDMPermission');
+var mtblDMPermission = require('../tables/constants/tblDMPermission');
 var database = require('../database');
 async function deleteRelationshiptblDMPermission(db, listID) {
     await mtblDMPermission(db).destroy({

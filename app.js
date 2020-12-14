@@ -56,7 +56,6 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), function (req, r
             success: false
         });
     } else {
-        console.log('http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile);
         return res.send({
             link: 'http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile,
             success: true

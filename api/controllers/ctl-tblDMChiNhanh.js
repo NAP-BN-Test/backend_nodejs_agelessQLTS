@@ -2,8 +2,8 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMChiNhanh = require('../tables/tblDMChiNhanh')
-var mtblDMBoPhan = require('../tables/tblDMBoPhan')
+var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var database = require('../database');
 async function deleteRelationshiptblDMChiNhanh(db, listID) {
     await mtblDMBoPhan(db).update({
@@ -119,22 +119,84 @@ module.exports = {
 
                         if (data.search) {
                             where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
+                                { BranchCode: { [Op.like]: '%' + data.search + '%' } },
                                 { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                                { BranchName: { [Op.like]: '%' + data.search + '%' } },
+                                { PhoneNumber: { [Op.like]: '%' + data.search + '%' } },
+                                { FaxNumber: { [Op.like]: '%' + data.search + '%' } },
+                                { Email: { [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { FullName: { [Op.ne]: '%%' } },
+                                { FaxNumber: { [Op.ne]: '%%' } },
                             ];
                         }
                         let whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'MÃ CHI NHÁNH') {
+                                    userFind['BranchCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN CHI NHÁNH') {
+                                    userFind['BranchName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
+                                    userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
+                                    userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'FAX') {
+                                    userFind['fax'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'EMAIL') {
+                                    userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -148,6 +210,7 @@ module.exports = {
                             }
                         }
                     }
+                    var stt = 1;
                     mtblDMChiNhanh(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -156,15 +219,17 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
-                                branchCode: body.BranchCode ? body.BranchCode : '',
-                                branchName: body.BranchName ? body.BranchName : '',
-                                address: body.Address ? body.Address : '',
-                                phoneNumber: body.PhoneNumber ? body.PhoneNumber : '',
-                                faxNumber: body.FaxNumber ? body.FaxNumber : '',
-                                email: body.Email ? body.Email : '',
+                                branchCode: element.BranchCode ? element.BranchCode : '',
+                                branchName: element.BranchName ? element.BranchName : '',
+                                address: element.Address ? element.Address : '',
+                                phoneNumber: element.PhoneNumber ? element.PhoneNumber : '',
+                                faxNumber: element.FaxNumber ? element.FaxNumber : '',
+                                email: element.Email ? element.Email : '',
                             }
                             array.push(obj);
+                            stt += 1;
                         });
                         var count = await mtblDMChiNhanh(db).count({ where: whereOjb, })
                         var result = {

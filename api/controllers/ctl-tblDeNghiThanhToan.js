@@ -2,11 +2,11 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDeNghiThanhToan = require('../tables/tblDeNghiThanhToan')
+var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 var database = require('../database');
-var mtblFileAttach = require('../tables/tblFileAttach');
-var mtblDMNhanvien = require('../tables/tblDMNhanvien');
-var mtblDMUser = require('../tables/tblDMUser');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblDMUser = require('../tables/constants/tblDMUser');
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     await mtblDeNghiThanhToan(db).destroy({
@@ -66,7 +66,7 @@ module.exports = {
                                 Name: body.fileAttach[j].fileName,
                                 Link: body.fileAttach[j].link,
                             }, {
-                                where: { ID: fileAttach[j].idFileAttach }
+                                where: { ID: body.fileAttach[j].idFileAttach }
                             })
                     let update = [];
                     if (body.idNhanvien || body.idNhanvien === '') {

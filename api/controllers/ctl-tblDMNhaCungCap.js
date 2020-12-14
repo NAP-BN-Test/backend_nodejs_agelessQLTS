@@ -2,12 +2,21 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMNhaCungCap = require('../tables/tblDMNhaCungCap');
+var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
+var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
+var mtblTaiSanADD = require('../tables/qlnb/tblTaiSanADD')
+
 var database = require('../database');
 async function deleteRelationshiptblDMNhaCungCap(db, listID) {
+    await mtblThemVPP(db).update({
+        IDNhaCungCap: null,
+    }, { where: { IDNhaCungCap: { [Op.in]: listID } } })
+    await mtblTaiSanADD(db).update({
+        IDNhaCungCap: null,
+    }, { where: { IDNhaCungCap: { [Op.in]: listID } } })
     await mtblDMNhaCungCap(db).destroy({
         where: {
-            IDLaborBook: { [Op.in]: listID }
+            ID: { [Op.in]: listID }
         }
     })
 }
@@ -131,8 +140,20 @@ module.exports = {
                     if (data.items) {
                         for (var i = 0; i < data.items.length; i++) {
                             let userFind = {};
-                            if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                            if (data.items[i].fields['name'] === 'TÊN NHÀ CUNG CẤP') {
                                 userFind['supplierName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'MÃ NHÀ CUNG CẤP') {
+                                userFind['supplierCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                 if (data.items[i].conditionFields['name'] == 'And') {
                                     whereOjb[Op.and] = userFind
                                 }

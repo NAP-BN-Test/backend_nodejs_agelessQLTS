@@ -2,8 +2,8 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMLoaiTaiSan = require('../tables/tblDMLoaiTaiSan');
-var mtblDMHangHoa = require('../tables/tblDMHangHoa');
+var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
+var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var database = require('../database');
 async function deleteRelationshiptblDMLoaiTaiSan(db, listID) {
     await mtblDMHangHoa(db).update({
