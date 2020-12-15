@@ -13,17 +13,10 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 
 var database = require('../database');
 async function deleteRelationshiptblTaiSanADD(db, listID) {
-    await mtblTaiSanHistory(db).update({
-        IDTaiSan: null,
-    }, {
+    await mtblTaiSanHistory(db).destroy({
         where: { IDTaiSan: { [Op.in]: listID } }
     })
     await mtblTaiSan(db).destroy({
-        where: {
-            IDTaiSanADD: { [Op.in]: listID }
-        }
-    })
-    await mtblTaiSanADD(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
@@ -144,8 +137,8 @@ module.exports = {
     // delete_tbl_TaiSanADD
     deletetblTaiSanADD: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
@@ -310,7 +303,7 @@ module.exports = {
                         })
                     })
                     whereOjb.push({
-                        ID: { [Op.in]: listIDTaiSan }
+                        ID: { [Op.ne]: listIDTaiSan }
                     })
 
                     if (body.dataSearch) {
@@ -389,7 +382,7 @@ module.exports = {
                                 idLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.ID : '' : null,
                                 nameLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.Name : '' : null,
                                 codeLoaiTaiSan: element.loaitaisan ? element.loaitaisan.Code : '',
-                                unit: element.Unit ? element.Unit : null,
+                                unit: element.hanghoa ? element.hanghoa.Unit : null,
                                 serialNumber: element.SerialNumber ? element.SerialNumber : null,
                             }
                             array.push(obj);
@@ -438,7 +431,7 @@ module.exports = {
                         })
                     })
                     whereOjb.push({
-                        ID: { [Op.notIn]: listIDTaiSan }
+                        ID: { [Op.in]: listIDTaiSan }
                     })
 
                     // if (body.dataSearch) {

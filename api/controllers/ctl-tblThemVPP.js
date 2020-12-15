@@ -10,6 +10,11 @@ var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 var database = require('../database');
 async function deleteRelationshipTBLThemVPP(db, listID) {
+    await mThemVPPChiTiet(db).destroy({
+        where: {
+            IDThemVPP: { [Op.in]: listID }
+        }
+    })
     await mtblThemVPP(db).destroy({
         where: {
             ID: { [Op.in]: listID }
@@ -21,6 +26,7 @@ module.exports = {
     // add_tbl_them_vpp
     addTBLThemVPP: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -28,21 +34,21 @@ module.exports = {
                         idNhaCungCap: body.idNhaCungCap ? body.idNhaCungCap : null,
                         Date: body.date ? body.date : null,
                     }).then(async data => {
+                        body.fileAttach = JSON.parse(body.fileAttach)
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
                                 await mtblFileAttach(db).create({
-                                    Name: body.fileAttach[j].fileName,
-                                    Link: body.fileAttach[j].link,
+                                    Link: body.fileAttach[j],
                                     IDVanPhongPham: data.ID,
                                 })
+                        body.line = JSON.parse(body.line)
                         if (body.line.length > 0)
-                            for (var i = 0; i < body.line.length; i++)
-                                await mThemVPPChiTiet(db).create({
-                                    IDVanPhongPham: body.line[i].idVanPhongPham,
-                                    IDThemVPP: data.ID,
-                                    Amount: body.line[i].amount,
-                                    Describe: body.line[i].describe,
-                                })
+                            for (var i = 0; i < body.line.length; i++) {
+                                let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
+                                await mtblVanPhongPham(db).update({
+                                    Unit: body.line[i].unit + vpp.Unit,
+                                }, { where: { ID: body.line[i].idVanPhongPham.id } })
+                            }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -140,36 +146,36 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        let whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
+                        // if (data.search) {
+                        //     where = [
+                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
+                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
+                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                        //     ];
+                        // } else {
+                        //     where = [
+                        //         { FullName: { [Op.ne]: '%%' } },
+                        //     ];
+                        // }
+                        // let whereOjb = { [Op.or]: where };
+                        // if (data.items) {
+                        //     for (var i = 0; i < data.items.length; i++) {
+                        //         let userFind = {};
+                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //             if (data.items[i].conditionFields['name'] == 'And') {
+                        //                 whereOjb[Op.and] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Or') {
+                        //                 whereOjb[Op.or] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Not') {
+                        //                 whereOjb[Op.not] = userFind
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                     let tblThemVPP = mtblThemVPP(db);
                     let stt = 1;

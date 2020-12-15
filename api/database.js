@@ -39,6 +39,15 @@ module.exports = {
             encrypt: false,
         },
     },
+    // config: {
+    //     user: 'ageless_qlnb',
+    //     password: '123456a$',
+    //     server: '118.27.192.106',
+    //     database: 'AGELESS_QLNB',
+    //     options: {
+    //         encrypt: false,
+    //     },
+    // },
     configDBCustomer: {
         user: 'sa',
         password: '1234',

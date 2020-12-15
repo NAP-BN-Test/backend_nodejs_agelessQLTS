@@ -23,6 +23,7 @@ module.exports = {
                     mtblDMHangHoa(db).create({
                         Code: body.code ? body.code : '',
                         Name: body.name ? body.name : '',
+                        Unit: body.unit ? body.unit : '',
                         IDDMLoaiTaiSan: body.idDMLoaiTaiSan ? body.idDMLoaiTaiSan : '',
                     }).then(data => {
                         var result = {
@@ -51,6 +52,8 @@ module.exports = {
                         update.push({ key: 'Code', value: body.code });
                     if (body.name || body.name === '')
                         update.push({ key: 'Name', value: body.name });
+                    if (body.unit || body.unit === '')
+                        update.push({ key: 'Unit', value: body.unit });
                     if (body.idDMLoaiTaiSan || body.idDMLoaiTaiSan === '') {
                         if (body.idDMLoaiTaiSan === '')
                             update.push({ key: 'IDDMLoaiTaiSan', value: null });
@@ -168,6 +171,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 name: element.Name ? element.Name : '',
                                 code: element.Code ? element.Code : '',
+                                unit: element.Unit ? element.Unit : '',
                                 idDMLoaiTaiSan: element.IDDMLoaiTaiSan ? element.IDDMLoaiTaiSan : null,
                                 nameDMLoaiTaiSan: element.tblDMLoaiTaiSan ? element.tblDMLoaiTaiSan.Name : null,
                             }

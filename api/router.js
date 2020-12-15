@@ -101,7 +101,7 @@ module.exports = function (app) {
 
     app.route('/qlnb/add_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.addtblTaiSanADD);
     app.route('/qlnb/update_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.updatetblTaiSanADD);
-    app.route('/qlnb/delete_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.deleteRelationshiptblTaiSanADD);
+    app.route('/qlnb/delete_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.deletetblTaiSanADD);
     app.route('/qlnb/get_list_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanADD);
     app.route('/qlnb/get_list_tbl_taisan_chuasudung').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanChuaSuDung);
     app.route('/qlnb/get_list_tbl_taisan_theodoi').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanTheoDoi);

@@ -9,7 +9,7 @@ module.exports = function (db) {
         },
         VPPCode: Sequelize.STRING,
         VPPName: Sequelize.STRING,
-        Unit: Sequelize.FLOAT,
+        Unit: Sequelize.STRING,
         Specifications: Sequelize.STRING,
         RemainingAmount: Sequelize.FLOAT,
 

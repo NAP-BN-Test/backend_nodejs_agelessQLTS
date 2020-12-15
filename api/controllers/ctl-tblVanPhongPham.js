@@ -32,7 +32,7 @@ module.exports = {
                     mtblVanPhongPham(db).create({
                         VPPCode: body.vppCode ? body.vppCode : '',
                         VPPName: body.vppName ? body.vppName : '',
-                        Unit: body.unit ? body.unit : null,
+                        Unit: body.unit ? body.unit : 0,
                         Specifications: body.specifications ? body.specifications : '',
                         RemainingAmount: body.remainingAmount ? body.remainingAmount : null,
                     }).then(data => {
@@ -217,6 +217,8 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 vppName: element.VPPName ? element.VPPName : '',
+                                vppCode: element.VPPCode ? element.VPPCode : '',
+                                unit: element.Unit ? element.Unit : '',
                             }
                             array.push(obj);
                         });

@@ -9,6 +9,7 @@ module.exports = function (db) {
         },
         Name: Sequelize.STRING,
         Code: Sequelize.STRING,
+        Unit: Sequelize.STRING,
         IDDMLoaiTaiSan: Sequelize.BIGINT,
     });
 
