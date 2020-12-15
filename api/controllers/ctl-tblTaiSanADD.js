@@ -59,6 +59,7 @@ module.exports = {
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
+                                OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
                                 // IDLoaiTaiSan: body.taisan[i].idLoaiTaiSan ? body.taisan[i].idLoaiTaiSan : '',
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
@@ -108,6 +109,7 @@ module.exports = {
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).update({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
+                                OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
                                 IDTaiSanADD: body.id ? body.id : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
