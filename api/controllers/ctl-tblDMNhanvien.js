@@ -502,5 +502,89 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    //get_employee_from_department
+    getEmployeeFromDepartment: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let whereOjb = [{
+                        IDBoPhan: body.idBoPhan,
+                    }]
+                    let stt = 1;
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
+                    let tblDMBoPhan = mtblDMBoPhan(db);
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
+                    let all = await tblDMNhanvien.count({ where: whereOjb, })
+                    tblDMNhanvien.findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: whereOjb,
+                        include: [
+                            {
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'bophan',
+                                include: [{
+                                    model: mtblDMChiNhanh(db)
+                                }]
+                            },
+                        ],
+                    }).then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                stt: stt,
+                                id: Number(element.ID),
+                                staffCode: element.StaffCode ? element.StaffCode : '',
+                                staffName: element.StaffName ? element.StaffName : '',
+                                cmndNumber: element.CMNDNumber ? element.CMNDNumber : '',
+                                address: element.Address ? element.Address : '',
+                                idNation: element.IDNation ? element.IDNation : null,
+                                phoneNumber: element.PhoneNumber ? element.PhoneNumber : '',
+                                gender: element.Gender ? element.Gender : '',
+                                idBoPhan: element.IDBoPhan ? element.IDBoPhan : null,
+                                departmentName: element.bophan ? element.bophan.DepartmentName : null,
+                                departmentCode: element.bophan ? element.bophan.DepartmentCode : null,
+                                branchCode: element.bophan ? element.bophan.tblDMChiNhanh ? element.bophan.tblDMChiNhanh.BranchCode : null : null,
+                                branchName: element.bophan ? element.bophan.tblDMChiNhanh ? element.bophan.tblDMChiNhanh.BranchName : null : null,
+                                idChucVu: element.IDChucVu ? element.IDChucVu : null,
+                                baxCode: element.TaxCode ? element.TaxCode : '',
+                                bankNumber: element.BankNumber ? element.BankNumber : '',
+                                bankName: element.BankName ? element.BankName : '',
+                                birthday: element.Birthday ? element.Birthday : '',
+                                degree: element.Degree ? element.Degree : '',
+                                dermanentResidence: element.DermanentResidence ? element.DermanentResidence : '',
+                                probationaryDate: element.ProbationaryDate ? element.ProbationaryDate : '',
+                                probationarySalary: element.ProbationarySalary ? element.ProbationarySalary : null,
+                                workingDate: element.WorkingDate ? element.WorkingDate : null,
+                                workingSalary: element.WorkingSalary ? element.WorkingSalary : null,
+                                bhxhSalary: element.BHXHSalary ? element.BHXHSalary : null,
+                                contactUrgent: element.ContactUrgent ? element.ContactUrgent : '',
+                                idMayChamCong: element.IDMayChamCong ? element.IDMayChamCong : null,
+                                email: element.Email ? element.Email : '',
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        });
+                        var result = {
+                            array: array,
+                            all: all,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

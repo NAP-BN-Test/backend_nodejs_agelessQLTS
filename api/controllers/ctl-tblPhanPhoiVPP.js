@@ -145,14 +145,12 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                        // var data = JSON.parse(body.dataSearch)
 
                         // if (data.search) {
                         //     where = [
                         //         { FullName: { [Op.like]: '%' + data.search + '%' } },
                         //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
                         //     ];
                         // } else {
                         //     where = [
@@ -185,6 +183,7 @@ module.exports = {
                     tblPhanPhoiVPP.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bp' })
                     tblPhanPhoiVPP.hasMany(tblPhanPhoiVPPChiTiet, { foreignKey: 'IDPhanPhoiVPP', as: 'line' })
                     tblPhanPhoiVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
+                    var stt = 0;
                     tblPhanPhoiVPP.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -222,16 +221,22 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
                                 idNhanVienBanGiao: element.IDNhanVienBanGiao ? element.IDNhanVienBanGiao : null,
                                 nameNhanVienBanGiao: element.nvbg.StaffName ? element.nvbg.StaffName : '',
                                 idNhanVienSoHuu: element.IDNhanVienSoHuu ? element.IDNhanVienSoHuu : null,
-                                nameNhanVienSoHuu: element.nvsh.StaffName ? element.nvsh.StaffName : '',
+                                nameNhanVienSoHuu: element.nvsh ? element.nvsh.StaffName : '',
                                 idBoPhanSoHuu: element.IDBoPhanSoHuu ? element.IDBoPhanSoHuu : null,
                                 nameBoPhanSoHuu: element.bp.DepartmentName ? element.bp.DepartmentName : null,
                                 date: element.Date ? element.Date : null,
-                                line: element.line,
+                                vppName: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPName : '' : '',
+                                vppCode: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPCode : '' : '',
+                                unit: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.Unit : '' : '',
+                                amount: element.line[0] ? element.line[0].Amount : '',
+                                // line: element.line,
                             }
+                            stt += 1;
                             array.push(obj);
                         });
                         var count = await mtblPhanPhoiVPP(db).count({ where: whereOjb, })

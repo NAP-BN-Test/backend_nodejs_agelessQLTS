@@ -5,6 +5,7 @@ var moment = require('moment');
 var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var database = require('../database');
+const tblTaiSan = require('../tables/qlnb/tblTaiSan');
 async function deleteRelationshiptblDMHangHoa(db, listID) {
     await mtblDMHangHoa(db).destroy({
         where: {
@@ -228,5 +229,53 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    // get_list_goods_from_asset
+    getListAssetFromGoods: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let tblDMHangHoa = mtblDMHangHoa(db);
+                    tblDMHangHoa.hasMany(tblTaiSan(db), { foreignKey: 'IDDMHangHoa', as: 'taisan' })
+                    tblDMHangHoa.findOne({
+                        where: { ID: body.id },
+                        include: [
+                            {
+                                model: tblTaiSan(db),
+                                required: false,
+                                as: 'taisan'
+                            },
+                        ],
+                    }).then(async data => {
+                        if (data.taisan) {
+                            var array = [];
+                            data.taisan.forEach(item => {
+                                if (item.TSNBCode)
+                                    array.push({
+                                        id: Number(item.ID),
+                                        tsnbCode: item.TSNBCode,
+                                        tsnbCode: item.TSNBCode,
+                                        guaranteeMonth: item.GuaranteeMonth ? item.GuaranteeMonth : '',
+                                    })
+                            })
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

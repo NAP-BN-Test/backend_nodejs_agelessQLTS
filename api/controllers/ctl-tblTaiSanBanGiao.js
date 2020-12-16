@@ -41,7 +41,7 @@ module.exports = {
                     }).then(async data => {
                         for (var i = 0; i < body.listHistory; i++) {
                             await mtblTaiSanHistory(db).create({
-                                IDTaiSan: body.listHistory[i].idTaiSan,
+                                IDTaiSan: body.listHistory[i].idTaiSan.id,
                                 IDTaiSanBanGiao: data.ID,
                             })
                         }

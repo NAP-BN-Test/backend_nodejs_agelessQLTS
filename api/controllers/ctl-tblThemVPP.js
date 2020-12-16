@@ -144,7 +144,7 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                        // var data = JSON.parse(body.dataSearch)
 
                         // if (data.search) {
                         //     where = [
@@ -181,6 +181,8 @@ module.exports = {
                     let stt = 1;
                     tblThemVPP.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDNhaCungCap', sourceKey: 'IDNhaCungCap', as: 'ncc' })
                     tblThemVPP.hasMany(mThemVPPChiTiet(db), { foreignKey: 'IDThemVPP', as: 'line' })
+                    var themVPPChiTiet = mThemVPPChiTiet(db);
+                    themVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
                     tblThemVPP.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -192,9 +194,16 @@ module.exports = {
                                 as: 'ncc'
                             },
                             {
-                                model: mThemVPPChiTiet(db),
+                                model: themVPPChiTiet,
                                 required: false,
                                 as: 'line',
+                                include: [
+                                    {
+                                        model: mtblVanPhongPham(db),
+                                        required: false,
+                                        as: 'vpp',
+                                    },
+                                ],
                             },
                         ],
                     }).then(async data => {
@@ -204,20 +213,24 @@ module.exports = {
                                 stt: stt,
                                 id: Number(data[j].ID),
                                 idNhaCungCap: data[j].IDNhaCungCap ? data[j].IDNhaCungCap : null,
-                                nameNhaCungCap: data[j].ncc ? data[j].ncc.SupplierName : null,
-                                date: data[j].Date ? data[j].Date : null,
-                                chitiet: data[j].line
+                                supplierName: data[j].ncc ? data[j].ncc.SupplierName : null,
+                                dateReceive: data[j].Date ? data[j].Date : null,
+                                tsName: data[j].line
                             }
+                            if (data[j].line[0])
+                                console.log(data[j].line[0].vpp.VPPName);
                             for (var i = 0; i < data[j].line.length; i++) {
+                                obj["tsName"][i]['dataValues']['amount'] = data[j].line[0].Amount;
+                                obj["tsName"][i]['dataValues']['name'] = data[j].line[0] ? data[j].line[0].vpp ? data[j].line[0].vpp.VPPName : '' : '';
                                 if (data[j].line[i].IDVanPhongPham) {
                                     var unit = await mtblVanPhongPham(db).findOne({ where: { ID: data[j].line[i].IDVanPhongPham } })
                                     if (unit)
-                                        obj["chitiet"][i]['dataValues']['unit'] = unit.Unit
+                                        obj["tsName"][i]['dataValues']['unit'] = unit.Unit
                                     else
-                                        obj["chitiet"][i]['dataValues']['unit'] = ''
+                                        obj["tsName"][i]['dataValues']['unit'] = ''
 
                                 } else {
-                                    obj["chitiet"][i]['dataValues']['unit'] = ''
+                                    obj["tsName"][i]['dataValues']['unit'] = ''
 
                                 }
 
@@ -225,6 +238,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
+                        // console.log(array);
                         var count = await mtblThemVPP(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

@@ -10,8 +10,12 @@ var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
 var mtblTaiSanHistory = require('../tables/qlnb/tblTaiSanHistory')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 
 var database = require('../database');
+const tblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao');
+const tblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 async function deleteRelationshiptblTaiSanADD(db, listID) {
     await mtblTaiSanHistory(db).destroy({
         where: { IDTaiSan: { [Op.in]: listID } }
@@ -29,8 +33,191 @@ function checkDuplicate(array, elm) {
     })
     return check;
 }
+async function getDepartFromTaiSan(db, idTaiSan) {
+    let departmentName = '';
+    let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
+    let tblTaiSanHistory = mtblTaiSanHistory(db);
+    tblTaiSanHistory.belongsTo(tblTaiSanBanGiao, { foreignKey: 'IDTaiSanBanGiao', sourceKey: 'IDTaiSanBanGiao', as: 'tsbangiao' })
+    tblTaiSanBanGiao.belongsTo(tblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nv' })
+    tblTaiSanBanGiao.belongsTo(tblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bp' })
+    await tblTaiSanHistory.findOne({
+        where: {
+            DateThuHoi: null,
+            IDTaiSan: idTaiSan,
+        },
+        include: [
+            {
+                model: tblTaiSanBanGiao,
+                required: false,
+                as: 'tsbangiao',
+                include: [
+                    {
+                        model: tblDMNhanvien(db),
+                        required: false,
+                        as: 'nv'
+                    },
+                    {
+                        model: tblDMBoPhan(db),
+                        required: false,
+                        as: 'bp'
+                    },
+                ],
+            },
+        ],
+
+    }).then(data => {
+        if (data) {
+            departmentName = data.tsbangiao ? data.tsbangiao.bp ? data.tsbangiao.bp.DepartmentName : '' : '';
+        }
+
+    })
+    return departmentName;
+}
+async function getStaffFromTaiSan(db, idTaiSan) {
+    let staffName = '';
+    let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
+    let tblTaiSanHistory = mtblTaiSanHistory(db);
+    tblTaiSanHistory.belongsTo(tblTaiSanBanGiao, { foreignKey: 'IDTaiSanBanGiao', sourceKey: 'IDTaiSanBanGiao', as: 'tsbangiao' })
+    tblTaiSanBanGiao.belongsTo(tblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nv' })
+    tblTaiSanBanGiao.belongsTo(tblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bp' })
+    await tblTaiSanHistory.findOne({
+        where: {
+            DateThuHoi: null,
+            IDTaiSan: idTaiSan,
+        },
+        include: [
+            {
+                model: tblTaiSanBanGiao,
+                required: false,
+                as: 'tsbangiao',
+                include: [
+                    {
+                        model: tblDMNhanvien(db),
+                        required: false,
+                        as: 'nv'
+                    },
+                    {
+                        model: tblDMBoPhan(db),
+                        required: false,
+                        as: 'bp'
+                    },
+                ],
+            },
+        ],
+
+    }).then(data => {
+        if (data) {
+            staffName = data.tsbangiao ? data.tsbangiao.nv ? data.tsbangiao.nv.StaffName : '' : '';
+        }
+
+    })
+    return staffName;
+}
+async function getDetailTaiSan(db, idTaiSan) {
+    let tblTaiSan = mtblTaiSan(db);
+    var obj = {};
+    let tblDMHangHoa = mtblDMHangHoa(db);
+    let tblTaiSanADD = mtblTaiSanADD(db);
+    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
+    tblTaiSan.belongsTo(tblDMHangHoa, { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
+    tblTaiSanADD.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDNhaCungCap', sourceKey: 'IDNhaCungCap', as: 'ncc' })
+    tblTaiSan.belongsTo(tblTaiSanADD, { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisanADD' })
+    await tblTaiSan.findOne({
+        where: { ID: idTaiSan },
+        include: [
+            {
+                model: tblDMHangHoa,
+                required: false,
+                as: 'hanghoa',
+                include: [
+                    {
+                        model: mtblDMLoaiTaiSan(db),
+                        required: false,
+                        as: 'loaitaisan'
+                    },
+                ],
+            },
+            {
+                model: tblTaiSanADD,
+                required: false,
+                as: 'taisanADD',
+                include: [
+                    {
+                        model: mtblDMNhaCungCap(db),
+                        required: false,
+                        as: 'ncc'
+                    },
+                ],
+            },
+        ],
+    }).then(async data => {
+        let staffName = await getStaffFromTaiSan(db, idTaiSan);
+        let departmentName = await getDepartFromTaiSan(db, idTaiSan);
+        obj = {
+            id: data.ID,
+            code: data.hanghoa ? data.hanghoa.Code : '',
+            name: data.hanghoa ? data.hanghoa.Name : '',
+            unit: data.hanghoa ? data.hanghoa.Unit : '',
+            nameLoaiTaiSan: data.hanghoa ? data.hanghoa.loaitaisan ? data.hanghoa.loaitaisan.Name : '' : '',
+            codeLoaiTaiSan: data.hanghoa ? data.hanghoa.loaitaisan ? data.hanghoa.loaitaisan.Code : '' : '',
+            serialNumber: data.SerialNumber ? data.SerialNumber : '',
+            supplierName: data.taisanADD ? data.taisanADD.ncc ? data.taisanADD.ncc.SupplierName : '' : '',
+            dateIncreases: data.taisanADD ? data.taisanADD.Date : '',
+            staffName: staffName,
+            departmentName: departmentName,
+            guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
+            condition: data.Condition ? data.Condition : '',
+            describe: data.Describe ? data.Describe : '',
+        }
+    })
+
+    return obj;
+
+}
+
 module.exports = {
     deleteRelationshiptblTaiSanADD,
+    // detail_tbl_taisanadd
+    detailtblTaiSanADD: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var obj = await getDetailTaiSan(db, body.id);
+                    var array = [];
+                    var listIDTaiSan = [];
+                    await mtblTaiSan(db).findAll({
+                        where: { IDTaiSanDiKem: body.id }
+                    }).then(data => {
+                        if (data.length > 0) {
+                            data.forEach(element => {
+                                listIDTaiSan.push(element.ID);
+                            })
+                        }
+                    })
+                    console.log(listIDTaiSan);
+                    if (listIDTaiSan.length > 0) {
+                        for (var i = 0; i < listIDTaiSan.length; i++) {
+                            var objTaiSanDK = await getDetailTaiSan(db, listIDTaiSan[i]);
+                            array.push(objTaiSanDK);
+                        }
+                    }
+                    var result = {
+                        obj: obj,
+                        arrayTaiSanDinhKem: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // add_tbl_TaiSanADD
     addtblTaiSanADD: (req, res) => {
         let body = req.body;

@@ -44,6 +44,7 @@ module.exports = function (app) {
 
     //  Quản lý nhân viên
     app.route('/qlnb/get_list_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListtblDMNhanvien);
+    app.route('/qlnb/get_employee_from_department').post(tblDMNhanvien.getEmployeeFromDepartment);
 
     // Lịch sử sử dụng của nhân viên 
     app.route('/qlnb/get_list_history_nhanvien').post(checkToken.checkToken, tblDMNhanvien.getListHistoryNhanVien);
@@ -88,6 +89,7 @@ module.exports = function (app) {
 
     // lấy name hang hoa
     app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListNametblDMHangHoa);
+    app.route('/qlnb/get_list_asset_from_goods').post(checkToken.checkToken, tblDMHanghoa.getListAssetFromGoods);
 
     // lấy name nhân viên ---- dòng 24
     //---------------------------------------------------------------- Menu quản lý tài sản --------------------------------------------------------------------------------------
@@ -99,6 +101,7 @@ module.exports = function (app) {
 
 
 
+    app.route('/qlnb/detail_tbl_taisanadd').post(tblTaiSan.detailtblTaiSanADD);
     app.route('/qlnb/add_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.addtblTaiSanADD);
     app.route('/qlnb/update_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.updatetblTaiSanADD);
     app.route('/qlnb/delete_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.deletetblTaiSanADD);
