@@ -6,7 +6,24 @@ var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var database = require('../database');
 const tblTaiSan = require('../tables/qlnb/tblTaiSan');
+var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
+
 async function deleteRelationshiptblDMHangHoa(db, listID) {
+    // tblYeuCauMuaSamDetail
+    await mtblYeuCauMuaSamDetail(db).update({
+        IDDMHangHoa: null
+    }, {
+        where: {
+            IDDMHangHoa: { [Op.in]: listID }
+        }
+    })
+    await tblTaiSan(db).update({
+        IDDMHangHoa: null
+    }, {
+        where: {
+            IDDMHangHoa: { [Op.in]: listID }
+        }
+    })
     await mtblDMHangHoa(db).destroy({
         where: {
             ID: { [Op.in]: listID }
@@ -18,6 +35,7 @@ module.exports = {
     // add_tbl_dmhanghoa
     addtblDMHangHoa: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -80,8 +98,8 @@ module.exports = {
     // delete_tbl_dmhanghoa
     deletetblDMHangHoa: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);

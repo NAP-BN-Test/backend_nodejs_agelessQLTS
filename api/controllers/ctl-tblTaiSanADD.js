@@ -726,6 +726,7 @@ module.exports = {
                                 unit: data[i].Unit ? data[i].Unit : null,
                                 employeeName: bangiao ? bangiao.nhanvien ? bangiao.nhanvien.StaffName : '' : '',
                                 departmentName: bangiao ? bangiao.bophan ? bangiao.bophan.DepartmentName : '' : '',
+                                date: data[i].taisan ? data[i].taisan.Date : null
                             }
                             array.push(obj);
                             stt += 1;

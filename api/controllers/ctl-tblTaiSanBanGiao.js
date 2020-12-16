@@ -17,6 +17,8 @@ module.exports = {
     // add_tbl_taisan_bangiao
     addtblTaiSanBanGiao: (req, res) => {
         let body = req.body;
+        console.log(body);
+        let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -39,12 +41,17 @@ module.exports = {
                         IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : '',
                         Date: body.date ? body.date : '',
                     }).then(async data => {
-                        for (var i = 0; i < body.listHistory; i++) {
-                            await mtblTaiSanHistory(db).create({
-                                IDTaiSan: body.listHistory[i].idTaiSan.id,
-                                IDTaiSanBanGiao: data.ID,
-                            })
+                        body.listHistory = JSON.parse(body.listHistory);
+                        if (body.listHistory.length > 0) {
+                            for (var i = 0; i < body.listHistory.length; i++) {
+                                await mtblTaiSanHistory(db).create({
+                                    IDTaiSan: body.listHistory[i].idTaiSan.id,
+                                    IDTaiSanBanGiao: data.ID,
+                                    DateThuHoi: now,
+                                })
+                            }
                         }
+
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

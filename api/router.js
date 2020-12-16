@@ -60,21 +60,21 @@ module.exports = function (app) {
     // Danh mục tài sản
     app.route('/qlnb/add_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.addtblDMHangHoa);
     app.route('/qlnb/update_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.updatetblDMHangHoa);
-    app.route('/qlnb/delete_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.deleteRelationshiptblDMHangHoa);
+    app.route('/qlnb/delete_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.deletetblDMHangHoa);
     app.route('/qlnb/get_list_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListtblDMHangHoa);
     app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListNametblDMHangHoa);
 
     //  Danh mục nhà cung cấp
     app.route('/qlnb/add_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.addtblDMNhaCungCap);
     app.route('/qlnb/update_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.updatetblDMNhaCungCap);
-    app.route('/qlnb/delete_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.deleteRelationshiptblDMNhaCungCap);
+    app.route('/qlnb/delete_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.deletetblDMNhaCungCap);
     app.route('/qlnb/get_list_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.getListtblDMNhaCungCap);
     app.route('/qlnb/get_list_name_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.getListNametblDMNhaCungCap);
 
     //  Danh mục văn phòng phẩm
     app.route('/qlnb/add_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.addtblVanPhongPham);
     app.route('/qlnb/update_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.updatetblVanPhongPham);
-    app.route('/qlnb/delete_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.deleteRelationshiptblVanPhongPham);
+    app.route('/qlnb/delete_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.deletetblVanPhongPham);
     app.route('/qlnb/get_list_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.getListtblVanPhongPham);
     app.route('/qlnb/get_list_name_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.getListNametblVanPhongPham);
 

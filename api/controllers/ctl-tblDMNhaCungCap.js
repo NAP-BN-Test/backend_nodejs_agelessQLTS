@@ -22,7 +22,7 @@ async function deleteRelationshiptblDMNhaCungCap(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblDMNhaCungCap,
-    // add_tbl_dmhacungcap
+    // add_tbl_dmnhacungcap
     addtblDMNhaCungCap: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -54,7 +54,7 @@ module.exports = {
             }
         })
     },
-    // update_tbl_dmhacungcap
+    // update_tbl_dmnhacungcap
     updatetblDMNhaCungCap: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -95,11 +95,11 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_dmhacungcap
+    // delete_tbl_dmnhacungcap
     deletetblDMNhaCungCap: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
@@ -118,7 +118,7 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_dmhacungcap
+    // get_list_tbl_dmnhacungcap
     getListtblDMNhaCungCap: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -206,7 +206,7 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_dmhacungcap
+    // get_list_name_tbl_dmnhacungcap
     getListNametblDMNhaCungCap: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {

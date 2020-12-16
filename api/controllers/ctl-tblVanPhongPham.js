@@ -95,6 +95,7 @@ module.exports = {
     // delete_tbl_vanphongpham
     deletetblVanPhongPham: (req, res) => {
         let body = req.body;
+        console.log(req.body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -181,7 +182,7 @@ module.exports = {
                                 vppName: element.VPPName ? element.VPPName : '',
                                 unit: element.Unit ? element.Unit : null,
                                 specifications: element.Specifications ? element.Specifications : '',
-                                remainingAmount: element.RemainingAmount ? element.RemainingAmount : null,
+                                amount: element.RemainingAmount ? element.RemainingAmount : null,
                             }
                             array.push(obj);
                             stt += 1;

@@ -45,8 +45,9 @@ module.exports = {
                         if (body.line.length > 0)
                             for (var i = 0; i < body.line.length; i++) {
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
+                                let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
                                 await mtblVanPhongPham(db).update({
-                                    Unit: body.line[i].unit + vpp.Unit,
+                                    RemainingAmount: Number(body.line[i].amount) + Number(amount),
                                 }, { where: { ID: body.line[i].idVanPhongPham.id } })
                             }
                         var result = {
