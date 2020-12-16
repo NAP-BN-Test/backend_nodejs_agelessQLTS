@@ -246,6 +246,7 @@ module.exports = {
                                 IDTaiSanDiKem: body.taisan[i].idTaiSanDiKem ? body.taisan[i].idTaiSanDiKem : null,
                                 SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
                                 Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
+                                TSNBCode: body.taisan[i].tsCode ? body.taisan[i].tsCode : '',
                             })
                         }
                         var result = {

@@ -194,6 +194,7 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 name: element.Name ? element.Name : '',
+                                code: element.Code ? element.Code : '',
                             }
                             array.push(obj);
                         });

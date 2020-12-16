@@ -6,7 +6,8 @@ var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var database = require('../database');
 const tblTaiSan = require('../tables/qlnb/tblTaiSan');
-var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
+var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail');
+const tblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 
 async function deleteRelationshiptblDMHangHoa(db, listID) {
     // tblYeuCauMuaSamDetail
@@ -220,13 +221,25 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).findAll().then(data => {
+                    let tblDMHangHoa = mtblDMHangHoa(db);
+                    tblDMHangHoa.belongsTo(tblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'lts' })
+
+                    tblDMHangHoa.findAll({
+                        include: [
+                            {
+                                model: tblDMLoaiTaiSan(db),
+                                required: false,
+                                as: 'lts'
+                            },
+                        ],
+                    }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
                                 name: element.Name ? element.Name : '',
                                 code: element.Code ? element.Code : '',
+                                nameLoaiTaiSan: element.lts ? element.lts.Name : '',
                             }
                             array.push(obj);
                         });
@@ -237,7 +250,6 @@ module.exports = {
                         }
                         res.json(result);
                     })
-
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -269,6 +281,7 @@ module.exports = {
                         if (data.taisan) {
                             var array = [];
                             for (var i = 0; i < data.taisan.length; i++) {
+                                console.log(data.taisan[i].TSNBCode);
                                 array.push({
                                     id: Number(data.taisan[i].ID),
                                     tsnbCode: data.taisan[i].TSNBCode,

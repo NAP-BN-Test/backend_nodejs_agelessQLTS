@@ -26,6 +26,7 @@ module.exports = {
     // add_tbl_them_vpp
     addTBLThemVPP: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -44,6 +45,7 @@ module.exports = {
                         if (body.line.length > 0)
                             for (var i = 0; i < body.line.length; i++) {
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
+                                console.log(vpp);
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
                                 await mtblVanPhongPham(db).update({
                                     RemainingAmount: Number(body.line[i].amount) + Number(amount),
@@ -217,11 +219,10 @@ module.exports = {
                                 dateReceive: data[j].Date ? data[j].Date : null,
                                 tsName: data[j].line
                             }
-                            if (data[j].line[0])
-                                console.log(data[j].line[0].vpp.VPPName);
+                            console.log(data[j].line);
                             for (var i = 0; i < data[j].line.length; i++) {
-                                obj["tsName"][i]['dataValues']['amount'] = data[j].line[0].Amount;
-                                obj["tsName"][i]['dataValues']['name'] = data[j].line[0] ? data[j].line[0].vpp ? data[j].line[0].vpp.VPPName : '' : '';
+                                obj["tsName"][i]['dataValues']['amount'] = data[j].line[i].Amount;
+                                obj["tsName"][i]['dataValues']['name'] = data[j].line[i] ? data[j].line[i].vpp ? data[j].line[i].vpp.VPPName : '' : '';
                                 if (data[j].line[i].IDVanPhongPham) {
                                     var unit = await mtblVanPhongPham(db).findOne({ where: { ID: data[j].line[i].IDVanPhongPham } })
                                     if (unit)

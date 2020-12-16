@@ -6,6 +6,7 @@ var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
@@ -20,6 +21,7 @@ module.exports = {
     // add_tbl_yeucaumuasam
     addtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -36,16 +38,15 @@ module.exports = {
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
                                 await mtblFileAttach(db).create({
-                                    Name: body.fileAttach[j].fileName,
-                                    Link: body.fileAttach[j].link,
-                                    IDVanPhongPham: data.ID,
+                                    Link: body.fileAttach[j],
+                                    IDYeuCauMuaSam: data.ID,
                                 })
                         body.line = JSON.parse(body.line)
                         if (body.line.length > 0)
                             for (var i = 0; i < body.line.length; i++) {
                                 await mtblYeuCauMuaSamDetail(db).create({
                                     IDYeuCauMuaSam: data.ID,
-                                    IDDMHangHoa: body.line[i].idDMHangHoa,
+                                    IDDMHangHoa: body.line[i].idDMHangHoa.id,
                                     Amount: body.line[i].amount
                                 })
                             }
@@ -165,43 +166,44 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let whereOjb = []
                     whereOjb.push({ Status: body.status })
-                    if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                    // if (body.dataSearch) {
+                    //     var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                // { TSName: { [Op.like]: '%' + data.search + '%' } },
+                    //     if (data.search) {
+                    //         where = [
+                    //             // { TSName: { [Op.like]: '%' + data.search + '%' } },
 
-                            ];
-                        } else {
-                            where = [
-                                // { TSName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                // if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                //     userFind['TSName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                //     if (data.items[i].conditionFields['name'] == 'And') {
-                                //         whereOjb[Op.and] = userFind
-                                //     }
-                                //     if (data.items[i].conditionFields['name'] == 'Or') {
-                                //         whereOjb[Op.or] = userFind
-                                //     }
-                                //     if (data.items[i].conditionFields['name'] == 'Not') {
-                                //         whereOjb[Op.not] = userFind
-                                //     }
-                                // }
-                            }
-                        }
-                    }
+                    //         ];
+                    //     } else {
+                    //         where = [
+                    //             // { TSName: { [Op.ne]: '%%' } },
+                    //         ];
+                    //     }
+                    //     whereOjb = { [Op.or]: where };
+                    //     if (data.items) {
+                    //         for (var i = 0; i < data.items.length; i++) {
+                    //             let userFind = {};
+                    //             // if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                    //             //     userFind['TSName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                    //             //     if (data.items[i].conditionFields['name'] == 'And') {
+                    //             //         whereOjb[Op.and] = userFind
+                    //             //     }
+                    //             //     if (data.items[i].conditionFields['name'] == 'Or') {
+                    //             //         whereOjb[Op.or] = userFind
+                    //             //     }
+                    //             //     if (data.items[i].conditionFields['name'] == 'Not') {
+                    //             //         whereOjb[Op.not] = userFind
+                    //             //     }
+                    //             // }
+                    //         }
+                    //     }
+                    // }
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })

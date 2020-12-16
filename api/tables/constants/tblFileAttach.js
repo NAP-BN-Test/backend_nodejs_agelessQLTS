@@ -9,7 +9,7 @@ module.exports = function (db) {
         },
         Name: Sequelize.STRING,
         Link: Sequelize.STRING,
-        IDTaiSan: Sequelize.BIGINT,
+        IDTaiSanADD: Sequelize.BIGINT,
         IDYeuCauMuaSam: Sequelize.BIGINT,
         IDDeNghiThanhToan: Sequelize.BIGINT,
         IDVanPhongPham: Sequelize.BIGINT,
