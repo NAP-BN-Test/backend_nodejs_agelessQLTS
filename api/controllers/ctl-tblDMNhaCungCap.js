@@ -98,7 +98,6 @@ module.exports = {
     // delete_tbl_dmnhacungcap
     deletetblDMNhaCungCap: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -170,7 +169,7 @@ module.exports = {
                     mtblDMNhaCungCap(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                    }).then(data => {
+                    }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
@@ -189,7 +188,9 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
+                        var count = await mtblDMNhaCungCap(db).count({ where: whereOjb })
                         var result = {
+                            all: count,
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

@@ -144,7 +144,7 @@ module.exports = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
+                            count: count
                         }
                         res.json(result);
                     })

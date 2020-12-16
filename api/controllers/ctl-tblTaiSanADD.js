@@ -221,8 +221,8 @@ module.exports = {
     // add_tbl_TaiSanADD
     addtblTaiSanADD: (req, res) => {
         let body = req.body;
-        console.log(body);
         body.taisan = JSON.parse(body.taisan)
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -240,7 +240,6 @@ module.exports = {
                             mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
                                 OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
-                                // IDLoaiTaiSan: body.taisan[i].idLoaiTaiSan ? body.taisan[i].idLoaiTaiSan : '',
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
                                 GuaranteeMonth: body.taisan[i].guaranteeMonth ? body.taisan[i].guaranteeMonth : null,
@@ -324,7 +323,6 @@ module.exports = {
     // delete_tbl_TaiSanADD
     deletetblTaiSanADD: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -723,7 +721,7 @@ module.exports = {
                                 idLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.ID : '' : null,
                                 nameLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Name : '' : null,
                                 codeLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Code : '' : null,
-                                unit: data[i].Unit ? data[i].Unit : null,
+                                unit: data[i].hanghoa ? data[i].hanghoa.Unit : null,
                                 employeeName: bangiao ? bangiao.nhanvien ? bangiao.nhanvien.StaffName : '' : '',
                                 departmentName: bangiao ? bangiao.bophan ? bangiao.bophan.DepartmentName : '' : '',
                                 date: data[i].taisan ? data[i].taisan.Date : null

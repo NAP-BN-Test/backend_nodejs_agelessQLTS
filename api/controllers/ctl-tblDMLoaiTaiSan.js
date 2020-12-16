@@ -77,7 +77,6 @@ module.exports = {
     deletetblDMLoaiTaiSan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
@@ -169,7 +168,7 @@ module.exports = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
+                            count: count
                         }
                         res.json(result);
                     })

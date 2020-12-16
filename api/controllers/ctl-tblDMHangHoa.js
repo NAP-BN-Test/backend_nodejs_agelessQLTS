@@ -35,7 +35,6 @@ module.exports = {
     // add_tbl_dmhanghoa
     addtblDMHangHoa: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -98,7 +97,6 @@ module.exports = {
     // delete_tbl_dmhanghoa
     deletetblDMHangHoa: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -228,6 +226,7 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 name: element.Name ? element.Name : '',
+                                code: element.Code ? element.Code : '',
                             }
                             array.push(obj);
                         });
@@ -269,15 +268,13 @@ module.exports = {
                     }).then(async data => {
                         if (data.taisan) {
                             var array = [];
-                            data.taisan.forEach(item => {
-                                if (item.TSNBCode)
-                                    array.push({
-                                        id: Number(item.ID),
-                                        tsnbCode: item.TSNBCode,
-                                        tsnbCode: item.TSNBCode,
-                                        guaranteeMonth: item.GuaranteeMonth ? item.GuaranteeMonth : '',
-                                    })
-                            })
+                            for (var i = 0; i < data.taisan.length; i++) {
+                                array.push({
+                                    id: Number(data.taisan[i].ID),
+                                    tsnbCode: data.taisan[i].TSNBCode,
+                                    guaranteeMonth: data.taisan[i].GuaranteeMonth ? data.taisan[i].GuaranteeMonth : '',
+                                })
+                            }
                         }
                         var result = {
                             array: array,
