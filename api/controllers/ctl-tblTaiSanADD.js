@@ -14,6 +14,7 @@ var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 
 var database = require('../database');
 const tblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao');
+const mtblThanhLyTaiSan = require('../tables/qlnb/tblThanhLyTaiSan');
 const tblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 async function deleteRelationshiptblTaiSanADD(db, listID) {
@@ -153,6 +154,7 @@ async function getDetailTaiSan(db, idTaiSan) {
     }).then(async data => {
         let staffName = await getStaffFromTaiSan(db, idTaiSan);
         let departmentName = await getDepartFromTaiSan(db, idTaiSan);
+        let thanhLy = await mtblThanhLyTaiSan(db).findOne({ where: { IDTaiSan: data.ID } })
         obj = {
             id: data.ID,
             code: data.hanghoa ? data.hanghoa.Code : '',
@@ -161,6 +163,9 @@ async function getDetailTaiSan(db, idTaiSan) {
             nameLoaiTaiSan: data.hanghoa ? data.hanghoa.loaitaisan ? data.hanghoa.loaitaisan.Name : '' : '',
             codeLoaiTaiSan: data.hanghoa ? data.hanghoa.loaitaisan ? data.hanghoa.loaitaisan.Code : '' : '',
             serialNumber: data.SerialNumber ? data.SerialNumber : '',
+            originalPrice: data.OriginalPrice ? data.OriginalPrice : 0,
+            depreciationDate: data.DepreciationDate ? data.DepreciationDate : null,
+            depreciationPrice: data.DepreciationPrice ? data.DepreciationPrice : 0,
             supplierName: data.taisanADD ? data.taisanADD.ncc ? data.taisanADD.ncc.SupplierName : '' : '',
             dateIncreases: data.taisanADD ? data.taisanADD.Date : '',
             staffName: staffName,
@@ -168,6 +173,8 @@ async function getDetailTaiSan(db, idTaiSan) {
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
             condition: data.Condition ? data.Condition : '',
             describe: data.Describe ? data.Describe : '',
+            LiquidationDate: thanhLy ? thanhLy.LiquidationDate : null,
+            LiquidationReason: thanhLy ? thanhLy.LiquidationReason : '',
         }
     })
 
@@ -177,9 +184,76 @@ async function getDetailTaiSan(db, idTaiSan) {
 
 module.exports = {
     deleteRelationshiptblTaiSanADD,
+    // get_list_history_staff_use
+    getListHistoryStaffUse: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblTaiSan = mtblTaiSan(db);
+                    let tblTaiSanHistory = mtblTaiSanHistory(db);
+                    let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
+                    var stt = 1;
+                    var array = [];
+                    tblTaiSan.hasMany(tblTaiSanHistory, { foreignKey: 'IDTaiSan', as: 'history' })
+                    tblTaiSanHistory.belongsTo(tblTaiSanBanGiao, { foreignKey: 'IDTaiSanBanGiao', sourceKey: 'IDTaiSanBanGiao', as: 'taisanbangiao' })
+                    tblTaiSanBanGiao.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nv' })
+                    tblTaiSan.findOne({
+                        where: { ID: body.id },
+                        include: [
+                            {
+                                model: tblTaiSanHistory,
+                                required: false,
+                                as: 'history',
+                                include: [
+                                    {
+                                        model: tblTaiSanBanGiao,
+                                        required: false,
+                                        as: 'taisanbangiao',
+                                        include: [
+                                            {
+                                                model: mtblDMNhanvien(db),
+                                                required: false,
+                                                as: 'nv',
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    }).then(async data => {
+                        for (var i = 0; i < data.history.length; i++) {
+                            var obj = {
+                                stt: stt,
+                                staffCode: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffCode : '' : '' : '',
+                                staffName: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffName : '' : '' : '',
+                                fromDate: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.Date : null : null,
+                                toDate: data.history[i] ? data.history[i].DateThuHoi : null,
+                            }
+                            stt += 1;
+                            array.push(obj);
+                        }
+
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // detail_tbl_taisanadd
     detailtblTaiSanADD: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -195,7 +269,6 @@ module.exports = {
                             })
                         }
                     })
-                    console.log(listIDTaiSan);
                     if (listIDTaiSan.length > 0) {
                         for (var i = 0; i < listIDTaiSan.length; i++) {
                             var objTaiSanDK = await getDetailTaiSan(db, listIDTaiSan[i]);
@@ -222,7 +295,6 @@ module.exports = {
     addtblTaiSanADD: (req, res) => {
         let body = req.body;
         body.taisan = JSON.parse(body.taisan)
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -238,7 +310,7 @@ module.exports = {
                             })
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).create({
-                                IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
+                                IDDMHangHoa: body.taisan[i].idDMHangHoa.id ? body.taisan[i].idDMHangHoa.id : null,
                                 OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
@@ -484,12 +556,13 @@ module.exports = {
                         data.forEach(item => {
                             if (item.IDTaiSan) {
                                 if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                                    listIDTaiSan.push(item.IDTaiSan)
+                                    listIDTaiSan.push(Number(item.IDTaiSan))
                             }
                         })
                     })
+                    console.log(listIDTaiSan);
                     whereOjb.push({
-                        ID: { [Op.ne]: listIDTaiSan }
+                        ID: { [Op.notIn]: listIDTaiSan }
                     })
 
                     if (body.dataSearch) {
@@ -531,7 +604,6 @@ module.exports = {
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
                     let tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
-
                     tblTaiSan.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),

@@ -25,6 +25,7 @@ module.exports = {
     // add_tbl_dmnhacungcap
     addtblDMNhaCungCap: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -38,6 +39,7 @@ module.exports = {
                         PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
                         FaxNumber: body.faxNumber ? body.faxNumber : '',
                         Email: body.email ? body.email : '',
+                        Describe: body.describe ? body.describe : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -57,6 +59,7 @@ module.exports = {
     // update_tbl_dmnhacungcap
     updatetblDMNhaCungCap: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -64,7 +67,7 @@ module.exports = {
                     if (body.supplierCode || body.supplierCode === '')
                         update.push({ key: 'SupplierCode', value: body.supplierCode });
                     if (body.supplierName || body.supplierName === '')
-                        update.push({ key: 'supplierName', value: body.supplierName });
+                        update.push({ key: 'SupplierName', value: body.supplierName });
                     if (body.taxNumber || body.taxNumber === '')
                         update.push({ key: 'TaxNumber', value: body.taxNumber });
                     if (body.bankNumber || body.bankNumber === '')
@@ -79,6 +82,8 @@ module.exports = {
                         update.push({ key: 'FaxNumber', value: body.faxNumber });
                     if (body.email || body.email === '')
                         update.push({ key: 'Email', value: body.email });
+                    if (body.describe || body.describe === '')
+                        update.push({ key: 'Describe', value: body.describe });
                     database.updateTable(update, mtblDMNhaCungCap(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -184,6 +189,7 @@ module.exports = {
                                 phoneNumber: element.PhoneNumber ? element.PhoneNumber : '',
                                 faxNumber: element.FaxNumber ? element.FaxNumber : '',
                                 email: element.Email ? element.Email : '',
+                                Describe: element.describe ? element.describe : '',
                             }
                             array.push(obj);
                             stt += 1;

@@ -172,6 +172,9 @@ module.exports = {
                     var tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan' })
                     tblDMHangHoa.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         include: [
                             {
                                 model: mtblDMLoaiTaiSan(db),

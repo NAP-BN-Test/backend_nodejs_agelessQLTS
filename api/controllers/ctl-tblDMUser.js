@@ -119,11 +119,13 @@ module.exports = {
                     let whereOjb = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
-
                         if (data.search) {
+                            var active = data.search.toUpperCase() == 'CÓ HIỆU LỰC' ? true : false
+
                             where = [
                                 { Username: { [Op.like]: '%' + data.search + '%' } },
                                 { Password: { [Op.like]: '%' + data.search + '%' } },
+                                { Active: active },
                             ];
                         } else {
                             where = [
@@ -133,9 +135,24 @@ module.exports = {
                         whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
+                                if (!data.items['conditionFields'] || !data.items['searchFields'] || !data.items['name']) {
+                                    continue;
+                                }
                                 let userFind = {};
+                                let employeeIDS = [];
                                 if (data.items[i].fields['name'] === 'TÊN ĐẦY ĐỦ') {
-                                    userFind['staffName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    await mtblDMNhanvien(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { StaffName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            employeeIDS.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDNhanvien'] = { [Op.in]: employeeIDS }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -147,7 +164,18 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
-                                    userFind['staffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    await mtblDMNhanvien(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { StaffCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            employeeIDS.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDNhanvien'] = { [Op.in]: employeeIDS }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -240,7 +268,7 @@ module.exports = {
                                 idNhanvien: element.IDNhanvien ? element.IDNhanvien : null,
                                 staffName: element.tblDMNhanvien ? element.tblDMNhanvien.StaffName : '',
                                 staffCode: element.tblDMNhanvien ? element.tblDMNhanvien.StaffCode : '',
-                                active: element.Active ? element.Active : '',
+                                active: element.Active ? 'Có hiệu lực' : 'Vô hiệu hóa',
                                 idPermission: element.IDPermission ? element.IDPermission : null,
                                 permissionName: element.tblDMPermission ? element.tblDMPermission.PermissionName : '',
                             }

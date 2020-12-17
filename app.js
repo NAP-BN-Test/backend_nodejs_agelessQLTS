@@ -70,7 +70,7 @@ let connect = require('./api/database')
 
 connect.connectDatabase();
 
-const port = process.env.PORT || 3202
+const port = process.env.PORT || 3100
 
 server.listen(port, function () {
     console.log('http://localhost:' + port);

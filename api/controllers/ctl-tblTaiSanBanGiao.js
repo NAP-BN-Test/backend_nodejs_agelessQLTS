@@ -6,6 +6,9 @@ var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
 var mtblTaiSanHistory = require('../tables/qlnb/tblTaiSanHistory')
 var database = require('../database');
 async function deleteRelationshiptblTaiSanBanGiao(db, listID) {
+    await mtblTaiSanHistory(db).destroy({
+        where: { IDTaiSan: { [Op.in]: listID } }
+    })
     await mtblTaiSanBanGiao(db).destroy({
         where: {
             ID: { [Op.in]: listID }

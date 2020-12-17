@@ -16,6 +16,7 @@ module.exports = function (db) {
         PhoneNumber: Sequelize.STRING,
         FaxNumber: Sequelize.STRING,
         Email: Sequelize.STRING,
+        Describe: Sequelize.STRING,
     });
 
     return table;

@@ -102,6 +102,9 @@ module.exports = function (app) {
 
 
     app.route('/qlnb/detail_tbl_taisanadd').post(tblTaiSan.detailtblTaiSanADD);
+    app.route('/qlnb/get_list_history_staff_use').post(tblTaiSan.getListHistoryStaffUse);
+
+
     app.route('/qlnb/add_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.addtblTaiSanADD);
     app.route('/qlnb/update_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.updatetblTaiSanADD);
     app.route('/qlnb/delete_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.deletetblTaiSanADD);
