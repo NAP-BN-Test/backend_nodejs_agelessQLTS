@@ -219,7 +219,6 @@ module.exports = {
                                 dateReceive: data[j].Date ? data[j].Date : null,
                                 tsName: data[j].line
                             }
-                            console.log(data[j].line);
                             for (var i = 0; i < data[j].line.length; i++) {
                                 obj["tsName"][i]['dataValues']['amount'] = data[j].line[i].Amount;
                                 obj["tsName"][i]['dataValues']['name'] = data[j].line[i] ? data[j].line[i].vpp ? data[j].line[i].vpp.VPPName : '' : '';
