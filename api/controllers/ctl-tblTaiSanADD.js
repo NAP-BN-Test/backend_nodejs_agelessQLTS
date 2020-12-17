@@ -17,6 +17,8 @@ const tblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao');
 const mtblThanhLyTaiSan = require('../tables/qlnb/tblThanhLyTaiSan');
 const tblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
+
 async function deleteRelationshiptblTaiSanADD(db, listID) {
     await mtblTaiSanHistory(db).destroy({
         where: { IDTaiSan: { [Op.in]: listID } }
@@ -122,6 +124,7 @@ async function getDetailTaiSan(db, idTaiSan) {
     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
     tblTaiSan.belongsTo(tblDMHangHoa, { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
     tblTaiSanADD.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDNhaCungCap', sourceKey: 'IDNhaCungCap', as: 'ncc' })
+    tblTaiSanADD.hasMany(mtblFileAttach(db), { foreignKey: 'IDTaiSanADD', as: 'file' })
     tblTaiSan.belongsTo(tblTaiSanADD, { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisanADD' })
     await tblTaiSan.findOne({
         where: { ID: idTaiSan },
@@ -149,6 +152,13 @@ async function getDetailTaiSan(db, idTaiSan) {
                         as: 'ncc'
                     },
                 ],
+                include: [
+                    {
+                        model: mtblFileAttach(db),
+                        required: false,
+                        as: 'file'
+                    },
+                ],
             },
         ],
     }).then(async data => {
@@ -167,6 +177,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             depreciationDate: data.DepreciationDate ? data.DepreciationDate : null,
             depreciationPrice: data.DepreciationPrice ? data.DepreciationPrice : 0,
             supplierName: data.taisanADD ? data.taisanADD.ncc ? data.taisanADD.ncc.SupplierName : '' : '',
+            fileAttach: data.taisanADD ? data.taisanADD.file : [],
             dateIncreases: data.taisanADD ? data.taisanADD.Date : '',
             staffName: staffName,
             departmentName: departmentName,
@@ -295,6 +306,7 @@ module.exports = {
     addtblTaiSanADD: (req, res) => {
         let body = req.body;
         body.taisan = JSON.parse(body.taisan)
+        body.fileAttach = JSON.parse(body.fileAttach)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -302,12 +314,15 @@ module.exports = {
                         IDNhaCungCap: body.idNhaCungCap ? body.idNhaCungCap : null,
                         Date: moment(body.date).format('YYYY-MM-DD HH:mm:ss.SSS') ? body.date : null,
                     }).then(async data => {
-                        if (body.fileAttach > 0)
-                            await mtblFileAttach(db).create({
-                                Name: body.fileAttach.fileName,
-                                Link: body.fileAttach.link,
-                                IDTaiSanADD: data.ID,
-                            })
+                        if (body.fileAttach.length > 0) {
+                            for (var i = 0; i < body.fileAttach.length; i++) {
+                                await mtblFileAttach(db).create({
+                                    Name: body.fileAttach[i].name,
+                                    Link: body.fileAttach[i].link,
+                                    IDTaiSanADD: data.ID,
+                                })
+                            }
+                        }
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa.id ? body.taisan[i].idDMHangHoa.id : null,
@@ -319,6 +334,7 @@ module.exports = {
                                 SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
                                 Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
                                 TSNBCode: body.taisan[i].tsCode ? body.taisan[i].tsCode : '',
+                                IDTaiSanADD: data.ID,
                             })
                         }
                         var result = {

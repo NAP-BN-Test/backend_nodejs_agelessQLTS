@@ -238,6 +238,8 @@ module.exports = {
                                 { StaffCode: { [Op.like]: '%' + data.search + '%' } },
                                 { StaffName: { [Op.like]: '%' + data.search + '%' } },
                                 { Address: { [Op.like]: '%' + data.search + '%' } },
+                                { Email: { [Op.like]: '%' + data.search + '%' } },
+
                             ];
                         } else {
                             where = [
@@ -261,7 +263,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TÊN NHÂN VIÊN') {
-                                    userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['StaffName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -273,7 +275,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
-                                    userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

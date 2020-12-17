@@ -120,18 +120,41 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
                         if (data.search) {
-                            var active = data.search.toUpperCase() == 'CÓ HIỆU LỰC' ? true : false
-
-                            where = [
-                                { Username: { [Op.like]: '%' + data.search + '%' } },
-                                { Password: { [Op.like]: '%' + data.search + '%' } },
-                                { Active: active },
-                            ];
+                            var active = ''
+                            if (data.search.toUpperCase() == 'CÓ HIỆU LỰC' || data.search.toUpperCase() == 'VÔ HIỆU HÓA')
+                                active = data.search.toUpperCase() == 'CÓ HIỆU LỰC' ? true : false
+                            let employeeIDS = [];
+                            await mtblDMNhanvien(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { StaffName: { [Op.like]: '%' + data.search + '%' } },
+                                        { StaffCode: { [Op.like]: '%' + data.search + '%' } },
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    employeeIDS.push(item.ID);
+                                })
+                            })
+                            console.log(active);
+                            if (active != '')
+                                where = [
+                                    { Username: { [Op.like]: '%' + data.search + '%' } },
+                                    { Active: active },
+                                    { [Op.and]: { IDNhanvien: { [Op.in]: employeeIDS } } },
+                                ];
+                            else
+                                where = [
+                                    { Username: { [Op.like]: '%' + data.search + '%' } },
+                                    // { Active: active },
+                                    { [Op.and]: { IDNhanvien: { [Op.in]: employeeIDS } } },
+                                ];
                         } else {
                             where = [
                                 { Username: { [Op.ne]: '%%' } },
                             ];
                         }
+                        console.log(where);
                         whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
@@ -139,8 +162,8 @@ module.exports = {
                                     continue;
                                 }
                                 let userFind = {};
-                                let employeeIDS = [];
                                 if (data.items[i].fields['name'] === 'TÊN ĐẦY ĐỦ') {
+                                    let employeeIDS = [];
                                     await mtblDMNhanvien(db).findAll({
                                         where: {
                                             [Op.or]: [
@@ -164,6 +187,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
+                                    let employeeIDS = [];
                                     await mtblDMNhanvien(db).findAll({
                                         where: {
                                             [Op.or]: [

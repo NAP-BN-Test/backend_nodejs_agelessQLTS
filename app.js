@@ -37,12 +37,14 @@ async function getDateInt(req, res, next) {
     next();
 }
 var pathFile;
+var nameFile;
 let storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, DIR);
     },
     filename: (req, file, cb) => {
         pathFile = path.extname(file.originalname)
+        nameFile = file.originalname.split('.')[0]
         cb(null, file.fieldname + '-' + nameMiddle + pathFile);
     }
 });
@@ -58,6 +60,7 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), function (req, r
     } else {
         return res.send({
             link: 'http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile,
+            name: nameFile + pathFile,
             success: true
         })
     }
