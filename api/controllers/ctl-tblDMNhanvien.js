@@ -234,12 +234,25 @@ module.exports = {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
+                            var list = [];
+                            await mtblDMBoPhan(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { DepartmentCode: { [Op.like]: '%' + data.search + '%' } },
+                                        { DepartmentName: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    list.push(item.ID);
+                                })
+                            })
                             where = [
                                 { StaffCode: { [Op.like]: '%' + data.search + '%' } },
                                 { StaffName: { [Op.like]: '%' + data.search + '%' } },
                                 { Address: { [Op.like]: '%' + data.search + '%' } },
                                 { Email: { [Op.like]: '%' + data.search + '%' } },
-
+                                { IDBoPhan: { [Op.in]: list } },
                             ];
                         } else {
                             where = [
@@ -288,6 +301,18 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'EMAIL') {
                                     userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
+                                    userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

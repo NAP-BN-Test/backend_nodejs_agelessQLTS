@@ -184,8 +184,8 @@ async function getDetailTaiSan(db, idTaiSan) {
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
             condition: data.Condition ? data.Condition : '',
             describe: data.Describe ? data.Describe : '',
-            LiquidationDate: thanhLy ? thanhLy.LiquidationDate : null,
-            LiquidationReason: thanhLy ? thanhLy.LiquidationReason : '',
+            liquidationDate: thanhLy ? thanhLy.LiquidationDate : null,
+            liquidationReason: thanhLy ? thanhLy.LiquidationReason : '',
         }
     })
 
@@ -276,13 +276,16 @@ module.exports = {
                     }).then(data => {
                         if (data.length > 0) {
                             data.forEach(element => {
-                                listIDTaiSan.push(element.ID);
+                                listIDTaiSan.push(element.IDTaiSanDiKem);
                             })
                         }
                     })
                     if (listIDTaiSan.length > 0) {
+                        var stt = 1;
                         for (var i = 0; i < listIDTaiSan.length; i++) {
                             var objTaiSanDK = await getDetailTaiSan(db, listIDTaiSan[i]);
+                            objTaiSanDK['stt'] = stt;
+                            stt += 1;
                             array.push(objTaiSanDK);
                         }
                     }
@@ -576,9 +579,9 @@ module.exports = {
                             }
                         })
                     })
-                    console.log(listIDTaiSan);
                     whereOjb.push({
-                        ID: { [Op.notIn]: listIDTaiSan }
+                        ID: { [Op.notIn]: listIDTaiSan },
+                        IDTaiSanDiKem: null
                     })
 
                     if (body.dataSearch) {
@@ -705,7 +708,9 @@ module.exports = {
                         })
                     })
                     whereOjb.push({
-                        ID: { [Op.in]: listIDTaiSan }
+                        ID: { [Op.in]: listIDTaiSan },
+                        IDTaiSanDiKem: null
+
                     })
 
                     // if (body.dataSearch) {

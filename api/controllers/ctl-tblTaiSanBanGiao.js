@@ -20,6 +20,7 @@ module.exports = {
     // add_tbl_taisan_bangiao
     addtblTaiSanBanGiao: (req, res) => {
         let body = req.body;
+        console.log(body);
         let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {

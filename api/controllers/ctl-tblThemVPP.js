@@ -31,7 +31,7 @@ module.exports = {
             if (db) {
                 try {
                     mtblThemVPP(db).create({
-                        idNhaCungCap: body.idNhaCungCap ? body.idNhaCungCap : null,
+                        IDNhaCungCap: body.idNhaCungCap ? body.idNhaCungCap : null,
                         Date: body.date ? body.date : null,
                     }).then(async data => {
                         body.fileAttach = JSON.parse(body.fileAttach)
@@ -44,8 +44,13 @@ module.exports = {
                         body.line = JSON.parse(body.line)
                         if (body.line.length > 0)
                             for (var i = 0; i < body.line.length; i++) {
+                                await mThemVPPChiTiet(db).create({
+                                    IDVanPhongPham: body.line[i].idVanPhongPham.id,
+                                    IDThemVPP: data.ID,
+                                    Amount: body.line[i].amount ? body.line[i].amount : 0,
+                                    Describe: body.line[i].describe ? body.line[i].describe : 0,
+                                })
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
-                                console.log(vpp);
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
                                 await mtblVanPhongPham(db).update({
                                     RemainingAmount: Number(body.line[i].amount) + Number(amount),

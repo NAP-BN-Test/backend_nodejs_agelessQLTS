@@ -15,6 +15,10 @@ module.exports = function (app) {
     var tblDeNghiThanhToan = require('./controllers/ctl-tblDeNghiThanhToan');
     var tblTaiSanBanGiao = require('./controllers/ctl-tblTaiSanBanGiao');
     var tblPhanPhoiVPP = require('./controllers/ctl-tblPhanPhoiVPP');
+    var tblFileAttach = require('./controllers/ctl-tblFileAttach');
+
+    app.route('/qlnb/delete_file').post(tblFileAttach.deletetblFileAttach);
+    app.route('/qlnb/delete_file_from_link').post(tblFileAttach.deletetblFileFromLink);
 
     //---------------------------------------------------------------- Menu Quản lý danh mục--------------------------------------------------------------------------------------
     // Quản lý account

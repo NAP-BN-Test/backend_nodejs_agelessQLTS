@@ -24,17 +24,18 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblPhanPhoiVPP(db).create({
+                    await mtblPhanPhoiVPP(db).create({
                         IDNhanVienSoHuu: body.idNhanVienSoHuu ? body.idNhanVienSoHuu : null,
                         IDNhanVienBanGiao: body.idNhanVienBanGiao ? body.idNhanVienBanGiao : null,
                         IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : null,
                         Date: body.date ? body.date : null,
                     }).then(async data => {
+                        body.line = JSON.parse(body.line);
                         if (data)
-                            for (var i = 0; i < body.line; i++) {
+                            for (var i = 0; i < body.line.length; i++) {
                                 await mtblPhanPhoiVPPChiTiet(db).create({
                                     IDPhanPhoiVPP: data.ID,
-                                    IDVanPhongPham: body.line[i].idVanPhongPham ? body.line[i].idVanPhongPham : null,
+                                    IDVanPhongPham: body.line[i].idVanPhongPham.id ? body.line[i].idVanPhongPham.id : null,
                                     Amount: body.line[i].amount ? body.line[i].amount : null,
                                     Describe: body.line[i].describe ? body.line[i].describe : '',
                                 })

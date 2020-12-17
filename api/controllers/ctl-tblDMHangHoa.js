@@ -284,13 +284,13 @@ module.exports = {
                         if (data.taisan) {
                             var array = [];
                             for (var i = 0; i < data.taisan.length; i++) {
-                                console.log(data.taisan[i].TSNBCode);
                                 array.push({
                                     id: Number(data.taisan[i].ID),
                                     tsnbCode: data.taisan[i].TSNBCode,
                                     guaranteeMonth: data.taisan[i].GuaranteeMonth ? data.taisan[i].GuaranteeMonth : '',
                                 })
                             }
+                            console.log(array);
                         }
                         var result = {
                             array: array,

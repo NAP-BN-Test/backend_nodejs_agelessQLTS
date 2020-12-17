@@ -65,6 +65,7 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), function (req, r
         })
     }
 });
+
 // -------------------------------------------------------------------------------------------------------------------------
 let routes = require('./api/router') //importing route
 routes(app)

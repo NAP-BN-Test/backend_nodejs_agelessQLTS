@@ -120,6 +120,18 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
                         if (data.search) {
+                            var permission = [];
+                            await mtblDMPermission(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { PermissionName: { [Op.like]: '%' + data.search + '%' } },
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    permission.push(item.ID);
+                                })
+                            })
                             var active = ''
                             if (data.search.toUpperCase() == 'CÓ HIỆU LỰC' || data.search.toUpperCase() == 'VÔ HIỆU HÓA')
                                 active = data.search.toUpperCase() == 'CÓ HIỆU LỰC' ? true : false
@@ -136,31 +148,29 @@ module.exports = {
                                     employeeIDS.push(item.ID);
                                 })
                             })
-                            console.log(active);
                             if (active != '')
                                 where = [
+                                    { IDPermission: { [Op.in]: permission } },
                                     { Username: { [Op.like]: '%' + data.search + '%' } },
                                     { Active: active },
                                     { [Op.and]: { IDNhanvien: { [Op.in]: employeeIDS } } },
                                 ];
                             else
                                 where = [
+                                    { IDPermission: { [Op.in]: permission } },
                                     { Username: { [Op.like]: '%' + data.search + '%' } },
                                     // { Active: active },
                                     { [Op.and]: { IDNhanvien: { [Op.in]: employeeIDS } } },
                                 ];
+                            console.log(where);
                         } else {
                             where = [
                                 { Username: { [Op.ne]: '%%' } },
                             ];
                         }
-                        console.log(where);
                         whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
-                                if (!data.items['conditionFields'] || !data.items['searchFields'] || !data.items['name']) {
-                                    continue;
-                                }
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÊN ĐẦY ĐỦ') {
                                     let employeeIDS = [];

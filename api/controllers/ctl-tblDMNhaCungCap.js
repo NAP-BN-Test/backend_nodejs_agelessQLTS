@@ -189,7 +189,7 @@ module.exports = {
                                 phoneNumber: element.PhoneNumber ? element.PhoneNumber : '',
                                 faxNumber: element.FaxNumber ? element.FaxNumber : '',
                                 email: element.Email ? element.Email : '',
-                                Describe: element.describe ? element.describe : '',
+                                describe: element.Describe ? element.Describe : '',
                             }
                             array.push(obj);
                             stt += 1;
