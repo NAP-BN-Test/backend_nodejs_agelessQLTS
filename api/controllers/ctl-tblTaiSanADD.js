@@ -568,7 +568,7 @@ module.exports = {
                     await mtblTaiSanHistory(db).findAll({
                         where: [
                             {
-                                DateThuHoi: { [Op.ne]: null }
+                                DateThuHoi: null
                             }
                         ]
                     }).then(data => {
@@ -696,7 +696,7 @@ module.exports = {
                     await mtblTaiSanHistory(db).findAll({
                         where: [
                             {
-                                DateThuHoi: { [Op.ne]: null }
+                                DateThuHoi: null
                             }
                         ]
                     }).then(data => {
@@ -747,12 +747,14 @@ module.exports = {
                     //         }
                     //     }
                     // }
+                    var listTaiSan = [];
+                    var listObj = [];
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
                     let tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
-                    tblTaiSan.findAll({
+                    await tblTaiSan.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
@@ -781,33 +783,9 @@ module.exports = {
                             // },
                         ],
                     }).then(async data => {
-                        var array = [];
-                        var stt = 1;
-                        let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
-                        tblTaiSanBanGiao.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nhanvien' })
-                        tblTaiSanBanGiao.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bophan' })
                         for (var i = 0; i < data.length; i++) {
-                            var history = await mtblTaiSanHistory(db).findOne({ where: { IDTaiSan: data[i].ID } })
-                            var bangiao;
-                            if (history) {
-                                bangiao = await tblTaiSanBanGiao.findOne({
-                                    where: { ID: history.IDTaiSanBanGiao },
-                                    include: [
-                                        {
-                                            model: mtblDMNhanvien(db),
-                                            required: false,
-                                            as: 'nhanvien'
-                                        },
-                                        {
-                                            model: mtblDMBoPhan(db),
-                                            required: false,
-                                            as: 'bophan'
-                                        },
-                                    ],
-                                })
-                            }
-                            var obj = {
-                                stt: stt,
+                            listTaiSan.push(data[i].ID);
+                            listObj.push({
                                 id: Number(data[i].ID),
                                 idDMHangHoa: data[i].IDDMHangHoa ? data[i].IDDMHangHoa : null,
                                 nameDMHangHoa: data[i].hanghoa ? data[i].hanghoa.Name : '',
@@ -816,14 +794,55 @@ module.exports = {
                                 nameLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Name : '' : null,
                                 codeLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Code : '' : null,
                                 unit: data[i].hanghoa ? data[i].hanghoa.Unit : null,
-                                employeeName: bangiao ? bangiao.nhanvien ? bangiao.nhanvien.StaffName : '' : '',
-                                departmentName: bangiao ? bangiao.bophan ? bangiao.bophan.DepartmentName : '' : '',
-                                date: data[i].taisan ? data[i].taisan.Date : null
-                            }
-                            array.push(obj);
-                            stt += 1;
+                            })
                         }
-                        var count = await mtblTaiSan(db).count({ where: whereOjb })
+
+                    })
+                    await mtblTaiSanHistory(db).findAll({
+                        where: { IDTaiSan: { [Op.in]: listTaiSan } }
+                    }).then(async history => {
+                        var array = [];
+                        var stt = 1;
+                        for (var e = 0; e < history.length; e++) {
+                            let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
+                            tblTaiSanBanGiao.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nhanvien' })
+                            tblTaiSanBanGiao.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bophan' })
+                            var bangiao = await tblTaiSanBanGiao.findOne({
+                                where: { ID: history[e].IDTaiSanBanGiao },
+                                include: [
+                                    {
+                                        model: mtblDMNhanvien(db),
+                                        required: false,
+                                        as: 'nhanvien'
+                                    },
+                                    {
+                                        model: mtblDMBoPhan(db),
+                                        required: false,
+                                        as: 'bophan'
+                                    },
+                                ],
+                            })
+                            listObj.forEach(element => {
+                                if (element.id == history[e].IDTaiSan) {
+                                    var obj = {
+                                        stt: stt,
+                                        idDMHangHoa: element.idDMHangHoa ? element.idDMHangHoa : null,
+                                        nameDMHangHoa: element.nameDMHangHoa ? element.nameDMHangHoa : '',
+                                        codeDMHangHoa: element.codeDMHangHoa ? element.codeDMHangHoa : '',
+                                        idLoaiTaiSan: element.idLoaiTaiSan ? element.idLoaiTaiSan : null,
+                                        nameLoaiTaiSan: element.nameLoaiTaiSan ? element.nameLoaiTaiSan : null,
+                                        codeLoaiTaiSan: element.codeLoaiTaiSan ? element.codeLoaiTaiSan : null,
+                                        unit: element.unit ? element.unit : null,
+                                        employeeName: bangiao ? bangiao.nhanvien ? bangiao.nhanvien.StaffName : '' : '',
+                                        departmentName: bangiao ? bangiao.bophan ? bangiao.bophan.DepartmentName : '' : '',
+                                        date: bangiao ? bangiao.Date : null
+                                    }
+                                    array.push(obj);
+                                    stt += 1;
+                                }
+                            })
+                        }
+                        var count = await mtblTaiSanHistory(db).count({ where: { IDTaiSan: { [Op.in]: listTaiSan } } })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

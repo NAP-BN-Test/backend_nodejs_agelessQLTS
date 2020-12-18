@@ -50,7 +50,7 @@ module.exports = {
                                 await mtblTaiSanHistory(db).create({
                                     IDTaiSan: body.listHistory[i].idTaiSan.id,
                                     IDTaiSanBanGiao: data.ID,
-                                    DateThuHoi: now,
+                                    // DateThuHoi: now,
                                 })
                             }
                         }

@@ -39,6 +39,11 @@ module.exports = {
                                     Amount: body.line[i].amount ? body.line[i].amount : null,
                                     Describe: body.line[i].describe ? body.line[i].describe : '',
                                 })
+                                let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
+                                let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
+                                await mtblVanPhongPham(db).update({
+                                    RemainingAmount: Number(body.line[i].amount) + Number(amount),
+                                }, { where: { ID: body.line[i].idVanPhongPham.id } })
                             }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
