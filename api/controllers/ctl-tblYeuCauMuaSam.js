@@ -7,6 +7,7 @@ var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
@@ -209,10 +210,18 @@ module.exports = {
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
-                    tblYeuCauMuaSam.hasMany(mtblYeuCauMuaSamDetail(db), { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+                    let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
+                    tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+
                     // tblYeuCauMuaSam.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'HangHoa' })
                     tblYeuCauMuaSam.findAll({
                         include: [
+                            {
+                                model: mtblDMBoPhan(db),
+                                required: false,
+                                as: 'phongban'
+                            },
                             {
                                 model: mtblDMNhanvien(db),
                                 required: false,
@@ -229,9 +238,9 @@ module.exports = {
                                 as: 'PheDuyet2',
                             },
                             {
-                                model: mtblYeuCauMuaSamDetail(db),
+                                model: tblYeuCauMuaSamDetail,
                                 required: false,
-                                as: 'line',
+                                as: 'line'
                             },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
@@ -244,8 +253,10 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 idIDNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
-                                nameIDNhanVien: element.NhanVien.StaffName ? element.NhanVien.StaffName : null,
+                                nameIDNhanVien: element.NhanVien ? element.NhanVien.StaffName : null,
                                 idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
+                                codePhongBan: element.bophan ? element.bophan.DepartmentCode : null,
+                                namePhongBan: element.bophan ? element.bophan.DepartmentName : null,
                                 requireDate: element.RequireDate ? element.RequireDate : null,
                                 reason: element.Reason ? element.Reason : '',
                                 status: element.Status ? element.Status : '',
@@ -258,6 +269,18 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
+                        for (var i = 0; i < array.length; i++) {
+                            for (var j = 0; j < array[i].line.length; j++) {
+                                await mtblDMHangHoa(db).findOne({ where: { ID: array[i].line[j].IDDMHangHoa } }).then(data => {
+                                    array[i]['arrayTaiSan'] = {
+                                        name: data.Name,
+                                        code: data.Code,
+                                        amount: array[i].line[j].Amount,
+                                    }
+                                })
+                            }
+
+                        }
                         var count = await tblYeuCauMuaSam.count({ where: whereOjb })
                         var result = {
                             array: array,

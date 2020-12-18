@@ -146,6 +146,7 @@ module.exports = {
     // get_list_tbl_them_vpp
     getListTBLThemVPP: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

@@ -264,7 +264,6 @@ module.exports = {
     // detail_tbl_taisanadd
     detailtblTaiSanADD: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -296,6 +295,33 @@ module.exports = {
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
                     res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // update_detail_asset
+    updateDetailAsset: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblTaiSan(db).update({
+                        OriginalPrice: body.originalPrice ? body.originalPrice : null,
+                        Unit: body.unit ? body.unit : '',
+                        Specifications: body.specifications ? body.specifications : '',
+                        GuaranteeMonth: body.guaranteeMonth ? body.guaranteeMonth : null,
+                        SerialNumber: body.serialNumber ? body.serialNumber : '',
+                        Describe: body.describe ? body.describe : '',
+                        TSNBCode: body.tsCode ? body.tsCode : '',
+                    }, {
+                        where: { ID: body.id }
+                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -755,8 +781,6 @@ module.exports = {
                     let tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
                     await tblTaiSan.findAll({
-                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
-                        limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [
                             {
@@ -789,7 +813,7 @@ module.exports = {
                                 id: Number(data[i].ID),
                                 idDMHangHoa: data[i].IDDMHangHoa ? data[i].IDDMHangHoa : null,
                                 nameDMHangHoa: data[i].hanghoa ? data[i].hanghoa.Name : '',
-                                codeDMHangHoa: data[i].hanghoa ? data[i].hanghoa.Code : '',
+                                codeDMHangHoa: data[i].TSNBCode ? data[i].TSNBCode : '',
                                 idLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.ID : '' : null,
                                 nameLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Name : '' : null,
                                 codeLoaiTaiSan: data[i].hanghoa ? data[i].hanghoa.loaitaisan ? data[i].hanghoa.loaitaisan.Code : '' : null,
@@ -799,7 +823,12 @@ module.exports = {
 
                     })
                     await mtblTaiSanHistory(db).findAll({
-                        where: { IDTaiSan: { [Op.in]: listTaiSan } }
+                        where: { IDTaiSan: { [Op.in]: listTaiSan } },
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async history => {
                         var array = [];
                         var stt = 1;
@@ -826,6 +855,7 @@ module.exports = {
                                 if (element.id == history[e].IDTaiSan) {
                                     var obj = {
                                         stt: stt,
+                                        id: element.id,
                                         idDMHangHoa: element.idDMHangHoa ? element.idDMHangHoa : null,
                                         nameDMHangHoa: element.nameDMHangHoa ? element.nameDMHangHoa : '',
                                         codeDMHangHoa: element.codeDMHangHoa ? element.codeDMHangHoa : '',
