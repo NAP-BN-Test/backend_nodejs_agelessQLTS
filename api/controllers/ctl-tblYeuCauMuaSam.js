@@ -31,7 +31,7 @@ module.exports = {
                         IDPhongBan: body.idPhongBan ? body.idPhongBan : null,
                         RequireDate: body.requireDate ? body.requireDate : null,
                         Reason: body.reason ? body.reason : '',
-                        Status: body.status ? body.status : '',
+                        Status: 'Chờ phê duyệt',
                         IDPheDuyet1: body.idPheDuyet1 ? body.idPheDuyet1 : null,
                         IDPheDuyet2: body.idPheDuyet2 ? body.idPheDuyet2 : null,
                     }).then(async data => {
@@ -164,6 +164,154 @@ module.exports = {
             }
         })
     },
+
+
+    // approval_first_approver
+    approvalFirstApprover: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            let body = req.body;
+            if (db) {
+                try {
+                    await mtblYeuCauMuaSam(db).update({
+                        Status: 'Đang phê duyệt',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // approval_second_approver
+    approvalSecondApprover: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            let body = req.body;
+            if (db) {
+                try {
+                    await mtblYeuCauMuaSam(db).update({
+                        Status: 'Đã phê duyệt',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // refuse_first_approver
+    refuseFirstApprover: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblYeuCauMuaSam(db).update({
+                        ReasonReject1: body.reason,
+                        Status: 'Từ chối',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // refuse_second_approver
+    refuseSecondApprover: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblYeuCauMuaSam(db).update({
+                        ReasonReject2: body.reason,
+                        Status: 'Từ chối',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // cancel_purchase
+    cancelPurchase: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblYeuCauMuaSam(db).update({
+                        Status: 'Hủy mua',
+                        Reason: body.reason
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // done_purchase
+    donePurchase: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblYeuCauMuaSam(db).update({
+                        Status: 'Đã mua',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+
+
+
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
@@ -172,7 +320,18 @@ module.exports = {
             if (db) {
                 try {
                     let whereOjb = []
-                    whereOjb.push({ Status: body.status })
+                    if (body.status === "request") {
+                        whereOjb.push({ Status: "Chờ phê duyệt" })
+                        whereOjb.push({ Status: "Đang phê duyệt" })
+                        whereOjb.push({ Status: "Từ chối" })
+                    }
+                    if (body.status === "approval") {
+                        whereOjb.push({ Status: "Đã phê duyệt" })
+                        whereOjb.push({ Status: "hủy mua" })
+                    }
+                    if (body.status === "success") {
+                        whereOjb.push({ Status: "Đã mua" })
+                    }
                     // if (body.dataSearch) {
                     //     var data = JSON.parse(body.dataSearch)
 

@@ -151,8 +151,6 @@ async function getDetailTaiSan(db, idTaiSan) {
                         required: false,
                         as: 'ncc'
                     },
-                ],
-                include: [
                     {
                         model: mtblFileAttach(db),
                         required: false,
@@ -308,20 +306,26 @@ module.exports = {
     updateDetailAsset: (req, res) => {
         let body = req.body;
         console.log(body);
+        body.obj = JSON.parse(body.obj)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     await mtblTaiSan(db).update({
-                        OriginalPrice: body.originalPrice ? body.originalPrice : null,
-                        Unit: body.unit ? body.unit : '',
-                        Specifications: body.specifications ? body.specifications : '',
-                        GuaranteeMonth: body.guaranteeMonth ? body.guaranteeMonth : null,
-                        SerialNumber: body.serialNumber ? body.serialNumber : '',
-                        Describe: body.describe ? body.describe : '',
-                        TSNBCode: body.tsCode ? body.tsCode : '',
+                        OriginalPrice: body.obj.originalPrice ? body.obj.originalPrice : null,
+                        Unit: body.obj.unit ? body.obj.unit : '',
+                        Specifications: body.obj.specifications ? body.obj.specifications : '',
+                        GuaranteeMonth: body.obj.guaranteeMonth ? body.obj.guaranteeMonth : null,
+                        SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
+                        Describe: body.obj.describe ? body.obj.describe : '',
+                        TSNBCode: body.obj.code ? body.obj.code : '',
                     }, {
                         where: { ID: body.id }
                     })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

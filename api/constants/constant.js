@@ -65,11 +65,12 @@ module.exports = {
         MONTH: 4   //Tháng trong năm
     },
 
-    COMPETITOR: {
-        PhongVu: 0,
-        AnPhat: 1,
-        PhucAnh: 2,
-        Gearvn: 3,
-        HNC: 4,
-    },
+    STATUS_APPROVAL: {
+        WAITING: 1,
+        APPROVALING: 2,
+        DECLINED: 3,
+        APPROVALED: 4,
+        CANCEL_PURCHASE: 5,
+        PURCHASED: 6,
+    }
 }

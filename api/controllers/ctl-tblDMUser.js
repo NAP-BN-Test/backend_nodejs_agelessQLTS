@@ -24,19 +24,28 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMUser(db).create({
-                        Username: body.username ? body.username : '',
-                        Password: body.password ? body.password : '123456a$',
-                        IDNhanvien: body.idNhanvien ? body.idNhanvien : null,
-                        Active: body.active ? body.active : '',
-                        IDPermission: body.idPermission ? body.idPermission : null,
-                    }).then(data => {
+                    var check = await mtblDMUser(db).findOne({ where: { Username: body.username } })
+                    if (!check) {
+                        mtblDMUser(db).create({
+                            Username: body.username ? body.username : '',
+                            Password: body.password ? body.password : '123456a$',
+                            IDNhanvien: body.idNhanvien ? body.idNhanvien : null,
+                            Active: body.active ? body.active : '',
+                            IDPermission: body.idPermission ? body.idPermission : null,
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
+                    } else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: Constant.MESSAGE.USER_FAIL,
                         }
                         res.json(result);
-                    })
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

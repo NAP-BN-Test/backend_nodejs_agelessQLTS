@@ -189,7 +189,7 @@ module.exports = {
                     tblPhanPhoiVPP.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bp' })
                     tblPhanPhoiVPP.hasMany(tblPhanPhoiVPPChiTiet, { foreignKey: 'IDPhanPhoiVPP', as: 'line' })
                     tblPhanPhoiVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
-                    var stt = 0;
+                    var stt = 1;
                     tblPhanPhoiVPP.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),

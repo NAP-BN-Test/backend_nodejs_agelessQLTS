@@ -89,6 +89,14 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.updatetblYeuCauMuaSam);
     app.route('/qlnb/get_list_tbl_yeucaumuasam').post(tblYeuCauMuaSam.getListtblYeuCauMuaSam);
     app.route('/qlnb/delete_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.deletetblYeuCauMuaSam);
+
+    // button approval
+    app.route('/qlnb/approval_first_approver').post(checkToken.checkToken, tblYeuCauMuaSam.approvalFirstApprover);
+    app.route('/qlnb/approval_second_approver').post(checkToken.checkToken, tblYeuCauMuaSam.approvalSecondApprover);
+    app.route('/qlnb/refuse_first_approver').post(checkToken.checkToken, tblYeuCauMuaSam.refuseFirstApprover);
+    app.route('/qlnb/refuse_second_approver').post(checkToken.checkToken, tblYeuCauMuaSam.refuseSecondApprover);
+    app.route('/qlnb/cancel_purchase').post(checkToken.checkToken, tblYeuCauMuaSam.cancelPurchase);
+    app.route('/qlnb/done_purchase').post(checkToken.checkToken, tblYeuCauMuaSam.donePurchase);
     // app.route('/qlnb/get_list_name_tbl_yeucaumuasam').post(checkToken.checkToken ,tblYeuCauMuaSam.getListNametblYeuCauMuaSam);
 
     // lấy name hang hoa
@@ -106,6 +114,7 @@ module.exports = function (app) {
 
 
     app.route('/qlnb/detail_tbl_taisanadd').post(tblTaiSan.detailtblTaiSanADD);
+    app.route('/qlnb/update_detail_asset').post(tblTaiSan.updateDetailAsset);
     app.route('/qlnb/get_list_history_staff_use').post(tblTaiSan.getListHistoryStaffUse);
 
 
