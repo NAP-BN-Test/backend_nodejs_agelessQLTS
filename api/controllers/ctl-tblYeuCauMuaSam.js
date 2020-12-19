@@ -214,7 +214,6 @@ module.exports = {
                     let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
 
-                    // tblYeuCauMuaSam.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'HangHoa' })
                     tblYeuCauMuaSam.findAll({
                         include: [
                             {
@@ -255,8 +254,8 @@ module.exports = {
                                 idIDNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                                 nameIDNhanVien: element.NhanVien ? element.NhanVien.StaffName : null,
                                 idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
-                                codePhongBan: element.bophan ? element.bophan.DepartmentCode : null,
-                                namePhongBan: element.bophan ? element.bophan.DepartmentName : null,
+                                codePhongBan: element.phongban ? element.phongban.DepartmentCode : null,
+                                namePhongBan: element.phongban ? element.phongban.DepartmentName : null,
                                 requireDate: element.RequireDate ? element.RequireDate : null,
                                 reason: element.Reason ? element.Reason : '',
                                 status: element.Status ? element.Status : '',
@@ -264,21 +263,35 @@ module.exports = {
                                 namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
                                 idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
                                 namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
-                                line: element.line,
+                                line: element.line
                             }
                             array.push(obj);
                             stt += 1;
                         });
                         for (var i = 0; i < array.length; i++) {
+                            var arrayTaiSan = []
+                            var arrayFile = []
                             for (var j = 0; j < array[i].line.length; j++) {
                                 await mtblDMHangHoa(db).findOne({ where: { ID: array[i].line[j].IDDMHangHoa } }).then(data => {
-                                    array[i]['arrayTaiSan'] = {
+                                    arrayTaiSan.push({
                                         name: data.Name,
                                         code: data.Code,
                                         amount: array[i].line[j].Amount,
-                                    }
+                                    })
                                 })
                             }
+                            await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayTaiSan'] = arrayTaiSan;
+                            array[i]['arrayFile'] = arrayFile;
 
                         }
                         var count = await tblYeuCauMuaSam.count({ where: whereOjb })

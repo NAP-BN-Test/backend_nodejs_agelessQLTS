@@ -167,7 +167,7 @@ async function getDetailTaiSan(db, idTaiSan) {
         let thanhLy = await mtblThanhLyTaiSan(db).findOne({ where: { IDTaiSan: data.ID } })
         obj = {
             id: data.ID,
-            code: data.hanghoa ? data.hanghoa.Code : '',
+            code: data.TSNBCode ? data.TSNBCode : '',
             name: data.hanghoa ? data.hanghoa.Name : '',
             unit: data.hanghoa ? data.hanghoa.Unit : '',
             nameLoaiTaiSan: data.hanghoa ? data.hanghoa.loaitaisan ? data.hanghoa.loaitaisan.Name : '' : '',
@@ -681,7 +681,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 idDMHangHoa: element.IDDMHangHoa ? element.IDDMHangHoa : null,
                                 nameDMHangHoa: element.hanghoa ? element.hanghoa.Name : '',
-                                codeDMHangHoa: element.hanghoa ? element.hanghoa.Code : '',
+                                codeDMHangHoa: element.TSNBCode ? element.TSNBCode : '',
                                 idLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.ID : '' : null,
                                 nameLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.Name : '' : null,
                                 codeLoaiTaiSan: element.loaitaisan ? element.loaitaisan.Code : '',

@@ -42,7 +42,7 @@ module.exports = {
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
                                 await mtblVanPhongPham(db).update({
-                                    RemainingAmount: Number(body.line[i].amount) + Number(amount),
+                                    RemainingAmount: Number(amount) - Number(body.line[i].amount),
                                 }, { where: { ID: body.line[i].idVanPhongPham.id } })
                             }
                         var result = {
@@ -230,11 +230,11 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 idNhanVienBanGiao: element.IDNhanVienBanGiao ? element.IDNhanVienBanGiao : null,
-                                nameNhanVienBanGiao: element.nvbg.StaffName ? element.nvbg.StaffName : '',
+                                nameNhanVienBanGiao: element.nvbg ? element.nvbg.StaffName : '',
                                 idNhanVienSoHuu: element.IDNhanVienSoHuu ? element.IDNhanVienSoHuu : null,
                                 nameNhanVienSoHuu: element.nvsh ? element.nvsh.StaffName : '',
                                 idBoPhanSoHuu: element.IDBoPhanSoHuu ? element.IDBoPhanSoHuu : null,
-                                nameBoPhanSoHuu: element.bp.DepartmentName ? element.bp.DepartmentName : null,
+                                nameBoPhanSoHuu: element.bp ? element.bp.DepartmentName : null,
                                 date: element.Date ? element.Date : null,
                                 vppName: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPName : '' : '',
                                 vppCode: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPCode : '' : '',
