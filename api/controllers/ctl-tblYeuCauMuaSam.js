@@ -11,6 +11,16 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
+    await mtblYeuCauMuaSamDetail(db).destroy({
+        where: {
+            IDYeuCauMuaSam: { [Op.in]: listID }
+        }
+    })
+    await mtblFileAttach(db).destroy({
+        where: {
+            IDYeuCauMuaSam: { [Op.in]: listID }
+        }
+    })
     await mtblYeuCauMuaSam(db).destroy({
         where: {
             ID: { [Op.in]: listID }
@@ -315,22 +325,28 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let whereOjb = []
+                    let where = []
                     if (body.status === "request") {
-                        whereOjb.push({ Status: "Chờ phê duyệt" })
-                        whereOjb.push({ Status: "Đang phê duyệt" })
-                        whereOjb.push({ Status: "Từ chối" })
+                        where = [
+                            { Status: "Chờ phê duyệt" },
+                            { Status: "Đang phê duyệt" },
+                            { Status: "Từ chối" },
+                        ]
                     }
                     if (body.status === "approval") {
-                        whereOjb.push({ Status: "Đã phê duyệt" })
-                        whereOjb.push({ Status: "hủy mua" })
+                        where = [
+                            { Status: "Đã phê duyệt" },
+                            { Status: "Hủy mua" },
+                        ]
                     }
                     if (body.status === "success") {
-                        whereOjb.push({ Status: "Đã mua" })
+                        where = [
+                            { Status: "Đã mua" },
+                        ]
                     }
                     // if (body.dataSearch) {
                     //     var data = JSON.parse(body.dataSearch)
@@ -345,7 +361,7 @@ module.exports = {
                     //             // { TSName: { [Op.ne]: '%%' } },
                     //         ];
                     //     }
-                    //     whereOjb = { [Op.or]: where };
+                    //     
                     //     if (data.items) {
                     //         for (var i = 0; i < data.items.length; i++) {
                     //             let userFind = {};
@@ -364,6 +380,7 @@ module.exports = {
                     //         }
                     //     }
                     // }
+                    whereOjb = { [Op.or]: where };
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
@@ -406,6 +423,7 @@ module.exports = {
                         where: whereOjb
                     }).then(async data => {
                         var array = [];
+                        console.log(data.length);
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
