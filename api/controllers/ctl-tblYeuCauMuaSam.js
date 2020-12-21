@@ -280,7 +280,7 @@ module.exports = {
                 try {
                     await mtblYeuCauMuaSam(db).update({
                         Status: 'Hủy mua',
-                        Reason: body.reason
+                        ReasonReject: body.reason
                     }, { where: { ID: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -304,6 +304,7 @@ module.exports = {
                 try {
                     await mtblYeuCauMuaSam(db).update({
                         Status: 'Đã mua',
+                        ReasonReject: body.reason,
                     }, { where: { ID: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,

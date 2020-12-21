@@ -386,6 +386,7 @@ module.exports = {
                         id: data.ID,
                         userName: data.Username,
                         password: data.Password,
+                        idNhanVien: data.IDNhanvien,
                         // list: data.tblPrices
                     }
                     payload = {
