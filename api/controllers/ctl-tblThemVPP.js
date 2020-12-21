@@ -192,6 +192,9 @@ module.exports = {
                     var themVPPChiTiet = mThemVPPChiTiet(db);
                     themVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
                     tblThemVPP.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
@@ -222,7 +225,7 @@ module.exports = {
                                 id: Number(data[j].ID),
                                 idNhaCungCap: data[j].IDNhaCungCap ? data[j].IDNhaCungCap : null,
                                 supplierName: data[j].ncc ? data[j].ncc.SupplierName : null,
-                                dateReceive: data[j].Date ? data[j].Date : null,
+                                dateReceive: data[j].Date ? moment(data[j].Date).format('DD/MM/YYYY') : null,
                                 tsName: data[j].line
                             }
                             for (var i = 0; i < data[j].line.length; i++) {

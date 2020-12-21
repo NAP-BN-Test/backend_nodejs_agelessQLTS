@@ -172,6 +172,9 @@ module.exports = {
                     }
                     let stt = 1;
                     mtblDMNhaCungCap(db).findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                     }).then(async data => {

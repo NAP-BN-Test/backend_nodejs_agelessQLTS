@@ -131,6 +131,9 @@ module.exports = {
                         if (data.search) {
                             var permission = [];
                             await mtblDMPermission(db).findAll({
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
                                 where: {
                                     [Op.or]: [
                                         { PermissionName: { [Op.like]: '%' + data.search + '%' } },

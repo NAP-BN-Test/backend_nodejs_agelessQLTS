@@ -236,6 +236,9 @@ module.exports = {
                         if (data.search) {
                             var list = [];
                             await mtblDMBoPhan(db).findAll({
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
                                 where: {
                                     [Op.or]: [
                                         { DepartmentCode: { [Op.like]: '%' + data.search + '%' } },
@@ -326,6 +329,9 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'PHÒNG BAN/BỘ PHẬN') {
                                     var list = [];
                                     await mtblDMBoPhan(db).findAll({
+                                        order: [
+                                            ['ID', 'DESC']
+                                        ],
                                         where: {
                                             [Op.or]: [
                                                 { DepartmentCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
@@ -358,6 +364,9 @@ module.exports = {
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
                     let all = await tblDMNhanvien.count({ where: whereOjb, })
                     tblDMNhanvien.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
@@ -393,7 +402,7 @@ module.exports = {
                                 baxCode: element.TaxCode ? element.TaxCode : '',
                                 bankNumber: element.BankNumber ? element.BankNumber : '',
                                 bankName: element.BankName ? element.BankName : '',
-                                birthday: element.Birthday ? element.Birthday : '',
+                                birthday: element.Birthday ? moment(element.Birthday).format('DD/MM/YYYY') : '',
                                 degree: element.Degree ? element.Degree : '',
                                 dermanentResidence: element.DermanentResidence ? element.DermanentResidence : '',
                                 probationaryDate: element.ProbationaryDate ? element.ProbationaryDate : '',
@@ -546,6 +555,9 @@ module.exports = {
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
                     let all = await tblDMNhanvien.count({ where: whereOjb, })
                     tblDMNhanvien.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,

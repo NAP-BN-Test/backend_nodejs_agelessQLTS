@@ -544,6 +544,9 @@ module.exports = {
                     let tblTaiSanADD = mtblTaiSanADD(db);
                     tblTaiSanADD.hasMany(mtblTaiSan(db), { foreignKey: 'IDTaiSanADD', as: 'add' })
                     tblTaiSanADD.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
@@ -869,7 +872,7 @@ module.exports = {
                                         unit: element.unit ? element.unit : null,
                                         employeeName: bangiao ? bangiao.nhanvien ? bangiao.nhanvien.StaffName : '' : '',
                                         departmentName: bangiao ? bangiao.bophan ? bangiao.bophan.DepartmentName : '' : '',
-                                        date: bangiao ? bangiao.Date : null
+                                        date: bangiao ? moment(bangiao.Date).format('DD/MM/YYYY') : null
                                     }
                                     array.push(obj);
                                     stt += 1;

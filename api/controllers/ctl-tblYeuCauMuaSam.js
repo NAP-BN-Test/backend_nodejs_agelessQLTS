@@ -391,6 +391,9 @@ module.exports = {
                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
 
                     tblYeuCauMuaSam.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         include: [
                             {
                                 model: mtblDMBoPhan(db),
@@ -423,7 +426,6 @@ module.exports = {
                         where: whereOjb
                     }).then(async data => {
                         var array = [];
-                        console.log(data.length);
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
@@ -433,7 +435,7 @@ module.exports = {
                                 idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
                                 codePhongBan: element.phongban ? element.phongban.DepartmentCode : null,
                                 namePhongBan: element.phongban ? element.phongban.DepartmentName : null,
-                                requireDate: element.RequireDate ? element.RequireDate : null,
+                                requireDate: element.RequireDate ? moment(element.RequireDate).format('DD/MM/YYYY') : null,
                                 reason: element.Reason ? element.Reason : '',
                                 status: element.Status ? element.Status : '',
                                 idPheDuyet1: element.IDPheDuyet1 ? element.IDPheDuyet1 : null,
