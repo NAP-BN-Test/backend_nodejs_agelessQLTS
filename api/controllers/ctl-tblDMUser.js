@@ -375,8 +375,18 @@ module.exports = {
         let body = req.body;
         database.connectDatabase().then(async db => {
             try {
-                var data = await mtblDMUser(db).findOne({
+                let tblDMUser = mtblDMUser(db);
+                tblDMUser.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien', as: 'nv' })
+
+                var data = await tblDMUser.findOne({
                     where: { UserName: body.userName, Password: body.password },
+                    include: [
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'nv'
+                        },
+                    ],
                 })
                 if (data) {
                     if (!data.Active) {
@@ -387,6 +397,8 @@ module.exports = {
                         userName: data.Username,
                         password: data.Password,
                         idNhanVien: data.IDNhanvien,
+                        staffName: data.nv.StaffName,
+                        staffCode: data.nv.StaffCode,
                         // list: data.tblPrices
                     }
                     payload = {

@@ -20,6 +20,7 @@ module.exports = function (db) {
         NoMonthUse: Sequelize.FLOAT,
         SerialNumber: Sequelize.STRING,
         Describe: Sequelize.STRING,
+        DateDiKem: Sequelize.DATE,
     });
 
     return table;

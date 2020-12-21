@@ -11,6 +11,7 @@ var mtblTaiSanHistory = require('../tables/qlnb/tblTaiSanHistory')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
+var mtblThayTheTaiSan = require('../tables/qlnb/tblThayTheTaiSan');
 
 var database = require('../database');
 const tblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao');
@@ -176,7 +177,8 @@ async function getDetailTaiSan(db, idTaiSan) {
             depreciationPrice: data.DepreciationPrice ? data.DepreciationPrice : 0,
             supplierName: data.taisanADD ? data.taisanADD.ncc ? data.taisanADD.ncc.SupplierName : '' : '',
             fileAttach: data.taisanADD ? data.taisanADD.file : [],
-            dateIncreases: data.taisanADD ? data.taisanADD.Date : '',
+            dateIncreases: data.DepreciationDate ? data.DepreciationDate : '',
+            date: data.taisanADD ? data.taisanADD.Date : '',
             staffName: staffName,
             departmentName: departmentName,
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
@@ -305,7 +307,6 @@ module.exports = {
     // update_detail_asset
     updateDetailAsset: (req, res) => {
         let body = req.body;
-        console.log(body);
         body.obj = JSON.parse(body.obj)
         database.connectDatabase().then(async db => {
             if (db) {
@@ -338,6 +339,7 @@ module.exports = {
     // add_tbl_TaiSanADD
     addtblTaiSanADD: (req, res) => {
         let body = req.body;
+        console.log(body);
         body.taisan = JSON.parse(body.taisan)
         body.fileAttach = JSON.parse(body.fileAttach)
         database.connectDatabase().then(async db => {
@@ -889,6 +891,131 @@ module.exports = {
                         res.json(result);
                     })
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+
+    // get_list_attach_asset
+    getListAttachAsset: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblTaiSan = mtblTaiSan(db);
+                    tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
+
+                    tblTaiSan.findAll({
+                        where: { IDTaiSanDiKem: body.id },
+                        include: [
+                            {
+                                model: mtblDMHangHoa(db),
+                                required: false,
+                                as: 'hanghoa'
+                            },
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var obj = {
+                                id: data[i].ID,
+                                name: data[i].hanghoa.Name,
+                                code: data[i].TSNBCode,
+                            }
+                            array.push(obj);
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // replace_asset_attach
+    replateAssetAttach: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        let array = JSON.parse(body.array);
+        // body: {
+        //     id,
+        //     date,
+        //     array: [
+        //         {
+        //             idReplaceAsset, //id tài sản thay thế
+        //             idReplaceNeedAsset //id tài sản bị thay thế
+        //         },
+        //     ]
+        // }
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    for (var i = 0; i < array.length; i++) {
+                        if (array[i].idReplaceAsset) {
+                            await mtblTaiSan(db).update({
+                                IDTaiSanDiKem: body.id,
+                                DateDiKem: body.date ? body.date : null,
+                            }, { where: { ID: array[i].idReplaceAsset } })
+                            await mtblTaiSan(db).update({
+                                IDTaiSanDiKem: null,
+                                DateDiKem: null
+                            }, { where: { ID: array[i].idReplaceNeedAsset } })
+                            await mtblThayTheTaiSan(db).create({
+                                IDTaiSan: array[i].idReplaceNeedAsset,
+                                IDTaiSanThayThe: array[i].idReplaceAsset,
+                                DateThayThe: body.date ? body.date : null,
+                            })
+                        }
+                    }
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // additional_asset_attach
+    additionalAssetAttach: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        let array = JSON.parse(body.array);
+        // body: {
+        //     id,
+        //     date,
+        //     array: [
+        //         {
+        //             idReplaceAsset, //id tài sản thay thế
+        //             idReplaceNeedAsset //id tài sản bị thay thế
+        //         },
+        //     ]
+        // }
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    for (var i = 0; i < array.length; i++) {
+                        if (array[i].idAdditionalAsset) {
+                            await mtblTaiSan(db).update({
+                                IDTaiSanDiKem: body.id,
+                                DateDiKem: body.date ? body.date : null,
+                            }, { where: { ID: array[i].idAdditionalAsset } })
+                        }
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -6,6 +6,7 @@ var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
+var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
@@ -32,7 +33,6 @@ module.exports = {
     // add_tbl_yeucaumuasam
     addtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -480,6 +480,129 @@ module.exports = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_detail_tbl_yeucaumuasam
+    getDetailtblYeuCauMuaSam: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+                    let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
+                    tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+
+                    tblYeuCauMuaSam.findOne({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        include: [
+                            {
+                                model: mtblDMBoPhan(db),
+                                required: false,
+                                as: 'phongban'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'NhanVien'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet1',
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet2',
+                            },
+                            {
+                                model: tblYeuCauMuaSamDetail,
+                                required: false,
+                                as: 'line'
+                            },
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { ID: body.id }
+                    }).then(async data => {
+                        var obj = {
+                            stt: stt,
+                            id: Number(data.ID),
+                            idIDNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+                            nameIDNhanVien: data.NhanVien ? data.NhanVien.StaffName : null,
+                            idPhongBan: data.IDPhongBan ? data.IDPhongBan : null,
+                            codePhongBan: data.phongban ? data.phongban.DepartmentCode : null,
+                            namePhongBan: data.phongban ? data.phongban.DepartmentName : null,
+                            requireDate: data.RequireDate ? moment(data.RequireDate).format('DD/MM/YYYY') : null,
+                            reason: data.Reason ? data.Reason : '',
+                            status: data.Status ? data.Status : '',
+                            idPheDuyet1: data.IDPheDuyet1 ? data.IDPheDuyet1 : null,
+                            namePheDuyet1: data.PheDuyet1 ? data.PheDuyet1.StaffName : null,
+                            idPheDuyet2: data.IDPheDuyet2 ? data.IDPheDuyet2 : null,
+                            namePheDuyet2: data.PheDuyet2 ? data.PheDuyet2.StaffName : null,
+                            line: data.line
+                        }
+                        var arrayTaiSan = []
+                        var arrayFile = []
+                        for (var j = 0; j < obj.line.length; j++) {
+                            let tblDMHangHoa = mtblDMHangHoa(db);
+                            tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaiTaiSan' })
+                            await tblDMHangHoa.findOne({
+                                where: {
+                                    ID: obj.line[j].IDDMHangHoa,
+                                },
+                                include: [
+                                    {
+                                        model: mtblDMLoaiTaiSan(db),
+                                        required: false,
+                                        as: 'loaiTaiSan'
+                                    },
+                                ],
+                            }).then(data => {
+                                arrayTaiSan.push({
+                                    id: Number(data.ID),
+                                    name: data.Name,
+                                    code: data.Code,
+                                    amount: obj.line[j] ? obj.line[j].Amount : 0,
+                                    nameLoaiTaiSan: data.loaiTaiSan ? data.loaiTaiSan.Name : '',
+                                })
+                            })
+                        }
+                        await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: obj.id } }).then(file => {
+                            if (file.length > 0) {
+                                for (var e = 0; e < file.length; e++) {
+                                    arrayFile.push({
+                                        name: file[e].Name ? file[e].Name : '',
+                                        link: file[e].Link ? file[e].Link : '',
+                                    })
+                                }
+                            }
+                        })
+                        obj['arrayTaiSan'] = arrayTaiSan;
+                        obj['arrayFile'] = arrayFile;
+
+                        var result = {
+                            obj: obj,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
                         res.json(result);
                     })

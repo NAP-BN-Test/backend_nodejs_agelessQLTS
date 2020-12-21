@@ -88,6 +88,9 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.addtblYeuCauMuaSam);
     app.route('/qlnb/update_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.updatetblYeuCauMuaSam);
     app.route('/qlnb/get_list_tbl_yeucaumuasam').post(tblYeuCauMuaSam.getListtblYeuCauMuaSam);
+
+    app.route('/qlnb/get_detail_tbl_yeucaumuasam').post(tblYeuCauMuaSam.getDetailtblYeuCauMuaSam);
+
     app.route('/qlnb/delete_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.deletetblYeuCauMuaSam);
 
     // button approval
@@ -124,6 +127,12 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanADD);
     app.route('/qlnb/get_list_tbl_taisan_chuasudung').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanChuaSuDung);
     app.route('/qlnb/get_list_tbl_taisan_theodoi').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanTheoDoi);
+
+
+
+    app.route('/qlnb/get_list_attach_asset').post(tblTaiSan.getListAttachAsset);
+
+    app.route('/qlnb/replace_asset_attach').post(tblTaiSan.replateAssetAttach);
 
 
 
