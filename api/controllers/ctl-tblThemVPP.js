@@ -150,38 +150,128 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        // var data = JSON.parse(body.dataSearch)
+                        var data = JSON.parse(body.dataSearch)
 
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // let whereOjb = { [Op.or]: where };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        if (data.search) {
+                            var listVPP = [];
+                            await mtblVanPhongPham(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { VPPCode: { [Op.like]: '%' + data.search + '%' } },
+                                        { VPPName: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listVPP.push(item.ID);
+                                })
+                            })
+                            var list = [];
+                            await mThemVPPChiTiet(db).findAll({
+                                where: {
+                                    IDVanPhongPham: { [Op.in]: listVPP }
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    list.push(item.IDThemVPP);
+                                })
+                            })
+                            var listNCC = [];
+                            await mtblDMNhaCungCap(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { SupplierCode: { [Op.like]: '%' + data.search + '%' } },
+                                        { SupplierName: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listNCC.push(item.ID);
+                                })
+                            })
+                            where = [
+                                { ID: { [Op.in]: list } },
+                                { IDNhaCungCap: { [Op.in]: listNCC } },
+                            ];
+                        } else {
+                            where = [
+                                { ID: { [Op.ne]: null } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'MÃ VPP') {
+                                    var listVPP = [];
+                                    await mtblVanPhongPham(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { VPPCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listVPP.push(item.ID);
+                                        })
+                                    })
+                                    var list = [];
+                                    await mThemVPPChiTiet(db).findAll({
+                                        where: {
+                                            IDVanPhongPham: { [Op.in]: listVPP }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.IDThemVPP);
+                                        })
+                                    })
+                                    userFind['ID'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN VPP') {
+                                    var listVPP = [];
+                                    await mtblVanPhongPham(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { VPPName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listVPP.push(item.ID);
+                                        })
+                                    })
+                                    var list = [];
+                                    await mThemVPPChiTiet(db).findAll({
+                                        where: {
+                                            IDVanPhongPham: { [Op.in]: listVPP }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.IDThemVPP);
+                                        })
+                                    })
+                                    userFind['ID'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
                     }
                     let tblThemVPP = mtblThemVPP(db);
                     let stt = 1;
@@ -245,7 +335,6 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        // console.log(array);
                         var count = await mtblThemVPP(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

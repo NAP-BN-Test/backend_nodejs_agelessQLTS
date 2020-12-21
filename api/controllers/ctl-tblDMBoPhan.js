@@ -111,6 +111,91 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
+
+                        if (data.search) {
+                            var list = [];
+                            await mtblDMChiNhanh(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { BranchCode: { [Op.like]: '%' + data.search + '%' } },
+                                        { BranchName: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    list.push(Number(item.ID));
+                                })
+                            })
+                            where = [
+                                { DepartmentCode: { [Op.like]: '%' + data.search + '%' } },
+                                { DepartmentName: { [Op.like]: '%' + data.search + '%' } },
+                                { IDChiNhanh: { [Op.in]: list } },
+                            ];
+                        } else {
+                            where = [
+                                { DepartmentCode: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'MÃ PHÒNG BAN/BỘ PHẬN') {
+                                    userFind['DepartmentCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN PHÒNG BAN/BỘ PHẬN') {
+                                    userFind['DepartmentName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'CHI NHÁNH') {
+                                    var list = [];
+                                    await mtblDMChiNhanh(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { BranchCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { BranchName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDChiNhanh'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    console.log(whereOjb);
                     var stt = 1;
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })

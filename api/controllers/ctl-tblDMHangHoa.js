@@ -8,6 +8,8 @@ var database = require('../database');
 const tblTaiSan = require('../tables/qlnb/tblTaiSan');
 var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail');
 const tblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
+var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
+var mtblTaiSanHistory = require('../tables/qlnb/tblTaiSanHistory')
 
 async function deleteRelationshiptblDMHangHoa(db, listID) {
     // tblYeuCauMuaSamDetail
@@ -30,6 +32,13 @@ async function deleteRelationshiptblDMHangHoa(db, listID) {
             ID: { [Op.in]: listID }
         }
     })
+}
+function checkDuplicate(array, elm) {
+    var check = false;
+    array.forEach(item => {
+        if (item === elm) check = true;
+    })
+    return check;
 }
 module.exports = {
     deleteRelationshiptblDMHangHoa,
@@ -127,17 +136,31 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
+                        var list = [];
+                        await mtblDMLoaiTaiSan(db).findAll({
+                            where: {
+                                [Op.or]: [
+                                    { Name: { [Op.like]: '%' + data.search + '%' } },
+                                    { Code: { [Op.like]: '%' + data.search + '%' } }
+                                ]
+                            }
+                        }).then(data => {
+                            data.forEach(item => {
+                                list.push(item.ID);
+                            })
+                        })
                         if (data.search) {
                             where = [
                                 { Name: { [Op.like]: '%' + data.search + '%' } },
                                 { Code: { [Op.like]: '%' + data.search + '%' } },
+                                { IDDMLoaiTaiSan: { [Op.in]: list } },
                             ];
                         } else {
                             where = [
                                 { Name: { [Op.ne]: '%%' } },
                             ];
                         }
-                        let whereOjb = { [Op.or]: where };
+                        whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -155,6 +178,31 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'TÊN HÀNG HÓA') {
                                     userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LOẠI TÀI SẢN') {
+                                    var list = [];
+                                    await mtblDMLoaiTaiSan(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDDMLoaiTaiSan'] = { [Op.in]: list }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -224,6 +272,32 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let listIDTaiSan = [];
+                    let listIDHangHoa = [];
+                    await mtblTaiSanHistory(db).findAll({
+                        where: [
+                            {
+                                DateThuHoi: null
+                            }
+                        ]
+                    }).then(data => {
+                        data.forEach(item => {
+                            if (item.IDTaiSan) {
+                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                                    listIDTaiSan.push(Number(item.IDTaiSan))
+                            }
+                        })
+                    })
+                    await mtblTaiSan(db).findAll({
+                        where: { ID: { [Op.notIn]: listIDTaiSan } }
+                    }).then(data => {
+                        data.forEach(item => {
+                            if (item.IDDMHangHoa) {
+                                if (!checkDuplicate(listIDHangHoa, item.IDDMHangHoa))
+                                    listIDHangHoa.push(Number(item.IDDMHangHoa))
+                            }
+                        })
+                    })
                     let tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(tblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'lts' })
 
@@ -235,6 +309,7 @@ module.exports = {
                                 as: 'lts'
                             },
                         ],
+                        where: { ID: { [Op.in]: listIDHangHoa } }
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {
@@ -262,8 +337,53 @@ module.exports = {
             }
         })
     },
-    // get_list_goods_from_asset
+    // get_list_asset_from_goods
     getListAssetFromGoods: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblDMHangHoa = mtblDMHangHoa(db);
+                    tblDMHangHoa.hasMany(tblTaiSan(db), { foreignKey: 'IDDMHangHoa', as: 'taisan' })
+                    tblDMHangHoa.findOne({
+                        where: { ID: body.id },
+                        include: [
+                            {
+                                model: tblTaiSan(db),
+                                required: false,
+                                as: 'taisan'
+                            },
+                        ],
+                    }).then(async data => {
+                        if (data.taisan) {
+                            var array = [];
+                            for (var i = 0; i < data.taisan.length; i++) {
+                                array.push({
+                                    id: Number(data.taisan[i].ID),
+                                    tsnbCode: data.taisan[i].TSNBCode,
+                                    guaranteeMonth: data.taisan[i].GuaranteeMonth ? data.taisan[i].GuaranteeMonth : '',
+                                })
+                            }
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_goods_from_asset_additional
+    getListAssetFromGoodsAdditional: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -290,7 +410,6 @@ module.exports = {
                                     guaranteeMonth: data.taisan[i].GuaranteeMonth ? data.taisan[i].GuaranteeMonth : '',
                                 })
                             }
-                            console.log(array);
                         }
                         var result = {
                             array: array,

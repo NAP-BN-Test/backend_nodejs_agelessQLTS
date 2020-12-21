@@ -132,6 +132,14 @@ module.exports = {
                         where = [
                             { supplierName: { [Op.like]: '%' + data.search + '%' } },
                             { supplierCode: { [Op.like]: '%' + data.search + '%' } },
+                            { Describe: { [Op.like]: '%' + data.search + '%' } },
+                            { Email: { [Op.like]: '%' + data.search + '%' } },
+                            { FaxNumber: { [Op.like]: '%' + data.search + '%' } },
+                            { PhoneNumber: { [Op.like]: '%' + data.search + '%' } },
+                            { Address: { [Op.like]: '%' + data.search + '%' } },
+                            { BankName: { [Op.like]: '%' + data.search + '%' } },
+                            { BankNumber: { [Op.like]: '%' + data.search + '%' } },
+                            { TaxNumber: { [Op.like]: '%' + data.search + '%' } },
                         ];
                     } else {
                         where = [
@@ -156,6 +164,102 @@ module.exports = {
                             }
                             if (data.items[i].fields['name'] === 'MÃ NHÀ CUNG CẤP') {
                                 userFind['supplierCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'MÔ TẢ') {
+                                userFind['Describe'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'MÃ SỐ THUẾ') {
+                                userFind['TaxNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'SỐ TÀI KHOẢN') {
+                                userFind['BankNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'TÊN NGÂN HÀNG') {
+                                userFind['BankName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
+                                userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'FAX') {
+                                userFind['FaxNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
+                                userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].conditionFields['name'] == 'And') {
+                                    whereOjb[Op.and] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Or') {
+                                    whereOjb[Op.or] = userFind
+                                }
+                                if (data.items[i].conditionFields['name'] == 'Not') {
+                                    whereOjb[Op.not] = userFind
+                                }
+                            }
+                            if (data.items[i].fields['name'] === 'EMAIL') {
+                                userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                 if (data.items[i].conditionFields['name'] == 'And') {
                                     whereOjb[Op.and] = userFind
                                 }

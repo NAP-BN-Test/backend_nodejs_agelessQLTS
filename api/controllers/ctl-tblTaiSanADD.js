@@ -591,14 +591,91 @@ module.exports = {
             }
         })
     },
+
+
+
+
+
+
+
     // get_list_tbl_TaiSan_ChuaSuDung
     getListtblTaiSanChuaSuDung: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let whereOjb = []
+                    var whereOjb = [];
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
 
+                        if (data.search) {
+                            var list = [];
+                            await mtblDMHangHoa(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { Name: { [Op.like]: '%' + data.search + '%' } },
+                                        { Code: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    list.push(Number(item.ID));
+                                })
+                            })
+                            where = [
+                                { TSNBCode: { [Op.like]: '%' + data.search + '%' } },
+                                { SerialNumber: { [Op.like]: '%' + data.search + '%' } },
+                                { IDDMHangHoa: { [Op.in]: list } },
+                            ];
+                        } else {
+                            where = [
+                                { TSNBCode: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
+                                    userFind['TSNBCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN TÀI SẢN') {
+                                    var list = [];
+                                    await mtblDMHangHoa(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDDMHangHoa'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
+                    }
                     let listIDTaiSan = [];
                     await mtblTaiSanHistory(db).findAll({
                         where: [
@@ -614,44 +691,9 @@ module.exports = {
                             }
                         })
                     })
-                    whereOjb.push({
+                    whereOjb[Op.and] = {
                         ID: { [Op.notIn]: listIDTaiSan },
                         IDTaiSanDiKem: null
-                    })
-
-                    if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
-
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // whereOjb = { [Op.or]: where };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
-                        //             userFind['SerialNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
                     }
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
@@ -659,6 +701,9 @@ module.exports = {
                     let tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
                     tblTaiSan.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
@@ -725,8 +770,113 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let whereOjb = []
+                    var whereOjb = [];
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
 
+                        if (data.search) {
+                            var list = [];
+                            await mtblDMHangHoa(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { Name: { [Op.like]: '%' + data.search + '%' } },
+                                        { Code: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    list.push(Number(item.ID));
+                                })
+                            })
+                            where = [
+                                { TSNBCode: { [Op.like]: '%' + data.search + '%' } },
+                                { SerialNumber: { [Op.like]: '%' + data.search + '%' } },
+                                { IDDMHangHoa: { [Op.in]: list } },
+                            ];
+                        } else {
+                            where = [
+                                { TSNBCode: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'MÃ CHI NHÁNH') {
+                                    userFind['BranchCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN CHI NHÁNH') {
+                                    userFind['BranchName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
+                                    userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
+                                    userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'FAX') {
+                                    userFind['fax'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'EMAIL') {
+                                    userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
+                    }
                     let listIDTaiSan = [];
                     await mtblTaiSanHistory(db).findAll({
                         where: [
@@ -742,11 +892,10 @@ module.exports = {
                             }
                         })
                     })
-                    whereOjb.push({
+                    whereOjb[Op.and] = {
                         ID: { [Op.in]: listIDTaiSan },
                         IDTaiSanDiKem: null
-
-                    })
+                    }
 
                     // if (body.dataSearch) {
                     //     var data = JSON.parse(body.dataSearch)
@@ -790,6 +939,9 @@ module.exports = {
                     let tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaitaisan' })
                     await tblTaiSan.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                         where: whereOjb,
                         include: [
                             {
@@ -901,6 +1053,13 @@ module.exports = {
         })
     },
 
+
+
+
+
+
+
+
     // get_list_attach_asset
     getListAttachAsset: (req, res) => {
         let body = req.body;
@@ -995,16 +1154,6 @@ module.exports = {
         let body = req.body;
         console.log(body);
         let array = JSON.parse(body.array);
-        // body: {
-        //     id,
-        //     date,
-        //     array: [
-        //         {
-        //             idReplaceAsset, //id tài sản thay thế
-        //             idReplaceNeedAsset //id tài sản bị thay thế
-        //         },
-        //     ]
-        // }
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1016,6 +1165,100 @@ module.exports = {
                             }, { where: { ID: array[i].idAdditionalAsset } })
                         }
                     }
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // withdraw_asset
+    withdrawAsset: (req, res) => {
+        let body = req.body;
+        let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblTaiSanHistory(db).update({
+                        DateThuHoi: now,
+                    }, { where: { IDTaiSan: body.id } })
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+
+    // get_list_asset_not_use
+    getListAssetNotuse: (req, res) => {
+        let body = req.body;
+        let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let whereOjb = [];
+                    let listIDTaiSan = [];
+                    await mtblTaiSanHistory(db).findAll({
+                        where: [
+                            {
+                                DateThuHoi: null
+                            }
+                        ]
+                    }).then(data => {
+                        data.forEach(item => {
+                            if (item.IDTaiSan) {
+                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                                    listIDTaiSan.push(Number(item.IDTaiSan))
+                            }
+                        })
+                    })
+                    whereOjb.push({
+                        ID: { [Op.notIn]: listIDTaiSan },
+                        IDTaiSanDiKem: null
+                    })
+                    let tblTaiSan = mtblTaiSan(db);
+                    tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
+                    tblTaiSan.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: whereOjb,
+                        include: [
+                            {
+                                model: mtblDMHangHoa(db),
+                                required: false,
+                                as: 'hanghoa',
+                            },
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        var stt = 1;
+                        data.forEach(element => {
+                            var obj = {
+                                stt: stt,
+                                id: Number(element.ID),
+                                nameDMHangHoa: element.hanghoa ? element.hanghoa.Name : '',
+                                codeDMHangHoa: element.hanghoa ? element.hanghoa.Code : '',
+                                tsnbCode: element.TSNBCode ? element.TSNBCode : '',
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

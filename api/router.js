@@ -105,6 +105,7 @@ module.exports = function (app) {
     // lấy name hang hoa
     app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListNametblDMHangHoa);
     app.route('/qlnb/get_list_asset_from_goods').post(checkToken.checkToken, tblDMHanghoa.getListAssetFromGoods);
+    app.route('/qlnb/get_list_asset_from_goods_additional').post(checkToken.checkToken, tblDMHanghoa.getListAssetFromGoodsAdditional);
 
     // lấy name nhân viên ---- dòng 24
     //---------------------------------------------------------------- Menu quản lý tài sản --------------------------------------------------------------------------------------
@@ -133,6 +134,12 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_attach_asset').post(tblTaiSan.getListAttachAsset);
 
     app.route('/qlnb/replace_asset_attach').post(tblTaiSan.replateAssetAttach);
+
+    app.route('/qlnb/additional_asset_attach').post(tblTaiSan.additionalAssetAttach);
+
+    app.route('/qlnb/withdraw_asset').post(tblTaiSan.withdrawAsset);
+
+    app.route('/qlnb/get_list_asset_not_use').post(tblTaiSan.getListAssetNotuse);
 
 
 
