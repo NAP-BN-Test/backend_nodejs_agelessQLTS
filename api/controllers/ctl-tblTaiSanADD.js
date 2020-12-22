@@ -1130,19 +1130,19 @@ module.exports = {
             if (db) {
                 try {
                     for (var i = 0; i < array.length; i++) {
-                        if (array[i].idReplaceAsset && array[i].idReplaceNeedAsset !== "") {
+                        if (array[i].idReplaceAsset.id && array[i].idReplaceNeedAsset !== "") {
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: body.id,
                                 DateDiKem: body.date ? body.date : null,
-                            }, { where: { ID: array[i].idReplaceAsset } }).then(data => {
+                            }, { where: { ID: array[i].idReplaceAsset.id } }).then(data => {
                             })
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: null,
                                 DateDiKem: null
-                            }, { where: { ID: array[i].idReplaceNeedAsset.id } })
+                            }, { where: { ID: array[i].idReplaceNeedAsset } })
                             await mtblThayTheTaiSan(db).create({
-                                IDTaiSan: array[i].idReplaceNeedAsset.id,
-                                IDTaiSanThayThe: array[i].idReplaceAsset,
+                                IDTaiSan: array[i].idReplaceNeedAsset,
+                                IDTaiSanThayThe: array[i].idReplaceAsset.id,
                                 DateThayThe: body.date ? body.date : null,
                             })
                         }
@@ -1170,11 +1170,11 @@ module.exports = {
             if (db) {
                 try {
                     for (var i = 0; i < array.length; i++) {
-                        if (array[i].idAdditionalAsset) {
+                        if (array[i].idAdditionalAsset.id) {
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: body.id,
                                 DateDiKem: body.date ? body.date : null,
-                            }, { where: { ID: array[i].idAdditionalAsset } })
+                            }, { where: { ID: array[i].idAdditionalAsset.id } })
                         }
                     }
                 } catch (error) {

@@ -160,7 +160,7 @@ module.exports = {
                                     employeeIDS.push(item.ID);
                                 })
                             })
-                            if (active != '')
+                            if (active !== '')
                                 where = [
                                     { IDPermission: { [Op.in]: permission } },
                                     { Username: { [Op.like]: '%' + data.search + '%' } },
