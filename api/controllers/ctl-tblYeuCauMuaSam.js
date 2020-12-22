@@ -9,6 +9,7 @@ var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
+var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
@@ -327,11 +328,13 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let whereOjb = []
+                    let whereObj = []
                     let where = []
+                    let whereSecond = []
                     if (body.status === "request") {
                         where = [
                             { Status: "Chờ phê duyệt" },
@@ -350,39 +353,215 @@ module.exports = {
                             { Status: "Đã mua" },
                         ]
                     }
-                    // if (body.dataSearch) {
-                    //     var data = JSON.parse(body.dataSearch)
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
 
-                    //     if (data.search) {
-                    //         where = [
-                    //             // { TSName: { [Op.like]: '%' + data.search + '%' } },
+                        if (data.search) {
+                            var listStaff = [];
+                            await mtblDMNhanvien(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { StaffName: { [Op.like]: '%' + data.search + '%' } },
+                                        { StaffCode: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listStaff.push(item.ID);
+                                })
+                            })
+                            var listDepartment = [];
+                            await mtblDMBoPhan(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { DepartmentCode: { [Op.like]: '%' + data.search + '%' } },
+                                        { DepartmentName: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listDepartment.push(item.ID);
+                                })
+                            })
 
-                    //         ];
-                    //     } else {
-                    //         where = [
-                    //             // { TSName: { [Op.ne]: '%%' } },
-                    //         ];
-                    //     }
-                    //     
-                    //     if (data.items) {
-                    //         for (var i = 0; i < data.items.length; i++) {
-                    //             let userFind = {};
-                    //             // if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                    //             //     userFind['TSName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                    //             //     if (data.items[i].conditionFields['name'] == 'And') {
-                    //             //         whereOjb[Op.and] = userFind
-                    //             //     }
-                    //             //     if (data.items[i].conditionFields['name'] == 'Or') {
-                    //             //         whereOjb[Op.or] = userFind
-                    //             //     }
-                    //             //     if (data.items[i].conditionFields['name'] == 'Not') {
-                    //             //         whereOjb[Op.not] = userFind
-                    //             //     }
-                    //             // }
-                    //         }
-                    //     }
-                    // }
-                    whereOjb = { [Op.or]: where };
+                            var listGoods = [];
+                            await mtblDMHangHoa(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { Name: { [Op.like]: '%' + data.search + '%' } },
+                                        { Code: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listGoods.push(item.ID);
+                                })
+                            })
+
+                            var listYCMS = [];
+                            await mtblYeuCauMuaSamDetail(db).findAll({
+                                where: { IDDMHangHoa: { [Op.in]: listGoods } }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listYCMS.push(item.IDYeuCauMuaSam);
+                                })
+                            })
+
+                            whereSecond.push(
+                                { Status: { [Op.like]: '%' + data.search + '%' } }
+                            )
+                            whereSecond.push(
+                                { IDNhanVien: { [Op.in]: listStaff } },
+                            )
+                            whereSecond.push(
+                                { IDPhongBan: { [Op.in]: listDepartment } },
+                            )
+                            whereSecond.push(
+                                { ID: { [Op.in]: listYCMS } }
+                            )
+                        } else {
+                            whereSecond.push({
+                                Status: { [Op.like]: '%%' },
+                            })
+                        }
+                        whereObj = {
+                            [Op.or]: where,
+                            [Op.and]: { [Op.or]: whereSecond }
+                        }
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereObj[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereObj[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereObj[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'BỘ PHẬN ĐỀ XUẤT') {
+                                    var list = [];
+                                    await mtblDMBoPhan(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { DepartmentName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { DepartmentCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDPhongBan'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereObj[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereObj[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereObj[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
+                                    var list = [];
+                                    await mtblDMNhanvien(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { StaffName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { StaffCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDNhanVien'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereObj[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereObj[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereObj[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ TS/TB/LK') {
+                                    var listGoods = [];
+                                    await mtblDMHangHoa(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listGoods.push(item.ID);
+                                        })
+                                    })
+
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: { IDDMHangHoa: { [Op.in]: listGoods } }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = { [Op.in]: listYCMS }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereObj[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereObj[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereObj[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN TS/TB/LK') {
+                                    var listGoods = [];
+                                    await mtblDMHangHoa(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listGoods.push(item.ID);
+                                        })
+                                    })
+
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: { IDDMHangHoa: { [Op.in]: listGoods } }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = { [Op.in]: listYCMS }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereObj[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereObj[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereObj[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
+                    }
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
@@ -425,7 +604,7 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb
+                        where: whereObj
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
@@ -454,11 +633,12 @@ module.exports = {
                             var arrayFile = []
                             for (var j = 0; j < array[i].line.length; j++) {
                                 await mtblDMHangHoa(db).findOne({ where: { ID: array[i].line[j].IDDMHangHoa } }).then(data => {
-                                    arrayTaiSan.push({
-                                        name: data.Name,
-                                        code: data.Code,
-                                        amount: array[i].line[j].Amount,
-                                    })
+                                    if (data)
+                                        arrayTaiSan.push({
+                                            name: data.Name,
+                                            code: data.Code,
+                                            amount: array[i].line[j].Amount,
+                                        })
                                 })
                             }
                             await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: array[i].id } }).then(file => {
@@ -475,7 +655,7 @@ module.exports = {
                             array[i]['arrayFile'] = arrayFile;
 
                         }
-                        var count = await tblYeuCauMuaSam.count({ where: whereOjb })
+                        var count = await tblYeuCauMuaSam.count({ where: whereObj })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -617,36 +797,5 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_yeucaumuasam
-    // getListNametblYeuCauMuaSam: (req, res) => {
-    //     let body = req.body;
-    //     database.connectDatabase().then(async db => {
-    //         if (db) {
-    //             try {
-    //                 mtblYeuCauMuaSam(db).findAll().then(data => {
-    //                     var array = [];
-    //                     data.forEach(element => {
-    //                         var obj = {
-    //                             id: Number(element.ID),
-    //                             tsName: element.TSName ? element.TSName : '',
-    //                         }
-    //                         array.push(obj);
-    //                     });
-    //                     var result = {
-    //                         array: array,
-    //                         status: Constant.STATUS.SUCCESS,
-    //                         message: Constant.MESSAGE.ACTION_SUCCESS,
-    //                     }
-    //                     res.json(result);
-    //                 })
 
-    //             } catch (error) {
-    //                 console.log(error);
-    //                 res.json(Result.SYS_ERROR_RESULT)
-    //             }
-    //         } else {
-    //             res.json(Constant.MESSAGE.USER_FAIL)
-    //         }
-    //     })
-    // }
 }

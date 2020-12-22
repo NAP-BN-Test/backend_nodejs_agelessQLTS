@@ -165,7 +165,7 @@ module.exports = {
                                     { IDPermission: { [Op.in]: permission } },
                                     { Username: { [Op.like]: '%' + data.search + '%' } },
                                     { Active: active },
-                                    { [Op.and]: { IDNhanvien: { [Op.in]: employeeIDS } } },
+                                    { IDNhanvien: { [Op.in]: employeeIDS } },
                                 ];
                             else
                                 where = [
@@ -245,7 +245,12 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
-                                    userFind['Active'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    var active;
+                                    if (data.items[i]['searchFields'].toUpperCase() == 'CÓ HIỆU LỰC')
+                                        active = true
+                                    if (data.items[i]['searchFields'].toUpperCase() == 'VÔ HIỆU HÓA')
+                                        active = false
+                                    userFind['Active'] = active
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

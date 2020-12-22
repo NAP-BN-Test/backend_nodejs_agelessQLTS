@@ -238,8 +238,8 @@ module.exports = {
                                 stt: stt,
                                 staffCode: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffCode : '' : '' : '',
                                 staffName: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffName : '' : '' : '',
-                                fromDate: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.Date : null : null,
-                                toDate: data.history[i] ? data.history[i].DateThuHoi : null,
+                                fromDate: data.history[i] ? data.history[i].taisanbangiao ? moment(data.history[i].taisanbangiao.Date).format('DD/MM/YYYY') : null : null,
+                                toDate: data.history[i] ? moment(data.history[i].DateThuHoi).format('DD/MM/YYYY') : null,
                             }
                             stt += 1;
                             array.push(obj);
@@ -315,6 +315,8 @@ module.exports = {
                         OriginalPrice: body.obj.originalPrice ? body.obj.originalPrice : null,
                         Unit: body.obj.unit ? body.obj.unit : '',
                         Specifications: body.obj.specifications ? body.obj.specifications : '',
+                        DepreciationPrice: body.obj.depreciationPrice ? body.obj.depreciationPrice : 0,
+                        DepreciationDate: body.obj.depreciationDate ? body.obj.depreciationDate : null,
                         GuaranteeMonth: body.obj.guaranteeMonth ? body.obj.guaranteeMonth : null,
                         SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
                         Describe: body.obj.describe ? body.obj.describe : '',
@@ -1128,22 +1130,28 @@ module.exports = {
             if (db) {
                 try {
                     for (var i = 0; i < array.length; i++) {
-                        if (array[i].idReplaceAsset) {
+                        if (array[i].idReplaceAsset && array[i].idReplaceNeedAsset !== "") {
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: body.id,
                                 DateDiKem: body.date ? body.date : null,
-                            }, { where: { ID: array[i].idReplaceAsset } })
+                            }, { where: { ID: array[i].idReplaceAsset } }).then(data => {
+                            })
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: null,
                                 DateDiKem: null
-                            }, { where: { ID: array[i].idReplaceNeedAsset } })
+                            }, { where: { ID: array[i].idReplaceNeedAsset.id } })
                             await mtblThayTheTaiSan(db).create({
-                                IDTaiSan: array[i].idReplaceNeedAsset,
+                                IDTaiSan: array[i].idReplaceNeedAsset.id,
                                 IDTaiSanThayThe: array[i].idReplaceAsset,
                                 DateThayThe: body.date ? body.date : null,
                             })
                         }
                     }
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

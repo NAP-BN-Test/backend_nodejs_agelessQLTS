@@ -146,7 +146,6 @@ module.exports = {
     // get_list_tbl_phanphoi_vpp
     getListTBLPhanPhoiVPP: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -155,21 +154,99 @@ module.exports = {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
+                            var listVPP = [];
+                            await mtblVanPhongPham(db).findAll({
+                                where: {
+                                    [Op.or]: [
+                                        { VPPCode: { [Op.like]: '%' + data.search + '%' } },
+                                        { VPPName: { [Op.like]: '%' + data.search + '%' } }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listVPP.push(item.ID);
+                                })
+                            })
+                            var list = [];
+                            await mtblPhanPhoiVPPChiTiet(db).findAll({
+                                where: {
+                                    IDVanPhongPham: { [Op.in]: listVPP }
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    list.push(item.IDPhanPhoiVPP);
+                                })
+                            })
                             where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
+                                { ID: { [Op.in]: list } },
                             ];
                         } else {
                             where = [
-                                { FullName: { [Op.ne]: '%%' } },
+                                { ID: { [Op.ne]: null } },
                             ];
                         }
-                        let whereOjb = { [Op.or]: where };
+                        whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'MÃ VPP') {
+                                    var listVPP = [];
+                                    await mtblVanPhongPham(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { VPPCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listVPP.push(item.ID);
+                                        })
+                                    })
+                                    var list = [];
+                                    await mtblPhanPhoiVPPChiTiet(db).findAll({
+                                        where: {
+                                            IDVanPhongPham: { [Op.in]: listVPP }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.IDPhanPhoiVPP);
+                                        })
+                                    })
+                                    userFind['ID'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN VPP') {
+                                    var listVPP = [];
+                                    await mtblVanPhongPham(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { VPPName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listVPP.push(item.ID);
+                                        })
+                                    })
+                                    var list = [];
+                                    await mtblPhanPhoiVPPChiTiet(db).findAll({
+                                        where: {
+                                            IDVanPhongPham: { [Op.in]: listVPP }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.IDPhanPhoiVPP);
+                                        })
+                                    })
+                                    userFind['ID'] = { [Op.in]: list }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
