@@ -115,7 +115,7 @@ module.exports = {
                                 { Name: { [Op.ne]: '%%' } },
                             ];
                         }
-                        let whereOjb = { [Op.or]: where };
+                        whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};

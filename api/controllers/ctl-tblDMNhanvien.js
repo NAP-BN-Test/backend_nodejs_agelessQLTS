@@ -255,6 +255,7 @@ module.exports = {
                                 { StaffName: { [Op.like]: '%' + data.search + '%' } },
                                 { Address: { [Op.like]: '%' + data.search + '%' } },
                                 { Email: { [Op.like]: '%' + data.search + '%' } },
+                                { Gender: { [Op.like]: '%' + data.search + '%' } },
                                 { IDBoPhan: { [Op.in]: list } },
                             ];
                         } else {
@@ -268,6 +269,18 @@ module.exports = {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
                                     userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'GIỚI TÍNH') {
+                                    userFind['Gender'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

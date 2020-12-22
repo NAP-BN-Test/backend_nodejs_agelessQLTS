@@ -146,41 +146,42 @@ module.exports = {
     // get_list_tbl_phanphoi_vpp
     getListTBLPhanPhoiVPP: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        // var data = JSON.parse(body.dataSearch)
+                        var data = JSON.parse(body.dataSearch)
 
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // let whereOjb = { [Op.or]: where };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        if (data.search) {
+                            where = [
+                                { FullName: { [Op.like]: '%' + data.search + '%' } },
+                                { Address: { [Op.like]: '%' + data.search + '%' } },
+                            ];
+                        } else {
+                            where = [
+                                { FullName: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        let whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
                     }
                     let tblPhanPhoiVPP = mtblPhanPhoiVPP(db);
                     let tblPhanPhoiVPPChiTiet = mtblPhanPhoiVPPChiTiet(db);

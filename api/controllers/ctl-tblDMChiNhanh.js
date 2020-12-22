@@ -131,7 +131,7 @@ module.exports = {
                                 { FaxNumber: { [Op.ne]: '%%' } },
                             ];
                         }
-                        let whereOjb = { [Op.or]: where };
+                        whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -184,7 +184,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'FAX') {
-                                    userFind['fax'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Fax'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

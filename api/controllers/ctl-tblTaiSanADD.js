@@ -604,7 +604,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
+                    var whereOjb = {};
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
@@ -633,11 +633,34 @@ module.exports = {
                             ];
                         }
                         whereOjb = { [Op.or]: where };
+                        let listIDTaiSan = [];
+                        await mtblTaiSanHistory(db).findAll({
+                            where: [
+                                {
+                                    DateThuHoi: null
+                                }
+                            ]
+                        }).then(data => {
+                            data.forEach(item => {
+                                if (item.IDTaiSan) {
+                                    if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                                        listIDTaiSan.push(Number(item.IDTaiSan))
+                                }
+                            })
+                        })
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
-                                    userFind['TSNBCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['TSNBCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%',
+                                    }
+                                    userFind['ID'] = {
+                                        [Op.notIn]: listIDTaiSan,
+                                    }
+                                    userFind['IDTaiSanDiKem'] = {
+                                        [Op.is]: null
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -662,7 +685,15 @@ module.exports = {
                                             list.push(item.ID);
                                         })
                                     })
-                                    userFind['IDDMHangHoa'] = { [Op.in]: list }
+                                    userFind['IDDMHangHoa'] = {
+                                        [Op.in]: list,
+                                    }
+                                    userFind['ID'] = {
+                                        [Op.notIn]: listIDTaiSan,
+                                    }
+                                    userFind['IDTaiSanDiKem'] = {
+                                        [Op.is]: null
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -675,25 +706,6 @@ module.exports = {
                                 }
                             }
                         }
-                    }
-                    let listIDTaiSan = [];
-                    await mtblTaiSanHistory(db).findAll({
-                        where: [
-                            {
-                                DateThuHoi: null
-                            }
-                        ]
-                    }).then(data => {
-                        data.forEach(item => {
-                            if (item.IDTaiSan) {
-                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                                    listIDTaiSan.push(Number(item.IDTaiSan))
-                            }
-                        })
-                    })
-                    whereOjb[Op.and] = {
-                        ID: { [Op.notIn]: listIDTaiSan },
-                        IDTaiSanDiKem: null
                     }
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
@@ -770,7 +782,22 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
+                    var whereOjb = {};
+                    let listIDTaiSan = [];
+                    await mtblTaiSanHistory(db).findAll({
+                        where: [
+                            {
+                                DateThuHoi: null
+                            }
+                        ]
+                    }).then(data => {
+                        data.forEach(item => {
+                            if (item.IDTaiSan) {
+                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                                    listIDTaiSan.push(item.IDTaiSan)
+                            }
+                        })
+                    })
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
@@ -799,11 +826,35 @@ module.exports = {
                             ];
                         }
                         whereOjb = { [Op.or]: where };
+                        let listIDTaiSan = [];
+                        await mtblTaiSanHistory(db).findAll({
+                            where: [
+                                {
+                                    DateThuHoi: null
+                                }
+                            ]
+                        }).then(data => {
+                            data.forEach(item => {
+                                if (item.IDTaiSan) {
+                                    if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                                        listIDTaiSan.push(Number(item.IDTaiSan))
+                                }
+                            })
+                        })
+
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'MÃ CHI NHÁNH') {
-                                    userFind['BranchCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
+                                    userFind['TSNBCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%',
+                                    }
+                                    userFind['ID'] = {
+                                        [Op.in]: listIDTaiSan,
+                                    }
+                                    userFind['IDTaiSanDiKem'] = {
+                                        [Op.is]: null
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -814,56 +865,29 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'TÊN CHI NHÁNH') {
-                                    userFind['BranchName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                if (data.items[i].fields['name'] === 'TÊN TÀI SẢN') {
+                                    var list = [];
+                                    await mtblDMHangHoa(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDDMHangHoa'] = {
+                                        [Op.in]: list,
                                     }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                    userFind['ID'] = {
+                                        [Op.in]: listIDTaiSan,
                                     }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                    userFind['IDTaiSanDiKem'] = {
+                                        [Op.is]: null
                                     }
-                                }
-                                if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
-                                    userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                                if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
-                                    userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                                if (data.items[i].fields['name'] === 'FAX') {
-                                    userFind['fax'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                                if (data.items[i].fields['name'] === 'EMAIL') {
-                                    userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -877,26 +901,6 @@ module.exports = {
                             }
                         }
                     }
-                    let listIDTaiSan = [];
-                    await mtblTaiSanHistory(db).findAll({
-                        where: [
-                            {
-                                DateThuHoi: null
-                            }
-                        ]
-                    }).then(data => {
-                        data.forEach(item => {
-                            if (item.IDTaiSan) {
-                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                                    listIDTaiSan.push(item.IDTaiSan)
-                            }
-                        })
-                    })
-                    whereOjb[Op.and] = {
-                        ID: { [Op.in]: listIDTaiSan },
-                        IDTaiSanDiKem: null
-                    }
-
                     // if (body.dataSearch) {
                     //     var data = JSON.parse(body.dataSearch)
 
