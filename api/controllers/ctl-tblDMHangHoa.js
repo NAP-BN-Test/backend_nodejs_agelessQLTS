@@ -272,32 +272,32 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let listIDTaiSan = [];
-                    let listIDHangHoa = [];
-                    await mtblTaiSanHistory(db).findAll({
-                        where: [
-                            {
-                                DateThuHoi: null
-                            }
-                        ]
-                    }).then(data => {
-                        data.forEach(item => {
-                            if (item.IDTaiSan) {
-                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                                    listIDTaiSan.push(Number(item.IDTaiSan))
-                            }
-                        })
-                    })
-                    await mtblTaiSan(db).findAll({
-                        where: { ID: { [Op.in]: listIDTaiSan } }
-                    }).then(data => {
-                        data.forEach(item => {
-                            if (item.IDDMHangHoa) {
-                                if (!checkDuplicate(listIDHangHoa, item.IDDMHangHoa))
-                                    listIDHangHoa.push(Number(item.IDDMHangHoa))
-                            }
-                        })
-                    })
+                    // let listIDTaiSan = [];
+                    // let listIDHangHoa = [];
+                    // await mtblTaiSanHistory(db).findAll({
+                    //     where: [
+                    //         {
+                    //             DateThuHoi: null
+                    //         }
+                    //     ]
+                    // }).then(data => {
+                    //     data.forEach(item => {
+                    //         if (item.IDTaiSan) {
+                    //             if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                    //                 listIDTaiSan.push(Number(item.IDTaiSan))
+                    //         }
+                    //     })
+                    // })
+                    // await mtblTaiSan(db).findAll({
+                    //     where: { ID: { [Op.in]: listIDTaiSan } }
+                    // }).then(data => {
+                    //     data.forEach(item => {
+                    //         if (item.IDDMHangHoa) {
+                    //             if (!checkDuplicate(listIDHangHoa, item.IDDMHangHoa))
+                    //                 listIDHangHoa.push(Number(item.IDDMHangHoa))
+                    //         }
+                    //     })
+                    // })
                     let tblDMHangHoa = mtblDMHangHoa(db);
                     tblDMHangHoa.belongsTo(tblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'lts' })
 
@@ -309,7 +309,7 @@ module.exports = {
                                 as: 'lts'
                             },
                         ],
-                        where: { ID: { [Op.notIn]: listIDHangHoa } }
+                        // where: { ID: { [Op.notIn]: listIDHangHoa } }
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {

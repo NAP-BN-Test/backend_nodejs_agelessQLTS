@@ -7,6 +7,8 @@ var database = require('../database');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMUser = require('../tables/constants/tblDMUser');
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
+var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     await mtblDeNghiThanhToan(db).destroy({
@@ -32,10 +34,11 @@ module.exports = {
                         IDNhanVienLDPD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
                         TrangThaiPheDuyetLD: body.trangThaiPheDuyetLD ? body.trangThaiPheDuyetLD : '',
                     }).then(async data => {
+                        body.fileAttach = JSON.parse(body.fileAttach)
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
                                 await mtblFileAttach(db).create({
-                                    Name: body.fileAttach[j].fileName,
+                                    Name: body.fileAttach[j].name,
                                     Link: body.fileAttach[j].link,
                                     IDDeNghiThanhToan: data.ID,
                                 })
@@ -145,38 +148,38 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                        // var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        let whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
+                        // if (data.search) {
+                        //     where = [
+                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
+                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
+                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                        //     ];
+                        // } else {
+                        //     where = [
+                        //         { FullName: { [Op.ne]: '%%' } },
+                        //     ];
+                        // }
+                        // let whereOjb = { [Op.or]: where };
+                        // if (data.items) {
+                        //     for (var i = 0; i < data.items.length; i++) {
+                        //         let userFind = {};
+                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //             if (data.items[i].conditionFields['name'] == 'And') {
+                        //                 whereOjb[Op.and] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Or') {
+                        //                 whereOjb[Op.or] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Not') {
+                        //                 whereOjb[Op.not] = userFind
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
@@ -227,12 +230,132 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayFile'] = arrayFile;
+
+                        }
                         var count = await mtblDeNghiThanhToan(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // detail_tbl_denghi_thanhtoan
+    detailtblDeNghiThanhToan: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    let tblDMBoPhan = mtblDMBoPhan(db);
+                    tblDMNhanvien.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
+
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
+                    tblDeNghiThanhToan.findOne({
+                        where: { ID: body.id },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        include: [
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'NhanVien',
+                                include: [
+                                    {
+                                        model: tblDMBoPhan,
+                                        required: false,
+                                        as: 'bophan',
+                                        include: [
+                                            {
+                                                model: mtblDMChiNhanh(db),
+                                                required: false,
+                                                as: 'chinhanh'
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'KTPD'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'LDPD'
+                            },
+                        ],
+                    }).then(async data => {
+                        var obj = {
+                            stt: stt,
+                            id: Number(data.ID),
+                            idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+                            nameNhanVien: data.NhanVien ? data.NhanVien.StaffName : '',
+                            contents: data.Contents ? data.Contents : '',
+                            cost: data.Cost ? data.Cost : null,
+                            idNhanVienKTPD: data.IDNhanVienKTPD ? data.IDNhanVienKTPD : null,
+                            nameNhanVienKTPD: data.KTPD ? data.KTPD.StaffName : '',
+                            trangThaiPheDuyetKT: data.trangThaiPheDuyetKT ? data.trangThaiPheDuyetKT : '',
+                            idNhanVienLDPD: data.IDNhanVienLDPD ? data.IDNhanVienLDPD : null,
+                            nameNhanVienLDPD: data.LDPD ? data.LDPD.StaffName : '',
+                            trangThaiPheDuyetLD: data.trangThaiPheDuyetLD ? data.trangThaiPheDuyetLD : '',
+                            departmentName: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentName : '' : '',
+                            departmentCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentCode : '' : '',
+                            branchName: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchName : '' : '' : '',
+                            branchCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchCode : '' : '' : '',
+                        }
+                        stt += 1;
+                        console.log(obj);
+                        var arrayFile = []
+                        await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: obj.id } }).then(file => {
+                            if (file.length > 0) {
+                                for (var e = 0; e < file.length; e++) {
+                                    arrayFile.push({
+                                        name: file[e].Name ? file[e].Name : '',
+                                        link: file[e].Link ? file[e].Link : '',
+                                    })
+                                }
+                            }
+                        })
+                        obj['arrayFile'] = arrayFile;
+                        var result = {
+                            obj: obj,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
                         res.json(result);
                     })

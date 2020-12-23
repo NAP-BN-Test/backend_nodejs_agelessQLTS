@@ -25,6 +25,7 @@ module.exports = {
                                 id: data.ID,
                                 statusName: data.StatusName,
                                 statusCode: data.StatusCode,
+                                describe: data.Describe,
                             }
                             var result = {
                                 obj: obj,
@@ -55,6 +56,7 @@ module.exports = {
                     mtblDMTinhTrangNV(db).create({
                         StatusName: body.statusName ? body.statusName : '',
                         StatusCode: body.statusCode ? body.statusCode : '',
+                        Describe: body.describe ? body.describe : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -82,6 +84,8 @@ module.exports = {
                         update.push({ key: 'StatusCode', value: body.statusCode });
                     if (body.statusName || body.statusName === '')
                         update.push({ key: 'StatusName', value: body.statusName });
+                    if (body.describe || body.describe === '')
+                        update.push({ key: 'Describe', value: body.describe });
                     database.updateTable(update, mtblDMTinhTrangNV(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -174,6 +178,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 statusName: element.StatusName ? element.StatusName : '',
                                 statusCode: element.StatusCode ? element.StatusCode : '',
+                                describe: element.Describe ? element.Describe : '',
                             }
                             array.push(obj);
                             stt += 1;

@@ -252,12 +252,24 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMBoPhan(db).findAll().then(data => {
+                    let tblDMBoPhan = mtblDMBoPhan(db);
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
+                    tblDMBoPhan.findAll({
+                        include: [
+                            {
+                                model: mtblDMChiNhanh(db),
+                                required: false,
+                                as: 'chinhanh'
+                            },
+                        ],
+                    }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
                                 departmentName: element.DepartmentName ? element.DepartmentName : '',
+                                branchID: element.IDChiNhanh ? element.IDChiNhanh : null,
+                                branchName: element.IDChiNhanh ? element.chinhanh.BranchName : null,
                             }
                             array.push(obj);
                         });
@@ -277,5 +289,6 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+
 }

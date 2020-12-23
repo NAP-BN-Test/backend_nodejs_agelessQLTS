@@ -606,6 +606,21 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let listIDTaiSan = [];
+                    await mtblTaiSanHistory(db).findAll({
+                        where: [
+                            {
+                                DateThuHoi: null
+                            }
+                        ]
+                    }).then(data => {
+                        data.forEach(item => {
+                            if (item.IDTaiSan) {
+                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                                    listIDTaiSan.push(Number(item.IDTaiSan))
+                            }
+                        })
+                    })
                     var whereOjb = {};
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
@@ -633,32 +648,20 @@ module.exports = {
                             where = [
                                 { TSNBCode: { [Op.ne]: '%%' } },
                             ];
+
                         }
                         whereOjb = { [Op.or]: where };
-                        let listIDTaiSan = [];
-                        await mtblTaiSanHistory(db).findAll({
-                            where: [
-                                {
-                                    DateThuHoi: null
-                                }
-                            ]
-                        }).then(data => {
-                            data.forEach(item => {
-                                if (item.IDTaiSan) {
-                                    if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                                        listIDTaiSan.push(Number(item.IDTaiSan))
-                                }
-                            })
-                        })
+                        let userFind = {};
+                        userFind['ID'] = {
+                            [Op.notIn]: listIDTaiSan,
+                        }
+                        whereOjb[Op.and] = userFind
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
                                     userFind['TSNBCode'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%',
-                                    }
-                                    userFind['ID'] = {
-                                        [Op.notIn]: listIDTaiSan,
                                     }
                                     userFind['IDTaiSanDiKem'] = {
                                         [Op.is]: null
@@ -690,9 +693,6 @@ module.exports = {
                                     userFind['IDDMHangHoa'] = {
                                         [Op.in]: list,
                                     }
-                                    userFind['ID'] = {
-                                        [Op.notIn]: listIDTaiSan,
-                                    }
                                     userFind['IDTaiSanDiKem'] = {
                                         [Op.is]: null
                                     }
@@ -709,6 +709,14 @@ module.exports = {
                             }
                         }
                     }
+                    else {
+                        let userFind = {};
+                        userFind['ID'] = {
+                            [Op.notIn]: listIDTaiSan,
+                        }
+                        whereOjb[Op.and] = userFind
+                    }
+                    console.log(whereOjb);
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
@@ -828,31 +836,32 @@ module.exports = {
                             ];
                         }
                         whereOjb = { [Op.or]: where };
-                        let listIDTaiSan = [];
-                        await mtblTaiSanHistory(db).findAll({
-                            where: [
-                                {
-                                    DateThuHoi: null
-                                }
-                            ]
-                        }).then(data => {
-                            data.forEach(item => {
-                                if (item.IDTaiSan) {
-                                    if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                                        listIDTaiSan.push(Number(item.IDTaiSan))
-                                }
-                            })
-                        })
-
+                        // let listIDTaiSan = [];
+                        // await mtblTaiSanHistory(db).findAll({
+                        //     where: [
+                        //         {
+                        //             DateThuHoi: null
+                        //         }
+                        //     ]
+                        // }).then(data => {
+                        //     data.forEach(item => {
+                        //         if (item.IDTaiSan) {
+                        //             if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                        //                 listIDTaiSan.push(Number(item.IDTaiSan))
+                        //         }
+                        //     })
+                        // })
+                        let userFind = {};
+                        userFind['ID'] = {
+                            [Op.in]: listIDTaiSan,
+                        }
+                        whereOjb[Op.and] = userFind
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
                                     userFind['TSNBCode'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%',
-                                    }
-                                    userFind['ID'] = {
-                                        [Op.in]: listIDTaiSan,
                                     }
                                     userFind['IDTaiSanDiKem'] = {
                                         [Op.is]: null
@@ -884,9 +893,6 @@ module.exports = {
                                     userFind['IDDMHangHoa'] = {
                                         [Op.in]: list,
                                     }
-                                    userFind['ID'] = {
-                                        [Op.in]: listIDTaiSan,
-                                    }
                                     userFind['IDTaiSanDiKem'] = {
                                         [Op.is]: null
                                     }
@@ -902,6 +908,13 @@ module.exports = {
                                 }
                             }
                         }
+                    }
+                    else {
+                        let userFind = {};
+                        userFind['ID'] = {
+                            [Op.in]: listIDTaiSan,
+                        }
+                        whereOjb[Op.and] = userFind
                     }
                     // if (body.dataSearch) {
                     //     var data = JSON.parse(body.dataSearch)

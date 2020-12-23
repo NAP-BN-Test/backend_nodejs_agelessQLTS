@@ -48,6 +48,9 @@ module.exports = function (app) {
 
     //  Quản lý nhân viên
     app.route('/qlnb/get_list_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListtblDMNhanvien);
+    app.route('/qlnb/add_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.addtblDMNhanvien);
+    app.route('/qlnb/update_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.updatetblDMNhanvien);
+    app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListNametblDMNhanvien);
     app.route('/qlnb/get_employee_from_department').post(tblDMNhanvien.getEmployeeFromDepartment);
 
     // Lịch sử sử dụng của nhân viên 
@@ -164,8 +167,9 @@ module.exports = function (app) {
     //---------------------------------------------------------------- Menu đề nghị thanh toán --------------------------------------------------------------------------------------
     app.route('/qlnb/add_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.addtblDeNghiThanhToan);
     app.route('/qlnb/update_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.updatetblDeNghiThanhToan);
-    app.route('/qlnb/delete_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.deleteRelationshiptblDeNghiThanhToan);
+    app.route('/qlnb/delete_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.deletetblDeNghiThanhToan);
     app.route('/qlnb/get_list_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.getListtblDeNghiThanhToan);
+    app.route('/qlnb/detail_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.detailtblDeNghiThanhToan);
     app.route('/qlnb/get_list_name_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.getListNametblDeNghiThanhToan);
     app.route('/qlnb/approval_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.approvalDeNghiThanhToan);
     var zalo = require('./controllers/zalo');
@@ -180,13 +184,37 @@ module.exports = function (app) {
 
     //---------------------------------------------------------------- Menu danh mục --------------------------------------------------------------------------------------
     var tblLoaiChamCong = require('./controllers_hr/ctl-tblLoaiChamCong');
+    var tblNghiLe = require('./controllers_hr/ctl-tblNghiLe');
+    var tblDMTinhTrangNV = require('./controllers_hr/ctl-tblDMTinhTrangNV');
 
-
+    // Danh mục loại chấm công
     app.route('/qlnb/add_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.addtblLoaiChamCong);
     app.route('/qlnb/update_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.updatetblLoaiChamCong);
     app.route('/qlnb/delete_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.deleteRelationshiptblLoaiChamCong);
     app.route('/qlnb/get_list_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListtblLoaiChamCong);
     app.route('/qlnb/get_list_name_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListNametblLoaiChamCong);
 
+    // Danh mục nghỉ lễ
+    app.route('/qlnb/add_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.addtblNghiLe);
+    app.route('/qlnb/update_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.updatetblNghiLe);
+    app.route('/qlnb/delete_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.deletetblNghiLe);
+    app.route('/qlnb/get_list_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.getListtblNghiLe);
+    app.route('/qlnb/get_list_name_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.getListNametblNghiLe);
 
+    //  Danh mục tình trạng nhân viên
+    app.route('/qlnb/add_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.addtblDMTinhTrangNV);
+    app.route('/qlnb/update_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.updatetblDMTinhTrangNV);
+    app.route('/qlnb/delete_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.deletetblDMTinhTrangNV);
+    app.route('/qlnb/get_list_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.getListtblDMTinhTrangNV);
+    app.route('/qlnb/get_list_name_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.getListNametblDMTinhTrangNV);
+
+    // Danh mục bộ phận
+    // 35-40
+
+    // Danh mục chi nhánh
+    // 43-47
+
+    //---------------------------------------------------------------- Menu trích ngang --------------------------------------------------------------------------------------
+
+    // 49-54
 }

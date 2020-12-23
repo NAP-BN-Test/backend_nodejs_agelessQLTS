@@ -41,15 +41,24 @@ module.exports = {
                                 })
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
-                                await mtblVanPhongPham(db).update({
-                                    RemainingAmount: Number(amount) - Number(body.line[i].amount),
-                                }, { where: { ID: body.line[i].idVanPhongPham.id } })
+                                if (Number(body.line[i].amount) < amount) {
+                                    await mtblVanPhongPham(db).update({
+                                        RemainingAmount: Number(amount) - Number(body.line[i].amount),
+                                    }, { where: { ID: body.line[i].idVanPhongPham.id } })
+                                    var result = {
+                                        status: Constant.STATUS.SUCCESS,
+                                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                                    }
+                                    res.json(result);
+                                }
+                                else {
+                                    var result = {
+                                        status: Constant.STATUS.FAIL,
+                                        message: "Số lượng bàn giao lớn hơn số lượng tồn. Vui lòng kiểm tra lại!",
+                                    }
+                                    res.json(result);
+                                }
                             }
-                        var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
                     })
                 } catch (error) {
                     console.log(error);
