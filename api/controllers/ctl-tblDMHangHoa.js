@@ -289,7 +289,7 @@ module.exports = {
                         })
                     })
                     await mtblTaiSan(db).findAll({
-                        where: { ID: { [Op.notIn]: listIDTaiSan } }
+                        where: { ID: { [Op.in]: listIDTaiSan } }
                     }).then(data => {
                         data.forEach(item => {
                             if (item.IDDMHangHoa) {
@@ -309,7 +309,7 @@ module.exports = {
                                 as: 'lts'
                             },
                         ],
-                        where: { ID: { [Op.in]: listIDHangHoa } }
+                        where: { ID: { [Op.notIn]: listIDHangHoa } }
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {
@@ -419,6 +419,50 @@ module.exports = {
                         res.json(result);
                     })
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_all_tbl_dmhanghoa
+    getListAlltblDMHangHoa: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblDMHangHoa = mtblDMHangHoa(db);
+                    tblDMHangHoa.belongsTo(tblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'lts' })
+
+                    tblDMHangHoa.findAll({
+                        include: [
+                            {
+                                model: tblDMLoaiTaiSan(db),
+                                required: false,
+                                as: 'lts'
+                            },
+                        ],
+                    }).then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                name: element.Name ? element.Name : '',
+                                code: element.Code ? element.Code : '',
+                                nameLoaiTaiSan: element.lts ? element.lts.Name : '',
+                            }
+                            array.push(obj);
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

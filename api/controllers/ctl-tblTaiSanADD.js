@@ -275,7 +275,7 @@ module.exports = {
                     }).then(data => {
                         if (data.length > 0) {
                             data.forEach(element => {
-                                listIDTaiSan.push(element.IDTaiSanDiKem);
+                                listIDTaiSan.push(element.ID);
                             })
                         }
                     })
@@ -1164,7 +1164,6 @@ module.exports = {
     // additional_asset_attach
     additionalAssetAttach: (req, res) => {
         let body = req.body;
-        console.log(body);
         let array = JSON.parse(body.array);
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1177,6 +1176,35 @@ module.exports = {
                             }, { where: { ID: array[i].idAdditionalAsset.id } })
                         }
                     }
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // delete_asset_attach
+    deleteAssetAttach: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblTaiSan(db).update({
+                        IDTaiSanDiKem: null,
+                        DateDiKem: null,
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -1189,6 +1217,7 @@ module.exports = {
     // withdraw_asset
     withdrawAsset: (req, res) => {
         let body = req.body;
+        console.log(body);
         let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1196,6 +1225,11 @@ module.exports = {
                     await mtblTaiSanHistory(db).update({
                         DateThuHoi: now,
                     }, { where: { IDTaiSan: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

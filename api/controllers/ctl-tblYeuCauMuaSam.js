@@ -50,8 +50,8 @@ module.exports = {
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
                                 await mtblFileAttach(db).create({
-                                    Link: body.fileAttach[j].Link ? body.fileAttach[j].Link : '',
-                                    Name: body.fileAttach[j].Name ? body.fileAttach[j].Name : '',
+                                    Link: body.fileAttach[j].link ? body.fileAttach[j].link : '',
+                                    Name: body.fileAttach[j].name ? body.fileAttach[j].name : '',
                                     IDYeuCauMuaSam: data.ID,
                                 })
                         body.line = JSON.parse(body.line)

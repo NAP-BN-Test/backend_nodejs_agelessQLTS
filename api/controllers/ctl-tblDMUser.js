@@ -414,10 +414,7 @@ module.exports = {
                     }
                     let token = jwt.sign(payload,
                         'abcdxys',
-                        {
-                            algorithm: "HS256",
-                            expiresIn: '24h' // expires in 24 hours
-                        }
+                        {}
                     );
                     var result = {
                         status: Constant.STATUS.SUCCESS,

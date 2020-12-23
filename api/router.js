@@ -67,6 +67,7 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.deletetblDMHangHoa);
     app.route('/qlnb/get_list_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListtblDMHangHoa);
     app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListNametblDMHangHoa);
+    app.route('/qlnb/get_list_all_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListAlltblDMHangHoa);
 
     //  Danh mục nhà cung cấp
     app.route('/qlnb/add_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.addtblDMNhaCungCap);
@@ -131,15 +132,17 @@ module.exports = function (app) {
 
 
 
-    app.route('/qlnb/get_list_attach_asset').post(tblTaiSan.getListAttachAsset);
+    app.route('/qlnb/get_list_attach_asset').post(checkToken.checkToken, tblTaiSan.getListAttachAsset);
 
-    app.route('/qlnb/replace_asset_attach').post(tblTaiSan.replateAssetAttach);
+    app.route('/qlnb/replace_asset_attach').post(checkToken.checkToken, tblTaiSan.replateAssetAttach);
 
-    app.route('/qlnb/additional_asset_attach').post(tblTaiSan.additionalAssetAttach);
+    app.route('/qlnb/additional_asset_attach').post(checkToken.checkToken, tblTaiSan.additionalAssetAttach);
 
-    app.route('/qlnb/withdraw_asset').post(tblTaiSan.withdrawAsset);
+    app.route('/qlnb/delete_asset_attach').post(checkToken.checkToken, tblTaiSan.deleteAssetAttach);
 
-    app.route('/qlnb/get_list_asset_not_use').post(tblTaiSan.getListAssetNotuse);
+    app.route('/qlnb/withdraw_asset').post(checkToken.checkToken, tblTaiSan.withdrawAsset);
+
+    app.route('/qlnb/get_list_asset_not_use').post(checkToken.checkToken, tblTaiSan.getListAssetNotuse);
 
 
 
@@ -174,5 +177,16 @@ module.exports = function (app) {
 
 
     // ************************************************************** QUẢN LÝ NHÂN SỰ **********************************************************************************************
+
+    //---------------------------------------------------------------- Menu danh mục --------------------------------------------------------------------------------------
+    var tblLoaiChamCong = require('./controllers_hr/ctl-tblLoaiChamCong');
+
+
+    app.route('/qlnb/add_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.addtblLoaiChamCong);
+    app.route('/qlnb/update_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.updatetblLoaiChamCong);
+    app.route('/qlnb/delete_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.deleteRelationshiptblLoaiChamCong);
+    app.route('/qlnb/get_list_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListtblLoaiChamCong);
+    app.route('/qlnb/get_list_name_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListNametblLoaiChamCong);
+
 
 }

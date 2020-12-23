@@ -91,6 +91,8 @@ module.exports = {
                         update.push({ key: 'Name', value: body.name });
                     if (body.decription || body.decription === '')
                         update.push({ key: 'Decription', value: body.decription });
+                    if (body.type || body.type === '')
+                        update.push({ key: 'Type', value: body.type });
                     database.updateTable(update, mtblLoaiChamCong(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -142,35 +144,35 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { Name: { [Op.like]: '%' + data.search + '%' } },
-                                { Code: { [Op.like]: '%' + data.search + '%' } },
-                                { Decription: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { Name: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        let whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN LOẠI CHẤM CÔNG') {
-                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
+                        // if (data.search) {
+                        //     where = [
+                        //         { Name: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Code: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Decription: { [Op.like]: '%' + data.search + '%' } },
+                        //     ];
+                        // } else {
+                        //     where = [
+                        //         { Name: { [Op.ne]: '%%' } },
+                        //     ];
+                        // }
+                        // let whereOjb = { [Op.or]: where };
+                        // if (data.items) {
+                        //     for (var i = 0; i < data.items.length; i++) {
+                        //         let userFind = {};
+                        //         if (data.items[i].fields['name'] === 'TÊN LOẠI CHẤM CÔNG') {
+                        //             userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //             if (data.items[i].conditionFields['name'] == 'And') {
+                        //                 whereOjb[Op.and] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Or') {
+                        //                 whereOjb[Op.or] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Not') {
+                        //                 whereOjb[Op.not] = userFind
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                     let stt = 1;
                     mtblLoaiChamCong(db).findAll({
@@ -189,6 +191,7 @@ module.exports = {
                                 name: element.Name ? element.Name : '',
                                 code: element.Code ? element.Code : '',
                                 decription: element.Decription ? element.Decription : '',
+                                type: element.Type ? element.Type : '',
                             }
                             array.push(obj);
                             stt += 1;

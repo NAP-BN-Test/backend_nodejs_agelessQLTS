@@ -15,7 +15,7 @@ async function deleteRelationshiptblNghiLe(db, listID) {
 module.exports = {
     deleteRelationshiptblNghiLe,
     //  get_detail_tbl_nghiLe
-    addtblNghiLe: (req, res) => {
+    detailtblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -38,8 +38,10 @@ module.exports = {
                         if (data) {
                             var obj = {
                                 id: data.ID,
-                                nameLoaiChamCong: data.loaiChamCong.Name,
-                                codeLoaiChamCong: data.loaiChamCong.Code,
+                                nameHoliday: data.NameHoliday,
+                                nameLoaiChamCong: data.loaiChamCong ? data.loaiChamCong.Name : '',
+                                codeLoaiChamCong: data.loaiChamCong ? data.loaiChamCong.Code : '',
+                                describe: data.Describe ? data.Describe : '',
                             }
                             var result = {
                                 obj: obj,
@@ -68,8 +70,10 @@ module.exports = {
             if (db) {
                 try {
                     mtblNghiLe(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
+                        IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
+                        DateHoliday: body.dateHoliday ? body.dateHoliday : null,
+                        NameHoliday: body.nameHoliday ? body.nameHoliday : '',
+                        Describe: body.describe ? body.describe : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -93,10 +97,23 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
+                    if (body.idLoaiChamCong || body.idLoaiChamCong === '') {
+                        if (body.idLoaiChamCong === '')
+                            update.push({ key: 'IDLoaiChamCong', value: null });
+                        else
+                            update.push({ key: 'IDLoaiChamCong', value: body.idLoaiChamCong });
+                    }
+                    if (body.dateHoliday || body.dateHoliday === '') {
+                        if (body.dateHoliday === '')
+                            update.push({ key: 'DateHoliday', value: null });
+                        else
+                            update.push({ key: 'DateHoliday', value: body.dateHoliday });
+                    }
+                    if (body.nameHoliday || body.nameHoliday === '')
+                        update.push({ key: 'NameHoliday', value: body.nameHoliday });
+                    if (body.describe || body.describe === '')
+                        update.push({ key: 'Describe', value: body.describe });
+
                     database.updateTable(update, mtblNghiLe(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -145,39 +162,48 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        let whereOjb = { [Op.or]: where };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
+                        // if (data.search) {
+                        //     where = [
+                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
+                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
+                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                        //     ];
+                        // } else {
+                        //     where = [
+                        //         { FullName: { [Op.ne]: '%%' } },
+                        //     ];
+                        // }
+                        // whereOjb = { [Op.or]: where };
+                        // if (data.items) {
+                        //     for (var i = 0; i < data.items.length; i++) {
+                        //         let userFind = {};
+                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //             if (data.items[i].conditionFields['name'] == 'And') {
+                        //                 whereOjb[Op.and] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Or') {
+                        //                 whereOjb[Op.or] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Not') {
+                        //                 whereOjb[Op.not] = userFind
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                     let stt = 1;
-                    mtblNghiLe(db).findAll({
+                    let tblNghiLe = mtblNghiLe(db);
+                    tblNghiLe.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'loaiChamCong' })
+                    tblNghiLe.findAll({
+                        include: [
+                            {
+                                model: mtblLoaiChamCong(db),
+                                required: false,
+                                as: 'loaiChamCong'
+                            },
+                        ],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -189,9 +215,11 @@ module.exports = {
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
+                                id: data.ID,
+                                nameHoliday: element.NameHoliday ? element.NameHoliday : '',
+                                nameLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Name : '',
+                                codeLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Code : '',
+                                describe: element.Describe ? element.Describe : '',
                             }
                             array.push(obj);
                             stt += 1;
@@ -226,7 +254,7 @@ module.exports = {
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                nameHoliday: element.NameHoliday ? element.NameHoliday : '',
                             }
                             array.push(obj);
                         });

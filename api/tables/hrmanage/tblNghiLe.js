@@ -10,7 +10,7 @@ module.exports = function (db) {
         IDLoaiChamCong: Sequelize.BIGINT,
         DateHoliday: Sequelize.DATE,
         NameHoliday: Sequelize.STRING,
-
+        Describe: Sequelize.STRING,
     });
 
     return table;
