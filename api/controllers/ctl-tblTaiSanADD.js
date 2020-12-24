@@ -353,11 +353,9 @@ module.exports = {
                     }).then(async data => {
                         if (body.fileAttach.length > 0) {
                             for (var i = 0; i < body.fileAttach.length; i++) {
-                                await mtblFileAttach(db).create({
-                                    Name: body.fileAttach[i].name,
-                                    Link: body.fileAttach[i].link,
+                                await mtblFileAttach(db).update({
                                     IDTaiSanADD: data.ID,
-                                })
+                                }, { where: { ID: body.fileAttach[i].id } })
                             }
                         }
                         for (var i = 0; i < body.taisan.length; i++) {
@@ -427,9 +425,8 @@ module.exports = {
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
-                                Name: body.fileAttach[j].fileName,
-                                Link: body.fileAttach[j].link,
-                            }, { where: { where: { ID: body.fileAttach[j].idFileAttach } } })
+                                IDTaiSanADD: body.id
+                            }, { where: { where: { ID: body.fileAttach[j].id } } })
                     database.updateTable(update, mtblTaiSanADD(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -655,6 +652,9 @@ module.exports = {
                         userFind['ID'] = {
                             [Op.notIn]: listIDTaiSan,
                         }
+                        userFind['IDTaiSanDiKem'] = {
+                            [Op.is]: null
+                        }
                         whereOjb[Op.and] = userFind
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
@@ -662,9 +662,6 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
                                     userFind['TSNBCode'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%',
-                                    }
-                                    userFind['IDTaiSanDiKem'] = {
-                                        [Op.is]: null
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
@@ -693,9 +690,6 @@ module.exports = {
                                     userFind['IDDMHangHoa'] = {
                                         [Op.in]: list,
                                     }
-                                    userFind['IDTaiSanDiKem'] = {
-                                        [Op.is]: null
-                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -713,6 +707,9 @@ module.exports = {
                         let userFind = {};
                         userFind['ID'] = {
                             [Op.notIn]: listIDTaiSan,
+                        }
+                        userFind['IDTaiSanDiKem'] = {
+                            [Op.is]: null
                         }
                         whereOjb[Op.and] = userFind
                     }
@@ -855,6 +852,9 @@ module.exports = {
                         userFind['ID'] = {
                             [Op.in]: listIDTaiSan,
                         }
+                        userFind['IDTaiSanDiKem'] = {
+                            [Op.is]: null
+                        }
                         whereOjb[Op.and] = userFind
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
@@ -913,6 +913,9 @@ module.exports = {
                         let userFind = {};
                         userFind['ID'] = {
                             [Op.in]: listIDTaiSan,
+                        }
+                        userFind['IDTaiSanDiKem'] = {
+                            [Op.is]: null
                         }
                         whereOjb[Op.and] = userFind
                     }

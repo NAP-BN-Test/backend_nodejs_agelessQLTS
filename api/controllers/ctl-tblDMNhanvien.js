@@ -14,6 +14,9 @@ var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
+var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
+
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblDMBoPhan(db).update({
@@ -45,9 +48,114 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblDMNhanvien,
+    // detail_tbl_dmnhanvien
+    detailtblDMNhanvien: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
+                    let tblDMBoPhan = mtblDMBoPhan(db);
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
+                    tblDMNhanvien.findOne({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { ID: body.id },
+                        include: [
+                            {
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'bophan',
+                                include: [{
+                                    model: mtblDMChiNhanh(db)
+                                }]
+                            },
+                        ],
+                    }).then(async data => {
+                        var obj = {
+                            stt: stt,
+                            id: Number(data.ID),
+                            staffCode: data.StaffCode ? data.StaffCode : '',
+                            staffName: data.StaffName ? data.StaffName : '',
+                            cmndNumber: data.CMNDNumber ? data.CMNDNumber : '',
+                            address: data.Address ? data.Address : '',
+                            idNation: data.IDNation ? data.IDNation : null,
+                            phoneNumber: data.PhoneNumber ? data.PhoneNumber : '',
+                            gender: data.Gender ? data.Gender : '',
+                            idBoPhan: data.IDBoPhan ? data.IDBoPhan : null,
+                            departmentName: data.bophan ? data.bophan.DepartmentName : null,
+                            departmentCode: data.bophan ? data.bophan.DepartmentCode : null,
+                            branchCode: data.bophan ? data.bophan.tblDMChiNhanh ? data.bophan.tblDMChiNhanh.BranchCode : null : null,
+                            branchName: data.bophan ? data.bophan.tblDMChiNhanh ? data.bophan.tblDMChiNhanh.BranchName : null : null,
+                            idChucVu: data.IDChucVu ? data.IDChucVu : null,
+                            baxCode: data.TaxCode ? data.TaxCode : '',
+                            bankNumber: data.BankNumber ? data.BankNumber : '',
+                            bankName: data.BankName ? data.BankName : '',
+                            birthday: data.Birthday ? moment(data.Birthday).format('DD/MM/YYYY') : '',
+                            degree: data.Degree ? data.Degree : '',
+                            dermanentResidence: data.DermanentResidence ? data.DermanentResidence : '',
+                            probationaryDate: data.ProbationaryDate ? data.ProbationaryDate : '',
+                            probationarySalary: data.ProbationarySalary ? data.ProbationarySalary : null,
+                            workingDate: data.WorkingDate ? data.WorkingDate : null,
+                            workingSalary: data.WorkingSalary ? data.WorkingSalary : null,
+                            bhxhSalary: data.BHXHSalary ? data.BHXHSalary : null,
+                            contactUrgent: data.ContactUrgent ? data.ContactUrgent : '',
+                            idMayChamCong: data.IDMayChamCong ? data.IDMayChamCong : null,
+                            email: data.Email ? data.Email : '',
+                        }
+                        let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+                        tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'loaiHD' })
+
+                        await tblHopDongNhanSu.findOne({
+                            where: {
+                                IDNhanVien: body.id
+                            },
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                            include: [
+                                {
+                                    model: mtblLoaiHopDong(db),
+                                    required: false,
+                                    as: 'loaiHD'
+                                },
+                            ],
+                        }).then(hd => {
+                            obj['contractCode'] = hd ? hd.ContractCode : '';
+                            obj['signDate'] = hd ? hd.Date : '';
+                            obj['salaryNumber'] = hd ? hd.SalaryNumber : '';
+                            obj['salaryText'] = hd ? hd.SalaryText : '';
+                            obj['contractDateEnd'] = hd ? hd.ContractDateEnd : '';
+                            obj['status'] = hd ? hd.Status : '';
+                            obj['nameTypeContract'] = hd ? hd.loaiHD.TenLoaiHD : '';
+                            obj['codeTypeContract'] = hd ? hd.loaiHD.MaLoaiHD : '';
+                        })
+                        var result = {
+                            obj: obj,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
+        let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -75,7 +183,18 @@ module.exports = {
                         ContactUrgent: body.contactUrgent ? body.contactUrgent : '',
                         IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                         Email: body.email ? body.email : '',
-                    }).then(data => {
+                    }).then(async data => {
+                        await mtblHopDongNhanSu(db).create({
+                            ContractCode: body.contractCode ? body.contractCode : '',
+                            Date: body.signDate ? body.signDate : null,
+                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
+                            SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
+                            ContractDateStart: body.signDate ? body.signDate : null,
+                            UnitSalary: 'VND',
+                            Status: body.status ? body.status : '',
+                        })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -184,6 +303,17 @@ module.exports = {
                         else
                             update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
                     }
+                    await mtblHopDongNhanSu(db).update({
+                        ContractCode: body.contractCode ? body.contractCode : '',
+                        Date: body.signDate ? body.signDate : '',
+                        IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
+                        SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                        SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                        ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
+                        ContractDateStart: now,
+                        UnitSalary: 'VND',
+                        Status: body.status ? body.status : '',
+                    }, { where: { ID: body.idContract } })
                     database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);

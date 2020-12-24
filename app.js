@@ -8,7 +8,8 @@ const express = require('express');
 const multer = require('multer');
 const bodyParser = require('body-parser')
 const Sequelize = require('sequelize');
-
+var mtblFileAttach = require("./api/tables/constants/tblFileAttach");
+var database = require('./api/database');
 
 app.use(session({
     name: 'user_sid',
@@ -51,17 +52,24 @@ let storage = multer.diskStorage({
 let upload = multer({ storage: storage });
 const DIR = 'D:/images_services/ageless_sendmail';
 
-app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), function (req, res) {
+app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (req, res) {
     if (!req.files) {
         console.log("No file received");
         return res.send({
             success: false
         });
     } else {
-        return res.send({
-            link: 'http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile,
-            name: nameFile + pathFile,
-            success: true
+        database.connectDatabase().then(async db => {
+            let idLink = await mtblFileAttach(db).create({
+                Name: nameFile + pathFile,
+                Link: 'http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile,
+            })
+            return res.send({
+                link: 'http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile,
+                name: nameFile + pathFile,
+                id: idLink.ID,
+                success: true
+            })
         })
     }
 });

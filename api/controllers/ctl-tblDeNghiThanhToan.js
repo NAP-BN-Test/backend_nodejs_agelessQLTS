@@ -30,17 +30,19 @@ module.exports = {
                         Contents: body.contents ? body.contents : '',
                         Cost: body.cost ? body.cost : null,
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
-                        TrangThaiPheDuyetKT: body.trangThaiPheDuyetKT ? body.trangThaiPheDuyetKT : '',
+                        TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                         IDNhanVienLDPD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
-                        TrangThaiPheDuyetLD: body.trangThaiPheDuyetLD ? body.trangThaiPheDuyetLD : '',
+                        TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                     }).then(async data => {
                         body.fileAttach = JSON.parse(body.fileAttach)
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
-                                await mtblFileAttach(db).create({
-                                    Name: body.fileAttach[j].name,
-                                    Link: body.fileAttach[j].link,
+                                await mtblFileAttach(db).update({
                                     IDDeNghiThanhToan: data.ID,
+                                }, {
+                                    where: {
+                                        ID: body.fileAttach[j].id
+                                    }
                                 })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -63,20 +65,22 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    body.fileAttach = JSON.parse(body.fileAttach)
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
-                                Name: body.fileAttach[j].fileName,
-                                Link: body.fileAttach[j].link,
+                                IDDeNghiThanhToan: body.id,
                             }, {
-                                where: { ID: body.fileAttach[j].idFileAttach }
+                                where: {
+                                    ID: body.fileAttach[j].id
+                                }
                             })
                     let update = [];
-                    if (body.idNhanvien || body.idNhanvien === '') {
-                        if (body.idNhanvien === '')
-                            update.push({ key: 'IDNhanvien', value: null });
+                    if (body.idNhanVien || body.idNhanVien === '') {
+                        if (body.idNhanVien === '')
+                            update.push({ key: 'IDNhanVien', value: null });
                         else
-                            update.push({ key: 'IDNhanvien', value: body.idNhanvien });
+                            update.push({ key: 'IDNhanVien', value: body.idNhanVien });
                     }
                     if (body.contents || body.contents === '')
                         update.push({ key: 'Contents', value: body.contents });
@@ -213,6 +217,20 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
+                            let statusKT;
+                            if (element.TrangThaiPheDuyetKT === 'Đã phê duyệt')
+                                statusKT = element.KTPD ? element.KTPD.StaffName : '';
+                            else if (element.TrangThaiPheDuyetKT === 'Từ chối')
+                                statusKT = element.ReasonRejectKTPD ? element.ReasonRejectKTPD : '';
+                            else
+                                statusKT = element.TrangThaiPheDuyetKT ? element.TrangThaiPheDuyetKT : '';
+                            let statusLD;
+                            if (element.TrangThaiPheDuyetLD === 'Đã phê duyệt')
+                                statusLD = element.LDPD ? element.LDPD.StaffName : '';
+                            else if (element.TrangThaiPheDuyetLD === 'Từ chối')
+                                statusLD = element.ReasonRejectLDPD ? element.ReasonRejectLDPD : '';
+                            else
+                                statusLD = element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '';
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -222,10 +240,10 @@ module.exports = {
                                 cost: element.Cost ? element.Cost : null,
                                 idNhanVienKTPD: element.IDNhanVienKTPD ? element.IDNhanVienKTPD : null,
                                 nameNhanVienKTPD: element.KTPD ? element.KTPD.StaffName : '',
-                                trangThaiPheDuyetKT: element.trangThaiPheDuyetKT ? element.trangThaiPheDuyetKT : '',
+                                trangThaiPheDuyetKT: statusKT,
                                 idNhanVienLDPD: element.IDNhanVienLDPD ? element.IDNhanVienLDPD : null,
                                 nameNhanVienLDPD: element.LDPD ? element.LDPD.StaffName : '',
-                                trangThaiPheDuyetLD: element.trangThaiPheDuyetLD ? element.trangThaiPheDuyetLD : '',
+                                trangThaiPheDuyetLD: statusLD,
                             }
                             array.push(obj);
                             stt += 1;
@@ -267,7 +285,6 @@ module.exports = {
     // detail_tbl_denghi_thanhtoan
     detailtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -323,23 +340,26 @@ module.exports = {
                         var obj = {
                             stt: stt,
                             id: Number(data.ID),
-                            idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+                            idNhanVien: data.IDNhanVien ? Number(data.IDNhanVien) : null,
                             nameNhanVien: data.NhanVien ? data.NhanVien.StaffName : '',
                             contents: data.Contents ? data.Contents : '',
                             cost: data.Cost ? data.Cost : null,
-                            idNhanVienKTPD: data.IDNhanVienKTPD ? data.IDNhanVienKTPD : null,
+                            idNhanVienKTPD: data.IDNhanVienKTPD ? Number(data.IDNhanVienKTPD) : null,
                             nameNhanVienKTPD: data.KTPD ? data.KTPD.StaffName : '',
                             trangThaiPheDuyetKT: data.trangThaiPheDuyetKT ? data.trangThaiPheDuyetKT : '',
-                            idNhanVienLDPD: data.IDNhanVienLDPD ? data.IDNhanVienLDPD : null,
+                            idNhanVienLDPD: data.IDNhanVienLDPD ? Number(data.IDNhanVienLDPD) : null,
                             nameNhanVienLDPD: data.LDPD ? data.LDPD.StaffName : '',
                             trangThaiPheDuyetLD: data.trangThaiPheDuyetLD ? data.trangThaiPheDuyetLD : '',
-                            departmentName: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentName : '' : '',
-                            departmentCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentCode : '' : '',
+                            idPhongBan: {
+                                id: data.NhanVien ? data.NhanVien.bophan ? Number(data.NhanVien.bophan.ID) : '' : '',
+                                departmentName: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentName : '' : '',
+                                departmentCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentCode : '' : '',
+                            },
+                            branchID: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? Number(data.NhanVien.bophan.chinhanh.ID) : null : null : null,
                             branchName: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchName : '' : '' : '',
                             branchCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchCode : '' : '' : '',
                         }
                         stt += 1;
-                        console.log(obj);
                         var arrayFile = []
                         await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: obj.id } }).then(file => {
                             if (file.length > 0) {
@@ -347,10 +367,12 @@ module.exports = {
                                     arrayFile.push({
                                         name: file[e].Name ? file[e].Name : '',
                                         link: file[e].Link ? file[e].Link : '',
+                                        id: file[e].ID,
                                     })
                                 }
                             }
                         })
+
                         obj['arrayFile'] = arrayFile;
                         var result = {
                             obj: obj,
@@ -401,48 +423,22 @@ module.exports = {
             }
         })
     },
-    // approval_denghi_thanhtoan
-    approvalDeNghiThanhToan: (req, res) => {
+    // approval_employee_accountant
+    approvalNhanVienKTPD: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMUser(db).findOne({
-                        where: { ID: body.userID }
-                    }).then(data => {
-                        if (data)
-                            mtblDMNhanvien(db).findOne({
-                                where: { ID: data.IDNhanVien }
-                            }).then(nhanvien => {
-                                if (nhanvien)
-                                    mtblDeNghiThanhToan(db).findOne({
-                                        where: { ID: body.idDeNghiThanhToan }
-                                    }).then(async denghi => {
-                                        if (denghi) {
-                                            if (denghi.idNhanVienKTPD = nhanvien.ID) {
-                                                await mtblDeNghiThanhToan(db).update({
-                                                    TrangThaiPheDuyetKT: 'Đã phê duyệt'
-                                                }, {
-                                                    where: { ID: denghi.ID }
-                                                })
-                                            }
-                                            else if (denghi.idNhanVienLDPD = nhanvien.ID) {
-                                                await mtblDeNghiThanhToan(db).update({
-                                                    trangThaiPheDuyetLD: 'Đã phê duyệt'
-                                                }, {
-                                                    where: { ID: denghi.ID }
-                                                })
-                                            }
-                                            var result = {
-                                                status: Constant.STATUS.SUCCESS,
-                                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                                            }
-                                            res.json(result);
-                                        }
-                                    })
-                            })
+                    await mtblDeNghiThanhToan(db).update({
+                        TrangThaiPheDuyetKT: 'Đã phê duyệt'
+                    }, {
+                        where: { ID: body.id }
                     })
-
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -451,5 +447,83 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    // approval_employee_leader
+    approvalNhanVienLDPD: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblDeNghiThanhToan(db).update({
+                        TrangThaiPheDuyetLD: 'Đã phê duyệt'
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    //  refuse_employee_accountant
+    refuseNhanVienKTPD: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblDeNghiThanhToan(db).update({
+                        TrangThaiPheDuyetKT: 'Từ chối',
+                        ReasonRejectKTPD: body.reason ? body.reason : '',
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    //  refuse_employee_leader
+    refuseNhanVienLDPD: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblDeNghiThanhToan(db).update({
+                        TrangThaiPheDuyetLD: 'Từ chối',
+                        ReasonRejectLDPD: body.reason ? body.reason : '',
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

@@ -49,6 +49,9 @@ module.exports = function (app) {
     //  Quản lý nhân viên
     app.route('/qlnb/get_list_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListtblDMNhanvien);
     app.route('/qlnb/add_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.addtblDMNhanvien);
+
+    app.route('/qlnb/detail_tbl_dmnhanvien').post(tblDMNhanvien.detailtblDMNhanvien);
+
     app.route('/qlnb/update_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.updatetblDMNhanvien);
     app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListNametblDMNhanvien);
     app.route('/qlnb/get_employee_from_department').post(tblDMNhanvien.getEmployeeFromDepartment);
@@ -168,10 +171,17 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.addtblDeNghiThanhToan);
     app.route('/qlnb/update_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.updatetblDeNghiThanhToan);
     app.route('/qlnb/delete_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.deletetblDeNghiThanhToan);
-    app.route('/qlnb/get_list_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.getListtblDeNghiThanhToan);
+    app.route('/qlnb/get_list_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.getListtblDeNghiThanhToan);
     app.route('/qlnb/detail_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.detailtblDeNghiThanhToan);
+
     app.route('/qlnb/get_list_name_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.getListNametblDeNghiThanhToan);
-    app.route('/qlnb/approval_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.approvalDeNghiThanhToan);
+
+
+    app.route('/qlnb/approval_employee_accountant').post(checkToken.checkToken, tblDeNghiThanhToan.approvalNhanVienKTPD);
+    app.route('/qlnb/approval_employee_leader').post(checkToken.checkToken, tblDeNghiThanhToan.approvalNhanVienLDPD);
+    app.route('/qlnb/refuse_employee_accountant').post(checkToken.checkToken, tblDeNghiThanhToan.refuseNhanVienKTPD);
+    app.route('/qlnb/refuse_employee_leader').post(checkToken.checkToken, tblDeNghiThanhToan.refuseNhanVienLDPD);
+    // app.route('/qlnb/approval_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.approvalDeNghiThanhToan);
     var zalo = require('./controllers/zalo');
     app.route('/zalo').post(zalo.zalo);
 

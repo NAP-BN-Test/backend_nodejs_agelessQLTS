@@ -41,7 +41,7 @@ module.exports = {
                                 })
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
-                                if (Number(body.line[i].amount) < amount) {
+                                if (Number(body.line[i].amount) <= amount) {
                                     await mtblVanPhongPham(db).update({
                                         RemainingAmount: Number(amount) - Number(body.line[i].amount),
                                     }, { where: { ID: body.line[i].idVanPhongPham.id } })

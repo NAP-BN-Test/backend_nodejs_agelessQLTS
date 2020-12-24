@@ -49,10 +49,12 @@ module.exports = {
                         body.fileAttach = JSON.parse(body.fileAttach)
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
-                                await mtblFileAttach(db).create({
-                                    Link: body.fileAttach[j].link ? body.fileAttach[j].link : '',
-                                    Name: body.fileAttach[j].name ? body.fileAttach[j].name : '',
+                                await mtblFileAttach(db).update({
                                     IDYeuCauMuaSam: data.ID,
+                                }, {
+                                    where: {
+                                        ID: body.fileAttach[j].id
+                                    }
                                 })
                         body.line = JSON.parse(body.line)
                         if (body.line.length > 0)
@@ -106,10 +108,11 @@ module.exports = {
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
-                                Name: body.fileAttach[j].fileName,
-                                Link: body.fileAttach[j].link,
+                                IDYeuCauMuaSam: data.ID,
                             }, {
-                                where: { ID: body.fileAttach[j].idFileAttach }
+                                where: {
+                                    ID: body.fileAttach[j].id
+                                }
                             })
                     if (body.line.length > 0)
                         for (var i = 0; i < body.line.length; i++) {
