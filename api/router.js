@@ -55,7 +55,7 @@ module.exports = function (app) {
 
     app.route('/qlnb/update_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.updatetblDMNhanvien);
     app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListNametblDMNhanvien);
-    app.route('/qlnb/get_employee_from_department').post(tblDMNhanvien.getEmployeeFromDepartment);
+    app.route('/qlnb/get_employee_from_department').post(checkToken.checkToken, tblDMNhanvien.getEmployeeFromDepartment);
 
     // Lịch sử sử dụng của nhân viên 
     app.route('/qlnb/get_list_history_nhanvien').post(checkToken.checkToken, tblDMNhanvien.getListHistoryNhanVien);
@@ -95,9 +95,9 @@ module.exports = function (app) {
     // Đề nghị mua sắm
     app.route('/qlnb/add_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.addtblYeuCauMuaSam);
     app.route('/qlnb/update_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.updatetblYeuCauMuaSam);
-    app.route('/qlnb/get_list_tbl_yeucaumuasam').post(tblYeuCauMuaSam.getListtblYeuCauMuaSam);
+    app.route('/qlnb/get_list_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.getListtblYeuCauMuaSam);
 
-    app.route('/qlnb/get_detail_tbl_yeucaumuasam').post(tblYeuCauMuaSam.getDetailtblYeuCauMuaSam);
+    app.route('/qlnb/get_detail_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.getDetailtblYeuCauMuaSam);
 
     app.route('/qlnb/delete_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.deletetblYeuCauMuaSam);
 
@@ -125,9 +125,9 @@ module.exports = function (app) {
 
 
 
-    app.route('/qlnb/detail_tbl_taisanadd').post(tblTaiSan.detailtblTaiSanADD);
-    app.route('/qlnb/update_detail_asset').post(tblTaiSan.updateDetailAsset);
-    app.route('/qlnb/get_list_history_staff_use').post(tblTaiSan.getListHistoryStaffUse);
+    app.route('/qlnb/detail_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.detailtblTaiSanADD);
+    app.route('/qlnb/update_detail_asset').post(checkToken.checkToken, tblTaiSan.updateDetailAsset);
+    app.route('/qlnb/get_list_history_staff_use').post(checkToken.checkToken, tblTaiSan.getListHistoryStaffUse);
 
 
     app.route('/qlnb/add_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.addtblTaiSanADD);
@@ -187,8 +187,8 @@ module.exports = function (app) {
     app.route('/zalo').post(zalo.zalo);
 
 
-
-
+    var report = require('./controllers/report');
+    app.route('/qlnb/report').post(report.report);
 
 
     // ************************************************************** QUẢN LÝ NHÂN SỰ **********************************************************************************************
