@@ -37,13 +37,14 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.updatetblDMBoPhan);
     app.route('/qlnb/get_list_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.getListtblDMBoPhan);
     app.route('/qlnb/get_list_name_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.getListNametblDMBoPhan);
-    app.route('/qlnb/delete_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.deleteRelationshiptblDMBoPhan);
+    app.route('/qlnb/delete_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.deletetblDMBoPhan);
 
     app.route('/qlnb/get_list_name_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListNametblDMChiNhanh);
     // Quản lý chi nhánh
     app.route('/qlnb/add_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.addtblDMChiNhanh);
     app.route('/qlnb/update_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.updatetblDMChiNhanh);
     app.route('/qlnb/get_list_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListtblDMChiNhanh);
+    app.route('/qlnb/get_list_name_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListNametblDMChiNhanh);
     app.route('/qlnb/delete_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.deletetblDMChiNhanh);
 
     //  Quản lý nhân viên
@@ -196,13 +197,27 @@ module.exports = function (app) {
     var tblLoaiChamCong = require('./controllers_hr/ctl-tblLoaiChamCong');
     var tblNghiLe = require('./controllers_hr/ctl-tblNghiLe');
     var tblDMTinhTrangNV = require('./controllers_hr/ctl-tblDMTinhTrangNV');
+    var tblDMLoaiHopDong = require('./controllers_hr/ctl-tblLoaiHopDong');
+    var tblDMGiaDinh = require('./controllers_hr/ctl-tblDMGiaDinh');
+
+    var tblDMChucVu = require('./controllers/ctl-tblDMChucVu');
+
+    // Danh mục loại hợp đồng
+    app.route('/qlnb/add_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.addtblLoaiHopDong);
+    app.route('/qlnb/update_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.updatetblLoaiHopDong);
+    app.route('/qlnb/delete_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.deletetblLoaiHopDong);
+    app.route('/qlnb/get_list_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.getListtblLoaiHopDong);
+    app.route('/qlnb/get_list_name_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.getListNametblLoaiHopDong);
 
     // Danh mục loại chấm công
     app.route('/qlnb/add_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.addtblLoaiChamCong);
     app.route('/qlnb/update_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.updatetblLoaiChamCong);
-    app.route('/qlnb/delete_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.deleteRelationshiptblLoaiChamCong);
+    app.route('/qlnb/delete_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.deletetblLoaiChamCong);
     app.route('/qlnb/get_list_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListtblLoaiChamCong);
     app.route('/qlnb/get_list_name_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListNametblLoaiChamCong);
+
+
+    app.route('/qlnb/get_list_name_tbl_dmchucvu').post(checkToken.checkToken, tblDMChucVu.getListNametblDMChucVu);
 
     // Danh mục nghỉ lễ
     app.route('/qlnb/add_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.addtblNghiLe);
@@ -227,4 +242,11 @@ module.exports = function (app) {
     //---------------------------------------------------------------- Menu trích ngang --------------------------------------------------------------------------------------
 
     // 49-54
+
+    // Tabs quan hệ gia đình 
+    app.route('/qlnb/add_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.addtblDMGiaDinh);
+    app.route('/qlnb/update_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.updatetblDMGiaDinh);
+    app.route('/qlnb/delete_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.deletetblDMGiaDinh);
+    app.route('/qlnb/get_list_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.getListtblDMGiaDinh);
+    app.route('/qlnb/get_list_name_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.getListNametblDMGiaDinh);
 }

@@ -10,6 +10,11 @@ var database = require('../database');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 async function deleteRelationshipTBLPhanPhoiVPP(db, listID) {
+    // await mtblFileAttach(db).destroy({
+    //     where: {
+    //         IDDeNghiThanhToan: { [Op.in]: listID }
+    //     }
+    // })
     await mtblPhanPhoiVPP(db).destroy({
         where: {
             ID: { [Op.in]: listID }

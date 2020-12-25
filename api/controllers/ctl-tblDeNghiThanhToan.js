@@ -11,6 +11,11 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
+    await mtblFileAttach(db).destroy({
+        where: {
+            IDDeNghiThanhToan: { [Op.in]: listID }
+        }
+    })
     await mtblDeNghiThanhToan(db).destroy({
         where: {
             ID: { [Op.in]: listID }

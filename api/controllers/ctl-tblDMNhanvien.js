@@ -13,7 +13,7 @@ var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
-
+var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 
@@ -155,6 +155,7 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
+        console.log(body);
         let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -175,9 +176,9 @@ module.exports = {
                         Birthday: body.birthday ? body.birthday : '',
                         Degree: body.degree ? body.degree : '',
                         DermanentResidence: body.permanentResidence ? body.permanentResidence : '',
-                        ProbationaryDate: body.probationaryDate ? body.probationaryDate : '',
+                        ProbationaryDate: body.probationaryDate ? body.probationaryDate : null,
                         probationarySalary: body.probationarySalary ? body.probationarySalary : null,
-                        WorkingDate: body.workingDate ? body.workingDate : null,
+                        // WorkingDate: body.workingDate ? body.workingDate : null,
                         WorkingSalary: body.workingSalary ? body.workingSalary : null,
                         BHXHSalary: body.bhxhSalary ? body.bhxhSalary : null,
                         ContactUrgent: body.contactUrgent ? body.contactUrgent : '',
@@ -185,15 +186,21 @@ module.exports = {
                         Email: body.email ? body.email : '',
                     }).then(async data => {
                         await mtblHopDongNhanSu(db).create({
+                            IDNhanVien: data.ID,
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
                             IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
-                            SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryNumber: body.salaryNumber ? body.salaryNumber : 0,
                             SalaryText: body.salaryNumber ? body.salaryNumber : '',
                             ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
                             ContractDateStart: body.signDate ? body.signDate : null,
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
+                        })
+                        await mtblBangLuong(db).create({
+                            IDNhanVien: data.ID,
+                            workingSalary: body.salaryNumber ? body.salaryNumber : 0,
+                            bhxhSalary: body.salaryNumber ? body.salaryNumber : 0,
                         })
                         var result = {
                             status: Constant.STATUS.SUCCESS,

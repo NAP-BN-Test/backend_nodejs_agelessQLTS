@@ -48,18 +48,27 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMHangHoa(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
-                        Unit: body.unit ? body.unit : '',
-                        IDDMLoaiTaiSan: body.idDMLoaiTaiSan ? body.idDMLoaiTaiSan : '',
-                    }).then(data => {
+                    var check = await mtblDMHangHoa(db).findAll({ where: { Code: body.code } })
+                    if (check.length > 0) {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            message: 'Đã có mã này. Vui lòng kiểm tra lại !',
                         }
                         res.json(result);
-                    })
+                    }
+                    else
+                        mtblDMHangHoa(db).create({
+                            Code: body.code ? body.code : '',
+                            Name: body.name ? body.name : '',
+                            Unit: body.unit ? body.unit : '',
+                            IDDMLoaiTaiSan: body.idDMLoaiTaiSan ? body.idDMLoaiTaiSan : '',
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

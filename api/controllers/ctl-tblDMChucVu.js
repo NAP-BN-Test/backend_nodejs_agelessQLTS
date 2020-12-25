@@ -2,7 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMChucVu = require('../tables/tblDMChucVu');
+var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
 var database = require('../database');
 async function deleteRelationshiptblDMChucVu(db, listID) {
     await mtblDMChucVu(db).destroy({
@@ -158,7 +158,7 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_dmChucVu
+    // get_list_name_tbl_dmchucvu
     getListNametblDMChucVu: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {

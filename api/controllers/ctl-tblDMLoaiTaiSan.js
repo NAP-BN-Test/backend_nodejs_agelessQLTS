@@ -27,16 +27,25 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMLoaiTaiSan(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
-                    }).then(data => {
+                    var check = await mtblDMLoaiTaiSan(db).findAll({ where: { Code: body.code } })
+                    if (check.length > 0) {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            message: 'Đã có mã này. Vui lòng kiểm tra lại !',
                         }
                         res.json(result);
-                    })
+                    }
+                    else
+                        mtblDMLoaiTaiSan(db).create({
+                            Code: body.code ? body.code : '',
+                            Name: body.name ? body.name : '',
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -2,34 +2,50 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
+var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
 var database = require('../database');
-async function deleteRelationshiptblLoaiChamCong(db, listID) {
-    await mtblLoaiChamCong(db).destroy({
-        // tblChamCong
-        // tblNghiPhep
-        // tblNghiLe
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+
+async function deleteRelationshiptblDMGiaDinh(db, listID) {
+    await mtblDMGiaDinh(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblLoaiChamCong,
-    //  get_detail_tbl_loaichamcong
-    detailtblLoaiChamCong: (req, res) => {
+    deleteRelationshiptblDMGiaDinh,
+    //  get_detail_tbl_dmgiadinh
+    detailtblDMGiaDinh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblLoaiChamCong(db).findOne({ where: { ID: body.id } }).then(data => {
+                    let tblDMGiaDinh = mtblDMGiaDinh(db);
+                    tblDMGiaDinh.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
+                    tblDMGiaDinh.findOne({
+                        where: { ID: body.id },
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'employee'
+                            },
+                        ],
+                    }).then(data => {
                         if (data) {
                             var obj = {
                                 id: data.ID,
-                                name: data.Name,
-                                code: data.Code,
-                                decription: data.Description,
-                                type: data.Type,
+                                idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+                                nameNhanVien: data.IDNhanVien ? data.employee.StaffName : null,
+                                relationship: data.Relationship ? data.Relationship : '',
+                                name: data.Name ? data.Name : '',
+                                birthday: data.Birthday ? data.Birthday : null,
+                                gender: data.Gender ? data.Gender : '',
+                                cmndNumber: data.CMNDNumber ? data.CMNDNumber : '',
+                                address: data.Address ? data.Address : '',
+                                workplace: data.Workplace ? data.Workplace : '',
+                                reduce: data.Reduce ? data.Reduce : '',
                             }
                             var result = {
                                 obj: obj,
@@ -51,17 +67,22 @@ module.exports = {
             }
         })
     },
-    // add_tbl_loaichamcong
-    addtblLoaiChamCong: (req, res) => {
+    // add_tbl_dmgiadinh
+    addtblDMGiaDinh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblLoaiChamCong(db).create({
-                        Code: body.code ? body.code : '',
+                    mtblDMGiaDinh(db).create({
+                        IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
+                        Relationship: body.relationship ? body.relationship : '',
                         Name: body.name ? body.name : '',
-                        Description: body.description ? body.description : '',
-                        Type: body.type ? body.type : '',
+                        Birthday: body.birthday ? body.birthday : null,
+                        Gender: body.gender ? body.gender : '',
+                        CMNDdumber: body.cmndumber ? body.cmndumber : '',
+                        Address: body.address ? body.address : '',
+                        Workplace: body.workplace ? body.workplace : '',
+                        Reduce: body.reduce ? body.reduce : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -78,22 +99,40 @@ module.exports = {
             }
         })
     },
-    // update_tbl_loaichamcong
-    updatetblLoaiChamCong: (req, res) => {
+    // update_tbl_dmgiadinh
+    updatetblDMGiaDinh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
-                    if (body.description || body.description === '')
-                        update.push({ key: 'Description', value: body.description });
-                    if (body.type || body.type === '')
-                        update.push({ key: 'Type', value: body.type });
-                    database.updateTable(update, mtblLoaiChamCong(db), body.id).then(response => {
+                    if (body.idNhanVien || body.idNhanVien === '') {
+                        if (body.idNhanVien === '')
+                            update.push({ key: 'IDNhanVien', value: null });
+                        else
+                            update.push({ key: 'IDNhanVien', value: body.idNhanVien });
+                    }
+                    if (body.Relationship || body.Relationship === '')
+                        update.push({ key: 'Relationship', value: body.Relationship });
+                    if (body.Name || body.Name === '')
+                        update.push({ key: 'Name', value: body.Name });
+                    if (body.birthday || body.birthday === '') {
+                        if (body.birthday === '')
+                            update.push({ key: 'Birthday', value: null });
+                        else
+                            update.push({ key: 'Birthday', value: body.birthday });
+                    }
+                    if (body.gender || body.gender === '')
+                        update.push({ key: 'Gender', value: body.gender });
+                    if (body.cmndnumber || body.cmndnumber === '')
+                        update.push({ key: 'CMNDnumber', value: body.cmndnumber });
+                    if (body.address || body.address === '')
+                        update.push({ key: 'Address', value: body.address });
+                    if (body.workplace || body.workplace === '')
+                        update.push({ key: 'Workplace', value: body.workplace });
+                    if (body.reduce || body.reduce === '')
+                        update.push({ key: 'Reduce', value: body.reduce });
+                    database.updateTable(update, mtblDMGiaDinh(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -109,14 +148,14 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_loaichamcong
-    deletetblLoaiChamCong: (req, res) => {
+    // delete_tbl_dmgiadinh
+    deletetblDMGiaDinh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblLoaiChamCong(db, listID);
+                    await deleteRelationshiptblDMGiaDinh(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -131,36 +170,34 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_loaichamcong
-    getListtblLoaiChamCong: (req, res) => {
+    // get_list_tbl_dmgiadinh
+    getListtblDMGiaDinh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var whereOjb = [];
-                    whereOjb.push({
-                        Type: body.type,
-                    })
                     if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                        // var data = JSON.parse(body.dataSearch)
 
                         // if (data.search) {
                         //     where = [
-                        //         { Name: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Code: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Decription: { [Op.like]: '%' + data.search + '%' } },
+                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
+                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
+                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
                         //     ];
                         // } else {
                         //     where = [
-                        //         { Name: { [Op.ne]: '%%' } },
+                        //         { FullName: { [Op.ne]: '%%' } },
                         //     ];
                         // }
-                        // let whereOjb = { [Op.or]: where };
+                        // whereOjb = { [Op.or]: where };
                         // if (data.items) {
                         //     for (var i = 0; i < data.items.length; i++) {
                         //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'TÊN LOẠI CHẤM CÔNG') {
-                        //             userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                         //             if (data.items[i].conditionFields['name'] == 'And') {
                         //                 whereOjb[Op.and] = userFind
                         //             }
@@ -175,28 +212,40 @@ module.exports = {
                         // }
                     }
                     let stt = 1;
-                    mtblLoaiChamCong(db).findAll({
-                        order: [
-                            ['ID', 'DESC']
-                        ],
+                    let tblDMGiaDinh = mmtblDMGiaDinh(db);
+                    tblDMGiaDinh.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
+                    tblDMGiaDinh.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'employee'
+                            },
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                nameNhanVien: element.IDNhanVien ? element.employee.StaffName : null,
+                                relationship: element.Relationship ? element.Relationship : '',
                                 name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
-                                description: element.Description ? element.Description : '',
-                                type: element.Type ? element.Type : '',
+                                birthday: element.Birthday ? element.Birthday : null,
+                                gender: element.Gender ? element.Gender : '',
+                                cmndNumber: element.CMNDNumber ? element.CMNDNumber : '',
+                                address: element.Address ? element.Address : '',
+                                workplace: element.Workplace ? element.Workplace : '',
+                                reduce: element.Reduce ? element.Reduce : '',
                             }
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblLoaiChamCong(db).count({ where: whereOjb, })
+                        var count = await mtblDMGiaDinh(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -215,13 +264,13 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_loaichamcong
-    getListNametblLoaiChamCong: (req, res) => {
+    // get_list_name_tbl_dmgiadinh
+    getListNametblDMGiaDinh: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblLoaiChamCong(db).findAll({ where: { Type: body.type } }).then(data => {
+                    mtblDMGiaDinh(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {

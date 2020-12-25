@@ -28,24 +28,33 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMNhaCungCap(db).create({
-                        SupplierCode: body.supplierCode ? body.supplierCode : '',
-                        SupplierName: body.supplierName ? body.supplierName : '',
-                        TaxNumber: body.taxNumber ? body.taxNumber : '',
-                        BankNumber: body.bankNumber ? body.bankNumber : '',
-                        BankName: body.bankName ? body.bankName : '',
-                        Address: body.address ? body.address : '',
-                        PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
-                        FaxNumber: body.faxNumber ? body.faxNumber : '',
-                        Email: body.email ? body.email : '',
-                        Describe: body.describe ? body.describe : '',
-                    }).then(data => {
+                    var check = await mtblDMNhaCungCap(db).findAll({ where: { SupplierCode: body.supplierCode } })
+                    if (check.length > 0) {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            message: 'Đã có mã này. Vui lòng kiểm tra lại !',
                         }
                         res.json(result);
-                    })
+                    }
+                    else
+                        mtblDMNhaCungCap(db).create({
+                            SupplierCode: body.supplierCode ? body.supplierCode : '',
+                            SupplierName: body.supplierName ? body.supplierName : '',
+                            TaxNumber: body.taxNumber ? body.taxNumber : '',
+                            BankNumber: body.bankNumber ? body.bankNumber : '',
+                            BankName: body.bankName ? body.bankName : '',
+                            Address: body.address ? body.address : '',
+                            PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
+                            FaxNumber: body.faxNumber ? body.faxNumber : '',
+                            Email: body.email ? body.email : '',
+                            Describe: body.describe ? body.describe : '',
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

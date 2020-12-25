@@ -40,7 +40,7 @@ module.exports = {
                                     IDVanPhongPham: data.ID,
                                 }, {
                                     where: {
-                                        ID: body.fileAttach[i].id
+                                        ID: body.fileAttach[j].id
                                     }
                                 })
                         body.line = JSON.parse(body.line)
@@ -338,6 +338,22 @@ module.exports = {
                             }
                             array.push(obj);
                             stt += 1;
+                        }
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDVanPhongPham: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            id: file[e].ID ? file[e].ID : '',
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayFile'] = arrayFile;
+
                         }
                         var count = await mtblThemVPP(db).count({ where: whereOjb, })
                         var result = {

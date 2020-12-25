@@ -21,6 +21,7 @@ module.exports = function (db) {
         SerialNumber: Sequelize.STRING,
         Describe: Sequelize.STRING,
         DateDiKem: Sequelize.DATE,
+        Status: Sequelize.STRING,
     });
 
     return table;

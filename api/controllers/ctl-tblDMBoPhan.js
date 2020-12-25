@@ -195,7 +195,6 @@ module.exports = {
                             }
                         }
                     }
-                    console.log(whereOjb);
                     var stt = 1;
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
@@ -221,7 +220,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 departmentCode: element.DepartmentCode ? element.DepartmentCode : '',
                                 departmentName: element.DepartmentName ? element.DepartmentName : '',
-                                branchID: element.IDChiNhanh ? element.IDChiNhanh : null,
+                                branchID: element.IDChiNhanh ? Number(element.IDChiNhanh) : null,
                                 branchName: element.IDChiNhanh ? element.chinhanh.BranchName : null,
                             }
                             array.push(obj);

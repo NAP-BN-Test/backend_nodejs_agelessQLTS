@@ -21,6 +21,11 @@ const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblTaiSanADD(db, listID) {
+    await mtblFileAttach(db).destroy({
+        where: {
+            IDTaiSanADD: { [Op.in]: listID }
+        }
+    })
     await mtblTaiSanHistory(db).destroy({
         where: { IDTaiSan: { [Op.in]: listID } }
     })
@@ -185,10 +190,10 @@ async function getDetailTaiSan(db, idTaiSan) {
             condition: data.Condition ? data.Condition : '',
             describe: data.Describe ? data.Describe : '',
             liquidationDate: thanhLy ? thanhLy.LiquidationDate : null,
+            status: data.Status ? data.Status : '',
             liquidationReason: thanhLy ? thanhLy.LiquidationReason : '',
         }
     })
-
     return obj;
 
 }
@@ -316,11 +321,12 @@ module.exports = {
                         Unit: body.obj.unit ? body.obj.unit : '',
                         Specifications: body.obj.specifications ? body.obj.specifications : '',
                         DepreciationPrice: body.obj.depreciationPrice ? body.obj.depreciationPrice : 0,
-                        DepreciationDate: body.obj.depreciationDate ? body.obj.depreciationDate : null,
+                        DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         GuaranteeMonth: body.obj.guaranteeMonth ? body.obj.guaranteeMonth : null,
                         SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
                         Describe: body.obj.describe ? body.obj.describe : '',
                         TSNBCode: body.obj.code ? body.obj.code : '',
+                        Status: body.obj.status ? body.obj.status : '',
                     }, {
                         where: { ID: body.id }
                     })

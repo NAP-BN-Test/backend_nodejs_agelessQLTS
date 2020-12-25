@@ -9,6 +9,11 @@ var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
 
 var database = require('../database');
 async function deleteRelationshiptblVanPhongPham(db, listID) {
+    await mtblFileAttach(db).destroy({
+        where: {
+            IDVanPhongPham: { [Op.in]: listID }
+        }
+    })
     await mThemVPPChiTiet(db).update({
         IDVanPhongPham: null,
     }, { where: { IDVanPhongPham: { [Op.in]: listID } } })
@@ -29,19 +34,28 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblVanPhongPham(db).create({
-                        VPPCode: body.vppCode ? body.vppCode : '',
-                        VPPName: body.vppName ? body.vppName : '',
-                        Unit: body.unit ? body.unit : 0,
-                        Specifications: body.specifications ? body.specifications : '',
-                        RemainingAmount: body.remainingAmount ? body.remainingAmount : null,
-                    }).then(data => {
+                    var check = await mtblVanPhongPham(db).findAll({ where: { VPPCode: body.vppCode } })
+                    if (check.length > 0) {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            message: 'Đã có mã này. Vui lòng kiểm tra lại !',
                         }
                         res.json(result);
-                    })
+                    }
+                    else
+                        mtblVanPhongPham(db).create({
+                            VPPCode: body.vppCode ? body.vppCode : '',
+                            VPPName: body.vppName ? body.vppName : '',
+                            Unit: body.unit ? body.unit : 0,
+                            Specifications: body.specifications ? body.specifications : '',
+                            RemainingAmount: body.remainingAmount ? body.remainingAmount : null,
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -6,9 +6,9 @@ var Zalo = require('zalo-sdk');
 var ZaloSocial = require('zalo-sdk').ZaloSocial;
 
 var zsConfig = {
-    appId: '2568387362160739467',
-    redirectUri: 'http://localhost/login/zalo-callback',
-    secretkey: 'BXRLx82AGrl2gBRoWDcN'
+    oaid: '3035823382762161450',
+    // redirectUri: 'http://localhost/login/zalo-callback',
+    secretkey: 'K4SN69O0Q6K8scUs51QX'
 };
 
 var ZSClient = new ZaloSocial(zsConfig);
