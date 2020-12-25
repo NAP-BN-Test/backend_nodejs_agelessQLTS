@@ -4,7 +4,7 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
-
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
 
 var database = require('../database');

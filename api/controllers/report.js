@@ -10,13 +10,11 @@ var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
 
 var database = require('../database');
 
-async function getOpeningBalance(db, idVPP, month, year) {
+async function getOpeningBalance(db, idVPP, dateFrom) {
     var result = 0;
-    var date = new Date(year, month, 0);
-    let dateEnd = moment(date).format('YYYY-MM-DD HH:mm:ss.SSS');
     var array = [];
     await mtblThemVPP(db).findAll({
-        where: { Date: { [Op.lte]: dateEnd } }
+        where: { Date: { [Op.lt]: dateFrom } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -35,7 +33,7 @@ async function getOpeningBalance(db, idVPP, month, year) {
         })
     })
     await mtblPhanPhoiVPP(db).findAll({
-        where: { Date: { [Op.lte]: dateEnd } }
+        where: { Date: { [Op.lt]: dateFrom } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
