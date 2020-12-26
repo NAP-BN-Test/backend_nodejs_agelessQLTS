@@ -14,7 +14,7 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
     var result = 0;
     var array = [];
     await mtblThemVPP(db).findAll({
-        where: { Date: { [Op.lt]: dateFrom } }
+        where: { Date: { [Op.lte]: dateFrom } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -33,7 +33,7 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
         })
     })
     await mtblPhanPhoiVPP(db).findAll({
-        where: { Date: { [Op.lt]: dateFrom } }
+        where: { Date: { [Op.lte]: dateFrom } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -55,6 +55,10 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
 }
 
 async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
+    // dateFrom = moment(dateFrom).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    dateTo = moment(dateTo).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    console.log(28913471289423789892347892347891234789);
+    console.log(dateFrom, dateTo);
     var result = 0;
     var array = [];
     await mtblThemVPP(db).findAll({
@@ -79,6 +83,8 @@ async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
     return result;
 }
 async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
+    dateFrom = moment(dateFrom).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    dateTo = moment(dateTo).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
     var result = 0;
     var array = [];
     await mtblPhanPhoiVPP(db).findAll({
@@ -125,7 +131,7 @@ module.exports = {
                             var duringBalance = 0;
                             var outputPeriod = 0;
                             if (body.dateFrom && body.dateTo) {
-                                openingBalance = await getOpeningBalance(db, data[i].ID, moment(body.dateFrom).month() + 1, moment(body.dateFrom).year());
+                                openingBalance = await getOpeningBalance(db, data[i].ID, body.dateFrom);
                                 duringBalance = await getDuringBalance(db, data[i].ID, body.dateFrom, body.dateTo);
                                 outputPeriod = await getOutputPeriod(db, data[i].ID, body.dateFrom, body.dateTo);
                                 closingBalance = Number(openingBalance) + Number(duringBalance) - Number(outputPeriod);
