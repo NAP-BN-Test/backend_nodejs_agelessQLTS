@@ -51,6 +51,8 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListtblDMNhanvien);
     app.route('/qlnb/add_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.addtblDMNhanvien);
 
+    app.route('/qlnb/delete_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.deletetblDMNhanvien);
+
     app.route('/qlnb/detail_tbl_dmnhanvien').post(tblDMNhanvien.detailtblDMNhanvien);
 
     app.route('/qlnb/update_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.updatetblDMNhanvien);
@@ -278,6 +280,8 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.deletetblHopDongNhanSu);
     app.route('/qlnb/get_list_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSu);
 
+    app.route('/qlnb/get_list_tbl_hophong_nhansu_detail').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSuDetail);
+
     // Quyết định tăng lương
     var tblQuyetDinhTangLuong = require('./controllers_hr/ctl-tblQuyetDinhTangLuong');
     app.route('/qlnb/add_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.addtblQuyetDinhTangLuong);
@@ -288,5 +292,19 @@ module.exports = function (app) {
     //---------------------------------------------------------------- Mẫu bảng lương --------------------------------------------------------------------------------------
     var tblBangLuong = require('./controllers_hr/ctl-tblBangLuong');
     app.route('/qlnb/get_list_tbl_bangluong').post(checkToken.checkToken, tblBangLuong.getListtblBangLuong);
+
+    //---------------------------------------------------------------- Mức đóng bảo hiểm --------------------------------------------------------------------------------------
+    var tblMucDongBaoHiem = require('./controllers_hr/ctl-tblMucDongBaoHiem');
+    app.route('/qlnb/add_tbl_mucdong_baohiem').post(checkToken.checkToken, tblMucDongBaoHiem.addtblMucDongBaoHiem);
+    app.route('/qlnb/update_tbl_mucdong_baohiem').post(checkToken.checkToken, tblMucDongBaoHiem.updatetblMucDongBaoHiem);
+    app.route('/qlnb/delete_tbl_mucdong_baohiem').post(checkToken.checkToken, tblMucDongBaoHiem.deletetblMucDongBaoHiem);
+    app.route('/qlnb/get_list_tbl_mucdong_baohiem').post(checkToken.checkToken, tblMucDongBaoHiem.getListtblMucDongBaoHiem);
+
+    //---------------------------------------------------------------- Quyết định tăng lương --------------------------------------------------------------------------------------
+    var tblQuyetDinhTangLuong = require('./controllers_hr/ctl-tblQuyetDinhTangLuong');
+    app.route('/qlnb/add_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.addtblQuyetDinhTangLuong);
+    app.route('/qlnb/update_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.updatetblQuyetDinhTangLuong);
+    app.route('/qlnb/delete_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.deletetblQuyetDinhTangLuong);
+    app.route('/qlnb/get_list_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.getListtblQuyetDinhTangLuong);
 
 }

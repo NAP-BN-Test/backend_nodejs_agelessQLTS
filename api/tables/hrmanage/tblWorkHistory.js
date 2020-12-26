@@ -10,8 +10,8 @@ module.exports = function (db) {
         DateEnd: Sequelize.DATE,
         DateStart: Sequelize.DATE,
         Status: Sequelize.STRING,
-        Describe: Sequelize.STRING
-
+        Describe: Sequelize.STRING,
+        IDNhanVien: Sequelize.BIGINT,
     });
 
     return table;

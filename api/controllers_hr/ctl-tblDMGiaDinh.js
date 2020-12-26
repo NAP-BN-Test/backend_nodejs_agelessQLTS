@@ -70,6 +70,7 @@ module.exports = {
     // add_tbl_dmgiadinh
     addtblDMGiaDinh: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -212,12 +213,12 @@ module.exports = {
                         // }
                     }
                     let stt = 1;
-                    let tblDMGiaDinh = mmtblDMGiaDinh(db);
+                    let tblDMGiaDinh = mtblDMGiaDinh(db);
                     tblDMGiaDinh.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
                     tblDMGiaDinh.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: { IDNhanVien: body.idNhanVien },
                         include: [
                             {
                                 model: mtblDMNhanvien(db),

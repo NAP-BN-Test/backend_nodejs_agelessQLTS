@@ -184,6 +184,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             fileAttach: data.taisanADD ? data.taisanADD.file : [],
             dateIncreases: data.DepreciationDate ? data.DepreciationDate : '',
             date: data.taisanADD ? data.taisanADD.Date : '',
+            idTaiSanADD: data.taisanADD ? data.taisanADD.ID : null,
             staffName: staffName,
             departmentName: departmentName,
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
@@ -331,6 +332,16 @@ module.exports = {
                     }, {
                         where: { ID: body.id }
                     })
+                    let idAdd = await mtblTaiSan(db).findOne({ where: { ID: body.id } })
+                    body.obj.fileAttach = JSON.parse(body.obj.fileAttach)
+                    if (body.obj.fileAttach.length > 0) {
+                        for (var i = 0; i < body.obj.fileAttach.length; i++) {
+                            if (body.obj.fileAttach[i].id)
+                                await mtblFileAttach(db).update({
+                                    IDTaiSanADD: idAdd.IDTaiSanADD,
+                                }, { where: { ID: body.obj.fileAttach[i].id } })
+                        }
+                    }
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -365,6 +376,7 @@ module.exports = {
                                 }, { where: { ID: body.fileAttach[i].id } })
                             }
                         }
+                        console.log(data.ID);
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa.id ? body.taisan[i].idDMHangHoa.id : null,

@@ -59,6 +59,7 @@ module.exports = {
                         DateEnd: body.dateEnd ? body.dateEnd : null,
                         Status: body.status ? body.status : null,
                         Describe: body.describe ? body.describe : null,
+                        IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -93,6 +94,12 @@ module.exports = {
                             update.push({ key: 'DateStart', value: null });
                         else
                             update.push({ key: 'DateStart', value: body.dateStart });
+                    }
+                    if (body.idNhanVien || body.idNhanVien === '') {
+                        if (body.idNhanVien === '')
+                            update.push({ key: 'IDNhanVien', value: null });
+                        else
+                            update.push({ key: 'IDNhanVien', value: body.idNhanVien });
                     }
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
@@ -178,33 +185,64 @@ module.exports = {
                         // }
                     }
                     let stt = 1;
-                    mtblWorkHistory(db).findAll({
-                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
-                        limit: Number(body.itemPerPage),
-                        where: whereOjb,
-                    }).then(async data => {
-                        var array = [];
-                        data.forEach(element => {
-                            var obj = {
-                                stt: stt,
-                                id: Number(element.ID),
-                                dateStart: element.DateStart ? element.DateStart : '',
-                                dateEnd: element.DateEnd ? element.DateEnd : '',
-                                status: element.Status ? element.Status : '',
-                                describe: element.Describe ? element.Describe : '',
+                    if (body.id) {
+                        mtblWorkHistory(db).findAll({
+                            offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                            limit: Number(body.itemPerPage),
+                            where: { IDNhanVien: body.id },
+                        }).then(async data => {
+                            var array = [];
+                            data.forEach(element => {
+                                var obj = {
+                                    stt: stt,
+                                    id: Number(element.ID),
+                                    dateStart: element.DateStart ? element.DateStart : '',
+                                    dateEnd: element.DateEnd ? element.DateEnd : '',
+                                    status: element.Status ? element.Status : '',
+                                    describe: element.Describe ? element.Describe : '',
+                                }
+                                array.push(obj);
+                                stt += 1;
+                            });
+                            var count = await mtblWorkHistory(db).count({ where: whereOjb, })
+                            var result = {
+                                array: array,
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                                all: count
                             }
-                            array.push(obj);
-                            stt += 1;
-                        });
-                        var count = await mtblWorkHistory(db).count({ where: whereOjb, })
-                        var result = {
-                            array: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
-                        }
-                        res.json(result);
-                    })
+                            res.json(result);
+                        })
+                    } else {
+                        mtblWorkHistory(db).findAll({
+                            offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                            limit: Number(body.itemPerPage),
+                            where: whereOjb,
+                        }).then(async data => {
+                            var array = [];
+                            data.forEach(element => {
+                                var obj = {
+                                    stt: stt,
+                                    id: Number(element.ID),
+                                    dateStart: element.DateStart ? element.DateStart : '',
+                                    dateEnd: element.DateEnd ? element.DateEnd : '',
+                                    status: element.Status ? element.Status : '',
+                                    describe: element.Describe ? element.Describe : '',
+                                }
+                                array.push(obj);
+                                stt += 1;
+                            });
+                            var count = await mtblWorkHistory(db).count({ where: whereOjb, })
+                            var result = {
+                                array: array,
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                                all: count
+                            }
+                            res.json(result);
+                        })
+                    }
+
 
                 } catch (error) {
                     console.log(error);

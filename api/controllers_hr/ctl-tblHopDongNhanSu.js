@@ -234,6 +234,90 @@ module.exports = {
             }
         })
     },
+    // get_list_tbl_hophong_nhansu_detail
+    getListtblHopDongNhanSuDetail: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var whereOjb = [];
+                    if (body.dataSearch) {
+                        // var data = JSON.parse(body.dataSearch)
+
+                        // if (data.search) {
+                        //     where = [
+                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
+                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
+                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
+                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                        //     ];
+                        // } else {
+                        //     where = [
+                        //         { FullName: { [Op.ne]: '%%' } },
+                        //     ];
+                        // }
+                        // whereOjb = { [Op.or]: where };
+                        // if (data.items) {
+                        //     for (var i = 0; i < data.items.length; i++) {
+                        //         let userFind = {};
+                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                        //             if (data.items[i].conditionFields['name'] == 'And') {
+                        //                 whereOjb[Op.and] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Or') {
+                        //                 whereOjb[Op.or] = userFind
+                        //             }
+                        //             if (data.items[i].conditionFields['name'] == 'Not') {
+                        //                 whereOjb[Op.not] = userFind
+                        //             }
+                        //         }
+                        //     }
+                        // }
+                    }
+                    let stt = 1;
+                    mtblHopDongNhanSu(db).findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { IDNhanVien: body.idNhanVien },
+                    }).then(async data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                stt: stt,
+                                id: Number(element.ID),
+                                contractCode: data.ContractCode ? data.ContractCode : '',
+                                signDate: data.Date ? data.Date : null,
+                                idLoaiHopDong: data.IDLoaiHopDong ? data.IDLoaiHopDong : '',
+                                salaryNumber: data.SalaryNumber ? data.SalaryNumber : '',
+                                salaryText: data.SalaryText ? data.SalaryText : '',
+                                contractDateEnd: data.ContractDateEnd ? data.contractDateEnd : '',
+                                contractDateStart: data.ContractDateStart ? data.ContractDateStart : null,
+                                unitSalary: 'VND',
+                                status: data.Status ? data.Status : '',
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        });
+                        var count = await mtblHopDongNhanSu(db).count({ where: whereOjb, })
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // get_list_name_tbl_hophong_nhansu
     getListNametblHopDongNhanSu: (req, res) => {
         let body = req.body;

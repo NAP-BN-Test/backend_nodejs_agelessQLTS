@@ -218,7 +218,7 @@ module.exports = {
                     tblDaoTaoSau.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: { IDNhanVien: body.idNhanVien },
                         include: [
                             {
                                 model: mtblDMNhanvien(db),
