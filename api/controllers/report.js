@@ -83,7 +83,7 @@ async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
     return result;
 }
 async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
-    dateFrom = moment(dateFrom).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    // dateFrom = moment(dateFrom).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
     dateTo = moment(dateTo).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
     var result = 0;
     var array = [];

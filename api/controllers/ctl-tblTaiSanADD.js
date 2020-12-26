@@ -245,7 +245,7 @@ module.exports = {
                                     staffCode: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffCode : '' : '' : '',
                                     staffName: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffName : '' : '' : '',
                                     fromDate: data.history[i] ? data.history[i].taisanbangiao ? moment(data.history[i].taisanbangiao.Date).format('DD/MM/YYYY') : null : null,
-                                    toDate: data.history[i] ? moment(data.history[i].DateThuHoi).format('DD/MM/YYYY') : null,
+                                    toDate: data.history[i] ? moment(data.history[i].DateThuHoi).add(24, 'hours').format('DD/MM/YYYY') : null,
                                 }
                                 stt += 1;
                                 array.push(obj);

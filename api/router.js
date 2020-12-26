@@ -249,4 +249,44 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.deletetblDMGiaDinh);
     app.route('/qlnb/get_list_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.getListtblDMGiaDinh);
     app.route('/qlnb/get_list_name_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.getListNametblDMGiaDinh);
+
+    // Tabs quản lý đào tạo sau khi đến công ty
+    var tblDaoTaoSau = require('./controllers_hr/ctl-tblDaoTaoSau');
+    app.route('/qlnb/add_tbl_training_after').post(checkToken.checkToken, tblDaoTaoSau.addtblDaoTaoSaus);
+    app.route('/qlnb/update_tbl_training_after').post(checkToken.checkToken, tblDaoTaoSau.updatetblDaoTaoSaus);
+    app.route('/qlnb/delete_tbl_training_after').post(checkToken.checkToken, tblDaoTaoSau.deletetblDaoTaoSaus);
+    app.route('/qlnb/get_list_tbl_training_after').post(checkToken.checkToken, tblDaoTaoSau.getListtblDaoTaoSaus);
+
+    // Tabs quản lý đào tạo trước khi đến công ty
+    var tblDaoTaoTruoc = require('./controllers_hr/ctl-tblDaoTaoTruoc');
+    app.route('/qlnb/add_tbl_pre_training').post(checkToken.checkToken, tblDaoTaoTruoc.addtblDaoTaoTruoc);
+    app.route('/qlnb/update_tbl_pre_training').post(checkToken.checkToken, tblDaoTaoTruoc.updatetblDaoTaoTruoc);
+    app.route('/qlnb/delete_tbl_pre_training').post(checkToken.checkToken, tblDaoTaoTruoc.deletetblDaoTaoTruoc);
+    app.route('/qlnb/get_list_tbl_pre_training').post(checkToken.checkToken, tblDaoTaoTruoc.getListtblDaoTaoTruoc);
+
+    // Lịch sử công tác
+    var tblWorkHistory = require('./controllers_hr/ctl-tblWorkHistory');
+    app.route('/qlnb/add_tbl_work_history').post(checkToken.checkToken, tblWorkHistory.addtblWorkHistory);
+    app.route('/qlnb/update_tbl_work_history').post(checkToken.checkToken, tblWorkHistory.updatetblWorkHistory);
+    app.route('/qlnb/delete_tbl_work_history').post(checkToken.checkToken, tblWorkHistory.deletetblWorkHistory);
+    app.route('/qlnb/get_list_tbl_work_history').post(checkToken.checkToken, tblWorkHistory.getListtblWorkHistory);
+
+    // Quản lý hợp đồng
+    var tblHopDongNhanSu = require('./controllers_hr/ctl-tblHopDongNhanSu');
+    app.route('/qlnb/add_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.addtblHopDongNhanSu);
+    app.route('/qlnb/update_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.updatetblHopDongNhanSu);
+    app.route('/qlnb/delete_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.deletetblHopDongNhanSu);
+    app.route('/qlnb/get_list_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSu);
+
+    // Quyết định tăng lương
+    var tblQuyetDinhTangLuong = require('./controllers_hr/ctl-tblQuyetDinhTangLuong');
+    app.route('/qlnb/add_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.addtblQuyetDinhTangLuong);
+    app.route('/qlnb/update_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.updatetblQuyetDinhTangLuong);
+    app.route('/qlnb/delete_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.deletetblQuyetDinhTangLuong);
+    app.route('/qlnb/get_list_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.getListtblQuyetDinhTangLuong);
+
+    //---------------------------------------------------------------- Mẫu bảng lương --------------------------------------------------------------------------------------
+    var tblBangLuong = require('./controllers_hr/ctl-tblBangLuong');
+    app.route('/qlnb/get_list_tbl_bangluong').post(checkToken.checkToken, tblBangLuong.getListtblBangLuong);
+
 }

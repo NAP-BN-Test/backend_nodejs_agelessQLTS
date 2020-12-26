@@ -16,6 +16,7 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
+var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
 
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
@@ -59,6 +60,7 @@ module.exports = {
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
+                    tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'chucvu' })
                     tblDMNhanvien.findOne({
                         order: [
                             ['ID', 'DESC']
@@ -74,6 +76,12 @@ module.exports = {
                                 include: [{
                                     model: mtblDMChiNhanh(db)
                                 }]
+                            },
+
+                            {
+                                model: mtblDMChucVu(db),
+                                required: false,
+                                as: 'chucvu',
                             },
                         ],
                     }).then(async data => {
@@ -93,15 +101,16 @@ module.exports = {
                             branchCode: data.bophan ? data.bophan.tblDMChiNhanh ? data.bophan.tblDMChiNhanh.BranchCode : null : null,
                             branchName: data.bophan ? data.bophan.tblDMChiNhanh ? data.bophan.tblDMChiNhanh.BranchName : null : null,
                             idChucVu: data.IDChucVu ? data.IDChucVu : null,
+                            positionName: data.IDChucVu ? data.chucvu.PositionName : null,
                             taxCode: data.TaxCode ? data.TaxCode : '',
                             bankNumber: data.BankNumber ? data.BankNumber : '',
                             bankName: data.BankName ? data.BankName : '',
-                            birthday: data.Birthday ? moment(data.Birthday).format('DD/MM/YYYY') : '',
+                            birthday: data.Birthday ? moment(data.Birthday).format('YYYY-MM-DD') : '',
                             degree: data.Degree ? data.Degree : '',
-                            dermanentResidence: data.DermanentResidence ? data.DermanentResidence : '',
-                            probationaryDate: data.ProbationaryDate ? data.ProbationaryDate : '',
+                            permanentResidence: data.DermanentResidence ? data.DermanentResidence : '',
+                            probationaryDate: data.ProbationaryDate ? moment(data.ProbationaryDate).format('YYYY-MM-DD') : '',
                             probationarySalary: data.ProbationarySalary ? data.ProbationarySalary : null,
-                            workingDate: data.WorkingDate ? data.WorkingDate : null,
+                            workingDate: data.WorkingDate ? moment(data.WorkingDate).format('YYYY-MM-DD') : null,
                             workingSalary: data.WorkingSalary ? data.WorkingSalary : null,
                             bhxhSalary: data.BHXHSalary ? data.BHXHSalary : null,
                             contactUrgent: data.ContactUrgent ? data.ContactUrgent : '',
@@ -126,11 +135,12 @@ module.exports = {
                                 },
                             ],
                         }).then(hd => {
+                            obj['idContract'] = hd ? hd.ID : '';
                             obj['contractCode'] = hd ? hd.ContractCode : '';
-                            obj['signDate'] = hd ? hd.Date : '';
+                            obj['signDate'] = hd ? moment(hd.Date).format('YYYY-MM-DD') : '';
                             obj['salaryNumber'] = hd ? hd.SalaryNumber : '';
                             obj['salaryText'] = hd ? hd.SalaryText : '';
-                            obj['contractDateEnd'] = hd ? hd.ContractDateEnd : '';
+                            obj['contractDateEnd'] = hd ? moment(hd.ContractDateEnd).format('YYYY-MM-DD') : '';
                             obj['status'] = hd ? hd.Status : '';
                             obj['nameTypeContract'] = hd ? hd.loaiHD.TenLoaiHD : '';
                             obj['codeTypeContract'] = hd ? hd.loaiHD.MaLoaiHD : '';
@@ -155,7 +165,6 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
         let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -195,6 +204,7 @@ module.exports = {
                             ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
                             ContractDateStart: body.signDate ? body.signDate : null,
                             UnitSalary: 'VND',
+                            WorkingPlace: '',
                             Status: body.status ? body.status : '',
                         })
                         await mtblBangLuong(db).create({
@@ -220,6 +230,8 @@ module.exports = {
     // update_tbl_dmnhanvien
     updatetblDMNhanvien: (req, res) => {
         let body = req.body;
+        console.log(body);
+        let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -310,17 +322,19 @@ module.exports = {
                         else
                             update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
                     }
-                    await mtblHopDongNhanSu(db).update({
-                        ContractCode: body.contractCode ? body.contractCode : '',
-                        Date: body.signDate ? body.signDate : '',
-                        IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
-                        SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
-                        SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                        ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
-                        ContractDateStart: now,
-                        UnitSalary: 'VND',
-                        Status: body.status ? body.status : '',
-                    }, { where: { ID: body.idContract } })
+                    if (body.idContract) {
+                        await mtblHopDongNhanSu(db).update({
+                            ContractCode: body.contractCode ? body.contractCode : '',
+                            Date: body.signDate ? body.signDate : '',
+                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
+                            SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
+                            ContractDateStart: now,
+                            UnitSalary: 'VND',
+                            Status: body.status ? body.status : '',
+                        }, { where: { ID: body.idContract } })
+                    }
                     database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);

@@ -148,7 +148,7 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: { Date: { [Op.like]: body.month } },
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {

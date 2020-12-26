@@ -74,13 +74,13 @@ module.exports = {
                 try {
                     mtblDaoTaoSau(db).create({
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
-                        DateEnd: body.dateEnd ? body.dateEnd : null,
+                        DateStart: body.dateStart ? body.dateStart : null,
                         DateEnd: body.dateEnd ? body.dateEnd : null,
                         TrainningCourse: body.trainningCourse ? body.trainningCourse : '',
                         CompanyCost: body.companyCost ? body.companyCost : null,
                         Result: body.result ? body.result : '',
                         StaffCost: body.staffCost ? body.staffCost : null,
-                        majors: body.majors ? body.majors : '',
+                        Majors: body.majors ? body.majors : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -100,6 +100,7 @@ module.exports = {
     // update_tbl_training_after
     updatetblDaoTaoSaus: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -239,7 +240,7 @@ module.exports = {
                                 companyCost: element.CompanyCost ? element.CompanyCost : '',
                                 result: element.Result ? element.Result : '',
                                 staffCost: element.StaffCost ? element.StaffCost : '',
-                                majors: element.MajorsMajors ? element.MajorsMajors : '',
+                                majors: element.Majors ? element.Majors : '',
                             }
                             array.push(obj);
                             stt += 1;

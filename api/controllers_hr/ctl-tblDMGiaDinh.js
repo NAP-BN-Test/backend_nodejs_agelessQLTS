@@ -112,8 +112,8 @@ module.exports = {
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
                     }
-                    if (body.Relationship || body.Relationship === '')
-                        update.push({ key: 'Relationship', value: body.Relationship });
+                    if (body.relationship || body.relationship === '')
+                        update.push({ key: 'Relationship', value: body.relationship });
                     if (body.Name || body.Name === '')
                         update.push({ key: 'Name', value: body.Name });
                     if (body.birthday || body.birthday === '') {
