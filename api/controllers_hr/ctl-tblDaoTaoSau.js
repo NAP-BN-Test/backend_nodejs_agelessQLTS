@@ -69,6 +69,7 @@ module.exports = {
     // add_tbl_training_after
     addtblDaoTaoSaus: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -76,14 +77,15 @@ module.exports = {
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         DateStart: body.dateStart ? body.dateStart : null,
                         DateEnd: body.dateEnd ? body.dateEnd : null,
-                        TrainningCourse: body.trainningCourse ? body.trainningCourse : '',
+                        TrainningCourse: body.trainingCourse ? body.trainingCourse : '',
                         CompanyCost: body.companyCost ? body.companyCost : null,
                         Result: body.result ? body.result : '',
                         StaffCost: body.staffCost ? body.staffCost : null,
                         Majors: body.majors ? body.majors : '',
                         NumberCertificates: body.numberCertificates ? body.numberCertificates : '',
-                        ExpirationDate: body.expirationDate ? body.expirationDate : '',
-                        RangeDate: body.rangeDate ? body.rangeDate : '',
+                        ExpirationDate: body.expirationDate ? body.expirationDate : null,
+                        RangeDate: body.rangeDate ? body.rangeDate : null,
+                        FormTraining: body.formTraining ? body.formTraining : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -103,7 +105,6 @@ module.exports = {
     // update_tbl_training_after
     updatetblDaoTaoSaus: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -142,8 +143,11 @@ module.exports = {
                     if (body.numberCertificates || body.numberCertificates === '')
                         update.push({ key: 'NumberCertificates', value: body.numberCertificates });
 
-                    if (body.TrainningCourse || body.TrainningCourse === '')
-                        update.push({ key: 'trainningCourse', value: body.TrainningCourse });
+                    if (body.formTraining || body.formTraining === '')
+                        update.push({ key: 'FormTraining', value: body.formTraining });
+
+                    if (body.trainingCourse || body.trainingCourse === '')
+                        update.push({ key: 'TrainningCourse', value: body.trainingCourse });
                     if (body.companyCost || body.companyCost === '')
                         update.push({ key: 'CompanyCost', value: body.companyCost });
                     if (body.staffCost || body.staffCost === '')
@@ -260,6 +264,7 @@ module.exports = {
                                 result: element.Result ? element.Result : '',
                                 staffCost: element.StaffCost ? element.StaffCost : '',
                                 majors: element.Majors ? element.Majors : '',
+                                formTraining: element.FormTraining ? element.FormTraining : '',
                             }
                             array.push(obj);
                             stt += 1;

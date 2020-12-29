@@ -19,20 +19,26 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let stt = 1;
                     let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
                     tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
-                    tblQuyetDinhTangLuong.findOne({
-                        where: { ID: body.id }, include: [
+                    tblQuyetDinhTangLuong.findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { where: { IDNhanVien: body.idNhanVien } },
+                        include: [
                             {
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'employee'
                             },
-                        ],
-                    }).then(data => {
-                        if (data) {
+                        ]
+                    }).then(async data => {
+                        var array = [];
+                        data.forEach(element => {
                             var obj = {
-                                id: data.ID,
+                                stt: stt,
+                                id: Number(element.ID),
                                 DecisionCode: data.decisionCode ? data.decisionCode : '',
                                 DecisionDate: data.decisionDate ? data.decisionDate : null,
                                 IncreaseDate: data.increaseDate ? data.increaseDate : null,
@@ -42,19 +48,21 @@ module.exports = {
                                 nameNhanVien: data.idNhanVien ? data.employee.StaffName : null,
                                 SalaryIncrease: data.salaryIncrease ? data.salaryIncrease : '',
                             }
-                            var result = {
-                                obj: obj,
-                                status: Constant.STATUS.SUCCESS,
-                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                            }
-                            res.json(result);
-                        } else {
-                            res.json(Result.NO_DATA_RESULT)
-
+                            array.push(obj);
+                            stt += 1;
+                        });
+                        var count = await mtblQuyetDinhTangLuong(db).count({ where: whereOjb, })
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
                         }
-
+                        res.json(result);
                     })
+
                 } catch (error) {
+                    console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
                 }
             } else {

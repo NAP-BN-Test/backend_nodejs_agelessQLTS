@@ -18,6 +18,7 @@ module.exports = function (db) {
         NumberCertificates: Sequelize.STRING,
         ExpirationDate: Sequelize.DATE,
         RangeDate: Sequelize.DATE,
+        FormTraining: Sequelize.STRING,
     });
 
     return table;

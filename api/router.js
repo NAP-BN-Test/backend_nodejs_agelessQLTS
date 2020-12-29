@@ -275,12 +275,12 @@ module.exports = function (app) {
 
     // Quản lý hợp đồng
     var tblHopDongNhanSu = require('./controllers_hr/ctl-tblHopDongNhanSu');
-    app.route('/qlnb/add_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.addtblHopDongNhanSu);
-    app.route('/qlnb/update_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.updatetblHopDongNhanSu);
-    app.route('/qlnb/delete_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.deletetblHopDongNhanSu);
-    app.route('/qlnb/get_list_tbl_hophong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSu);
+    app.route('/qlnb/add_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.addtblHopDongNhanSu);
+    app.route('/qlnb/update_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.updatetblHopDongNhanSu);
+    app.route('/qlnb/delete_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.deletetblHopDongNhanSu);
+    app.route('/qlnb/get_list_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSu);
 
-    app.route('/qlnb/get_list_tbl_hophong_nhansu_detail').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSuDetail);
+    app.route('/qlnb/get_list_tbl_hopdong_nhansu_detail').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSuDetail);
 
     // Quyết định tăng lương
     var tblQuyetDinhTangLuong = require('./controllers_hr/ctl-tblQuyetDinhTangLuong');

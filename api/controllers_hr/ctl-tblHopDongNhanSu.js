@@ -13,7 +13,7 @@ async function deleteRelationshiptblHopDongNhanSu(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblHopDongNhanSu,
-    //  get_detail_tbl_hophong_nhansu
+    //  get_detail_tbl_hopdong_nhansu
     detailtblHopDongNhanSu: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -53,13 +53,14 @@ module.exports = {
             }
         })
     },
-    // add_tbl_hophong_nhansu
+    // add_tbl_hopdong_nhansu
     addtblHopDongNhanSu: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblHopDongNhanSu(db).create({
+                        IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         ContractCode: body.contractCode ? body.contractCode : '',
                         Date: body.signDate ? body.signDate : null,
                         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
@@ -68,6 +69,7 @@ module.exports = {
                         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
                         ContractDateStart: body.signDate ? body.signDate : null,
                         UnitSalary: 'VND',
+                        WorkingPlace: '',
                         Status: body.status ? body.status : '',
                     }).then(data => {
                         var result = {
@@ -85,7 +87,7 @@ module.exports = {
             }
         })
     },
-    // update_tbl_hophong_nhansu
+    // update_tbl_hopdong_nhansu
     updatetblHopDongNhanSu: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -128,7 +130,7 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_hophong_nhansu
+    // delete_tbl_hopdong_nhansu
     deletetblHopDongNhanSu: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -150,7 +152,7 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_hophong_nhansu
+    // get_list_tbl_hopdong_nhansu
     getListtblHopDongNhanSu: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -234,7 +236,7 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_hophong_nhansu_detail
+    // get_list_tbl_hopdong_nhansu_detail
     getListtblHopDongNhanSuDetail: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -318,7 +320,7 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_hophong_nhansu
+    // get_list_name_tbl_hopdong_nhansu
     getListNametblHopDongNhanSu: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {

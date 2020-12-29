@@ -350,15 +350,34 @@ module.exports = {
                             { Status: "Đã phê duyệt" },
                             { Status: "Hủy mua" },
                         ]
+                        if (body.userID) {
+                            where = [
+                                { Status: "Đã phê duyệt" },
+                                { Status: "Hủy mua" },
+                            ]
+                            let staff = await mtblDMUser(db).findOne({
+                                where: { ID: body.userID }
+                            })
+                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
+                                where.push({ IDNhanVien: staff.IDNhanvien })
+                            }
+                        }
                     }
                     if (body.status === "success") {
                         where = [
                             { Status: "Đã mua" },
                         ]
+                        if (body.userID) {
+                            let staff = await mtblDMUser(db).findOne({
+                                where: { ID: body.userID }
+                            })
+                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
+                                where.push({ IDNhanVien: staff.IDNhanvien })
+                            }
+                        }
                     }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
-
                         if (data.search) {
                             var listStaff = [];
                             await mtblDMNhanvien(db).findAll({

@@ -21,6 +21,14 @@ const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblTaiSanADD(db, listID) {
+    await mtblThayTheTaiSan(db).destroy({
+        where: {
+            [Op.or]: {
+                IDTaiSan: { [Op.in]: listID },
+                IDTaiSanThayThe: { [Op.in]: listID },
+            }
+        }
+    })
     await mtblFileAttach(db).destroy({
         where: {
             IDTaiSanADD: { [Op.in]: listID }

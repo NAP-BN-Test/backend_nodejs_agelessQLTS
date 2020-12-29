@@ -37,6 +37,7 @@ module.exports = {
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                         IDNhanVienLDPD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
+                        Description: body.description ? body.description : null,
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                     }).then(async data => {
                         body.fileAttach = JSON.parse(body.fileAttach)
@@ -67,7 +68,6 @@ module.exports = {
     // update_tbl_denghi_thanhtoan
     updatetblDeNghiThanhToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -90,6 +90,8 @@ module.exports = {
                     }
                     if (body.contents || body.contents === '')
                         update.push({ key: 'Contents', value: body.contents });
+                    if (body.description || body.description === '')
+                        update.push({ key: 'Description', value: body.description });
                     if (body.cost || body.cost === '') {
                         if (body.cost === '')
                             update.push({ key: 'Cost', value: null });
@@ -372,6 +374,7 @@ module.exports = {
                             nameNhanVienKTPD: data.KTPD ? data.KTPD.StaffName : '',
                             trangThaiPheDuyetKT: data.trangThaiPheDuyetKT ? data.trangThaiPheDuyetKT : '',
                             idNhanVienLDPD: data.IDNhanVienLDPD ? Number(data.IDNhanVienLDPD) : null,
+                            description: data.Description ? data.Description : '',
                             nameNhanVienLDPD: data.LDPD ? data.LDPD.StaffName : '',
                             trangThaiPheDuyetLD: data.trangThaiPheDuyetLD ? data.trangThaiPheDuyetLD : '',
                             idPhongBan: {
