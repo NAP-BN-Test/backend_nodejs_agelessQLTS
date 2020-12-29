@@ -255,7 +255,7 @@ module.exports = {
                                     staffCode: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffCode : '' : '' : '',
                                     staffName: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffName : '' : '' : '',
                                     fromDate: data.history[i] ? data.history[i].taisanbangiao ? moment(data.history[i].taisanbangiao.Date).format('DD/MM/YYYY') : null : null,
-                                    toDate: data.history[i] ? moment(data.history[i].DateThuHoi).add(24, 'hours').format('DD/MM/YYYY') : null,
+                                    toDate: data.history[i] ? data.history[i].DateThuHoi ? moment(data.history[i].DateThuHoi).add(0, 'hours').format('DD/MM/YYYY') : null : null,
                                 }
                                 stt += 1;
                                 array.push(obj);
@@ -338,6 +338,7 @@ module.exports = {
                         Describe: body.obj.describe ? body.obj.describe : '',
                         TSNBCode: body.obj.code ? body.obj.code : '',
                         Status: body.obj.status ? body.obj.status : '',
+                        DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                     }, {
                         where: { ID: body.id }
                     })

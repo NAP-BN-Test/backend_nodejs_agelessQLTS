@@ -4,6 +4,8 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var database = require('../database');
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+
 async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
     await mtblQuyetDinhTangLuong(db).destroy({
         where: {
@@ -25,7 +27,7 @@ module.exports = {
                     tblQuyetDinhTangLuong.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { where: { IDNhanVien: body.idNhanVien } },
+                        where: { IDNhanVien: body.idNhanVien },
                         include: [
                             {
                                 model: mtblDMNhanvien(db),
@@ -51,7 +53,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblQuyetDinhTangLuong(db).count({ where: whereOjb, })
+                        var count = await mtblQuyetDinhTangLuong(db).count({ IDNhanVien: body.idNhanVien })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

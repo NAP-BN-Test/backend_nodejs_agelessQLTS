@@ -71,7 +71,8 @@ module.exports = {
                 try {
                     mtblNghiLe(db).create({
                         IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
-                        DateHoliday: body.dateHoliday ? body.dateHoliday : null,
+                        DateStartHoliday: body.dateStartHoliday ? body.dateStartHoliday : null,
+                        DateEndHoliday: body.dateEndHoliday ? body.dateEndHoliday : null,
                         NameHoliday: body.nameHoliday ? body.nameHoliday : '',
                         Describe: body.describe ? body.describe : '',
                     }).then(data => {
@@ -103,11 +104,17 @@ module.exports = {
                         else
                             update.push({ key: 'IDLoaiChamCong', value: body.idLoaiChamCong });
                     }
-                    if (body.dateHoliday || body.dateHoliday === '') {
-                        if (body.dateHoliday === '')
-                            update.push({ key: 'DateHoliday', value: null });
+                    if (body.dateStartHoliday || body.dateStartHoliday === '') {
+                        if (body.dateStartHoliday === '')
+                            update.push({ key: 'DateStartHoliday', value: null });
                         else
-                            update.push({ key: 'DateHoliday', value: body.dateHoliday });
+                            update.push({ key: 'DateStartHoliday', value: body.dateStartHoliday });
+                    }
+                    if (body.dateEndHoliday || body.dateEndHoliday === '') {
+                        if (body.dateEndHoliday === '')
+                            update.push({ key: 'DateEndHoliday', value: null });
+                        else
+                            update.push({ key: 'DateEndHoliday', value: body.dateEndHoliday });
                     }
                     if (body.nameHoliday || body.nameHoliday === '')
                         update.push({ key: 'NameHoliday', value: body.nameHoliday });

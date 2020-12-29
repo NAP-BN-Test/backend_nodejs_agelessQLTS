@@ -2,7 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoSau')
+var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoTruoc')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 
@@ -67,7 +67,6 @@ module.exports = {
     // add_tbl_pre_training
     addtblDaoTaoTruoc: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

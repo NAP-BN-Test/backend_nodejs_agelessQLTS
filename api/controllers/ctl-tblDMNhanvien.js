@@ -681,8 +681,8 @@ module.exports = {
                                                 id: id,
                                                 codeDevice: tsht[j].taisan ? tsht[j].taisan.TSNBCode : '',
                                                 nameDevice: tsht[j].taisan ? tsht[j].taisan.hanghoa ? tsht[j].taisan.hanghoa.Name : '' : '',
-                                                dateFrom: date,
-                                                dateTo: tsht[j].DateThuHoi,
+                                                dateFrom: moment(date).format('YYYY-MM-DD'),
+                                                dateTo: moment(tsht[j].DateThuHoi).format('YYYY-MM-DD'),
                                             })
                                             stt += 1;
                                         }

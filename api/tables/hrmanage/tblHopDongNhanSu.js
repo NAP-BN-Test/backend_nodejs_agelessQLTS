@@ -29,7 +29,7 @@ module.exports = function (db) {
         SalaryNumber: Sequelize.FLOAT,
         SalaryText: Sequelize.STRING,
         UnitSalary: Sequelize.STRING,
-
+        Status: Sequelize.STRING,
     });
 
     return table;

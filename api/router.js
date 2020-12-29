@@ -280,7 +280,7 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.deletetblHopDongNhanSu);
     app.route('/qlnb/get_list_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSu);
 
-    app.route('/qlnb/get_list_tbl_hopdong_nhansu_detail').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSuDetail);
+    app.route('/qlnb/get_list_tbl_hopdong_nhansu_detail').post(tblHopDongNhanSu.getListtblHopDongNhanSuDetail);
 
     // Quyết định tăng lương
     var tblQuyetDinhTangLuong = require('./controllers_hr/ctl-tblQuyetDinhTangLuong');
@@ -288,6 +288,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.updatetblQuyetDinhTangLuong);
     app.route('/qlnb/delete_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.deletetblQuyetDinhTangLuong);
     app.route('/qlnb/get_list_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.getListtblQuyetDinhTangLuong);
+    app.route('/qlnb/get_detail_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.detailtblQuyetDinhTangLuong);
 
     //---------------------------------------------------------------- Mẫu bảng lương --------------------------------------------------------------------------------------
     var tblBangLuong = require('./controllers_hr/ctl-tblBangLuong');

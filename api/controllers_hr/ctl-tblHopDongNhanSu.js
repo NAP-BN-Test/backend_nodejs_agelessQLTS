@@ -66,7 +66,7 @@ module.exports = {
                         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
                         SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
                         SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                        ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
+                        ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
                         ContractDateStart: body.signDate ? body.signDate : null,
                         UnitSalary: 'VND',
                         WorkingPlace: '',
@@ -207,6 +207,7 @@ module.exports = {
                                 contractCode: data.ContractCode ? data.ContractCode : '',
                                 signDate: data.Date ? data.Date : null,
                                 idLoaiHopDong: data.IDLoaiHopDong ? data.IDLoaiHopDong : '',
+                                nameLoaiHopDong: '',
                                 salaryNumber: data.SalaryNumber ? data.SalaryNumber : '',
                                 salaryText: data.SalaryText ? data.SalaryText : '',
                                 contractDateEnd: data.ContractDateEnd ? data.contractDateEnd : '',
@@ -288,20 +289,21 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                contractCode: data.ContractCode ? data.ContractCode : '',
-                                signDate: data.Date ? data.Date : null,
-                                idLoaiHopDong: data.IDLoaiHopDong ? data.IDLoaiHopDong : '',
-                                salaryNumber: data.SalaryNumber ? data.SalaryNumber : '',
-                                salaryText: data.SalaryText ? data.SalaryText : '',
-                                contractDateEnd: data.ContractDateEnd ? data.contractDateEnd : '',
-                                contractDateStart: data.ContractDateStart ? data.ContractDateStart : null,
+                                contractCode: element.ContractCode ? element.ContractCode : '',
+                                signDate: element.Date ? element.Date : null,
+                                idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
+                                loaiHopDong: '', // đang lm
+                                salaryNumber: element.SalaryNumber ? element.SalaryNumber : '',
+                                salaryText: element.SalaryText ? element.SalaryText : '',
+                                contractDateEnd: element.ContractDateEnd ? element.ContractDateEnd : null,
+                                contractDateStart: element.ContractDateStart ? element.ContractDateStart : null,
                                 unitSalary: 'VND',
-                                status: data.Status ? data.Status : '',
+                                status: element.Status ? element.Status : '',
                             }
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblHopDongNhanSu(db).count({ where: whereOjb, })
+                        var count = await mtblHopDongNhanSu(db).count({ where: { IDNhanVien: body.idNhanVien } })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
