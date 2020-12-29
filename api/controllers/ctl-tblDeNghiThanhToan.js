@@ -155,7 +155,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
+                    var whereObj = [];
                     if (body.dataSearch) {
                         // var data = JSON.parse(body.dataSearch)
 
@@ -189,6 +189,22 @@ module.exports = {
                         //         }
                         //     }
                         // }
+                        let userObj = [];
+                        if (body.userID) {
+                            let staff = await mtblDMUser(db).findOne({
+                                where: { ID: body.userID }
+                            })
+                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
+                                userObj.push({ IDNhanVien: staff.IDNhanvien })
+                                userObj.push({ IDNhanVienKTPD: staff.IDNhanvien })
+                                userObj.push({ IDNhanVienLDPD: staff.IDNhanvien })
+                            }
+
+                        }
+                        whereObj = {
+                            // [Op.or]: where,
+                            [Op.and]: [{ [Op.or]: userObj }]
+                        }
                     }
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
@@ -201,7 +217,7 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: whereObj,
                         include: [
                             {
                                 model: mtblDMNhanvien(db),
@@ -268,7 +284,7 @@ module.exports = {
                             array[i]['arrayFile'] = arrayFile;
 
                         }
-                        var count = await mtblDeNghiThanhToan(db).count({ where: whereOjb, })
+                        var count = await mtblDeNghiThanhToan(db).count({ where: whereObj, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

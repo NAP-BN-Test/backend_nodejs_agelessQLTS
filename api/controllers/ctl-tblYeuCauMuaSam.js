@@ -10,6 +10,7 @@ var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
+var mtblDMUser = require('../tables/constants/tblDMUser');
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
@@ -331,7 +332,6 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -427,9 +427,21 @@ module.exports = {
                                 Status: { [Op.like]: '%%' },
                             })
                         }
+                        let userObj = [];
+                        if (body.userID) {
+                            let staff = await mtblDMUser(db).findOne({
+                                where: { ID: body.userID }
+                            })
+                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
+                                userObj.push({ IDPheDuyet1: staff.IDNhanvien })
+                                userObj.push({ IDNhanVien: staff.IDNhanvien })
+                                userObj.push({ IDPheDuyet2: staff.IDNhanvien })
+                            }
+
+                        }
                         whereObj = {
                             [Op.or]: where,
-                            [Op.and]: { [Op.or]: whereSecond }
+                            [Op.and]: [{ [Op.or]: whereSecond }, { [Op.or]: userObj }]
                         }
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
@@ -573,7 +585,6 @@ module.exports = {
                     tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
                     let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
-
                     tblYeuCauMuaSam.findAll({
                         order: [
                             ['ID', 'DESC']

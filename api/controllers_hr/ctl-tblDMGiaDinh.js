@@ -70,7 +70,6 @@ module.exports = {
     // add_tbl_dmgiadinh
     addtblDMGiaDinh: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -80,7 +79,7 @@ module.exports = {
                         Name: body.name ? body.name : '',
                         Birthday: body.birthday ? body.birthday : null,
                         Gender: body.gender ? body.gender : '',
-                        CMNDdumber: body.cmndumber ? body.cmndumber : '',
+                        CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
                         Address: body.address ? body.address : '',
                         Workplace: body.workplace ? body.workplace : '',
                         Reduce: body.reduce ? body.reduce : '',
@@ -115,8 +114,8 @@ module.exports = {
                     }
                     if (body.relationship || body.relationship === '')
                         update.push({ key: 'Relationship', value: body.relationship });
-                    if (body.Name || body.Name === '')
-                        update.push({ key: 'Name', value: body.Name });
+                    if (body.name || body.name === '')
+                        update.push({ key: 'Name', value: body.name });
                     if (body.birthday || body.birthday === '') {
                         if (body.birthday === '')
                             update.push({ key: 'Birthday', value: null });
@@ -125,8 +124,8 @@ module.exports = {
                     }
                     if (body.gender || body.gender === '')
                         update.push({ key: 'Gender', value: body.gender });
-                    if (body.cmndnumber || body.cmndnumber === '')
-                        update.push({ key: 'CMNDnumber', value: body.cmndnumber });
+                    if (body.cmndNumber || body.cmndNumber === '')
+                        update.push({ key: 'CMNDNumber', value: body.cmndNumber });
                     if (body.address || body.address === '')
                         update.push({ key: 'Address', value: body.address });
                     if (body.workplace || body.workplace === '')
