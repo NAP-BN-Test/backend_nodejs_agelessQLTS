@@ -4,6 +4,8 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoSau')
 var database = require('../database');
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+
 async function deleteRelationshiptblDaoTaoTruoc(db, listID) {
     await mtblDaoTaoTruoc(db).destroy({
         where: {

@@ -67,6 +67,7 @@ module.exports = {
     // update_tbl_denghi_thanhtoan
     updatetblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -201,10 +202,12 @@ module.exports = {
                             }
 
                         }
-                        whereObj = {
-                            // [Op.or]: where,
-                            [Op.and]: [{ [Op.or]: userObj }]
-                        }
+                        if (userObj.length > 0)
+
+                            whereObj = {
+                                // [Op.or]: where,
+                                [Op.and]: [{ [Op.or]: userObj }]
+                            }
                     }
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);

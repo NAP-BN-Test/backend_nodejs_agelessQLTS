@@ -439,10 +439,18 @@ module.exports = {
                             }
 
                         }
-                        whereObj = {
-                            [Op.or]: where,
-                            [Op.and]: [{ [Op.or]: whereSecond }, { [Op.or]: userObj }]
-                        }
+                        if (userObj.length > 0)
+
+                            whereObj = {
+                                [Op.or]: where,
+                                [Op.and]: [{ [Op.or]: whereSecond }, { [Op.or]: userObj }]
+                            }
+                        else
+
+                            whereObj = {
+                                [Op.or]: where,
+                                [Op.and]: [{ [Op.or]: whereSecond }]
+                            }
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};

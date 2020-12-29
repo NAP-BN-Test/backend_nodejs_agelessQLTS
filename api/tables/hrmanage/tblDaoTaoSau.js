@@ -15,6 +15,9 @@ module.exports = function (db) {
         Result: Sequelize.STRING,
         StaffCost: Sequelize.FLOAT,
         Majors: Sequelize.STRING,
+        NumberCertificates: Sequelize.STRING,
+        ExpirationDate: Sequelize.DATE,
+        RangeDate: Sequelize.DATE,
     });
 
     return table;

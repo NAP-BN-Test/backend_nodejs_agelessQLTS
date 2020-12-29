@@ -169,6 +169,7 @@ async function getDetailTaiSan(db, idTaiSan) {
         let staffName = await getStaffFromTaiSan(db, idTaiSan);
         let departmentName = await getDepartFromTaiSan(db, idTaiSan);
         let thanhLy = await mtblThanhLyTaiSan(db).findOne({ where: { IDTaiSan: data.ID } })
+        console.log(data.DepreciationDate);
         obj = {
             id: data.ID,
             code: data.TSNBCode ? data.TSNBCode : '',
@@ -323,7 +324,7 @@ module.exports = {
                         Unit: body.obj.unit ? body.obj.unit : '',
                         Specifications: body.obj.specifications ? body.obj.specifications : '',
                         DepreciationPrice: body.obj.depreciationPrice ? body.obj.depreciationPrice : 0,
-                        DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
+                        DepreciationDate: body.obj.depreciationDate ? body.obj.depreciationDate : null,
                         GuaranteeMonth: body.obj.guaranteeMonth ? body.obj.guaranteeMonth : null,
                         SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
                         Describe: body.obj.describe ? body.obj.describe : '',

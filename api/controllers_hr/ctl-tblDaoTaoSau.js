@@ -81,6 +81,9 @@ module.exports = {
                         Result: body.result ? body.result : '',
                         StaffCost: body.staffCost ? body.staffCost : null,
                         Majors: body.majors ? body.majors : '',
+                        NumberCertificates: body.numberCertificates ? body.numberCertificates : '',
+                        ExpirationDate: body.expirationDate ? body.expirationDate : '',
+                        RangeDate: body.rangeDate ? body.rangeDate : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -123,6 +126,22 @@ module.exports = {
                         else
                             update.push({ key: 'DateEnd', value: body.dateEnd });
                     }
+
+                    if (body.rangeDate || body.rangeDate === '') {
+                        if (body.rangeDate === '')
+                            update.push({ key: 'RangeDate', value: null });
+                        else
+                            update.push({ key: 'RangeDate', value: body.rangeDate });
+                    }
+                    if (body.expirationDate || body.expirationDate === '') {
+                        if (body.expirationDate === '')
+                            update.push({ key: 'ExpirationDate', value: null });
+                        else
+                            update.push({ key: 'ExpirationDate', value: body.expirationDate });
+                    }
+                    if (body.numberCertificates || body.numberCertificates === '')
+                        update.push({ key: 'NumberCertificates', value: body.numberCertificates });
+
                     if (body.TrainningCourse || body.TrainningCourse === '')
                         update.push({ key: 'trainningCourse', value: body.TrainningCourse });
                     if (body.companyCost || body.companyCost === '')
