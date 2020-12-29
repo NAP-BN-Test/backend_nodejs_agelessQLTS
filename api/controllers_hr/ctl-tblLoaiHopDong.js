@@ -20,7 +20,7 @@ module.exports = {
             if (db) {
                 try {
                     tblLoaiHopDong(db).create({
-                        MaLoaiHD: body.maLoaiHD ? body.maLoaiHD : 'null',
+                        MaLoaiHD: body.maLoaiHD ? body.maLoaiHD : '',
                         TenLoaiHD: body.tenLoaiHD ? body.tenLoaiHD : '',
                     }).then(data => {
                         var result = {

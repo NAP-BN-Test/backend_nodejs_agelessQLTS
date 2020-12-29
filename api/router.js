@@ -307,4 +307,12 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.deletetblQuyetDinhTangLuong);
     app.route('/qlnb/get_list_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.getListtblQuyetDinhTangLuong);
 
+    // Quản lý loại hợp đồng 
+    var tblTypeContract = require('./controllers_hr/ctl-tblLoaiHopDong');
+    app.route('/qlnb/add_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.addtblLoaiHopDong);
+    app.route('/qlnb/update_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.updatetblLoaiHopDong);
+    app.route('/qlnb/delete_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.deletetblLoaiHopDong);
+    app.route('/qlnb/get_list_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListtblLoaiHopDong);
+    app.route('/qlnb/get_list_name_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListNametblLoaiHopDong);
+
 }

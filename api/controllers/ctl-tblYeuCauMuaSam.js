@@ -338,12 +338,24 @@ module.exports = {
                     let whereObj = []
                     let where = []
                     let whereSecond = []
+                    let userObj = [];
                     if (body.status === "request") {
                         where = [
                             { Status: "Chờ phê duyệt" },
                             { Status: "Đang phê duyệt" },
                             { Status: "Từ chối" },
                         ]
+                        if (body.userID) {
+                            let staff = await mtblDMUser(db).findOne({
+                                where: { ID: body.userID }
+                            })
+                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
+                                userObj.push({ IDPheDuyet1: staff.IDNhanvien })
+                                userObj.push({ IDNhanVien: staff.IDNhanvien })
+                                userObj.push({ IDPheDuyet2: staff.IDNhanvien })
+                            }
+
+                        }
                     }
                     if (body.status === "approval") {
                         where = [
@@ -351,16 +363,13 @@ module.exports = {
                             { Status: "Hủy mua" },
                         ]
                         if (body.userID) {
-                            where = [
-                                { Status: "Đã phê duyệt" },
-                                { Status: "Hủy mua" },
-                            ]
                             let staff = await mtblDMUser(db).findOne({
                                 where: { ID: body.userID }
                             })
                             if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                where.push({ IDNhanVien: staff.IDNhanvien })
+                                userObj.push({ IDNhanVien: staff.IDNhanvien })
                             }
+
                         }
                     }
                     if (body.status === "success") {
@@ -372,8 +381,9 @@ module.exports = {
                                 where: { ID: body.userID }
                             })
                             if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                where.push({ IDNhanVien: staff.IDNhanvien })
+                                userObj.push({ IDNhanVien: staff.IDNhanvien })
                             }
+
                         }
                     }
                     if (body.dataSearch) {
@@ -445,18 +455,6 @@ module.exports = {
                             whereSecond.push({
                                 Status: { [Op.like]: '%%' },
                             })
-                        }
-                        let userObj = [];
-                        if (body.userID) {
-                            let staff = await mtblDMUser(db).findOne({
-                                where: { ID: body.userID }
-                            })
-                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                userObj.push({ IDPheDuyet1: staff.IDNhanvien })
-                                userObj.push({ IDNhanVien: staff.IDNhanvien })
-                                userObj.push({ IDPheDuyet2: staff.IDNhanvien })
-                            }
-
                         }
                         if (userObj.length > 0)
 
