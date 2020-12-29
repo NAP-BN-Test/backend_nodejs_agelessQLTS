@@ -41,14 +41,15 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                DecisionCode: data.decisionCode ? data.decisionCode : '',
-                                DecisionDate: data.decisionDate ? data.decisionDate : null,
-                                IncreaseDate: data.increaseDate ? data.increaseDate : null,
-                                StopDate: data.stopDate ? data.stopDate : null,
-                                StopReason: data.stopReason ? data.stopReason : '',
-                                IDNhanVien: data.idNhanVien ? data.idNhanVien : null,
-                                nameNhanVien: data.idNhanVien ? data.employee.StaffName : null,
-                                SalaryIncrease: data.salaryIncrease ? data.salaryIncrease : '',
+                                decisionCode: element.DecisionCode ? element.DecisionCode : '',
+                                decisionDate: element.DecisionDate ? element.DecisionDate : null,
+                                increaseDate: element.IncreaseDate ? element.IncreaseDate : null,
+                                stopDate: element.StopDate ? element.StopDate : null,
+                                stopReason: element.StopReason ? element.StopReason : '',
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                nameNhanVien: element.IDNhanVien ? element.employee.StaffName : null,
+                                salaryIncrease: element.SalaryIncrease ? element.SalaryIncrease : '',
+                                status: element.Status ? element.Status : '',
                             }
                             array.push(obj);
                             stt += 1;
@@ -75,6 +76,7 @@ module.exports = {
     // add_tbl_quyetdinh_tangluong
     addtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -86,6 +88,7 @@ module.exports = {
                         StopReason: body.stopReason ? body.stopReason : '',
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         SalaryIncrease: body.salaryIncrease ? body.salaryIncrease : '',
+                        Status: body.status ? body.status : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -139,6 +142,8 @@ module.exports = {
                         update.push({ key: 'StopReason', value: body.stopReason });
                     if (body.salaryIncrease || body.salaryIncrease === '')
                         update.push({ key: 'SalaryIncrease', value: body.salaryIncrease });
+                    if (body.status || body.status === '')
+                        update.push({ key: 'Status', value: body.status });
                     database.updateTable(update, mtblQuyetDinhTangLuong(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);

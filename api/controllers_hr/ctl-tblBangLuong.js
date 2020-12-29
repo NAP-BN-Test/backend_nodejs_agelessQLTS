@@ -133,12 +133,12 @@ module.exports = {
                     var whereOjb = [];
                     let stt = 1;
                     let tblBangLuong = mtblBangLuong(db);
-                    let tblDMNhanvien = mtblDMNhanvien(db)
-                    tblBangLuong.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    // let tblDMNhanvien = mtblDMNhanvien(db)
+                    tblBangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                     tblBangLuong.findAll({
                         include: [
                             {
-                                model: mtblDMNhanvien,
+                                model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'nv'
                             },
@@ -148,7 +148,7 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { Date: { [Op.like]: body.month } },
+                        where: { Date: { [Op.substring]: body.date } },
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -167,21 +167,23 @@ module.exports = {
                                 nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : '',
                                 bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
-                                reduce: reduce,
+                                reduce: Number(reduce),
                             }
                             array.push(obj);
                             stt += 1;
                         }
-                        var count = await mtblBangLuong(db).count({ where: whereOjb, })
+                        var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var objInsurance = {};
                         await mtblMucDongBaoHiem(db).findOne({
                             order: [
                                 ['ID', 'DESC']
                             ],
                         }).then(data => {
-                            objInsurance['staffBHXH'] = data.StaffBHXH
-                            objInsurance['staffBHYT'] = data.StaffBHYT
-                            objInsurance['staffBHTN'] = data.StaffBHTN
+                            if (data) {
+                                objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : ''
+                                objInsurance['staffBHYT'] = data.StaffBHYT
+                                objInsurance['staffBHTN'] = data.StaffBHTN
+                            }
                         })
                         var result = {
                             objInsurance: objInsurance,

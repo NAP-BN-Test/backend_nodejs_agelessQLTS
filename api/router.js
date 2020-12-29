@@ -292,7 +292,7 @@ module.exports = function (app) {
 
     //---------------------------------------------------------------- Mẫu bảng lương --------------------------------------------------------------------------------------
     var tblBangLuong = require('./controllers_hr/ctl-tblBangLuong');
-    app.route('/qlnb/get_list_tbl_bangluong').post(checkToken.checkToken, tblBangLuong.getListtblBangLuong);
+    app.route('/qlnb/get_list_tbl_bangluong').post(tblBangLuong.getListtblBangLuong);
 
     //---------------------------------------------------------------- Mức đóng bảo hiểm --------------------------------------------------------------------------------------
     var tblMucDongBaoHiem = require('./controllers_hr/ctl-tblMucDongBaoHiem');

@@ -102,6 +102,12 @@ module.exports = {
                         else
                             update.push({ key: 'Date', value: body.signDate });
                     }
+                    if (body.idLoaiHopDong || body.idLoaiHopDong === '') {
+                        if (body.idLoaiHopDong === '')
+                            update.push({ key: 'IDLoaiHopDong', value: null });
+                        else
+                            update.push({ key: 'IDLoaiHopDong', value: body.idLoaiHopDong });
+                    }
                     if (body.salaryNumber || body.salaryNumber === '') {
                         if (body.salaryNumber === '')
                             update.push({ key: 'SalaryNumber', value: null });
