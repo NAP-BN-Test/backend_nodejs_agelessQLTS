@@ -58,7 +58,6 @@ module.exports = {
     // add_tbl_hopdong_nhansu
     addtblHopDongNhanSu: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -327,7 +326,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 contractCode: element.ContractCode ? element.ContractCode : '',
                                 signDate: element.Date ? element.Date : null,
-                                idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
+                                idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : null,
                                 loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
                                 salaryNumber: element.SalaryNumber ? element.SalaryNumber : '',
                                 salaryText: element.SalaryText ? element.SalaryText : '',

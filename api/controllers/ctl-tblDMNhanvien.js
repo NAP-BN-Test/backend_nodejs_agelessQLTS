@@ -28,6 +28,7 @@ var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblBangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDaoTaoTruoc(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDaoTaoSau(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblHopDongNhanSu(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
@@ -339,12 +340,12 @@ module.exports = {
                     if (body.idContract) {
                         await mtblHopDongNhanSu(db).update({
                             ContractCode: body.contractCode ? body.contractCode : '',
-                            Date: body.signDate ? body.signDate : '',
-                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
+                            Date: body.signDate ? body.signDate : null,
+                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
                             SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
                             SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
-                            ContractDateStart: now,
+                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                            // ContractDateStart: now,
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
                         }, { where: { ID: body.idContract } })
