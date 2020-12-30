@@ -26,12 +26,12 @@ module.exports = {
                             var obj = {
                                 id: data.ID,
                                 contractCode: data.ContractCode ? data.ContractCode : '',
-                                signDate: data.Date ? moment(data.Date).format('DD-MM-YYYY') : null,
+                                signDate: data.Date ? data.Date : null,
                                 idLoaiHopDong: data.IDLoaiHopDong ? data.IDLoaiHopDong : '',
                                 salaryNumber: data.SalaryNumber ? data.SalaryNumber : '',
                                 salaryText: data.SalaryText ? data.SalaryText : '',
-                                contractDateEnd: data.ContractDateEnd ? moment(data.contractDateEnd).format('DD-MM-YYYY') : '',
-                                contractDateStart: data.ContractDateStart ? moment(data.ContractDateStart).format('DD-MM-YYYY') : null,
+                                contractDateEnd: data.ContractDateEnd ? data.contractDateEnd : '',
+                                contractDateStart: data.ContractDateStart ? data.ContractDateStart : null,
                                 unitSalary: 'VND',
                                 status: data.Status ? data.Status : '',
                             }
@@ -66,7 +66,7 @@ module.exports = {
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         ContractCode: body.contractCode ? body.contractCode : '',
                         Date: body.signDate ? body.signDate : null,
-                        IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
+                        IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
                         SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
                         SalaryText: body.salaryNumber ? body.salaryNumber : '',
                         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
@@ -93,6 +93,7 @@ module.exports = {
     // update_tbl_hopdong_nhansu
     updatetblHopDongNhanSu: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -205,7 +206,7 @@ module.exports = {
                     let stt = 1;
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
-                    mtblHopDongNhanSu(db).findAll({
+                    tblHopDongNhanSu.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
@@ -225,16 +226,17 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                contractCode: data.ContractCode ? data.ContractCode : '',
-                                signDate: data.Date ? moment(data.Date).format('DD-MM-YYYY') : null,
+                                contractCode: element.ContractCode ? element.ContractCode : '',
+                                signDate: element.Date ? element.Date : null,
                                 idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
                                 loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
-                                salaryNumber: data.SalaryNumber ? data.SalaryNumber : '',
-                                salaryText: data.SalaryText ? data.SalaryText : '',
-                                contractDateEnd: data.ContractDateEnd ? moment(data.contractDateEnd).format('DD-MM-YYYY') : '',
-                                contractDateStart: data.ContractDateStart ? moment(data.ContractDateStart).format('DD-MM-YYYY') : null,
+                                salaryNumber: element.SalaryNumber ? element.SalaryNumber : '',
+                                salaryText: element.SalaryText ? element.SalaryText : '',
+                                contractDateEnd: element.ContractDateEnd ? element.ContractDateEnd : '',
+                                contractDateStart: element.ContractDateStart ? element.ContractDateStart : null,
                                 unitSalary: 'VND',
-                                status: data.Status ? data.Status : '',
+                                status: element.Status ? element.Status : '',
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                             }
                             array.push(obj);
                             stt += 1;
@@ -324,13 +326,13 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 contractCode: element.ContractCode ? element.ContractCode : '',
-                                signDate: element.Date ? moment(delement.Date).format('DD-MM-YYYY') : null,
+                                signDate: element.Date ? element.Date : null,
                                 idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
                                 loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
                                 salaryNumber: element.SalaryNumber ? element.SalaryNumber : '',
                                 salaryText: element.SalaryText ? element.SalaryText : '',
-                                contractDateEnd: element.ContractDateEnd ? moment(element.ContractDateEnd).format('DD-MM-YYYY') : null,
-                                contractDateStart: element.ContractDateStart ? moment(element.ContractDateStart).format('DD-MM-YYYY') : null,
+                                contractDateEnd: element.ContractDateEnd ? element.ContractDateEnd : null,
+                                contractDateStart: element.ContractDateStart ? element.ContractDateStart : null,
                                 unitSalary: 'VND',
                                 status: element.Status ? element.Status : '',
                             }

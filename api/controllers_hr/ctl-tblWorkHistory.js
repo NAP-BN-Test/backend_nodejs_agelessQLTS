@@ -28,8 +28,8 @@ module.exports = {
                         if (data) {
                             var obj = {
                                 id: data.ID,
-                                dateStart: data.DateStart ? moment(data.DateStart).format('DD-MM-YYYY') : '',
-                                dateEnd: data.DateEnd ? moment(data.DateEnd).format('DD-MM-YYYY') : '',
+                                dateStart: data.DateStart ? data.DateStart : '',
+                                dateEnd: data.DateEnd ? data.DateEnd : '',
                                 status: data.Status ? data.Status : '',
                                 describe: data.Describe ? data.Describe : '',
                             }
@@ -204,8 +204,8 @@ module.exports = {
                                 var obj = {
                                     stt: stt,
                                     id: Number(element.ID),
-                                    dateStart: element.DateStart ? moment(element.DateStart).format('DD-MM-YYYY') : '',
-                                    dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD-MM-YYYY') : '',
+                                    dateStart: element.DateStart ? element.DateStart : '',
+                                    dateEnd: element.DateEnd ? element.DateEnd : '',
                                     status: element.Status ? element.Status : '',
                                     describe: element.Describe ? element.Describe : '',
                                 }
@@ -232,8 +232,8 @@ module.exports = {
                                 var obj = {
                                     stt: stt,
                                     id: Number(element.ID),
-                                    dateStart: element.DateStart ? moment(element.DateStart).format('DD-MM-YYYY') : '',
-                                    dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD-MM-YYYY') : '',
+                                    dateStart: element.DateStart ? element.DateStart : '',
+                                    dateEnd: element.DateEnd ? element.DateEnd : '',
                                     status: element.Status ? element.Status : '',
                                     describe: element.Describe ? element.Describe : '',
                                 }

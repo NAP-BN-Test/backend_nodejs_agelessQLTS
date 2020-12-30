@@ -117,12 +117,12 @@ module.exports = {
                             taxCode: data.TaxCode ? data.TaxCode : '',
                             bankNumber: data.BankNumber ? data.BankNumber : '',
                             bankName: data.BankName ? data.BankName : '',
-                            birthday: data.Birthday ? moment(data.Birthday).format('DD-MM-YYYY') : '',
+                            birthday: data.Birthday ? data.Birthday : '',
                             degree: data.Degree ? data.Degree : '',
                             permanentResidence: data.PermanentResidence ? data.PermanentResidence : '',
-                            probationaryDate: data.ProbationaryDate ? moment(data.ProbationaryDate).format('DD-MM-YYYY') : '',
+                            probationaryDate: data.ProbationaryDate ? data.ProbationaryDate : '',
                             probationarySalary: data.ProbationarySalary ? data.ProbationarySalary : null,
-                            workingDate: data.WorkingDate ? moment(data.WorkingDate).format('DD-MM-YYYY') : null,
+                            workingDate: data.WorkingDate ? data.WorkingDate : null,
                             workingSalary: data.WorkingSalary ? data.WorkingSalary : null,
                             bhxhSalary: data.BHXHSalary ? data.BHXHSalary : null,
                             contactUrgent: data.ContactUrgent ? data.ContactUrgent : '',
@@ -147,15 +147,16 @@ module.exports = {
                                 },
                             ],
                         }).then(hd => {
+                            obj['contractCode'] = hd ? hd.ContractCode : '';
                             obj['idContract'] = hd ? hd.ID : '';
                             obj['idLoaiHopDong'] = hd ? hd.IDLoaiHopDong : '';
-                            obj['signDate'] = hd ? moment(hd.Date).format('DD-MM-YYYY') : '';
+                            obj['signDate'] = hd ? hd.Date : '';
                             obj['salaryNumber'] = hd ? hd.SalaryNumber : '';
                             obj['salaryText'] = hd ? hd.SalaryText : '';
-                            obj['contractDateEnd'] = hd ? moment(hd.ContractDateEnd).format('DD-MM-YYYY') : '';
+                            obj['contractDateEnd'] = hd ? hd.ContractDateEnd : '';
                             obj['status'] = hd ? hd.Status : '';
-                            obj['nameTypeContract'] = hd ? hd.loaiHD.TenLoaiHD : '';
-                            obj['codeTypeContract'] = hd ? hd.loaiHD.MaLoaiHD : '';
+                            obj['nameTypeContract'] = hd ? hd.loaiHD ? hd.loaiHD.TenLoaiHD : '' : '';
+                            obj['codeTypeContract'] = hd ? hd.loaiHD ? hd.loaiHD.MaLoaiHD : '' : '';
                         })
                         var result = {
                             obj: obj,
@@ -204,7 +205,7 @@ module.exports = {
                         WorkingSalary: body.workingSalary ? body.workingSalary : null,
                         BHXHSalary: body.bhxhSalary ? body.bhxhSalary : null,
                         ContactUrgent: body.contactUrgent ? body.contactUrgent : '',
-                        IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
+                        // IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                         Email: body.email ? body.email : '',
                     }).then(async data => {
                         await mtblHopDongNhanSu(db).create({

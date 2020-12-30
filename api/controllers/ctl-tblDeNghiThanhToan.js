@@ -155,6 +155,7 @@ module.exports = {
     // get_list_tbl_denghi_thanhtoan
     getListtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -239,7 +240,13 @@ module.exports = {
                                 // [Op.or]: where,
                                 [Op.and]: [{ [Op.or]: userObj }, { [Op.or]: whereO }],
                             }
+                        else
+                            whereObj = {
+                                // [Op.or]: where,
+                                [Op.and]: [{ [Op.or]: whereO }],
+                            }
                     }
+                    console.log(whereObj);
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
