@@ -262,10 +262,10 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                dateStart: element.DateStart ? element.DateStart : '',
+                                dateStart: element.DateStart ? moment(element.DateStart).format('DD-MM-YYYY') : '',
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : '',
                                 nameNhanVien: element.employee ? element.employee.StaffName : '',
-                                dateEnd: element.DateEnd ? element.DateEnd : '',
+                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD-MM-YYYY') : '',
                                 trainingCourse: element.TrainingCourse ? element.TrainingCourse : '',
                                 companyCost: element.CompanyCost ? element.CompanyCost : '',
                                 result: element.Result ? element.Result : '',

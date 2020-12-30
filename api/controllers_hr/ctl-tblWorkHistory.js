@@ -232,8 +232,8 @@ module.exports = {
                                 var obj = {
                                     stt: stt,
                                     id: Number(element.ID),
-                                    dateStart: element.DateStart ? element.DateStart : '',
-                                    dateEnd: element.DateEnd ? element.DateEnd : '',
+                                    dateStart: element.DateStart ? moment(element.DateStart).format('DD-MM-YYYY') : '',
+                                    dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD-MM-YYYY') : '',
                                     status: element.Status ? element.Status : '',
                                     describe: element.Describe ? element.Describe : '',
                                 }
