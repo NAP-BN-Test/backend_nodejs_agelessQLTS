@@ -19,7 +19,12 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblWorkHistory(db).findOne({ where: { ID: body.id } }).then(data => {
+                    mtblWorkHistory(db).findOne({
+                        where: { ID: body.id },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(data => {
                         if (data) {
                             var obj = {
                                 id: data.ID,
@@ -190,6 +195,9 @@ module.exports = {
                             offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                             limit: Number(body.itemPerPage),
                             where: { IDNhanVien: body.id },
+                            order: [
+                                ['ID', 'DESC']
+                            ],
                         }).then(async data => {
                             var array = [];
                             data.forEach(element => {

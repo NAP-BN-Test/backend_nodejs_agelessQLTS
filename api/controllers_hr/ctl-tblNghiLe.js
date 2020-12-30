@@ -33,6 +33,9 @@ module.exports = {
                                     as: 'loaiChamCong'
                                 },
                             ],
+                            order: [
+                                ['ID', 'DESC']
+                            ],
                         }
                     ).then(data => {
                         if (data) {
@@ -222,7 +225,7 @@ module.exports = {
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
-                                id: data.ID,
+                                id: element.ID,
                                 nameHoliday: element.NameHoliday ? element.NameHoliday : '',
                                 nameLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Name : '',
                                 codeLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Code : '',

@@ -204,6 +204,89 @@ module.exports = {
             }
         })
     },
+    // track_insurance_premiums
+    trackInsurancePremiums: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var whereOjb = [];
+                    let stt = 1;
+                    let tblBangLuong = mtblBangLuong(db);
+                    // let tblDMNhanvien = mtblDMNhanvien(db)
+                    tblBangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    tblBangLuong.findAll({
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { Date: { [Op.substring]: body.date } },
+                    }).then(async data => {
+                        var array = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var reduce = 0;
+                            await mtblDMGiaDinh(db).findAll({
+                                where: { IDNhanVien: data[i].IDNhanVien }
+                            }).then(family => {
+                                family.forEach(element => {
+                                    reduce += element.Reduce;
+                                });
+                            })
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                                nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
+                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : '',
+                                bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
+                                reduce: Number(reduce),
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
+                        var objInsurance = {};
+                        await mtblMucDongBaoHiem(db).findOne({
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                        }).then(data => {
+                            if (data) {
+                                objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : 0
+                                objInsurance['staffBHYT'] = data.StaffBHYT ? data.StaffBHYT : 0
+                                objInsurance['staffBHTN'] = data.StaffBHTN ? data.StaffBHTN : 0
+                                objInsurance['companyBHXH'] = data.CompanyBHXH ? data.CompanyBHXH : 0
+                                objInsurance['companyBHYT'] = data.CompanyBHYT ? data.CompanyBHYT : 0
+                                objInsurance['companyBHTN'] = data.CompanyBHTN ? data.CompanyBHTN : 0
+                            }
+                        })
+                        var result = {
+                            objInsurance: objInsurance,
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // // get_list_name_tbl_bangluong
     // getListNametblBangLuong: (req, res) => {
     //     let body = req.body;

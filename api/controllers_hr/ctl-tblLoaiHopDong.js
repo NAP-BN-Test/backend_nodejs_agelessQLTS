@@ -19,16 +19,20 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    tblLoaiHopDong(db).create({
-                        MaLoaiHD: body.maLoaiHD ? body.maLoaiHD : '',
-                        TenLoaiHD: body.tenLoaiHD ? body.tenLoaiHD : '',
-                    }).then(data => {
-                        var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
+                    let check = await tblLoaiHopDong(db).findOne({
+                        where: { MaLoaiHD: body.maLoaiHD }
                     })
+                    if (check)
+                        tblLoaiHopDong(db).create({
+                            MaLoaiHD: body.maLoaiHD ? body.maLoaiHD : '',
+                            TenLoaiHD: body.tenLoaiHD ? body.tenLoaiHD : '',
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -133,6 +137,9 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {

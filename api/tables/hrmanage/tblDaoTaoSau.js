@@ -10,7 +10,7 @@ module.exports = function (db) {
         IDNhanVien: Sequelize.BIGINT,
         DateStart: Sequelize.DATE,
         DateEnd: Sequelize.DATE,
-        TrainningCourse: Sequelize.STRING,
+        TrainingCourse: Sequelize.STRING,
         CompanyCost: Sequelize.FLOAT,
         Result: Sequelize.STRING,
         StaffCost: Sequelize.FLOAT,

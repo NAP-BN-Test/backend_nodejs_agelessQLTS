@@ -216,6 +216,9 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {

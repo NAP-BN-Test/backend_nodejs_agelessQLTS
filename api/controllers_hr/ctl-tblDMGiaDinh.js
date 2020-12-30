@@ -32,6 +32,9 @@ module.exports = {
                                 as: 'employee'
                             },
                         ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(data => {
                         if (data) {
                             var obj = {
@@ -224,6 +227,9 @@ module.exports = {
                                 required: false,
                                 as: 'employee'
                             },
+                        ],
+                        order: [
+                            ['ID', 'DESC']
                         ],
                     }).then(async data => {
                         var array = [];

@@ -57,18 +57,22 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblLoaiChamCong(db).create({
-                        Code: body.code ? body.code : '',
-                        Name: body.name ? body.name : '',
-                        Description: body.description ? body.description : '',
-                        Type: body.type ? body.type : '',
-                    }).then(data => {
-                        var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
+                    let check = await mtblLoaiChamCong(db).findOne({
+                        where: { Code: body.code }
                     })
+                    if (check)
+                        mtblLoaiChamCong(db).create({
+                            Code: body.code ? body.code : '',
+                            Name: body.name ? body.name : '',
+                            Description: body.description ? body.description : '',
+                            Type: body.type ? body.type : '',
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

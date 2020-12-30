@@ -4,6 +4,8 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var database = require('../database');
+var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
+
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblHopDongNhanSu(db).destroy({
         where: {
@@ -56,6 +58,7 @@ module.exports = {
     // add_tbl_hopdong_nhansu
     addtblHopDongNhanSu: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -200,10 +203,22 @@ module.exports = {
                         // }
                     }
                     let stt = 1;
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+                    tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
                     mtblHopDongNhanSu(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
+                        include: [
+                            {
+                                model: mtblLoaiHopDong(db),
+                                required: false,
+                                as: 'lhd'
+                            },
+                        ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
@@ -212,8 +227,8 @@ module.exports = {
                                 id: Number(element.ID),
                                 contractCode: data.ContractCode ? data.ContractCode : '',
                                 signDate: data.Date ? data.Date : null,
-                                idLoaiHopDong: data.IDLoaiHopDong ? data.IDLoaiHopDong : '',
-                                nameLoaiHopDong: '',
+                                idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
+                                loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
                                 salaryNumber: data.SalaryNumber ? data.SalaryNumber : '',
                                 salaryText: data.SalaryText ? data.SalaryText : '',
                                 contractDateEnd: data.ContractDateEnd ? data.contractDateEnd : '',
@@ -285,10 +300,23 @@ module.exports = {
                         // }
                     }
                     let stt = 1;
-                    mtblHopDongNhanSu(db).findAll({
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+                    tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
+
+                    tblHopDongNhanSu.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: { IDNhanVien: body.idNhanVien },
+                        include: [
+                            {
+                                model: mtblLoaiHopDong(db),
+                                required: false,
+                                as: 'lhd'
+                            },
+                        ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
@@ -298,7 +326,7 @@ module.exports = {
                                 contractCode: element.ContractCode ? element.ContractCode : '',
                                 signDate: element.Date ? element.Date : null,
                                 idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
-                                loaiHopDong: '', // đang lm
+                                loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
                                 salaryNumber: element.SalaryNumber ? element.SalaryNumber : '',
                                 salaryText: element.SalaryText ? element.SalaryText : '',
                                 contractDateEnd: element.ContractDateEnd ? element.ContractDateEnd : null,

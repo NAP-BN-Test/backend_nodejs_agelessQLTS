@@ -34,7 +34,10 @@ module.exports = {
                                 required: false,
                                 as: 'employee'
                             },
-                        ]
+                        ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
@@ -108,6 +111,7 @@ module.exports = {
     // update_tbl_quyetdinh_tangluong
     updatetblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -236,21 +240,25 @@ module.exports = {
                                 required: false,
                                 as: 'employee'
                             },
-                        ]
+                        ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                DecisionCode: data.decisionCode ? data.decisionCode : '',
-                                DecisionDate: data.decisionDate ? data.decisionDate : null,
-                                IncreaseDate: data.increaseDate ? data.increaseDate : null,
-                                StopDate: data.stopDate ? data.stopDate : null,
-                                StopReason: data.stopReason ? data.stopReason : '',
-                                IDNhanVien: data.idNhanVien ? data.idNhanVien : null,
-                                nameNhanVien: data.idNhanVien ? data.employee.StaffName : null,
-                                SalaryIncrease: data.salaryIncrease ? data.salaryIncrease : '',
+                                decisionCode: element.DecisionCode ? element.DecisionCode : '',
+                                decisionDate: element.DecisionDate ? element.DecisionDate : null,
+                                increaseDate: element.IncreaseDate ? element.IncreaseDate : null,
+                                stopDate: element.StopDate ? element.StopDate : null,
+                                stopReason: element.StopReason ? element.StopReason : '',
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                nameNhanVien: element.IDNhanVien ? element.employee.StaffName : null,
+                                salaryIncrease: element.SalaryIncrease ? element.salaryIncrease : '',
+                                status: element.Status ? element.Status : '',
                             }
                             array.push(obj);
                             stt += 1;

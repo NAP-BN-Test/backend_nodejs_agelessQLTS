@@ -17,9 +17,21 @@ var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
+var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoTruoc')
+var mtblDaoTaoSau = require('../tables/hrmanage/tblDaoTaoSau')
+var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
+
+var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
+var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
+var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
+    await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblDaoTaoTruoc(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblDaoTaoSau(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblHopDongNhanSu(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblHopDongNhanSu(db).destroy({ where: { IDNhanVienSDLD: { [Op.in]: listID } } })
     await mtblDMBoPhan(db).update({
         IDNhanVienBanGiao: null,
     }, { where: { IDNhanVienBanGiao: { [Op.in]: listID } } })
@@ -107,7 +119,7 @@ module.exports = {
                             bankName: data.BankName ? data.BankName : '',
                             birthday: data.Birthday ? moment(data.Birthday).format('YYYY-MM-DD') : '',
                             degree: data.Degree ? data.Degree : '',
-                            permanentResidence: data.DermanentResidence ? data.DermanentResidence : '',
+                            permanentResidence: data.PermanentResidence ? data.PermanentResidence : '',
                             probationaryDate: data.ProbationaryDate ? moment(data.ProbationaryDate).format('YYYY-MM-DD') : '',
                             probationarySalary: data.ProbationarySalary ? data.ProbationarySalary : null,
                             workingDate: data.WorkingDate ? moment(data.WorkingDate).format('YYYY-MM-DD') : null,
@@ -136,7 +148,7 @@ module.exports = {
                             ],
                         }).then(hd => {
                             obj['idContract'] = hd ? hd.ID : '';
-                            obj['contractCode'] = hd ? hd.ContractCode : '';
+                            obj['idLoaiHopDong'] = hd ? hd.IDLoaiHopDong : '';
                             obj['signDate'] = hd ? moment(hd.Date).format('YYYY-MM-DD') : '';
                             obj['salaryNumber'] = hd ? hd.SalaryNumber : '';
                             obj['salaryText'] = hd ? hd.SalaryText : '';
@@ -165,6 +177,7 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
+        console.log(body);
         let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -184,7 +197,7 @@ module.exports = {
                         BankName: body.bankName ? body.bankName : '',
                         Birthday: body.birthday ? body.birthday : '',
                         Degree: body.degree ? body.degree : '',
-                        DermanentResidence: body.permanentResidence ? body.permanentResidence : '',
+                        PermanentResidence: body.permanentResidence ? body.permanentResidence : '',
                         ProbationaryDate: body.probationaryDate ? body.probationaryDate : null,
                         probationarySalary: body.probationarySalary ? body.probationarySalary : null,
                         // WorkingDate: body.workingDate ? body.workingDate : null,
@@ -198,7 +211,7 @@ module.exports = {
                             IDNhanVien: data.ID,
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
-                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : '',
+                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
                             SalaryNumber: body.salaryNumber ? body.salaryNumber : 0,
                             SalaryText: body.salaryNumber ? body.salaryNumber : '',
                             ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
@@ -280,8 +293,8 @@ module.exports = {
                     }
                     if (body.degree || body.degree === '')
                         update.push({ key: 'Degree', value: body.degree });
-                    if (body.dermanentResidence || body.dermanentResidence === '')
-                        update.push({ key: 'DermanentResidence', value: body.dermanentResidence });
+                    if (body.permanentResidence || body.permanentResidence === '')
+                        update.push({ key: 'PermanentResidence', value: body.permanentResidence });
                     if (body.probationaryDate || body.probationaryDate === '') {
                         if (body.probationaryDate === '')
                             update.push({ key: 'ProbationaryDate', value: null });
@@ -568,7 +581,7 @@ module.exports = {
                                 bankName: element.BankName ? element.BankName : '',
                                 birthday: element.Birthday ? moment(element.Birthday).format('YYYY-MM-DD') : '',
                                 degree: element.Degree ? element.Degree : '',
-                                permanentResidence: element.DermanentResidence ? element.DermanentResidence : '',
+                                permanentResidence: element.PermanentResidence ? element.PermanentResidence : '',
                                 probationaryDate: element.ProbationaryDate ? moment(element.ProbationaryDate).format('YYYY-MM-DD') : '',
                                 probationarySalary: element.ProbationarySalary ? element.ProbationarySalary : null,
                                 workingDate: element.WorkingDate ? moment(element.WorkingDate).format('YYYY-MM-DD') : null,
@@ -703,6 +716,22 @@ module.exports = {
             }
         })
     },
+    // get_list_history_vpp_staff
+    // getListHistoryVPPStaff: (req, res) => {
+    //     let body = req.body;
+    //     database.connectDatabase().then(async db => {
+    //         if (db) {
+    //             try {
+
+    //             } catch (error) {
+    //                 console.log(error);
+    //                 res.json(Result.SYS_ERROR_RESULT)
+    //             }
+    //         } else {
+    //             res.json(Constant.MESSAGE.USER_FAIL)
+    //         }
+    //     })
+    // },
     //get_employee_from_department
     getEmployeeFromDepartment: (req, res) => {
         let body = req.body;

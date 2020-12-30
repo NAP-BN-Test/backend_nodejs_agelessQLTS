@@ -32,6 +32,9 @@ module.exports = {
                                 as: 'employee'
                             },
                         ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(data => {
                         if (data) {
                             var obj = {
@@ -69,6 +72,7 @@ module.exports = {
     // add_tbl_training_after
     addtblDaoTaoSaus: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -76,7 +80,7 @@ module.exports = {
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         DateStart: body.dateStart ? body.dateStart : null,
                         DateEnd: body.dateEnd ? body.dateEnd : null,
-                        TrainningCourse: body.trainingCourse ? body.trainingCourse : '',
+                        TrainingCourse: body.trainingCourse ? body.trainingCourse : '',
                         CompanyCost: body.companyCost ? body.companyCost : null,
                         Result: body.result ? body.result : '',
                         StaffCost: body.staffCost ? body.staffCost : null,
@@ -104,6 +108,7 @@ module.exports = {
     // update_tbl_training_after
     updatetblDaoTaoSaus: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -146,7 +151,7 @@ module.exports = {
                         update.push({ key: 'FormTraining', value: body.formTraining });
 
                     if (body.trainingCourse || body.trainingCourse === '')
-                        update.push({ key: 'TrainningCourse', value: body.trainingCourse });
+                        update.push({ key: 'TrainingCourse', value: body.trainingCourse });
                     if (body.companyCost || body.companyCost === '')
                         update.push({ key: 'CompanyCost', value: body.companyCost });
                     if (body.staffCost || body.staffCost === '')
@@ -248,6 +253,9 @@ module.exports = {
                                 as: 'employee'
                             },
                         ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
@@ -258,12 +266,13 @@ module.exports = {
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : '',
                                 nameNhanVien: element.employee ? element.employee.StaffName : '',
                                 dateEnd: element.DateEnd ? element.DateEnd : '',
-                                trainningCourse: element.TrainningCourse ? element.TrainningCourse : '',
+                                trainingCourse: element.TrainingCourse ? element.TrainingCourse : '',
                                 companyCost: element.CompanyCost ? element.CompanyCost : '',
                                 result: element.Result ? element.Result : '',
                                 staffCost: element.StaffCost ? element.StaffCost : '',
                                 majors: element.Majors ? element.Majors : '',
                                 formTraining: element.FormTraining ? element.FormTraining : '',
+                                numberCertificates: element.NumberCertificates ? element.NumberCertificates : '',
                             }
                             array.push(obj);
                             stt += 1;

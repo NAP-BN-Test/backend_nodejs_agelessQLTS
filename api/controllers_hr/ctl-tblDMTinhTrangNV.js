@@ -19,7 +19,12 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMTinhTrangNV(db).findOne({ where: { ID: body.id } }).then(data => {
+                    mtblDMTinhTrangNV(db).findOne({
+                        where: { ID: body.id },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(data => {
                         if (data) {
                             var obj = {
                                 id: data.ID,
@@ -53,17 +58,21 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMTinhTrangNV(db).create({
-                        StatusName: body.statusName ? body.statusName : '',
-                        StatusCode: body.statusCode ? body.statusCode : '',
-                        Describe: body.describe ? body.describe : '',
-                    }).then(data => {
-                        var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
+                    let check = await mtblDMTinhTrangNV(db).findOne({
+                        where: { StatusCode: body.statusCode }
                     })
+                    if (check)
+                        mtblDMTinhTrangNV(db).create({
+                            StatusName: body.statusName ? body.statusName : '',
+                            StatusCode: body.statusCode ? body.statusCode : '',
+                            Describe: body.describe ? body.describe : '',
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -170,6 +179,9 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
