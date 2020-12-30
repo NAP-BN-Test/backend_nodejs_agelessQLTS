@@ -28,8 +28,8 @@ module.exports = {
                         if (data) {
                             var obj = {
                                 id: data.ID,
-                                dateStart: data.DateStart ? data.DateStart : '',
-                                dateEnd: data.DateEnd ? data.DateEnd : '',
+                                dateStart: data.DateStart ? moment(data.DateStart).format('DD-MM-YYYY') : '',
+                                dateEnd: data.DateEnd ? moment(data.DateEnd).format('DD-MM-YYYY') : '',
                                 status: data.Status ? data.Status : '',
                                 describe: data.Describe ? data.Describe : '',
                             }
@@ -204,8 +204,8 @@ module.exports = {
                                 var obj = {
                                     stt: stt,
                                     id: Number(element.ID),
-                                    dateStart: element.DateStart ? element.DateStart : '',
-                                    dateEnd: element.DateEnd ? element.DateEnd : '',
+                                    dateStart: element.DateStart ? moment(element.DateStart).format('DD-MM-YYYY') : '',
+                                    dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD-MM-YYYY') : '',
                                     status: element.Status ? element.Status : '',
                                     describe: element.Describe ? element.Describe : '',
                                 }

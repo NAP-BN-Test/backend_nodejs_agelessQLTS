@@ -39,10 +39,10 @@ module.exports = {
                         if (data) {
                             var obj = {
                                 id: data.ID,
-                                dateStart: data.DateStart ? data.DateStart : '',
+                                dateStart: data.DateStart ? moment(data.DateStart).format('DD-MM-YYYY') : '',
                                 idNhanVien: data.IDNhanVien ? data.IDNhanVien : '',
                                 nameNhanVien: data.employee ? data.employee.StaffName : '',
-                                dateEnd: data.DateEnd ? data.DateEnd : '',
+                                dateEnd: data.DateEnd ? moment(data.DateEnd).format('DD-MM-YYYY') : '',
                                 trainningCourse: data.TrainningCourse ? data.TrainningCourse : '',
                                 companyCost: data.CompanyCost ? data.CompanyCost : '',
                                 result: data.Result ? data.Result : '',

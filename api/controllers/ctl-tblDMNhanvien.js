@@ -117,12 +117,12 @@ module.exports = {
                             taxCode: data.TaxCode ? data.TaxCode : '',
                             bankNumber: data.BankNumber ? data.BankNumber : '',
                             bankName: data.BankName ? data.BankName : '',
-                            birthday: data.Birthday ? moment(data.Birthday).format('YYYY-MM-DD') : '',
+                            birthday: data.Birthday ? moment(data.Birthday).format('DD-MM-YYYY') : '',
                             degree: data.Degree ? data.Degree : '',
                             permanentResidence: data.PermanentResidence ? data.PermanentResidence : '',
-                            probationaryDate: data.ProbationaryDate ? moment(data.ProbationaryDate).format('YYYY-MM-DD') : '',
+                            probationaryDate: data.ProbationaryDate ? moment(data.ProbationaryDate).format('DD-MM-YYYY') : '',
                             probationarySalary: data.ProbationarySalary ? data.ProbationarySalary : null,
-                            workingDate: data.WorkingDate ? moment(data.WorkingDate).format('YYYY-MM-DD') : null,
+                            workingDate: data.WorkingDate ? moment(data.WorkingDate).format('DD-MM-YYYY') : null,
                             workingSalary: data.WorkingSalary ? data.WorkingSalary : null,
                             bhxhSalary: data.BHXHSalary ? data.BHXHSalary : null,
                             contactUrgent: data.ContactUrgent ? data.ContactUrgent : '',
@@ -149,10 +149,10 @@ module.exports = {
                         }).then(hd => {
                             obj['idContract'] = hd ? hd.ID : '';
                             obj['idLoaiHopDong'] = hd ? hd.IDLoaiHopDong : '';
-                            obj['signDate'] = hd ? moment(hd.Date).format('YYYY-MM-DD') : '';
+                            obj['signDate'] = hd ? moment(hd.Date).format('DD-MM-YYYY') : '';
                             obj['salaryNumber'] = hd ? hd.SalaryNumber : '';
                             obj['salaryText'] = hd ? hd.SalaryText : '';
-                            obj['contractDateEnd'] = hd ? moment(hd.ContractDateEnd).format('YYYY-MM-DD') : '';
+                            obj['contractDateEnd'] = hd ? moment(hd.ContractDateEnd).format('DD-MM-YYYY') : '';
                             obj['status'] = hd ? hd.Status : '';
                             obj['nameTypeContract'] = hd ? hd.loaiHD.TenLoaiHD : '';
                             obj['codeTypeContract'] = hd ? hd.loaiHD.MaLoaiHD : '';
@@ -178,7 +178,7 @@ module.exports = {
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
         console.log(body);
-        let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+        let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -244,7 +244,7 @@ module.exports = {
     updatetblDMNhanvien: (req, res) => {
         let body = req.body;
         console.log(body);
-        let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+        let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -579,12 +579,12 @@ module.exports = {
                                 taxCode: element.TaxCode ? element.TaxCode : '',
                                 bankNumber: element.BankNumber ? element.BankNumber : '',
                                 bankName: element.BankName ? element.BankName : '',
-                                birthday: element.Birthday ? moment(element.Birthday).format('YYYY-MM-DD') : '',
+                                birthday: element.Birthday ? moment(element.Birthday).format('DD-MM-YYYY') : '',
                                 degree: element.Degree ? element.Degree : '',
                                 permanentResidence: element.PermanentResidence ? element.PermanentResidence : '',
-                                probationaryDate: element.ProbationaryDate ? moment(element.ProbationaryDate).format('YYYY-MM-DD') : '',
+                                probationaryDate: element.ProbationaryDate ? moment(element.ProbationaryDate).format('DD-MM-YYYY') : '',
                                 probationarySalary: element.ProbationarySalary ? element.ProbationarySalary : null,
-                                workingDate: element.WorkingDate ? moment(element.WorkingDate).format('YYYY-MM-DD') : null,
+                                workingDate: element.WorkingDate ? moment(element.WorkingDate).format('DD-MM-YYYY') : null,
                                 workingSalary: element.WorkingSalary ? element.WorkingSalary : null,
                                 bhxhSalary: element.BHXHSalary ? element.BHXHSalary : null,
                                 contactUrgent: element.ContactUrgent ? element.ContactUrgent : '',
@@ -694,8 +694,8 @@ module.exports = {
                                                 id: id,
                                                 codeDevice: tsht[j].taisan ? tsht[j].taisan.TSNBCode : '',
                                                 nameDevice: tsht[j].taisan ? tsht[j].taisan.hanghoa ? tsht[j].taisan.hanghoa.Name : '' : '',
-                                                dateFrom: moment(date).format('YYYY-MM-DD'),
-                                                dateTo: moment(tsht[j].DateThuHoi).format('YYYY-MM-DD'),
+                                                dateFrom: moment(date).format('DD-MM-YYYY'),
+                                                dateTo: moment(tsht[j].DateThuHoi).format('DD-MM-YYYY'),
                                             })
                                             stt += 1;
                                         }
