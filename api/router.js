@@ -225,7 +225,7 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.addtblNghiLe);
     app.route('/qlnb/update_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.updatetblNghiLe);
     app.route('/qlnb/delete_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.deletetblNghiLe);
-    app.route('/qlnb/get_list_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.getListtblNghiLe);
+    app.route('/qlnb/get_list_tbl_nghiLe').post(tblNghiLe.getListtblNghiLe);
     app.route('/qlnb/get_list_name_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.getListNametblNghiLe);
 
     //  Danh mục tình trạng nhân viên
@@ -317,4 +317,10 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListtblLoaiHopDong);
     app.route('/qlnb/get_list_name_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListNametblLoaiHopDong);
 
+    // // Quản lý nghỉ lễ / tết
+    // var tblQuanLyNghiLe = require('./controllers_hr/ctl-tblNghiLe');
+    // app.route('/qlnb/add_tbl_nghile').post(checkToken.checkToken, tblQuanLyNghiLe.addtblNghiLe);
+    // app.route('/qlnb/update_tbl_nghile').post(checkToken.checkToken, tblQuanLyNghiLe.updatetblNghiLe);
+    // app.route('/qlnb/delete_tbl_nghile').post(checkToken.checkToken, tblQuanLyNghiLe.deletetblNghiLe);
+    // app.route('/qlnb/get_list_tbl_nghile').post(checkToken.checkToken, tblQuanLyNghiLe.getListtblNghiLe);
 }

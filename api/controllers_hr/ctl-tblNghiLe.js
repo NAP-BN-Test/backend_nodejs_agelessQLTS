@@ -14,7 +14,7 @@ async function deleteRelationshiptblNghiLe(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblNghiLe,
-    //  get_detail_tbl_nghiLe
+    //  get_detail_tbl_nghile
     detailtblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -66,7 +66,7 @@ module.exports = {
             }
         })
     },
-    // add_tbl_nghiLe
+    // add_tbl_nghile
     addtblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -77,7 +77,7 @@ module.exports = {
                         DateStartHoliday: body.dateStartHoliday ? body.dateStartHoliday : null,
                         DateEndHoliday: body.dateEndHoliday ? body.dateEndHoliday : null,
                         NameHoliday: body.nameHoliday ? body.nameHoliday : '',
-                        Describe: body.describe ? body.describe : '',
+                        // Describe: body.describe ? body.describe : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -94,7 +94,7 @@ module.exports = {
             }
         })
     },
-    // update_tbl_nghiLe
+    // update_tbl_nghile
     updatetblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -140,7 +140,7 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_nghiLe
+    // delete_tbl_nghile
     deletetblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -162,7 +162,7 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_nghiLe
+    // get_list_tbl_nghile
     getListtblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -170,7 +170,7 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                        // var data = JSON.parse(body.dataSearch)
 
                         // if (data.search) {
                         //     where = [
@@ -226,10 +226,13 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: element.ID,
-                                nameHoliday: element.NameHoliday ? element.NameHoliday : '',
+                                // nameHoliday: element.NameHoliday ? element.NameHoliday : '',
+                                dateStartHoliday: element.DateStartHoliday ? element.DateStartHoliday : '',
+                                dateEndHoliday: element.DateEndHoliday ? element.DateEndHoliday : '',
+                                idLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.ID : '',
                                 nameLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Name : '',
                                 codeLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Code : '',
-                                describe: element.Describe ? element.Describe : '',
+                                // describe: element.Describe ? element.Describe : '',
                             }
                             array.push(obj);
                             stt += 1;
@@ -253,7 +256,7 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_nghiLe
+    // get_list_name_tbl_nghile
     getListNametblNghiLe: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {

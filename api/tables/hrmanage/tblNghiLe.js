@@ -8,7 +8,8 @@ module.exports = function (db) {
             autoIncrement: true
         },
         IDLoaiChamCong: Sequelize.BIGINT,
-        DateHoliday: Sequelize.DATE,
+        DateStartHoliday: Sequelize.DATE,
+        DateEndHoliday: Sequelize.DATE,
         NameHoliday: Sequelize.STRING,
         Describe: Sequelize.STRING,
     });

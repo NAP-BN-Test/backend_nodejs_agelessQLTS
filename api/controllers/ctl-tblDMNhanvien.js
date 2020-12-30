@@ -20,6 +20,7 @@ var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
 var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoTruoc')
 var mtblDaoTaoSau = require('../tables/hrmanage/tblDaoTaoSau')
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
+var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
 
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
@@ -28,6 +29,7 @@ var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblDMGiaDinh(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblBangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDaoTaoTruoc(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDaoTaoSau(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
@@ -197,7 +199,7 @@ module.exports = {
                         TaxCode: body.taxCode ? body.taxCode : '',
                         BankNumber: body.bankNumber ? body.bankNumber : '',
                         BankName: body.bankName ? body.bankName : '',
-                        Birthday: body.birthday ? body.birthday : '',
+                        Birthday: body.birthday ? body.birthday : null,
                         Degree: body.degree ? body.degree : '',
                         PermanentResidence: body.permanentResidence ? body.permanentResidence : '',
                         ProbationaryDate: body.probationaryDate ? body.probationaryDate : null,
@@ -251,6 +253,8 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.cmndNumber || body.cmndNumber === '')
+                        update.push({ key: 'CMNDNumber', value: body.cmndNumber });
                     if (body.staffCode || body.staffCode === '')
                         update.push({ key: 'StaffCode', value: body.staffCode });
                     if (body.staffName || body.staffName === '')
@@ -275,6 +279,7 @@ module.exports = {
                         else
                             update.push({ key: 'IDBoPhan', value: body.idBoPhan });
                     }
+
                     if (body.idChucVu || body.idChucVu === '') {
                         if (body.idChucVu === '')
                             update.push({ key: 'IDChucVu', value: null });
