@@ -27,20 +27,32 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMChiNhanh(db).create({
-                        BranchCode: body.branchCode ? body.branchCode : '',
-                        BranchName: body.branchName ? body.branchName : '',
-                        Address: body.address ? body.address : '',
-                        PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
-                        FaxNumber: body.faxNumber ? body.faxNumber : '',
-                        Email: body.email ? body.email : '',
-                    }).then(data => {
+                    let check = await mtblLoaiChamCong(db).findOne({
+                        where: [{ BranchCode: body.branchCode }]
+                    })
+                    if (!check)
+                        mtblDMChiNhanh(db).create({
+                            BranchCode: body.branchCode ? body.branchCode : '',
+                            BranchName: body.branchName ? body.branchName : '',
+                            Address: body.address ? body.address : '',
+                            PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
+                            FaxNumber: body.faxNumber ? body.faxNumber : '',
+                            Email: body.email ? body.email : '',
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
+                    else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
                         }
                         res.json(result);
-                    })
+
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

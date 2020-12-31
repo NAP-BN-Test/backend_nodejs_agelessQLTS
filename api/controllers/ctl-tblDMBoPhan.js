@@ -6,9 +6,17 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 
 var database = require('../database');
 async function deleteRelationshiptblDMBoPhan(db, listID) {
+    await mtblYeuCauMuaSam(db).update({
+        IDPhongBan: null,
+    }, { where: { IDPhongBan: { [Op.in]: listID } } })
+    await mtblDMNhanvien(db).update({
+        IDBoPhan: null,
+    }, { where: { IDBoPhan: { [Op.in]: listID } } })
     await mtblTaiSanBanGiao(db).update({
         IDBoPhanSoHuu: null,
     }, { where: { IDBoPhanSoHuu: { [Op.in]: listID } } })
@@ -17,7 +25,7 @@ async function deleteRelationshiptblDMBoPhan(db, listID) {
     }, { where: { IDBoPhanSoHuu: { [Op.in]: listID } } })
     await mtblDMBoPhan(db).destroy({
         where: {
-            IDLaborBook: { [Op.in]: listID }
+            ID: { [Op.in]: listID }
         }
     })
 }
@@ -29,17 +37,29 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMBoPhan(db).create({
-                        DepartmentCode: body.departmentCode ? body.departmentCode : '',
-                        DepartmentName: body.departmentName ? body.departmentName : '',
-                        IDChiNhanh: body.idChiNhanh ? body.idChiNhanh : null,
-                    }).then(data => {
+                    let check = await mtblDMBoPhan(db).findOne({
+                        where: [{ DepartmentCode: body.departmentCode }]
+                    })
+                    if (!check)
+                        mtblDMBoPhan(db).create({
+                            DepartmentCode: body.departmentCode ? body.departmentCode : '',
+                            DepartmentName: body.departmentName ? body.departmentName : '',
+                            IDChiNhanh: body.idChiNhanh ? body.idChiNhanh : null,
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
+                    else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
                         }
                         res.json(result);
-                    })
+
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
