@@ -285,7 +285,6 @@ module.exports = {
                             }
                         }
                     }
-                    console.log(whereOjb);
                     let stt = 1;
                     mtblDMNhaCungCap(db).findAll({
                         order: [

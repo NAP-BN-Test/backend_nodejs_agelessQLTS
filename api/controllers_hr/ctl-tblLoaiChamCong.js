@@ -174,7 +174,8 @@ module.exports = {
                             ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }, { [Op.or]: { Type: body.type } }]
+                            [Op.and]: [{ [Op.or]: where }, { [Op.or]: { Type: body.type } }],
+                            [Op.or]: [{ ID: { [Op.ne]: null } }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
@@ -182,10 +183,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'TÊN LOẠI' || data.items[i].fields['name'] === 'TÊN LOẠI NGHỈ LỄ') {
                                     userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -194,10 +195,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'MÃ LOẠI' || data.items[i].fields['name'] === 'MÃ LOẠI NGHỈ LỄ') {
                                     userFind['Code'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -206,6 +207,7 @@ module.exports = {
                             }
                         }
                     }
+                    console.log(whereOjb);
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
@@ -233,8 +235,7 @@ module.exports = {
                         //                 whereOjb[Op.or] = userFind
                         //             }
                         //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
+                        //                 whereOjb[Op.not] = rFind                        //             }
                         //         }
                         //     }
                         // }

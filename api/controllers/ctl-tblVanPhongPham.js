@@ -109,7 +109,6 @@ module.exports = {
     // delete_tbl_vanphongpham
     deletetblVanPhongPham: (req, res) => {
         let body = req.body;
-        console.log(req.body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -150,17 +149,20 @@ module.exports = {
                                 { VPPName: { [Op.ne]: '%%' } },
                             ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.and]: [{ [Op.or]: where }],
+                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÊN VPP') {
                                     userFind['VPPName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -169,10 +171,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'MÃ VPP') {
                                     userFind['VPPCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind

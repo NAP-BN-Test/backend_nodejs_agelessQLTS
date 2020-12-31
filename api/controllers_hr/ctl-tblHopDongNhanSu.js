@@ -197,17 +197,20 @@ module.exports = {
                                 { ContractCode: { [Op.ne]: '%%' } },
                             ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.and]: [{ [Op.or]: where }],
+                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'SỐ HỢP ĐỒNG') {
                                     userFind['ContractCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -216,10 +219,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'TÌNH TRẠNG HỢP ĐỒNG') {
                                     userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -244,10 +247,10 @@ module.exports = {
                                     })
                                     userFind['IDLoaiHopDong'] = { [Op.in]: list }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind

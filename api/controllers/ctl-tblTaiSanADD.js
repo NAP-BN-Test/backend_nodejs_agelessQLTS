@@ -386,7 +386,6 @@ module.exports = {
                                 }, { where: { ID: body.fileAttach[i].id } })
                             }
                         }
-                        console.log(data.ID);
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa.id ? body.taisan[i].idDMHangHoa.id : null,
@@ -742,7 +741,6 @@ module.exports = {
                         }
                         whereOjb[Op.and] = userFind
                     }
-                    console.log(whereOjb);
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })

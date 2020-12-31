@@ -194,10 +194,13 @@ module.exports = {
                             ];
                         } else {
                             where = [
-                                { Describe: { [Op.ne]: '%%' } },
+                                { ID: { [Op.ne]: null } },
                             ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.and]: [{ [Op.or]: where }],
+                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -220,10 +223,10 @@ module.exports = {
                                     })
                                     userFind['IDLoaiChamCong'] = { [Op.in]: list }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind

@@ -181,60 +181,71 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMNhanvien(db).create({
-                        StaffCode: body.staffCode ? body.staffCode : '',
-                        StaffName: body.staffName ? body.staffName : '',
-                        CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
-                        Address: body.address ? body.address : '',
-                        IDNation: body.idNation ? body.idNation : null,
-                        PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
-                        Gender: body.gender ? body.gender : '',
-                        IDBoPhan: body.idBoPhan ? body.idBoPhan : null,
-                        IDChucVu: body.idChucVu ? body.idChucVu : null,
-                        TaxCode: body.taxCode ? body.taxCode : '',
-                        BankNumber: body.bankNumber ? body.bankNumber : '',
-                        BankName: body.bankName ? body.bankName : '',
-                        Birthday: body.birthday ? body.birthday : null,
-                        Degree: body.degree ? body.degree : '',
-                        PermanentResidence: body.permanentResidence ? body.permanentResidence : '',
-                        ProbationaryDate: body.probationaryDate ? body.probationaryDate : null,
-                        probationarySalary: body.probationarySalary ? body.probationarySalary : null,
-                        // WorkingDate: body.workingDate ? body.workingDate : null,
-                        WorkingSalary: body.workingSalary ? body.workingSalary : null,
-                        BHXHSalary: body.bhxhSalary ? body.bhxhSalary : null,
-                        ContactUrgent: body.contactUrgent ? body.contactUrgent : '',
-                        // IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
-                        Email: body.email ? body.email : '',
-                    }).then(async data => {
-                        await mtblHopDongNhanSu(db).create({
-                            IDNhanVien: data.ID,
-                            ContractCode: body.contractCode ? body.contractCode : '',
-                            Date: body.signDate ? body.signDate : null,
-                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                            SalaryNumber: body.salaryNumber ? body.salaryNumber : 0,
-                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
-                            ContractDateStart: body.signDate ? body.signDate : null,
-                            UnitSalary: 'VND',
-                            WorkingPlace: '',
-                            Status: body.status ? body.status : '',
+                    let check = await mtblDMBoPhan(db).findOne({
+                        where: [{ StaffCode: body.staffCode }]
+                    })
+                    if (!check)
+                        mtblDMNhanvien(db).create({
+                            StaffCode: body.staffCode ? body.staffCode : '',
+                            StaffName: body.staffName ? body.staffName : '',
+                            CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
+                            Address: body.address ? body.address : '',
+                            IDNation: body.idNation ? body.idNation : null,
+                            PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
+                            Gender: body.gender ? body.gender : '',
+                            IDBoPhan: body.idBoPhan ? body.idBoPhan : null,
+                            IDChucVu: body.idChucVu ? body.idChucVu : null,
+                            TaxCode: body.taxCode ? body.taxCode : '',
+                            BankNumber: body.bankNumber ? body.bankNumber : '',
+                            BankName: body.bankName ? body.bankName : '',
+                            Birthday: body.birthday ? body.birthday : null,
+                            Degree: body.degree ? body.degree : '',
+                            PermanentResidence: body.permanentResidence ? body.permanentResidence : '',
+                            ProbationaryDate: body.probationaryDate ? body.probationaryDate : null,
+                            probationarySalary: body.probationarySalary ? body.probationarySalary : null,
+                            // WorkingDate: body.workingDate ? body.workingDate : null,
+                            WorkingSalary: body.workingSalary ? body.workingSalary : null,
+                            BHXHSalary: body.bhxhSalary ? body.bhxhSalary : null,
+                            ContactUrgent: body.contactUrgent ? body.contactUrgent : '',
+                            // IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
+                            Email: body.email ? body.email : '',
+                        }).then(async data => {
+                            await mtblHopDongNhanSu(db).create({
+                                IDNhanVien: data.ID,
+                                ContractCode: body.contractCode ? body.contractCode : '',
+                                Date: body.signDate ? body.signDate : null,
+                                IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                                SalaryNumber: body.salaryNumber ? body.salaryNumber : 0,
+                                SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                                ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : '',
+                                ContractDateStart: body.signDate ? body.signDate : null,
+                                UnitSalary: 'VND',
+                                WorkingPlace: '',
+                                Status: body.status ? body.status : '',
+                            })
+                            await mtblBangLuong(db).create({
+                                IDNhanVien: data.ID,
+                                workingSalary: body.salaryNumber ? body.salaryNumber : 0,
+                                bhxhSalary: body.salaryNumber ? body.salaryNumber : 0,
+                            })
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
                         })
-                        await mtblBangLuong(db).create({
-                            IDNhanVien: data.ID,
-                            workingSalary: body.salaryNumber ? body.salaryNumber : 0,
-                            bhxhSalary: body.salaryNumber ? body.salaryNumber : 0,
-                        })
+                    else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: "Mã nhân viên đã tồn tại. Vui lòng kiểm tra lại!",
                         }
                         res.json(result);
-                    })
+
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

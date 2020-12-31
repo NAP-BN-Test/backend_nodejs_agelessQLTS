@@ -47,7 +47,9 @@ module.exports = {
                                 companyCost: data.CompanyCost ? data.CompanyCost : '',
                                 result: data.Result ? data.Result : '',
                                 staffCost: data.StaffCost ? data.StaffCost : '',
-                                majors: data.MajorsMajors ? data.MajorsMajors : '',
+                                majors: data.Majors ? data.Majors : '',
+                                rangeDate: data.RangeDate ? data.RangeDate : '',
+                                expirationDate: data.ExpirationDate ? data.ExpirationDate : '',
                             }
                             var result = {
                                 obj: obj,
@@ -108,7 +110,6 @@ module.exports = {
     // update_tbl_training_after
     updatetblDaoTaoSaus: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -273,6 +274,8 @@ module.exports = {
                                 majors: element.Majors ? element.Majors : '',
                                 formTraining: element.FormTraining ? element.FormTraining : '',
                                 numberCertificates: element.NumberCertificates ? element.NumberCertificates : '',
+                                rangeDate: element.RangeDate ? element.RangeDate : '',
+                                expirationDate: element.ExpirationDate ? element.ExpirationDate : '',
                             }
                             array.push(obj);
                             stt += 1;

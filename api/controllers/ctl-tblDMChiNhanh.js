@@ -27,7 +27,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let check = await mtblLoaiChamCong(db).findOne({
+                    let check = await mtblDMChiNhanh(db).findOne({
                         where: [{ BranchCode: body.branchCode }]
                     })
                     if (!check)
@@ -143,17 +143,20 @@ module.exports = {
                                 { FaxNumber: { [Op.ne]: '%%' } },
                             ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.and]: [{ [Op.or]: where }],
+                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'MÃ CHI NHÁNH') {
                                     userFind['BranchCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -162,10 +165,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'TÊN CHI NHÁNH') {
                                     userFind['BranchName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -174,10 +177,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
                                     userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -186,10 +189,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
                                     userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -198,10 +201,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'FAX') {
                                     userFind['Fax'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -210,10 +213,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'EMAIL') {
                                     userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
