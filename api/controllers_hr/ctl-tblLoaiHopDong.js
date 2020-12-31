@@ -22,7 +22,7 @@ module.exports = {
                     let check = await tblLoaiHopDong(db).findOne({
                         where: { MaLoaiHD: body.maLoaiHD }
                     })
-                    if (check)
+                    if (!check)
                         tblLoaiHopDong(db).create({
                             MaLoaiHD: body.maLoaiHD ? body.maLoaiHD : '',
                             TenLoaiHD: body.tenLoaiHD ? body.tenLoaiHD : '',
@@ -33,6 +33,14 @@ module.exports = {
                             }
                             res.json(result);
                         })
+                    else {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
+                        }
+                        res.json(result);
+
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -99,38 +107,48 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        // var data = JSON.parse(body.dataSearch)
+                        var data = JSON.parse(body.dataSearch)
 
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // whereOjb = { [Op.or]: where };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        if (data.search) {
+                            where = [
+                                { TenLoaiHD: { [Op.like]: '%' + data.search + '%' } },
+                                { MaLoaiHD: { [Op.like]: '%' + data.search + '%' } },
+                            ];
+                        } else {
+                            where = [
+                                { MaLoaiHD: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'TÊN LOẠI HỢP ĐỒNG') {
+                                    userFind['TenLoaiHD'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ LOẠI HỢP ĐỒNG') {
+                                    userFind['MaLoaiHD'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
                     }
                     let stt = 1;
                     tblLoaiHopDong(db).findAll({

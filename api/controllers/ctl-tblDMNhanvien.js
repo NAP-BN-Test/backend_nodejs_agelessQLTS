@@ -247,7 +247,6 @@ module.exports = {
     // update_tbl_dmnhanvien
     updatetblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -342,7 +341,7 @@ module.exports = {
                         else
                             update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
                     }
-                    if (body.idContract) {
+                    if (body.idContract != '') {
                         await mtblHopDongNhanSu(db).update({
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
@@ -354,6 +353,21 @@ module.exports = {
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
                         }, { where: { ID: body.idContract } })
+                    }
+                    else {
+                        await mtblHopDongNhanSu(db).create({
+                            ContractCode: body.contractCode ? body.contractCode : '',
+                            Date: body.signDate ? body.signDate : null,
+                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                            SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                            // ContractDateStart: now,
+                            UnitSalary: 'VND',
+                            Status: body.status ? body.status : '',
+                            IDNhanVien: body.id ? body.id : null,
+                            WorkingPlace: ''
+                        })
                     }
                     database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
                         if (response == 1) {

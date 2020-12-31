@@ -169,39 +169,94 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        // var data = JSON.parse(body.dataSearch)
-
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // whereOjb = { [Op.or]: where };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        var data = JSON.parse(body.dataSearch)
+                        var list = [];
+                        await mtblLoaiHopDong(db).findAll({
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                            where: {
+                                [Op.or]: [
+                                    { MaLoaiHD: { [Op.like]: '%' + data.search + '%' } },
+                                    { TenLoaiHD: { [Op.like]: '%' + data.search + '%' } }
+                                ]
+                            }
+                        }).then(data => {
+                            data.forEach(item => {
+                                list.push(item.ID);
+                            })
+                        })
+                        if (data.search) {
+                            where = [
+                                { ContractCode: { [Op.like]: '%' + data.search + '%' } },
+                                { Status: { [Op.like]: '%' + data.search + '%' } },
+                                { IDLoaiHopDong: { [Op.in]: list } },
+                            ];
+                        } else {
+                            where = [
+                                { ContractCode: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'SỐ HỢP ĐỒNG') {
+                                    userFind['ContractCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÌNH TRẠNG HỢP ĐỒNG') {
+                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LOẠI HỢP ĐỒNG') {
+                                    var list = [];
+                                    await mtblLoaiHopDong(db).findAll({
+                                        order: [
+                                            ['ID', 'DESC']
+                                        ],
+                                        where: {
+                                            [Op.or]: [
+                                                { MaLoaiHD: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { TenLoaiHD: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDLoaiHopDong'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
                     }
+                    console.log(whereOjb, list);
                     let stt = 1;
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
@@ -267,38 +322,6 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        // var data = JSON.parse(body.dataSearch)
-
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // whereOjb = { [Op.or]: where };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
                     }
                     let stt = 1;
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);

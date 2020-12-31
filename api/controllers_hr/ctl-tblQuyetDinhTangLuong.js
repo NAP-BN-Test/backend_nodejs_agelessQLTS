@@ -111,7 +111,6 @@ module.exports = {
     // update_tbl_quyetdinh_tangluong
     updatetblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -194,38 +193,48 @@ module.exports = {
                 try {
                     var whereOjb = [];
                     if (body.dataSearch) {
-                        // var data = JSON.parse(body.dataSearch)
+                        var data = JSON.parse(body.dataSearch)
 
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // whereOjb = { [Op.or]: where };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or] = userFind
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        if (data.search) {
+                            where = [
+                                { DecisionCode: { [Op.like]: '%' + data.search + '%' } },
+                                { Status: { [Op.like]: '%' + data.search + '%' } },
+                            ];
+                        } else {
+                            where = [
+                                { DecisionCode: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = { [Op.or]: where };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'SỐ QUYẾT ĐỊNH') {
+                                    userFind['DecisionCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÌNH TRẠNG QUYẾT ĐỊNH') {
+                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
                     }
                     let stt = 1;
                     let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);

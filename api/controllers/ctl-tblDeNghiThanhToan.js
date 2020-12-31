@@ -155,7 +155,6 @@ module.exports = {
     // get_list_tbl_denghi_thanhtoan
     getListtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

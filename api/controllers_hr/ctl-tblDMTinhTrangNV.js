@@ -61,7 +61,7 @@ module.exports = {
                     let check = await mtblDMTinhTrangNV(db).findOne({
                         where: { StatusCode: body.statusCode }
                     })
-                    if (check)
+                    if (!check)
                         mtblDMTinhTrangNV(db).create({
                             StatusName: body.statusName ? body.statusName : '',
                             StatusCode: body.statusCode ? body.statusCode : '',
@@ -73,6 +73,15 @@ module.exports = {
                             }
                             res.json(result);
                         })
+                    else {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
+                        }
+                        res.json(result);
+
+                    }
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -146,18 +155,31 @@ module.exports = {
                         if (data.search) {
                             where = [
                                 { StatusName: { [Op.like]: '%' + data.search + '%' } },
+                                { StatusCode: { [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { StatusName: { [Op.ne]: '%%' } },
+                                { StatusCode: { [Op.ne]: '%%' } },
                             ];
                         }
-                        let whereOjb = { [Op.or]: where };
+                        whereOjb = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN TRẠNG THÁI') {
+                                if (data.items[i].fields['name'] === 'TÊN TÌNH TRẠNG') {
                                     userFind['StatusName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ TÌNH TRẠNG') {
+                                    userFind['StatusCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

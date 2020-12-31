@@ -3,8 +3,16 @@ const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
+var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
 var database = require('../database');
 async function deleteRelationshiptblLoaiChamCong(db, listID) {
+    await mtblNghiLe(db).update({
+        IDLoaiChamCong: null,
+    }, {
+        where: {
+            IDLoaiChamCong: { [Op.in]: listID }
+        }
+    })
     await mtblLoaiChamCong(db).destroy({
         // tblChamCong
         // tblNghiPhep
@@ -58,9 +66,9 @@ module.exports = {
             if (db) {
                 try {
                     let check = await mtblLoaiChamCong(db).findOne({
-                        where: { Code: body.code }
+                        where: [{ Code: body.code }, { Type: body.type }]
                     })
-                    if (check)
+                    if (!check)
                         mtblLoaiChamCong(db).create({
                             Code: body.code ? body.code : '',
                             Name: body.name ? body.name : '',
@@ -73,6 +81,14 @@ module.exports = {
                             }
                             res.json(result);
                         })
+                    else {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
+                        }
+                        res.json(result);
+
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -142,9 +158,54 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
-                    whereOjb.push({
-                        Type: body.type,
-                    })
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
+
+                        if (data.search) {
+                            where = [
+                                { Code: { [Op.like]: '%' + data.search + '%' } },
+                                { Name: { [Op.like]: '%' + data.search + '%' } },
+
+                            ];
+                        } else {
+                            where = [
+                                { Name: { [Op.ne]: '%%' } },
+
+                            ];
+                        }
+                        whereOjb = {
+                            [Op.and]: [{ [Op.or]: where }, { [Op.or]: { Type: body.type } }]
+                        };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'TÊN LOẠI' || data.items[i].fields['name'] === 'TÊN LOẠI NGHỈ LỄ') {
+                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ LOẠI' || data.items[i].fields['name'] === 'MÃ LOẠI NGHỈ LỄ') {
+                                    userFind['Code'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
+                    }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 

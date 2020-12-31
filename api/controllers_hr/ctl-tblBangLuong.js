@@ -157,7 +157,7 @@ module.exports = {
                                 where: { IDNhanVien: data[i].IDNhanVien }
                             }).then(family => {
                                 family.forEach(element => {
-                                    reduce += element.Reduce;
+                                    reduce += Number(element.Reduce);
                                 });
                             })
                             var obj = {
@@ -237,7 +237,7 @@ module.exports = {
                                 where: { IDNhanVien: data[i].IDNhanVien }
                             }).then(family => {
                                 family.forEach(element => {
-                                    reduce += element.Reduce;
+                                    reduce += Number(element.Reduce);
                                 });
                             })
                             var obj = {
