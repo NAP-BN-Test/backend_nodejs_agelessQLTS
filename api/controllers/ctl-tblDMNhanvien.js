@@ -21,6 +21,7 @@ var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoTruoc')
 var mtblDaoTaoSau = require('../tables/hrmanage/tblDaoTaoSau')
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
+var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
@@ -64,6 +65,127 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblDMNhanvien,
+    // notify_users
+    notifyUsers: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var user = await mtblDMUser(db).findOne({ where: { ID: body.id } });
+                    var array = [];
+                    let count = 0;
+                    if (user) {
+                        let tblYeuCauMuaSam = mtblYeuCauMuaSam(db);
+                        tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                        await tblYeuCauMuaSam.findAll({
+                            where: [
+                                { IDPheDuyet1: user.IDNhanvien },
+                                { Status: 'Chờ phê duyệt' }
+                            ],
+                            include: [
+                                {
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'nv'
+                                },
+                            ],
+                        }).then(data => {
+                            data.forEach(item => {
+                                array.push({
+                                    name: item.nv ? item.nv.StaffName : 'admin',
+                                    type: 'shopping_cart'
+                                })
+                                count += 1;
+                            })
+                        })
+                        await tblYeuCauMuaSam.findAll({
+                            where: [
+                                { IDPheDuyet2: user.IDNhanvien },
+                                { Status: 'Đang phê duyệt' }
+                            ],
+                            include: [
+                                {
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'nv'
+                                },
+                            ],
+                        }).then(data => {
+                            data.forEach(item => {
+                                array.push({
+                                    name: item.nv ? item.nv.StaffName : 'admin',
+                                    type: 'shopping_cart'
+                                })
+                                count += 1;
+                            })
+                        })
+                        let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
+                        tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                        await tblDeNghiThanhToan.findAll({
+                            where: [
+                                { IDNhanVienKTPD: user.IDNhanvien },
+                                { TrangThaiPheDuyetKT: 'Chờ phê duyệt' }
+                            ],
+                            include: [
+                                {
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'nv'
+                                },
+                            ],
+                        }).then(data => {
+                            data.forEach(item => {
+                                array.push({
+                                    name: item.nv ? item.nv.StaffName : 'admin',
+                                    type: 'payment'
+                                })
+                                count += 1;
+                            })
+                        })
+                        await tblDeNghiThanhToan.findAll({
+                            where: [
+                                { IDNhanVienLDPD: user.IDNhanvien },
+                                {
+                                    [Op.or]: [
+                                        { TrangThaiPheDuyetKT: 'Đã phê duyệt' },
+                                        { TrangThaiPheDuyetKT: 'Đã hủy' },
+                                    ]
+                                }
+                            ],
+                            include: [
+                                {
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'nv'
+                                },
+                            ],
+                        }).then(data => {
+                            data.forEach(item => {
+                                array.push({
+                                    name: item.nv ? item.nv.StaffName : 'admin',
+                                    type: 'payment'
+                                })
+                                count += 1;
+                            })
+                        })
+                        var all = count;
+                        var result = {
+                            array: array,
+                            all: all,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // detail_tbl_dmnhanvien
     detailtblDMNhanvien: (req, res) => {
         let body = req.body;
@@ -185,8 +307,8 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let check = await mtblDMBoPhan(db).findOne({
-                        where: [{ StaffCode: body.staffCode }]
+                    let check = await mtblDMNhanvien(db).findOne({
+                        where: { StaffCode: body.staffCode },
                     })
                     if (!check)
                         mtblDMNhanvien(db).create({
@@ -459,17 +581,20 @@ module.exports = {
                                 { StaffName: { [Op.ne]: '%%' } },
                             ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.and]: [{ [Op.or]: where }],
+                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
                                     userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -478,10 +603,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'GIỚI TÍNH') {
                                     userFind['Gender'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -490,10 +615,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'TÊN NHÂN VIÊN') {
                                     userFind['StaffName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -502,10 +627,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
                                     userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -514,10 +639,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'EMAIL') {
                                     userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -526,10 +651,10 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
                                     userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind
@@ -554,10 +679,10 @@ module.exports = {
                                     })
                                     userFind['IDBoPhan'] = { [Op.in]: list }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        whereOjb[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        whereOjb[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         whereOjb[Op.not] = userFind

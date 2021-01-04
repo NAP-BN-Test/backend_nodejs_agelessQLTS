@@ -55,6 +55,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/detail_tbl_dmnhanvien').post(tblDMNhanvien.detailtblDMNhanvien);
 
+    app.route('/qlnb/notify_users').post(tblDMNhanvien.notifyUsers);
+
     app.route('/qlnb/update_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.updatetblDMNhanvien);
     app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListNametblDMNhanvien);
     app.route('/qlnb/get_employee_from_department').post(checkToken.checkToken, tblDMNhanvien.getEmployeeFromDepartment);

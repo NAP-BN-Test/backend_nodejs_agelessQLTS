@@ -9,7 +9,12 @@ const multer = require('multer');
 const bodyParser = require('body-parser')
 const Sequelize = require('sequelize');
 var mtblFileAttach = require("./api/tables/constants/tblFileAttach");
+var mtblDMUser = require("./api/tables/constants/tblDMUser");
+var mtblDMNhanvien = require("./api/tables/constants/tblDMNhanvien");
+var mtblYeuCauMuaSam = require("./api/tables/qlnb/tblYeuCauMuaSam");
+var mtblDeNghiThanhToan = require("./api/tables/qlnb/tblDeNghiThanhToan");
 var database = require('./api/database');
+const Op = require('sequelize').Op;
 
 app.use(session({
     name: 'user_sid',
@@ -83,7 +88,137 @@ let connect = require('./api/database')
 connect.connectDatabase();
 
 const port = process.env.PORT || 3100
-
+// wsEngine cho phép gọi vào hàm
+var io = require("socket.io")(server, {
+    cors: {
+        wsEngine: 'eiows',
+        origin: "http://localhost:4200",
+        methods: ["GET", "POST"],
+        credentials: true,
+    }
+})
 server.listen(port, function () {
     console.log('http://localhost:' + port);
 });
+var employee = require("./api/controllers/ctl-tblDMNhanvien");
+io.on("connection", async function (socket) {
+    console.log('The user is connecting : ' + socket.id);
+
+    socket.on("disconnect", function () {
+        console.log(socket.id + " disconnected!");
+    });
+    var array = [];
+    await database.connectDatabase().then(async db => {
+        if (db) {
+            var user = await mtblDMUser(db).findAll();
+            let count = 0;
+            for (var i = 0; i < user.length; i++) {
+                if (user[i]) {
+                    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db);
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    await tblYeuCauMuaSam.findAll({
+                        where: [
+                            { IDPheDuyet1: user[i].IDNhanvien },
+                            { Status: 'Chờ phê duyệt' }
+                        ],
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'shopping_cart',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                    await tblYeuCauMuaSam.findAll({
+                        where: [
+                            { IDPheDuyet2: user[i].IDNhanvien },
+                            { Status: 'Đang phê duyệt' }
+                        ],
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'shopping_cart',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                    let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    await tblDeNghiThanhToan.findAll({
+                        where: [
+                            { IDNhanVienKTPD: user[i].IDNhanvien },
+                            { TrangThaiPheDuyetKT: 'Chờ phê duyệt' }
+                        ],
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'payment',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                    await tblDeNghiThanhToan.findAll({
+                        where: [
+                            { IDNhanVienLDPD: user[i].IDNhanvien },
+                            {
+                                [Op.or]: [
+                                    { TrangThaiPheDuyetKT: 'Đã phê duyệt' },
+                                    { TrangThaiPheDuyetKT: 'Đã hủy' },
+                                ]
+                            }
+                        ],
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'payment',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                }
+            }
+        } else {
+            res.json(Constant.MESSAGE.USER_FAIL)
+        }
+    })
+    socket.on("Client-send-data", function (data) {
+        console.log(socket.id + " just sent: " + data);
+        io.sockets.emit("Server-send-data", array);
+    })
+})
