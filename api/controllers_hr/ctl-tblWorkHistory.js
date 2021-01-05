@@ -151,6 +151,7 @@ module.exports = {
     // get_list_tbl_work_history
     getListtblWorkHistory: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -190,11 +191,11 @@ module.exports = {
                         // }
                     }
                     let stt = 1;
-                    if (body.id) {
+                    if (body.idNhanVien) {
                         mtblWorkHistory(db).findAll({
                             offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                             limit: Number(body.itemPerPage),
-                            where: { IDNhanVien: body.id },
+                            where: { IDNhanVien: body.idNhanVien },
                             order: [
                                 ['ID', 'DESC']
                             ],

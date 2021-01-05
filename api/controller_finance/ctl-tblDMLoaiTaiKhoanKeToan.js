@@ -3,8 +3,16 @@ const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblDMLoaiTaiKhoanKeToan = require('../tables/financemanage/tblDMLoaiTaiKhoanKeToan')
+var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMLoaiTaiKhoanKeToan')
 var database = require('../database');
-async function deleteRelationshipNAMETABLE(db, listID) {
+async function deleteRelationshiptblDMLoaiTaiKhoanKeToan(db, listID) {
+    await mtblDMTaiKhoanKeToan(db).update({
+        IDLoaiTaiKhoanKeToan: null
+    }, {
+        where: {
+            IDLoaiTaiKhoanKeToan: { [Op.in]: listID }
+        }
+    })
     await mtblDMLoaiTaiKhoanKeToan(db).destroy({
         where: {
             ID: { [Op.in]: listID }
@@ -12,49 +20,15 @@ async function deleteRelationshipNAMETABLE(db, listID) {
     })
 }
 module.exports = {
-    deleteRelationshipNAMETABLE,
-    //  get_detail_NAMETABLEapi
-    detailNAMETABLE: (req, res) => {
-        let body = req.body;
-        database.connectDatabase().then(async db => {
-            if (db) {
-                try {
-                    mtblDMLoaiTaiKhoanKeToan(db).findOne({ where: { ID: body.id } }).then(data => {
-                        if (data) {
-                            var obj = {
-                                id: data.ID,
-                                name: data.Name,
-                                code: data.Code,
-                            }
-                            var result = {
-                                obj: obj,
-                                status: Constant.STATUS.SUCCESS,
-                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                            }
-                            res.json(result);
-                        } else {
-                            res.json(Result.NO_DATA_RESULT)
-
-                        }
-
-                    })
-                } catch (error) {
-                    res.json(Result.SYS_ERROR_RESULT)
-                }
-            } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
-            }
-        })
-    },
-    // add_NAMETABLEapi
-    addNAMETABLE: (req, res) => {
+    deleteRelationshiptblDMLoaiTaiKhoanKeToan,
+    // add_tbl_dm_loaitaikhoan_ketoan
+    addtblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblDMLoaiTaiKhoanKeToan(db).create({
-                        Code: body.code ? body.code : 'null',
-                        Name: body.name ? body.name : '',
+                        TypeName: body.typeName ? body.typeName : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -71,17 +45,15 @@ module.exports = {
             }
         })
     },
-    // update_NAMETABLEapi
-    updateNAMETABLE: (req, res) => {
+    // update_tbl_dm_loaitaikhoan_ketoan
+    updatetblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
+                    if (body.typeName || body.typeName === '')
+                        update.push({ key: 'typeName', value: body.typeName });
                     database.updateTable(update, mtblDMLoaiTaiKhoanKeToan(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -98,14 +70,14 @@ module.exports = {
             }
         })
     },
-    // delete_NAMETABLEapi
-    deleteNAMETABLE: (req, res) => {
+    // delete_tbl_dm_loaitaikhoan_ketoan
+    deletetblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshipNAMETABLE(db, listID);
+                    await deleteRelationshiptblDMLoaiTaiKhoanKeToan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -120,8 +92,8 @@ module.exports = {
             }
         })
     },
-    // get_list_NAMETABLEapi
-    getListNAMETABLE: (req, res) => {
+    // get_list_tbl_dm_loaitaikhoan_ketoan
+    getListtblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -132,14 +104,11 @@ module.exports = {
 
                         if (data.search) {
                             where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                                { TypeName: { [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { FullName: { [Op.ne]: '%%' } },
+                                { TypeName: { [Op.ne]: '%%' } },
                             ];
                         }
                         whereOjb = {
@@ -149,8 +118,8 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                if (data.items[i].fields['name'] === 'TÊN LOẠI') {
+                                    userFind['TypeName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -178,8 +147,7 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
+                                typeName: element.TypeName ? element.TypeName : '',
                             }
                             array.push(obj);
                             stt += 1;
@@ -203,8 +171,8 @@ module.exports = {
             }
         })
     },
-    // get_list_name_NAMETABLEapi
-    getListNameNAMETABLE: (req, res) => {
+    // get_list_name_tbl_dm_loaitaikhoan_ketoan
+    getListNametblDMLoaiTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -214,7 +182,7 @@ module.exports = {
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                typeName: element.TypeName ? element.TypeName : '',
                             }
                             array.push(obj);
                         });

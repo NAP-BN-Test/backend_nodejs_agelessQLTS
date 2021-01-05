@@ -5,6 +5,9 @@ var moment = require('moment');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var database = require('../database');
 var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
+var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
+var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
+const Sequelize = require('sequelize');
 
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblHopDongNhanSu(db).destroy({
@@ -73,7 +76,23 @@ module.exports = {
                         UnitSalary: 'VND',
                         WorkingPlace: '',
                         Status: body.status ? body.status : '',
-                    }).then(data => {
+                    }).then(async data => {
+                        var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
+                            order: [
+                                Sequelize.literal('max(DecisionDate) DESC'),
+                            ],
+                            group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                            where: {
+                                IDNhanVien: body.idNhanVien,
+                            }
+                        })
+                        salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
+                        await mtblBangLuong(db).create({
+                            Date: body.signDate,
+                            IDNhanVien: body.idNhanVien,
+                            WorkingSalary: salary,
+                            BHXHSalary: body.salaryNumber,
+                        })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
