@@ -15,6 +15,8 @@ module.exports = function (db) {
         IDNhanVienLDPD: Sequelize.BIGINT,
         TrangThaiPheDuyetLD: Sequelize.BIGINT,
         Description: Sequelize.STRING,
+        ReasonRejectKTPD: Sequelize.STRING,
+        ReasonRejectLDPD: Sequelize.STRING,
     });
 
     return table;

@@ -92,7 +92,7 @@ const port = process.env.PORT || 3100
 var io = require("socket.io")(server, {
     cors: {
         wsEngine: 'eiows',
-        origin: "http://localhost:4200",
+        origin: ["http://118.27.192.106:8692", "http://localhost:4200"],
         methods: ["GET", "POST"],
         credentials: true,
     }

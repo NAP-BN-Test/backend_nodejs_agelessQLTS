@@ -16,6 +16,7 @@ module.exports = function (app) {
     var tblTaiSanBanGiao = require('./controllers/ctl-tblTaiSanBanGiao');
     var tblPhanPhoiVPP = require('./controllers/ctl-tblPhanPhoiVPP');
     var tblFileAttach = require('./controllers/ctl-tblFileAttach');
+    var tblNghiPhep = require('./controllers_hr/ctl-tblNghiPhep');
 
     app.route('/qlnb/delete_file').post(tblFileAttach.deletetblFileAttach);
     app.route('/qlnb/delete_file_from_link').post(tblFileAttach.deletetblFileFromLink);
@@ -230,6 +231,12 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_nghiLe').post(tblNghiLe.getListtblNghiLe);
     app.route('/qlnb/get_list_name_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.getListNametblNghiLe);
 
+    // Danh mục nghỉ lễ
+    app.route('/qlnb/add_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.addtblNghiPhep);
+    app.route('/qlnb/update_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.updatetblNghiPhep);
+    app.route('/qlnb/delete_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.deletetblNghiPhep);
+    app.route('/qlnb/get_list_tbl_nghiphep').post(tblNghiPhep.getListtblNghiPhep);
+
     //  Danh mục tình trạng nhân viên
     app.route('/qlnb/add_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.addtblDMTinhTrangNV);
     app.route('/qlnb/update_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.updatetblDMTinhTrangNV);
@@ -296,6 +303,8 @@ module.exports = function (app) {
     var tblBangLuong = require('./controllers_hr/ctl-tblBangLuong');
     app.route('/qlnb/get_list_tbl_bangluong').post(tblBangLuong.getListtblBangLuong);
     app.route('/qlnb/track_insurance_premiums').post(tblBangLuong.trackInsurancePremiums);
+
+    app.route('/qlnb/data_timekeeping').post(tblBangLuong.dataTimekeeping);
 
     //---------------------------------------------------------------- Mức đóng bảo hiểm --------------------------------------------------------------------------------------
     var tblMucDongBaoHiem = require('./controllers_hr/ctl-tblMucDongBaoHiem');

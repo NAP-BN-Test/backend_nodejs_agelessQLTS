@@ -245,7 +245,6 @@ module.exports = {
                                 [Op.and]: [{ [Op.or]: whereO }],
                             }
                     }
-                    console.log(whereObj);
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
@@ -278,6 +277,7 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
+                            console.log(element.ReasonRejectKTPD, element.TrangThaiPheDuyetKT);
                             let statusKT;
                             if (element.TrangThaiPheDuyetKT === 'Đã phê duyệt')
                                 statusKT = element.KTPD ? element.KTPD.StaffName : '';
@@ -538,7 +538,6 @@ module.exports = {
     //  refuse_employee_accountant
     refuseNhanVienKTPD: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
