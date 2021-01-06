@@ -1143,7 +1143,7 @@ module.exports = {
                         var holiday = 0;
                         var freeBreak = 0;
                         var workingDay = 0;
-
+                        var obj = {}
                         for (var j = 1; j <= dateFinal; j++) {
                             let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData)
                             if (arrayTimeOfDate.length > 1) {
@@ -1160,7 +1160,7 @@ module.exports = {
                                 }
                             }
                             else {
-                                var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).subtract(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).format('YYYY-MM-DD HH:mm:ss.SSS'))
                                 if (datetConvert.slice(0, 8) == 'Chủ nhật' || datetConvert.slice(0, 5) == 'Thứ 7') {
                                     status = 't.7, cn'
                                     takeLeave += 1
@@ -1170,21 +1170,15 @@ module.exports = {
                                     freeBreak += 1
                                 }
                             }
-
-                            arrayUser.push({
-                                date: year + '-' + await convertNumber(month) + '-' + await convertNumber(j),
-                                status: status,
-                                userID: arrayUserID[i],
-                            })
+                            obj[await convertNumber(j) + "/" + await convertNumber(month)] = status
                         }
-                        array.push({
-                            takeLeave: takeLeave,
-                            holiday: holiday,
-                            freeBreak: freeBreak,
-                            workingDay: workingDay,
-                            arrayUser: arrayUser,
-
-                        })
+                        obj['takeLeave'] = takeLeave;
+                        obj['holiday'] = holiday;
+                        obj['freeBreak'] = freeBreak;
+                        obj['workingDay'] = workingDay;
+                        obj['dayOff'] = holiday + freeBreak + takeLeave;
+                        obj['staffName'] = 'test';
+                        array.push(obj)
                     }
                     var result = {
                         array: array,
