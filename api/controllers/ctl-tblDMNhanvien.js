@@ -22,6 +22,7 @@ var mtblDaoTaoSau = require('../tables/hrmanage/tblDaoTaoSau')
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
 var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
+const Sequelize = require('sequelize');
 
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
@@ -337,7 +338,22 @@ module.exports = {
                             // IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                             Email: body.email ? body.email : '',
                         }).then(async data => {
-                            console.log(body.salaryNumber);
+                            var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
+                                order: [
+                                    Sequelize.literal('max(DecisionDate) DESC'),
+                                ],
+                                group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                                where: {
+                                    IDNhanVien: data.ID,
+                                }
+                            })
+                            salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
+                            await mtblBangLuong(db).create({
+                                Date: body.signDate,
+                                IDNhanVien: data.ID,
+                                WorkingSalary: salary,
+                                BHXHSalary: body.workingSalary,
+                            })
                             await mtblHopDongNhanSu(db).create({
                                 IDNhanVien: data.ID,
                                 ContractCode: body.contractCode ? body.contractCode : '',
