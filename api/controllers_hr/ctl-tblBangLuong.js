@@ -86,6 +86,50 @@ async function convertNumber(number) {
     else
         return number
 }
+async function sortArrayDESC(array) {
+    let arraySort = [];
+    for (var i = 0; i < array.length; i++) {
+        if (Number(array[i].slice(0, 2))) {
+            let seconrd = Number(array[i].slice(6, 8)) + Number(array[i].slice(3, 5)) * 60 + Number(array[i].slice(0, 2)) * 60 * 60
+            arraySort.push(seconrd)
+        }
+        else {
+            let seconrd = Number(array[i].slice(5, 7)) + Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60
+            arraySort.push(seconrd)
+        }
+    }
+    return arraySort.sort();
+}
+async function converFromSecondsToHourLate(number) {
+    var result = '';
+    let h = Math.floor(number / 3600)
+    if (h > 0) {
+        result = 'M' + h + 'h'
+        var remainder = Math.floor((number - (h * 3600)) / 60)
+        if (remainder > 0) {
+            result += (Math.floor((remainder / 5)) * 5 + "'")
+        }
+    } else {
+        var remainder = Math.floor((number - (h * 3600)) / 60)
+        if (remainder > 0) {
+            result += ('M' + Math.floor((remainder / 5)) * 5 + "'")
+        }
+    }
+
+    return result;
+}
+async function converFromSecondsToHourAftersoon(number) {
+    var result = '';
+    let h = Math.floor(number / 3600)
+    if (h > 0) {
+        result = h + 'h'
+    }
+    var remainder = Math.floor((number - (h * 3600)) / 60)
+    if (remainder > 0) {
+        result += (Math.floor((remainder / 5)) * 5 + "'")
+    }
+    return result;
+}
 module.exports = {
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
@@ -258,14 +302,14 @@ module.exports = {
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-01 8:00:00",
+                VerifyDate: "2021-01-01 08:25:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-01 10:00:28",
+                VerifyDate: "2021-01-01 08:25:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -287,7 +331,7 @@ module.exports = {
             // 02 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-02 8:00:00",
+                VerifyDate: "2021-01-02 10:24:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -313,47 +357,17 @@ module.exports = {
                 VerifyState: 1,
                 WorkCode: 1
             },
-            // -03 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-03 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-03 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -04 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-04 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-04 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
             // -05 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-05 8:00:00",
+                VerifyDate: "2021-01-05 09:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-05 17:00:28",
+                VerifyDate: "2021-01-05 13:00:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -375,14 +389,14 @@ module.exports = {
             // -06 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-06 8:00:00",
+                VerifyDate: "2021-01-06 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-06 17:00:28",
+                VerifyDate: "2021-01-06 12:00:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -404,14 +418,7 @@ module.exports = {
             // -07 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-07 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-07 17:00:28",
+                VerifyDate: "2021-01-07 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -433,7 +440,7 @@ module.exports = {
             // -08 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-08 8:00:00",
+                VerifyDate: "2021-01-08 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -462,18 +469,18 @@ module.exports = {
             // -09 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-09 8:00:00",
+                VerifyDate: "2021-01-09 12:55:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-09 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
+            // {
+            //     UserID: 1,
+            //     VerifyDate: "2021-01-09 17:00:28",
+            //     VerifyType: 1,
+            //     VerifyState: 1,
+            //     WorkCode: 1
+            // },
             {
                 UserID: 2,
                 VerifyDate: "2021-01-09 8:00:16",
@@ -491,7 +498,7 @@ module.exports = {
             // -10 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-10 8:00:00",
+                VerifyDate: "2021-01-10 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -517,60 +524,24 @@ module.exports = {
                 VerifyState: 1,
                 WorkCode: 1
             },
-            // -11 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-11 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-11 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-11 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-11 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
             // -12 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-12 8:00:00",
+                VerifyDate: "2021-01-12 08:40:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-12 17:00:28",
+                VerifyDate: "2021-01-12 17:30:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-12 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-12 17:00:20",
+                VerifyDate: "2021-01-12 13:00:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -578,14 +549,7 @@ module.exports = {
             // -13 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-13 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-13 17:00:28",
+                VerifyDate: "2021-01-13 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -607,14 +571,7 @@ module.exports = {
             // -14 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-14 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-14 17:00:28",
+                VerifyDate: "2021-01-14 10:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -628,7 +585,7 @@ module.exports = {
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-14 17:00:20",
+                VerifyDate: "2021-01-14 14:00:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -636,21 +593,14 @@ module.exports = {
             // -15 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-15 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-15 17:00:28",
+                VerifyDate: "2021-01-15 14:10:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-15 8:00:16",
+                VerifyDate: "2021-01-15 8:15:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -665,7 +615,7 @@ module.exports = {
             // -16 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-16 8:00:00",
+                VerifyDate: "2021-01-16 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -694,7 +644,7 @@ module.exports = {
             // -17 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-17 8:00:00",
+                VerifyDate: "2021-01-17 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -723,28 +673,14 @@ module.exports = {
             // -18 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-18 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-18 17:00:28",
+                VerifyDate: "2021-01-18 08:40:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-18 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-18 17:00:20",
+                VerifyDate: "2021-01-18 8:25:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -752,14 +688,7 @@ module.exports = {
             // -19 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-19 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-19 17:00:28",
+                VerifyDate: "2021-01-19 13:00:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -781,21 +710,14 @@ module.exports = {
             // -20 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-20 8:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-20 17:00:28",
+                VerifyDate: "2021-01-20 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-20 8:00:16",
+                VerifyDate: "2021-01-20 08:35:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -810,7 +732,7 @@ module.exports = {
             // -21 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-21 8:00:00",
+                VerifyDate: "2021-01-21 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -824,14 +746,14 @@ module.exports = {
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-21 8:00:16",
+                VerifyDate: "2021-01-21 8:40:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-21 17:00:20",
+                VerifyDate: "2021-01-21 14:00:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -839,7 +761,7 @@ module.exports = {
             // -22 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-22 8:00:00",
+                VerifyDate: "2021-01-22 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -868,21 +790,21 @@ module.exports = {
             // -23 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-23 8:00:00",
+                VerifyDate: "2021-01-23 08:10:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-23 17:00:28",
+                VerifyDate: "2021-01-23 17:10:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-23 8:00:16",
+                VerifyDate: "2021-01-23 8:30:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -897,7 +819,7 @@ module.exports = {
             // -24 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-24 8:00:00",
+                VerifyDate: "2021-01-24 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -926,7 +848,7 @@ module.exports = {
             // -25 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-25 8:00:00",
+                VerifyDate: "2021-01-25 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -955,7 +877,7 @@ module.exports = {
             // -26 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-26 8:00:00",
+                VerifyDate: "2021-01-26 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -984,7 +906,7 @@ module.exports = {
             // -27 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-27 8:00:00",
+                VerifyDate: "2021-01-27 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1013,7 +935,7 @@ module.exports = {
             // -28 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-28 8:00:00",
+                VerifyDate: "2021-01-28 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1042,7 +964,7 @@ module.exports = {
             // -29 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-29 8:00:00",
+                VerifyDate: "2021-01-29 08:30:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1056,7 +978,7 @@ module.exports = {
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-29 8:00:16",
+                VerifyDate: "2021-01-29 8:30:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1071,14 +993,14 @@ module.exports = {
             // -30 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-30 8:00:00",
+                VerifyDate: "2021-01-30 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-30 17:00:28",
+                VerifyDate: "2021-01-30 16:00:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1092,7 +1014,7 @@ module.exports = {
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-30 17:00:20",
+                VerifyDate: "2021-01-30 16:30:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1100,7 +1022,7 @@ module.exports = {
             // -31 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-31 8:00:00",
+                VerifyDate: "2021-01-31 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1136,48 +1058,89 @@ module.exports = {
                     var date = new Date(year, month, 0);
                     var dateFinal = Number(date.toISOString().slice(8, 10))
                     var arrayUserID = await getUserIDExits(arrayData);
-
                     for (var i = 0; i < arrayUserID.length; i++) {
-                        var arrayUser = [];
                         var takeLeave = 0;
                         var holiday = 0;
                         var freeBreak = 0;
                         var workingDay = 0;
                         var obj = {}
+                        let seventeenH = 3600 * 17
+                        let eightH = 3600 * 8
+                        let twelveH = 3600 * 12
+                        let thirteenH = 3600 * 13
+                        var statusMorning = '';
+                        var statusAfternoon = '';
                         for (var j = 1; j <= dateFinal; j++) {
                             let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData)
+                            let arraySort = await sortArrayDESC(arrayTimeOfDate);
+                            let maxTime = await maxTimeArray(arrayTimeOfDate);
+                            let minTime = await minTimeArray(arrayTimeOfDate);
+                            if (arrayTimeOfDate.length == 1) {
+                                if (minTime > twelveH) {
+                                    statusMorning = ''
+                                    // check chiều
+                                    if (thirteenH > maxTime) {
+                                        statusAfternoon = await converFromSecondsToHourLate(thirteenH - maxTime)
+                                    }
+                                    else {
+                                        statusAfternoon = '0.5'
+                                    }
+                                } else {
+                                    // check sáng
+                                    if (minTime > eightH) {
+                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                    }
+                                    else {
+                                        statusMorning = '0.5'
+                                    }
+                                    statusAfternoon = ''
+                                }
+                                workingDay += 1
+                            }
                             if (arrayTimeOfDate.length > 1) {
-                                let maxTime = await maxTimeArray(arrayTimeOfDate);
-                                let minTime = await minTimeArray(arrayTimeOfDate);
-                                var status;
-                                if (((maxTime - minTime) / 3600) >= 8) {
-                                    status = 'lv'
+                                if (maxTime <= twelveH) {
+                                    // check sáng
+                                    if (minTime > eightH) {
+                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                    }
+                                    else {
+                                        statusMorning = '0.5'
+                                    }
+                                    statusAfternoon = ''
                                     workingDay += 1
                                 }
                                 else {
-                                    status = 'dsvm'
+                                    // check sáng
+                                    if (minTime > eightH) {
+                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                    }
+                                    else {
+                                        statusMorning = ''
+                                    }
+                                    // check chiều
+                                    if (seventeenH > maxTime) {
+                                        statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+                                    }
+                                    else {
+                                        statusAfternoon = ''
+                                    }
                                     workingDay += 1
                                 }
                             }
-                            else {
-                                var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                if (datetConvert.slice(0, 8) == 'Chủ nhật' || datetConvert.slice(0, 5) == 'Thứ 7') {
-                                    status = 't.7, cn'
-                                    takeLeave += 1
-                                }
-                                else {
-                                    status = 'Nghỉ không lý do'
-                                    freeBreak += 1
-                                }
+                            if (arrayTimeOfDate.length >= 1) {
+                                let objDay = {
+                                    S: statusMorning,
+                                    C: statusAfternoon,
+                                };
+                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay
                             }
-                            obj[await convertNumber(j) + "/" + await convertNumber(month)] = status
                         }
                         obj['takeLeave'] = takeLeave;
                         obj['holiday'] = holiday;
                         obj['freeBreak'] = freeBreak;
-                        obj['workingDay'] = workingDay;
+                        obj['workingDay'] = workingDay / 2;
                         obj['dayOff'] = holiday + freeBreak + takeLeave;
-                        obj['staffName'] = 'test';
+                        obj['staffName'] = 'test/00' + i;
                         array.push(obj)
                     }
                     var result = {
