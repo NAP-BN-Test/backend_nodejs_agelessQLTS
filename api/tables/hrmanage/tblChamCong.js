@@ -1,3 +1,4 @@
+const { BOOLEAN } = require('sequelize');
 const Sequelize = require('sequelize');
 
 module.exports = function (db) {
@@ -10,9 +11,9 @@ module.exports = function (db) {
         IDNhanVien: Sequelize.BIGINT,
         Date: Sequelize.DATE,
         Time: Sequelize.FLOAT,
-        IDLoaiChamCong: Sequelize.BIGINT,
+        Status: Sequelize.STRING,
         Reason: Sequelize.STRING,
-
+        Type: BOOLEAN,
     });
 
     return table;

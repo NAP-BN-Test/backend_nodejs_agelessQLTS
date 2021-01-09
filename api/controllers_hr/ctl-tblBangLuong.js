@@ -3,11 +3,14 @@ const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
+var mtblChamCong = require('../tables/hrmanage/tblChamCong')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblMucDongBaoHiem = require('../tables/hrmanage/tblMucDongBaoHiem')
 var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
+var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var mModules = require('../constants/modules');
+var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
@@ -130,6 +133,52 @@ async function converFromSecondsToHourAftersoon(number) {
     }
     return result;
 }
+async function getDateTakeLeave(db, month, year, idNhanVien) {
+    var array = [];
+    var yearMonth = year + '-' + await convertNumber(month);
+    await mtblNghiPhep(db).findAll({
+        where: {
+            [Op.or]: {
+                DateStart: { [Op.substring]: yearMonth },
+                DateEnd: { [Op.substring]: yearMonth },
+            },
+            [Op.and]: {
+                IDNhanVien: idNhanVien,
+            },
+        }
+    }).then(data => {
+        if (data) {
+            data.forEach(element => {
+                array.push(moment(element.DateStart).date())
+                array.push(moment(element.DateEnd).date())
+            })
+        }
+    })
+    return array
+
+}
+async function getDateholiday(db, month, year) {
+    var array = [];
+    var yearMonth = year + '-' + await convertNumber(month);
+    await mtblNghiLe(db).findAll({
+        where: {
+            [Op.or]: {
+                DateStartHoliday: { [Op.substring]: yearMonth },
+                DateEndHoliday: { [Op.substring]: yearMonth },
+            }
+        }
+    }).then(data => {
+        if (data) {
+            data.forEach(element => {
+                array.push(moment(element.DateStartHoliday).date())
+                array.push(moment(element.DateEndHoliday).date())
+            })
+        }
+    })
+    return array
+
+}
+
 module.exports = {
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
@@ -308,13 +357,6 @@ module.exports = {
                 WorkCode: 1
             },
             {
-                UserID: 1,
-                VerifyDate: "2021-01-01 08:25:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
                 UserID: 2,
                 VerifyDate: "2021-01-01 8:00:16",
                 VerifyType: 1,
@@ -324,64 +366,6 @@ module.exports = {
             {
                 UserID: 2,
                 VerifyDate: "2021-01-01 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // 02 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-02 10:24:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-02 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-02 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-02 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -05 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-05 09:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-05 13:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-05 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-05 17:00:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -903,35 +887,7 @@ module.exports = {
                 VerifyState: 1,
                 WorkCode: 1
             },
-            // -27 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-27 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-27 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-27 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-27 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
+
             // -28 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
@@ -1058,7 +1014,9 @@ module.exports = {
                     var date = new Date(year, month, 0);
                     var dateFinal = Number(date.toISOString().slice(8, 10))
                     var arrayUserID = await getUserIDExits(arrayData);
+                    var arrayHoliday = await getDateholiday(db, month, year)
                     for (var i = 0; i < arrayUserID.length; i++) {
+                        var arrayDays = [];
                         var takeLeave = 0;
                         var holiday = 0;
                         var freeBreak = 0;
@@ -1070,85 +1028,214 @@ module.exports = {
                         let thirteenH = 3600 * 13
                         var statusMorning = '';
                         var statusAfternoon = '';
-                        for (var j = 1; j <= dateFinal; j++) {
-                            let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData)
-                            let arraySort = await sortArrayDESC(arrayTimeOfDate);
-                            let maxTime = await maxTimeArray(arrayTimeOfDate);
-                            let minTime = await minTimeArray(arrayTimeOfDate);
-                            if (arrayTimeOfDate.length == 1) {
-                                if (minTime > twelveH) {
-                                    statusMorning = ''
-                                    // check chiều
-                                    if (thirteenH > maxTime) {
-                                        statusAfternoon = await converFromSecondsToHourLate(thirteenH - maxTime)
+                        var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
+                        if (staff) {
+                            var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff.ID)
+                            var yearMonth = year + '-' + await convertNumber(month);
+                            var timeKeeping = await mtblChamCong(db).findOne({
+                                where: [
+                                    { IDNhanVien: staff.ID },
+                                    { Date: { [Op.substring]: '%' + yearMonth + '%' } },
+                                ]
+                            })
+                            if (timeKeeping) {
+                                for (var j = 1; j <= dateFinal; j++) {
+                                    if (!checkDuplicate(arrayHoliday, j)) {
+                                        var timeKeepingM = await mtblChamCong(db).findOne({
+                                            where: [
+                                                { IDNhanVien: staff.ID },
+                                                { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
+                                                { Type: true },
+                                            ]
+                                        })
+                                        var timeKeepingA = await mtblChamCong(db).findOne({
+                                            where: [
+                                                { IDNhanVien: staff.ID },
+                                                { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
+                                                { Type: false },
+                                            ]
+                                        })
+                                        if (timeKeepingM) {
+                                            arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+                                            let objDay = {};
+                                            objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
+                                            objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
+                                            objDay['C'] = timeKeepingA ? timeKeepingA.Status ? timeKeepingA.Status : '' : ' ';
+                                            objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
+                                            workingDay += 1
+                                            obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                        }
+                                        else {
+                                            if (checkDuplicate(arrayTakeLeave, j)) {
+                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+
+                                                let objDay = {};
+                                                objDay['S'] = 1;
+                                                objDay['C'] = '';
+                                                objDay['status'] = 'H';
+                                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                                freeBreak += 1;
+                                            }
+                                            else {
+                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+
+                                                let objDay = {};
+                                                objDay['S'] = 1;
+                                                objDay['C'] = '';
+                                                objDay['status'] = 'F';
+                                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                                freeBreak += 1;
+                                            }
+                                        }
                                     }
-                                    else {
-                                        statusAfternoon = '0.5'
-                                    }
-                                } else {
-                                    // check sáng
-                                    if (minTime > eightH) {
-                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
-                                    }
-                                    else {
-                                        statusMorning = '0.5'
-                                    }
-                                    statusAfternoon = ''
                                 }
-                                workingDay += 1
                             }
-                            if (arrayTimeOfDate.length > 1) {
-                                if (maxTime <= twelveH) {
-                                    // check sáng
-                                    if (minTime > eightH) {
-                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                            else {
+                                for (var j = 1; j <= dateFinal; j++) {
+                                    if (!checkDuplicate(arrayHoliday, j)) {
+                                        let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData)
+                                        let maxTime = await maxTimeArray(arrayTimeOfDate);
+                                        let minTime = await minTimeArray(arrayTimeOfDate);
+                                        if (arrayTimeOfDate.length == 1) {
+                                            if (minTime > twelveH) {
+                                                // check chiều
+                                                if (thirteenH > maxTime) {
+                                                    statusAfternoon = await converFromSecondsToHourLate(thirteenH - maxTime)
+                                                }
+                                                else {
+                                                    statusAfternoon = ''
+                                                }
+                                                statusMorning = '0.5'
+                                            } else {
+                                                // check sáng
+                                                if (minTime > eightH) {
+                                                    statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                }
+                                                else {
+                                                    statusMorning = ''
+                                                }
+                                                statusAfternoon = '0.5'
+                                            }
+                                        }
+                                        if (arrayTimeOfDate.length > 1) {
+                                            if (maxTime <= twelveH) {
+                                                // check sáng
+                                                if (minTime > eightH) {
+                                                    statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                }
+                                                else {
+                                                    statusMorning = ''
+                                                }
+                                                statusAfternoon = '0.5'
+                                            }
+                                            else {
+                                                // check sáng
+                                                if (minTime > thirteenH) {
+                                                    statusMorning = await converFromSecondsToHourLate(minTime - thirteenH)
+                                                }
+                                                else {
+                                                    statusMorning = ''
+                                                }
+                                                // check chiều
+                                                if (seventeenH > maxTime) {
+                                                    statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+                                                }
+                                                else {
+                                                    statusAfternoon = ''
+                                                }
+                                            }
+                                        }
+                                        if (arrayTimeOfDate.length >= 1) {
+                                            // Danh sách ngày thêm cho Hungng
+                                            arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+                                            let idS = await mtblChamCong(db).create({
+                                                IDNhanVien: staff ? staff.ID : null,
+                                                Date: moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'),
+                                                Time: null,
+                                                Status: statusMorning ? statusMorning : null,
+                                                Reason: '',
+                                                Type: true,
+                                            })
+                                            let idC = await mtblChamCong(db).create({
+                                                IDNhanVien: staff ? staff.ID : null,
+                                                Date: moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'),
+                                                Time: null,
+                                                Status: statusAfternoon ? statusAfternoon : null,
+                                                Reason: '',
+                                                Type: false,
+                                            })
+                                            let objDay = {
+                                                S: statusMorning,
+                                                idS: idS.ID,
+                                                C: statusAfternoon,
+                                                idC: idC.ID
+                                            };
+                                            workingDay += 1
+                                            obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                        } else {
+                                            if (checkDuplicate(arrayTakeLeave, j)) {
+                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+
+                                                let objDay = {};
+                                                objDay['S'] = 1;
+                                                objDay['C'] = '';
+                                                objDay['status'] = 'H';
+                                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                                freeBreak += 1;
+                                            } else {
+                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+
+                                                let objDay = {};
+                                                objDay['S'] = 1;
+                                                objDay['C'] = '';
+                                                objDay['status'] = 'F';
+                                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                                freeBreak += 1;
+                                            }
+                                        }
                                     }
-                                    else {
-                                        statusMorning = '0.5'
-                                    }
-                                    statusAfternoon = ''
-                                    workingDay += 1
                                 }
-                                else {
-                                    // check sáng
-                                    if (minTime > eightH) {
-                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
-                                    }
-                                    else {
-                                        statusMorning = ''
-                                    }
-                                    // check chiều
-                                    if (seventeenH > maxTime) {
-                                        statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
-                                    }
-                                    else {
-                                        statusAfternoon = ''
-                                    }
-                                    workingDay += 1
-                                }
                             }
-                            if (arrayTimeOfDate.length >= 1) {
-                                let objDay = {
-                                    S: statusMorning,
-                                    C: statusAfternoon,
-                                };
-                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay
-                            }
+                            obj['takeLeave'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
+                            obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
+                            obj['freeBreak'] = freeBreak;
+                            obj['workingDay'] = workingDay;
+                            obj['dayOff'] = holiday + freeBreak + takeLeave;
+                            obj['staffName'] = staff ? staff.StaffName : '';
+                            array.push(obj)
                         }
-                        obj['takeLeave'] = takeLeave;
-                        obj['holiday'] = holiday;
-                        obj['freeBreak'] = freeBreak;
-                        obj['workingDay'] = workingDay / 2;
-                        obj['dayOff'] = holiday + freeBreak + takeLeave;
-                        obj['staffName'] = 'test/00' + i;
-                        array.push(obj)
+
                     }
                     var result = {
                         array: array,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
+                        arrayDays
                     }
                     res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // update_timekeeping
+    updateTimekeeping: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblChamCong(db).update({
+                        Status: body.status
+                    }, {
+                        where: {
+                            ID: body.id
+                        }
+                    })
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
