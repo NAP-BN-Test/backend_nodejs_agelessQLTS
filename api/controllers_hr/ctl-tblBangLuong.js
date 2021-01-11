@@ -351,12 +351,18 @@ module.exports = {
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-01 08:25:00",
+                VerifyDate: "2021-01-01 08:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
+                UserID: 1,
+                VerifyDate: "2021-01-01 10:00:30",
+                VerifyType: 1,
+                VerifyState: 1,
+                WorkCode: 1
+            }, {
                 UserID: 2,
                 VerifyDate: "2021-01-01 8:00:16",
                 VerifyType: 1,
@@ -365,7 +371,7 @@ module.exports = {
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-01 17:00:20",
+                VerifyDate: "2021-01-01 16:20:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -373,14 +379,14 @@ module.exports = {
             // -06 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-06 08:00:00",
+                VerifyDate: "2021-01-06 09:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-06 12:00:28",
+                VerifyDate: "2021-01-06 17:10:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -408,8 +414,14 @@ module.exports = {
                 WorkCode: 1
             },
             {
+                UserID: 1,
+                VerifyDate: "2021-01-07 15:20:00",
+                VerifyType: 1,
+                VerifyState: 1,
+                WorkCode: 1
+            }, {
                 UserID: 2,
-                VerifyDate: "2021-01-07 8:00:16",
+                VerifyDate: "2021-01-07 12:00:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -459,11 +471,11 @@ module.exports = {
                 WorkCode: 1
             },
             // {
-            //     UserID: 1,
-            //     VerifyDate: "2021-01-09 17:00:28",
-            //     VerifyType: 1,
-            //     VerifyState: 1,
-            //     WorkCode: 1
+            // UserID: 1,
+            // VerifyDate: "2021-01-09 17:00:28",
+            // VerifyType: 1,
+            // VerifyState: 1,
+            // WorkCode: 1
             // },
             {
                 UserID: 2,
@@ -482,7 +494,7 @@ module.exports = {
             // -10 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-10 08:00:00",
+                VerifyDate: "2021-01-10 11:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -503,7 +515,7 @@ module.exports = {
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-10 17:00:20",
+                VerifyDate: "2021-01-10 16:35:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -577,12 +589,18 @@ module.exports = {
             // -15 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-15 14:10:28",
+                VerifyDate: "2021-01-15 8:10:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
+                UserID: 1,
+                VerifyDate: "2021-01-15 12:00:28",
+                VerifyType: 1,
+                VerifyState: 1,
+                WorkCode: 1
+            }, {
                 UserID: 2,
                 VerifyDate: "2021-01-15 8:15:16",
                 VerifyType: 1,
@@ -810,14 +828,14 @@ module.exports = {
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-24 17:00:28",
+                VerifyDate: "2021-01-24 16:00:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-24 8:00:16",
+                VerifyDate: "2021-01-24 7:45:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -891,7 +909,7 @@ module.exports = {
             // -28 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 UserID: 1,
-                VerifyDate: "2021-01-28 08:00:00",
+                VerifyDate: "2021-01-28 09:00:00",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -905,7 +923,7 @@ module.exports = {
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-28 8:00:16",
+                VerifyDate: "2021-01-28 11:35:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -956,21 +974,27 @@ module.exports = {
             },
             {
                 UserID: 1,
-                VerifyDate: "2021-01-30 16:00:28",
+                VerifyDate: "2021-01-30 17:00:28",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-30 8:00:16",
+                VerifyDate: "2021-01-30 7:50:16",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
             },
             {
                 UserID: 2,
-                VerifyDate: "2021-01-30 16:30:20",
+                VerifyDate: "2021-01-30 14:10:20",
+                VerifyType: 1,
+                VerifyState: 1,
+                WorkCode: 1
+            }, {
+                UserID: 2,
+                VerifyDate: "2021-01-30 17:10:20",
                 VerifyType: 1,
                 VerifyState: 1,
                 WorkCode: 1
@@ -1013,6 +1037,7 @@ module.exports = {
                     var year = Number(body.date.slice(0, 4));
                     var date = new Date(year, month, 0);
                     var dateFinal = Number(date.toISOString().slice(8, 10))
+                    dateFinal += 1
                     var arrayUserID = await getUserIDExits(arrayData);
                     var arrayHoliday = await getDateholiday(db, month, year)
                     var yearMonth = year + '-' + await convertNumber(month);
@@ -1049,8 +1074,8 @@ module.exports = {
                                             if (arrayTimeOfDate.length == 1) {
                                                 if (minTime > twelveH) {
                                                     // check chiều
-                                                    if (thirteenH > maxTime) {
-                                                        statusAfternoon = await converFromSecondsToHourLate(thirteenH - maxTime)
+                                                    if (thirteenH < maxTime) {
+                                                        statusAfternoon = await converFromSecondsToHourLate(maxTime - thirteenH)
                                                     }
                                                     else {
                                                         statusAfternoon = ''
@@ -1074,24 +1099,47 @@ module.exports = {
                                                         statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                                                     }
                                                     else {
-                                                        statusMorning = ''
+                                                        if (twelveH > maxTime) {
+                                                            statusMorning = await converFromSecondsToHourAftersoon(twelveH - maxTime)
+                                                        }
+                                                        else {
+                                                            statusMorning = ''
+                                                        }
                                                     }
                                                     statusAfternoon = '0.5'
                                                 }
                                                 else {
-                                                    // check sáng
-                                                    if (minTime > thirteenH) {
-                                                        statusMorning = await converFromSecondsToHourLate(minTime - thirteenH)
+                                                    if (minTime >= thirteenH) {
+                                                        statusMorning = '0.5'
+                                                        // check chiều
+                                                        if (thirteenH < minTime) {
+                                                            statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
+                                                        }
+                                                        else {
+                                                            if (seventeenH > maxTime) {
+                                                                statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+
+                                                            }
+                                                            else {
+                                                                statusAfternoon = ''
+                                                            }
+                                                        }
                                                     }
                                                     else {
-                                                        statusMorning = ''
-                                                    }
-                                                    // check chiều
-                                                    if (seventeenH > maxTime) {
-                                                        statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
-                                                    }
-                                                    else {
-                                                        statusAfternoon = ''
+                                                        // check sáng
+                                                        if (minTime > eightH) {
+                                                            statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                        }
+                                                        else {
+                                                            statusMorning = ''
+                                                        }
+                                                        // check chiều
+                                                        if (seventeenH > maxTime) {
+                                                            statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+                                                        }
+                                                        else {
+                                                            statusAfternoon = ''
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1115,14 +1163,6 @@ module.exports = {
                                             }
                                         }
                                     }
-
-                                    obj['takeLeave'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                                    obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
-                                    obj['freeBreak'] = freeBreak;
-                                    obj['workingDay'] = workingDay;
-                                    obj['dayOff'] = holiday + freeBreak + takeLeave;
-                                    obj['staffName'] = staff ? staff.StaffName : '';
-                                    array.push(obj)
                                 }
 
                             }
