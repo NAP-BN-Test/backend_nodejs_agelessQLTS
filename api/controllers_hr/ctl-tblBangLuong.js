@@ -1009,32 +1009,140 @@ module.exports = {
             if (db) {
                 try {
                     var array = [];
-                    var month = 2; // January
-                    var year = 2008;
+                    var month = Number(body.date.slice(5, 7)); // January
+                    var year = Number(body.date.slice(0, 4));
                     var date = new Date(year, month, 0);
                     var dateFinal = Number(date.toISOString().slice(8, 10))
                     var arrayUserID = await getUserIDExits(arrayData);
                     var arrayHoliday = await getDateholiday(db, month, year)
-                    for (var i = 0; i < arrayUserID.length; i++) {
-                        var arrayDays = [];
-                        var takeLeave = 0;
-                        var holiday = 0;
-                        var freeBreak = 0;
-                        var workingDay = 0;
-                        var obj = {}
-                        let seventeenH = 3600 * 17
-                        let eightH = 3600 * 8
-                        let twelveH = 3600 * 12
-                        let thirteenH = 3600 * 13
-                        var statusMorning = '';
-                        var statusAfternoon = '';
-                        var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
-                        if (staff) {
-                            var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff.ID)
+                    var yearMonth = year + '-' + await convertNumber(month);
+                    var timeKeeping = await mtblChamCong(db).findOne({
+                        where: [
+                            { Date: { [Op.substring]: '%' + yearMonth + '%' } },
+                        ]
+                    })
+                    var arrayDays = [];
+                    let checkFor = 0;
+                    if (!timeKeeping) {
+                        if (arrayUserID.length > 0) {
+                            for (var i = 0; i < arrayUserID.length; i++) {
+                                var takeLeave = 0;
+                                var holiday = 0;
+                                var freeBreak = 0;
+                                var workingDay = 0;
+                                var obj = {}
+                                let seventeenH = 3600 * 17
+                                let eightH = 3600 * 8
+                                let twelveH = 3600 * 12
+                                let thirteenH = 3600 * 13
+                                var statusMorning = '';
+                                var statusAfternoon = '';
+                                var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
+                                if (staff) {
+                                    var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff.ID)
+                                    var yearMonth = year + '-' + await convertNumber(month);
+                                    for (var j = 1; j <= dateFinal; j++) {
+                                        if (!checkDuplicate(arrayHoliday, j)) {
+                                            let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData)
+                                            let maxTime = await maxTimeArray(arrayTimeOfDate);
+                                            let minTime = await minTimeArray(arrayTimeOfDate);
+                                            if (arrayTimeOfDate.length == 1) {
+                                                if (minTime > twelveH) {
+                                                    // check chiều
+                                                    if (thirteenH > maxTime) {
+                                                        statusAfternoon = await converFromSecondsToHourLate(thirteenH - maxTime)
+                                                    }
+                                                    else {
+                                                        statusAfternoon = ''
+                                                    }
+                                                    statusMorning = '0.5'
+                                                } else {
+                                                    // check sáng
+                                                    if (minTime > eightH) {
+                                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                    }
+                                                    else {
+                                                        statusMorning = ''
+                                                    }
+                                                    statusAfternoon = '0.5'
+                                                }
+                                            }
+                                            if (arrayTimeOfDate.length > 1) {
+                                                if (maxTime <= twelveH) {
+                                                    // check sáng
+                                                    if (minTime > eightH) {
+                                                        statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                    }
+                                                    else {
+                                                        statusMorning = ''
+                                                    }
+                                                    statusAfternoon = '0.5'
+                                                }
+                                                else {
+                                                    // check sáng
+                                                    if (minTime > thirteenH) {
+                                                        statusMorning = await converFromSecondsToHourLate(minTime - thirteenH)
+                                                    }
+                                                    else {
+                                                        statusMorning = ''
+                                                    }
+                                                    // check chiều
+                                                    if (seventeenH > maxTime) {
+                                                        statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+                                                    }
+                                                    else {
+                                                        statusAfternoon = ''
+                                                    }
+                                                }
+                                            }
+                                            if (arrayTimeOfDate.length >= 1) {
+                                                await mtblChamCong(db).create({
+                                                    IDNhanVien: staff ? staff.ID : null,
+                                                    Date: moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'),
+                                                    Time: null,
+                                                    Status: statusMorning ? statusMorning : null,
+                                                    Reason: '',
+                                                    Type: true,
+                                                })
+                                                await mtblChamCong(db).create({
+                                                    IDNhanVien: staff ? staff.ID : null,
+                                                    Date: moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'),
+                                                    Time: null,
+                                                    Status: statusAfternoon ? statusAfternoon : null,
+                                                    Reason: '',
+                                                    Type: false,
+                                                })
+                                            }
+                                        }
+                                    }
+
+                                    obj['takeLeave'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
+                                    obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
+                                    obj['freeBreak'] = freeBreak;
+                                    obj['workingDay'] = workingDay;
+                                    obj['dayOff'] = holiday + freeBreak + takeLeave;
+                                    obj['staffName'] = staff ? staff.StaffName : '';
+                                    array.push(obj)
+                                }
+
+                            }
+                        }
+                    }
+                    var takeLeave = 0;
+                    var holiday = 0;
+                    // lấy dữ liệu từ database
+                    await mtblDMNhanvien(db).findAll().then(async staff => {
+                        for (var i = 0; i < staff.length; i++) {
+                            if (arrayDays.length > 0)
+                                checkFor = 1;
+                            var freeBreak = 0;
+                            var workingDay = 0;
+                            var obj = {}
+                            var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
                             var yearMonth = year + '-' + await convertNumber(month);
                             var timeKeeping = await mtblChamCong(db).findOne({
                                 where: [
-                                    { IDNhanVien: staff.ID },
+                                    { IDNhanVien: staff[i].ID },
                                     { Date: { [Op.substring]: '%' + yearMonth + '%' } },
                                 ]
                             })
@@ -1043,20 +1151,21 @@ module.exports = {
                                     if (!checkDuplicate(arrayHoliday, j)) {
                                         var timeKeepingM = await mtblChamCong(db).findOne({
                                             where: [
-                                                { IDNhanVien: staff.ID },
+                                                { IDNhanVien: staff[i].ID },
                                                 { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
                                                 { Type: true },
                                             ]
                                         })
                                         var timeKeepingA = await mtblChamCong(db).findOne({
                                             where: [
-                                                { IDNhanVien: staff.ID },
+                                                { IDNhanVien: staff[i].ID },
                                                 { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
                                                 { Type: false },
                                             ]
                                         })
                                         if (timeKeepingM) {
-                                            arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+                                            if (checkFor == 0)
+                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
                                             let objDay = {};
                                             objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
                                             objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
@@ -1067,8 +1176,8 @@ module.exports = {
                                         }
                                         else {
                                             if (checkDuplicate(arrayTakeLeave, j)) {
-                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
-
+                                                if (checkFor == 0)
+                                                    arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
                                                 let objDay = {};
                                                 objDay['S'] = 1;
                                                 objDay['C'] = '';
@@ -1077,114 +1186,8 @@ module.exports = {
                                                 freeBreak += 1;
                                             }
                                             else {
-                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
-
-                                                let objDay = {};
-                                                objDay['S'] = 1;
-                                                objDay['C'] = '';
-                                                objDay['status'] = 'F';
-                                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
-                                                freeBreak += 1;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                for (var j = 1; j <= dateFinal; j++) {
-                                    if (!checkDuplicate(arrayHoliday, j)) {
-                                        let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData)
-                                        let maxTime = await maxTimeArray(arrayTimeOfDate);
-                                        let minTime = await minTimeArray(arrayTimeOfDate);
-                                        if (arrayTimeOfDate.length == 1) {
-                                            if (minTime > twelveH) {
-                                                // check chiều
-                                                if (thirteenH > maxTime) {
-                                                    statusAfternoon = await converFromSecondsToHourLate(thirteenH - maxTime)
-                                                }
-                                                else {
-                                                    statusAfternoon = ''
-                                                }
-                                                statusMorning = '0.5'
-                                            } else {
-                                                // check sáng
-                                                if (minTime > eightH) {
-                                                    statusMorning = await converFromSecondsToHourLate(minTime - eightH)
-                                                }
-                                                else {
-                                                    statusMorning = ''
-                                                }
-                                                statusAfternoon = '0.5'
-                                            }
-                                        }
-                                        if (arrayTimeOfDate.length > 1) {
-                                            if (maxTime <= twelveH) {
-                                                // check sáng
-                                                if (minTime > eightH) {
-                                                    statusMorning = await converFromSecondsToHourLate(minTime - eightH)
-                                                }
-                                                else {
-                                                    statusMorning = ''
-                                                }
-                                                statusAfternoon = '0.5'
-                                            }
-                                            else {
-                                                // check sáng
-                                                if (minTime > thirteenH) {
-                                                    statusMorning = await converFromSecondsToHourLate(minTime - thirteenH)
-                                                }
-                                                else {
-                                                    statusMorning = ''
-                                                }
-                                                // check chiều
-                                                if (seventeenH > maxTime) {
-                                                    statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
-                                                }
-                                                else {
-                                                    statusAfternoon = ''
-                                                }
-                                            }
-                                        }
-                                        if (arrayTimeOfDate.length >= 1) {
-                                            // Danh sách ngày thêm cho Hungng
-                                            arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
-                                            let idS = await mtblChamCong(db).create({
-                                                IDNhanVien: staff ? staff.ID : null,
-                                                Date: moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'),
-                                                Time: null,
-                                                Status: statusMorning ? statusMorning : null,
-                                                Reason: '',
-                                                Type: true,
-                                            })
-                                            let idC = await mtblChamCong(db).create({
-                                                IDNhanVien: staff ? staff.ID : null,
-                                                Date: moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'),
-                                                Time: null,
-                                                Status: statusAfternoon ? statusAfternoon : null,
-                                                Reason: '',
-                                                Type: false,
-                                            })
-                                            let objDay = {
-                                                S: statusMorning,
-                                                idS: idS.ID,
-                                                C: statusAfternoon,
-                                                idC: idC.ID
-                                            };
-                                            workingDay += 1
-                                            obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
-                                        } else {
-                                            if (checkDuplicate(arrayTakeLeave, j)) {
-                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
-
-                                                let objDay = {};
-                                                objDay['S'] = 1;
-                                                objDay['C'] = '';
-                                                objDay['status'] = 'H';
-                                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
-                                                freeBreak += 1;
-                                            } else {
-                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
-
+                                                if (checkFor == 0)
+                                                    arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
                                                 let objDay = {};
                                                 objDay['S'] = 1;
                                                 objDay['C'] = '';
@@ -1201,11 +1204,11 @@ module.exports = {
                             obj['freeBreak'] = freeBreak;
                             obj['workingDay'] = workingDay;
                             obj['dayOff'] = holiday + freeBreak + takeLeave;
-                            obj['staffName'] = staff ? staff.StaffName : '';
+                            obj['staffName'] = staff[i] ? staff[i].StaffName : '';
                             array.push(obj)
-                        }
 
-                    }
+                        }
+                    })
                     var result = {
                         array: array,
                         status: Constant.STATUS.SUCCESS,
