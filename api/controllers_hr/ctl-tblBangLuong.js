@@ -1288,4 +1288,118 @@ module.exports = {
             }
         })
     },
+    // data_export_excel
+    dataExportExcel: (req, res) => {
+        let body = req.body;
+
+        database.connectDatabase().then(async db => {
+            try {
+                console.log(body);
+                var array = [];
+                var month = Number(body.date.slice(5, 7)); // January
+                var year = Number(body.date.slice(0, 4));
+                var date = new Date(year, month, 0);
+                var dateFinal = Number(date.toISOString().slice(8, 10))
+                dateFinal += 1
+                var takeLeave = 0;
+                var holiday = 0;
+                var count = 0;
+                let checkFor = 0;
+                var arrayHoliday = await getDateholiday(db, month, year)
+                await mtblDMNhanvien(db).findAll().then(async staff => {
+                    for (var i = 0; i < staff.length; i++) {
+                        if (count > 0)
+                            checkFor = 1;
+                        var freeBreak = 0;
+                        var workingDay = 0;
+                        var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
+                        var yearMonth = year + '-' + await convertNumber(month);
+                        var timeKeeping = await mtblChamCong(db).findOne({
+                            where: [
+                                { IDNhanVien: staff[i].ID },
+                                { Date: { [Op.substring]: '%' + yearMonth + '%' } },
+                            ]
+                        })
+                        let objMorning = {};
+                        let objAfternoon = {};
+                        objAfternoon['Tên nhân viên'] = staff[i] ? staff[i].StaffName : '';
+                        objAfternoon['Buổi'] = 'Chiều';
+                        objMorning['Tên nhân viên'] = staff[i] ? staff[i].StaffName : '';
+                        objMorning['Buổi'] = 'Sáng';
+                        if (timeKeeping) {
+                            for (var j = 1; j <= dateFinal; j++) {
+                                if (!checkDuplicate(arrayHoliday, j)) {
+                                    var timeKeepingM = await mtblChamCong(db).findOne({
+                                        where: [
+                                            { IDNhanVien: staff[i].ID },
+                                            { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
+                                            { Type: true },
+                                        ]
+                                    })
+                                    var timeKeepingA = await mtblChamCong(db).findOne({
+                                        where: [
+                                            { IDNhanVien: staff[i].ID },
+                                            { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
+                                            { Type: false },
+                                        ]
+                                    })
+                                    if (timeKeepingM) {
+                                        workingDay += 1
+                                        if (checkFor == 0)
+                                            count += 1;
+                                        objMorning[await convertNumber(j) + "/" + await convertNumber(month)] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
+                                        objAfternoon[await convertNumber(j) + "/" + await convertNumber(month)] = timeKeepingA ? timeKeepingA.Status ? timeKeepingA.Status : '' : ' ';
+                                    }
+                                    else {
+                                        if (checkDuplicate(arrayTakeLeave, j)) {
+                                            if (checkFor == 0)
+                                                count += 1;
+
+                                            objMorning[await convertNumber(j) + "/" + await convertNumber(month)] = 1;
+                                            objAfternoon[await convertNumber(j) + "/" + await convertNumber(month)] = '';
+                                            freeBreak += 1;
+                                        }
+                                        else {
+                                            if (checkFor == 0)
+                                                count += 1;
+                                            objMorning[await convertNumber(j) + "/" + await convertNumber(month)] = 1;
+                                            objAfternoon[await convertNumber(j) + "/" + await convertNumber(month)] = '';
+                                            freeBreak += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // push sáng
+                        objMorning['Ngày làm việc'] = workingDay;
+                        objMorning['Ngày nghỉ'] = holiday + freeBreak + takeLeave;
+
+                        objMorning['Ngày nghỉ phép'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
+                        objMorning['Ngày nghỉ lễ'] = arrayHoliday ? arrayHoliday.length : 0;
+                        objMorning['Ngày nghỉ tự do'] = freeBreak;
+
+                        // push chiều
+                        objAfternoon['Ngày làm việc'] = workingDay;
+                        objAfternoon['Ngày nghỉ'] = holiday + freeBreak + takeLeave;
+
+                        objAfternoon['Ngày nghỉ phép'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
+                        objAfternoon['Ngày nghỉ lễ'] = arrayHoliday ? arrayHoliday.length : 0;
+                        objAfternoon['Ngày nghỉ tự do'] = freeBreak;
+                        array.push(objMorning)
+                        array.push(objAfternoon)
+                    }
+                })
+                var result = {
+                    array: array,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    count: count + 7,
+                }
+                res.json(result);
+            } catch (error) {
+                console.log(error);
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    }
 }

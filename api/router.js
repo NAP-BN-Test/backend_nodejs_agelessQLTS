@@ -308,6 +308,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/update_timekeeping').post(tblBangLuong.updateTimekeeping);
 
+    app.route('/qlnb/data_export_excel').post(tblBangLuong.dataExportExcel);
+
     //---------------------------------------------------------------- Mức đóng bảo hiểm --------------------------------------------------------------------------------------
     var tblMucDongBaoHiem = require('./controllers_hr/ctl-tblMucDongBaoHiem');
     app.route('/qlnb/add_tbl_mucdong_baohiem').post(checkToken.checkToken, tblMucDongBaoHiem.addtblMucDongBaoHiem);
