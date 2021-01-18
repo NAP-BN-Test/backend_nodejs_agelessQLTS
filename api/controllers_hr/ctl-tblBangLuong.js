@@ -1271,14 +1271,22 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblChamCong(db).update({
-                        Status: body.status
-                    }, {
-                        where: {
-                            ID: body.id
-                        }
-                    })
-
+                    body.array = JSON.parse(body.array);
+                    for (var i = 0; i < body.array.length; i++) {
+                        if (body.array[i].id)
+                            mtblChamCong(db).update({
+                                Status: body.array[i].status
+                            }, {
+                                where: {
+                                    ID: body.array[i].id
+                                }
+                            })
+                    }
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -277,7 +277,6 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
-                            console.log(element.ReasonRejectKTPD, element.TrangThaiPheDuyetKT);
                             let statusKT;
                             if (element.TrangThaiPheDuyetKT === 'Đã phê duyệt')
                                 statusKT = element.KTPD ? element.KTPD.StaffName : '';

@@ -24,12 +24,25 @@ var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
 var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 const Sequelize = require('sequelize');
 
+// nhân sự
+var mtblChamCong = require('../tables/hrmanage/tblChamCong')
+var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
+var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
+
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
+    await mtblPhanPhoiVPP(db).update({
+        IDNhanVienBanGiao: null,
+    }, { where: { IDNhanVienBanGiao: { [Op.in]: listID } } })
+    await mtblPhanPhoiVPP(db).update({
+        IDNhanVienSoHuu: null,
+    }, { where: { IDNhanVienSoHuu: { [Op.in]: listID } } })
+    await mtblChamCong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblNghiPhep(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDMGiaDinh(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblBangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
@@ -47,8 +60,8 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
         IDNhanVienSoHuu: null,
     }, { where: { IDNhanVienSoHuu: { [Op.in]: listID } } })
     await mtblYeuCauMuaSam(db).update({
-        IDNhanvien: null,
-    }, { where: { IDNhanvien: { [Op.in]: listID } } })
+        IDNhanVien: null,
+    }, { where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblYeuCauMuaSam(db).update({
         IDPheDuyet1: null,
     }, { where: { IDPheDuyet1: { [Op.in]: listID } } })

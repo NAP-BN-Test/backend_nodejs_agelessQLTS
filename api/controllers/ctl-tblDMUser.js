@@ -378,6 +378,7 @@ module.exports = {
     },
     login: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             try {
                 let tblDMUser = mtblDMUser(db);
@@ -402,8 +403,8 @@ module.exports = {
                         userName: data.Username,
                         password: data.Password,
                         idNhanVien: data.IDNhanvien,
-                        staffName: data.nv.StaffName,
-                        staffCode: data.nv.StaffCode,
+                        staffName: data.nv ? data.nv.StaffName : '',
+                        staffCode: data.nv ? data.nv.StaffCode : '',
                         // list: data.tblPrices
                     }
                     payload = {
