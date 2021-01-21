@@ -317,7 +317,6 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -366,6 +365,7 @@ module.exports = {
                                 IDNhanVien: data.ID,
                                 WorkingSalary: salary,
                                 BHXHSalary: body.workingSalary,
+                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
                             })
                             await mtblHopDongNhanSu(db).create({
                                 IDNhanVien: data.ID,
@@ -379,11 +379,6 @@ module.exports = {
                                 UnitSalary: 'VND',
                                 WorkingPlace: '',
                                 Status: body.status ? body.status : '',
-                            })
-                            await mtblBangLuong(db).create({
-                                IDNhanVien: data.ID,
-                                workingSalary: body.salaryNumber ? body.salaryNumber : 0,
-                                bhxhSalary: body.salaryNumber ? body.salaryNumber : 0,
                             })
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -517,6 +512,14 @@ module.exports = {
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
                         }, { where: { ID: body.idContract } })
+                        salary = body.salaryNumber ? body.salaryNumber : 0
+                        await mtblBangLuong(db).create({
+                            Date: body.signDate ? body.signDate : null,
+                            IDNhanVien: body.id,
+                            WorkingSalary: salary,
+                            BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                            DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                        })
                     }
                     else {
                         await mtblHopDongNhanSu(db).create({
@@ -531,6 +534,14 @@ module.exports = {
                             Status: body.status ? body.status : '',
                             IDNhanVien: body.id ? body.id : null,
                             WorkingPlace: ''
+                        })
+                        salary = body.salaryNumber ? body.salaryNumber : 0
+                        await mtblBangLuong(db).create({
+                            Date: body.signDate ? body.signDate : null,
+                            IDNhanVien: body.id,
+                            WorkingSalary: salary,
+                            BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                            DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
                         })
                     }
                     database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {

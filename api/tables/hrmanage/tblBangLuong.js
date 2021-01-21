@@ -15,7 +15,7 @@ module.exports = function (db) {
         Workday: Sequelize.FLOAT,
         WorkVP: Sequelize.FLOAT,
         WorkBusiness: Sequelize.FLOAT,
-
+        DateEnd: Sequelize.DATE,
     });
 
     return table;

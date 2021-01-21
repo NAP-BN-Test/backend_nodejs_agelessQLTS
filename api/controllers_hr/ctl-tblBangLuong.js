@@ -11,6 +11,7 @@ var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var mModules = require('../constants/modules');
 var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
+const axios = require('axios');
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
@@ -26,20 +27,24 @@ function checkDuplicate(array, elm) {
     })
     return check;
 }
-async function filterByDate(userID, dateFinal, array) {
+async function filterByDate(userID, dateFinal, array, month, year) {
     var arrayResult = [];
     for (var i = 0; i < array.length; i++) {
-        if (array[i].UserID == userID && Number(array[i].VerifyDate.slice(8, 10)) == dateFinal) {
-            arrayResult.push(array[i].VerifyDate.slice(11, 22))
+        var date = moment(array[i]['Verify Date']).format("YYYY-MM-DD hh:mm:ss")
+        if (Number(date.slice(5, 7)) == month && Number(date.slice(0, 4)) == year) {
+            if (array[i]['User ID'] == userID && Number(date.slice(8, 10)) == dateFinal) {
+                arrayResult.push(date.slice(11, 22))
+            }
         }
+
     }
     return arrayResult;
 }
 async function getUserIDExits(array) {
     var arrayUserID = [];
     for (var i = 0; i < array.length; i++) {
-        if (!checkDuplicate(arrayUserID, array[i].UserID))
-            arrayUserID.push(array[i].UserID)
+        if (!checkDuplicate(arrayUserID, array[i]['User ID']))
+            arrayUserID.push(array[i]['User ID'])
     }
     return arrayUserID;
 }
@@ -170,8 +175,9 @@ async function getDateholiday(db, month, year) {
     }).then(data => {
         if (data) {
             data.forEach(element => {
-                array.push(moment(element.DateStartHoliday).date())
-                array.push(moment(element.DateEndHoliday).date())
+                for (var i = moment(element.DateStartHoliday).date(); i <= moment(element.DateEndHoliday).date(); i++) {
+                    array.push(i)
+                }
             })
         }
     })
@@ -187,10 +193,10 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
                     let stt = 1;
                     let tblBangLuong = mtblBangLuong(db);
                     // let tblDMNhanvien = mtblDMNhanvien(db)
+                    var date = body.date + '-01 17:00:00.000'
                     tblBangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                     tblBangLuong.findAll({
                         include: [
@@ -205,7 +211,18 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { Date: { [Op.substring]: body.date } },
+                        where: {
+                            [Op.or]: [
+                                {
+                                    Date: { [Op.lte]: date },
+                                    DateEnd: { [Op.gte]: date },
+                                },
+                                {
+                                    Date: { [Op.lte]: date },
+                                    DateEnd: null,
+                                }
+                            ]
+                        },
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -350,686 +367,100 @@ module.exports = {
         let arrayData = [
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
-                UserID: 1,
-                VerifyDate: "2021-01-01 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 1,
+                'Verify Date': "2021-1-1 08:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             {
-                UserID: 1,
-                VerifyDate: "2021-01-01 10:00:30",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 1,
+                'Verify Date': "2021-1-1 10:00:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             }, {
-                UserID: 2,
-                VerifyDate: "2021-01-01 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 2,
+                'Verify Date': "2021-1-1 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             {
-                UserID: 2,
-                VerifyDate: "2021-01-01 16:20:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 2,
+                'Verify Date': "2021-1-1 16:20:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             // -06 ----------------------------------------------------------------------------------------------------------------------------------
             {
-                UserID: 1,
-                VerifyDate: "2021-01-06 09:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 1,
+                'Verify Date': "2021-1-6 09:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             {
-                UserID: 1,
-                VerifyDate: "2021-01-06 17:10:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 1,
+                'Verify Date': "2021-1-6 17:10:28",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             {
-                UserID: 2,
-                VerifyDate: "2021-01-06 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 2,
+                'Verify Date': "2021-1-6 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             {
-                UserID: 2,
-                VerifyDate: "2021-01-06 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 2,
+                'Verify Date': "2021-1-6 17:00:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             // -07 ----------------------------------------------------------------------------------------------------------------------------------
             {
-                UserID: 1,
-                VerifyDate: "2021-01-07 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 1,
+                'Verify Date': "2021-1-7 08:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
             {
-                UserID: 1,
-                VerifyDate: "2021-01-07 15:20:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 1,
+                'Verify Date': "2021-1-7 15:20:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             }, {
-                UserID: 2,
-                VerifyDate: "2021-01-07 12:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-07 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -08 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-08 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-08 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-08 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-08 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -09 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-09 12:55:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // {
-            // UserID: 1,
-            // VerifyDate: "2021-01-09 17:00:28",
-            // VerifyType: 1,
-            // VerifyState: 1,
-            // WorkCode: 1
-            // },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-09 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-09 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -10 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-10 11:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-10 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-10 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-10 16:35:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -12 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-12 08:40:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-12 17:30:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-12 13:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -13 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-13 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-13 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-13 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -14 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-14 10:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-14 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-14 14:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -15 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-15 8:10:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-15 12:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            }, {
-                UserID: 2,
-                VerifyDate: "2021-01-15 8:15:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-15 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -16 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-16 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-16 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-16 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-16 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -17 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-17 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-17 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-17 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-17 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -18 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-18 08:40:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-18 8:25:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -19 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-19 13:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-19 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-19 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -20 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-20 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-20 08:35:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-20 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -21 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-21 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-21 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-21 8:40:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-21 14:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -22 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-22 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-22 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-22 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-22 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -23 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-23 08:10:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-23 17:10:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-23 8:30:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-23 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -24 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-24 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-24 16:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-24 7:45:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-24 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -25 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-25 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-25 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-25 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-25 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -26 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-26 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-26 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-26 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-26 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-
-            // -28 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-28 09:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-28 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-28 11:35:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-28 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -29 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-29 08:30:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-29 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-29 8:30:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-29 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -30 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-30 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-30 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-30 7:50:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-30 14:10:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            }, {
-                UserID: 2,
-                VerifyDate: "2021-01-30 17:10:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            // -31 ----------------------------------------------------------------------------------------------------------------------------------
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-31 08:00:00",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 1,
-                VerifyDate: "2021-01-31 17:00:28",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-31 8:00:16",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
-            },
-            {
-                UserID: 2,
-                VerifyDate: "2021-01-02 17:00:20",
-                VerifyType: 1,
-                VerifyState: 1,
-                WorkCode: 1
+                'User ID': 2,
+                'Verify Date': "2021-01-07 12:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-1-7 17:00:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
             },
         ]
+
         database.connectDatabase().then(async db => {
+            // var obj = {
+            //     fromTime: '2021-12-20 12:00:12',
+            //     toTime: '2021-12-30 12:00:12'
+            // }
+            // await axios.get(`http://192.168.23.13:1333/dulieuchamcong`, obj).then(data => {
+            //     if (data.length > 0)
+            //         arrayData = data
+            // })
             if (db) {
                 try {
                     var array = [];
@@ -1053,9 +484,6 @@ module.exports = {
                             for (var i = 0; i < arrayUserID.length; i++) {
                                 var takeLeave = 0;
                                 var holiday = 0;
-                                var freeBreak = 0;
-                                var workingDay = 0;
-                                var obj = {}
                                 let seventeenH = 3600 * 17
                                 let eightH = 3600 * 8
                                 let twelveH = 3600 * 12
@@ -1064,11 +492,10 @@ module.exports = {
                                 var statusAfternoon = '';
                                 var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
                                 if (staff) {
-                                    var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff.ID)
                                     var yearMonth = year + '-' + await convertNumber(month);
                                     for (var j = 1; j <= dateFinal; j++) {
                                         if (!checkDuplicate(arrayHoliday, j)) {
-                                            let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData)
+                                            let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData, month, year)
                                             let maxTime = await maxTimeArray(arrayTimeOfDate);
                                             let minTime = await minTimeArray(arrayTimeOfDate);
                                             if (arrayTimeOfDate.length == 1) {
@@ -1172,6 +599,12 @@ module.exports = {
                     var holiday = 0;
                     // lấy dữ liệu từ database
                     await mtblDMNhanvien(db).findAll().then(async staff => {
+                        for (var j = 1; j <= dateFinal; j++) {
+                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).subtract(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                            if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                arrayHoliday.push(j)
+                            }
+                        }
                         for (var i = 0; i < staff.length; i++) {
                             if (arrayDays.length > 0)
                                 checkFor = 1;
@@ -1186,6 +619,7 @@ module.exports = {
                                     { Date: { [Op.substring]: '%' + yearMonth + '%' } },
                                 ]
                             })
+                            console.log(arrayHoliday);
                             if (timeKeeping) {
                                 for (var j = 1; j <= dateFinal; j++) {
                                     if (!checkDuplicate(arrayHoliday, j)) {
