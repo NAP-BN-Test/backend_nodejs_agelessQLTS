@@ -12,6 +12,7 @@ var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var mModules = require('../constants/modules');
 var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
 const axios = require('axios');
+var mtblConfigWorkday = require('../tables/hrmanage/tblConfigWorkday')
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
@@ -451,15 +452,10 @@ module.exports = {
                 'Work Code': 1
             },
         ]
-
         database.connectDatabase().then(async db => {
-            // var obj = {
-            //     fromTime: '2021-12-20 12:00:12',
-            //     toTime: '2021-12-30 12:00:12'
-            // }
-            // await axios.get(`http://192.168.23.13:1333/dulieuchamcong`, obj).then(data => {
+            // await axios.get(`http://192.168.23.13:1333/dulieuchamcong/`).then(data => {
             //     if (data.length > 0)
-            //         arrayData = data
+            //         arrayData = JSON.parse(data)
             // })
             if (db) {
                 try {
@@ -605,6 +601,17 @@ module.exports = {
                                 arrayHoliday.push(j)
                             }
                         }
+                        await mtblConfigWorkday(db).findAll({
+                            where: { Date: { [Op.substring]: year + '-' + await convertNumber(month) } },
+                            order: [
+                                ['Date', 'DESC']
+                            ],
+                        }).then(data => {
+                            if (data.length > 0)
+                                data.forEach(element => {
+                                    arrayHoliday.push(Number(element.Date.slice(8, 10)))
+                                });
+                        })
                         for (var i = 0; i < staff.length; i++) {
                             if (arrayDays.length > 0)
                                 checkFor = 1;
@@ -619,7 +626,6 @@ module.exports = {
                                     { Date: { [Op.substring]: '%' + yearMonth + '%' } },
                                 ]
                             })
-                            console.log(arrayHoliday);
                             if (timeKeeping) {
                                 for (var j = 1; j <= dateFinal; j++) {
                                     if (!checkDuplicate(arrayHoliday, j)) {
@@ -736,7 +742,6 @@ module.exports = {
 
         database.connectDatabase().then(async db => {
             try {
-                console.log(body);
                 var array = [];
                 var month = Number(body.date.slice(5, 7)); // January
                 var year = Number(body.date.slice(0, 4));
@@ -843,5 +848,18 @@ module.exports = {
                 res.json(Result.SYS_ERROR_RESULT)
             }
         })
-    }
+    },
+    // delete_all_timekeeping
+    deleteAllTimekeeping: async (req, res) => {
+        let body = req.body;
+        await axios.get(`http://192.168.23.13:1333/dulieuchamcong/deleteall`).then(data => {
+            if (data == 'done') {
+                var result = {
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            }
+        })
+    },
 }

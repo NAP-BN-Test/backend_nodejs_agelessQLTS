@@ -310,6 +310,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/data_export_excel').post(tblBangLuong.dataExportExcel);
 
+    app.route('/qlnb/delete_all_timekeeping').post(tblBangLuong.deleteAllTimekeeping);
+
     //---------------------------------------------------------------- Mức đóng bảo hiểm --------------------------------------------------------------------------------------
     var tblMucDongBaoHiem = require('./controllers_hr/ctl-tblMucDongBaoHiem');
     app.route('/qlnb/add_tbl_mucdong_baohiem').post(checkToken.checkToken, tblMucDongBaoHiem.addtblMucDongBaoHiem);
@@ -331,6 +333,13 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.deletetblLoaiHopDong);
     app.route('/qlnb/get_list_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListtblLoaiHopDong);
     app.route('/qlnb/get_list_name_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListNametblLoaiHopDong);
+
+    // Quản lý ngày làm việc
+    var tblConfigWorkday = require('./controllers_hr/ctl-tblConfigWorkday')
+    app.route('/qlnb/add_tbl_config_workday').post(checkToken.checkToken, tblConfigWorkday.addtblConfigWorkday);
+    app.route('/qlnb/update_tbl_config_workday').post(checkToken.checkToken, tblConfigWorkday.updatetblConfigWorkday);
+    app.route('/qlnb/delete_tbl_config_workday').post(checkToken.checkToken, tblConfigWorkday.deletetblConfigWorkday);
+    app.route('/qlnb/get_list_tbl_config_workday').post(tblConfigWorkday.getListtblConfigWorkday);
 
     // // Quản lý nghỉ lễ / tết
     // var tblQuanLyNghiLe = require('./controllers_hr/ctl-tblNghiLe');
