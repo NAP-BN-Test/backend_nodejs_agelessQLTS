@@ -594,11 +594,16 @@ module.exports = {
                     var takeLeave = 0;
                     var holiday = 0;
                     // lấy dữ liệu từ database
+                    var array7th = [];
+                    var array7thDB = [];
                     await mtblDMNhanvien(db).findAll().then(async staff => {
                         for (var j = 1; j <= dateFinal; j++) {
-                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).subtract(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
                             if (datetConvert.slice(0, 8) == 'Chủ nhật') {
                                 arrayHoliday.push(j)
+                            }
+                            if (datetConvert.slice(0, 5) == 'Thứ 7') {
+                                array7th.push(j)
                             }
                         }
                         await mtblConfigWorkday(db).findAll({
@@ -609,8 +614,14 @@ module.exports = {
                         }).then(data => {
                             if (data.length > 0)
                                 data.forEach(element => {
-                                    arrayHoliday.push(Number(element.Date.slice(8, 10)))
+                                    if (!checkDuplicate(array7th, element))
+                                        array7thDB.push(Number(element.Date.slice(8, 10)))
                                 });
+                        })
+                        array7th.forEach(element => {
+                            if (!checkDuplicate(array7thDB, element)) {
+                                arrayHoliday.push(element)
+                            }
                         })
                         for (var i = 0; i < staff.length; i++) {
                             if (arrayDays.length > 0)

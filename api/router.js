@@ -17,11 +17,17 @@ module.exports = function (app) {
     var tblPhanPhoiVPP = require('./controllers/ctl-tblPhanPhoiVPP');
     var tblFileAttach = require('./controllers/ctl-tblFileAttach');
     var tblNghiPhep = require('./controllers_hr/ctl-tblNghiPhep');
+    var tblTemplate = require('./controllers/ctl-tblTemplate');
 
     app.route('/qlnb/delete_file').post(tblFileAttach.deletetblFileAttach);
     app.route('/qlnb/delete_file_from_link').post(tblFileAttach.deletetblFileFromLink);
 
     //---------------------------------------------------------------- Menu Quản lý danh mục--------------------------------------------------------------------------------------
+    // Quản lý mẫu in
+    app.route('/qlnb/add_tbl_template').post(checkToken.checkToken, tblTemplate.addTBLTemplate);
+    app.route('/qlnb/update_tbl_template').post(checkToken.checkToken, tblTemplate.updateTBLTemplate);
+    app.route('/qlnb/get_list_tbl_template').post(checkToken.checkToken, tblTemplate.getListTBLTemplate);
+    app.route('/qlnb/delete_tbl_template').post(checkToken.checkToken, tblTemplate.deleteTBLTemplate);
     // Quản lý account
     app.route('/qlnb/login').post(tblDMUser.login);
     app.route('/qlnb/add_tbl_dmuser').post(checkToken.checkToken, tblDMUser.addtblDMUser);
@@ -347,4 +353,12 @@ module.exports = function (app) {
     // app.route('/qlnb/update_tbl_nghile').post(checkToken.checkToken, tblQuanLyNghiLe.updatetblNghiLe);
     // app.route('/qlnb/delete_tbl_nghile').post(checkToken.checkToken, tblQuanLyNghiLe.deletetblNghiLe);
     // app.route('/qlnb/get_list_tbl_nghile').post(checkToken.checkToken, tblQuanLyNghiLe.getListtblNghiLe);
+
+
+    // ************************************************************** QUẢN LÝ TÀI CHÍNH **********************************************************************************************
+    var tblVayTamUng = require('./controller_finance/ctl-tblVayTamUng')
+    app.route('/qlnb/get_list_tbl_vaytamung').post(tblVayTamUng.getListtblVayTamUng);
+    app.route('/qlnb/get_detail_tbl_vaytamung').post(tblVayTamUng.detailtblVayTamUng);
+
+
 }

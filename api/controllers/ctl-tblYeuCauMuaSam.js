@@ -38,9 +38,11 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    var deparment = await mtblDMNhanvien(db).findOne({ where: { ID: body.idNhanVien } })
+                    console.log(deparment.IDBoPhan, body.idNhanVien);
                     mtblYeuCauMuaSam(db).create({
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
-                        IDPhongBan: body.idPhongBan ? body.idPhongBan : null,
+                        IDPhongBan: deparment ? deparment.IDBoPhan ? deparment.IDBoPhan : null : null,
                         RequireDate: body.requireDate ? body.requireDate : null,
                         Reason: body.reason ? body.reason : '',
                         Status: 'Chờ phê duyệt',
@@ -63,7 +65,8 @@ module.exports = {
                                 await mtblYeuCauMuaSamDetail(db).create({
                                     IDYeuCauMuaSam: data.ID,
                                     IDDMHangHoa: body.line[i].idDMHangHoa.id,
-                                    Amount: body.line[i].amount
+                                    Amount: body.line[i].amount,
+                                    Price: body.line[i].unitPrice,
                                 })
                             }
                         var result = {
@@ -120,7 +123,8 @@ module.exports = {
                             await mtblYeuCauMuaSamDetail(db).update({
                                 IDYeuCauMuaSam: data.ID,
                                 IDDMHangHoa: body.line[i].idDMHangHoa,
-                                Amount: body.line[i].amount
+                                Amount: body.line[i].amount,
+                                Price: body.line[i].unitPrice
                             }, {
                                 where: { ID: body.line[i].idLine }
                             })
@@ -650,7 +654,7 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                idIDNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                                 nameIDNhanVien: element.NhanVien ? element.NhanVien.StaffName : null,
                                 idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
                                 codePhongBan: element.phongban ? element.phongban.DepartmentCode : null,
@@ -662,7 +666,7 @@ module.exports = {
                                 namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
                                 idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
                                 namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
-                                line: element.line
+                                line: element.line,
                             }
                             array.push(obj);
                             stt += 1;
@@ -672,11 +676,15 @@ module.exports = {
                             var arrayFile = []
                             for (var j = 0; j < array[i].line.length; j++) {
                                 await mtblDMHangHoa(db).findOne({ where: { ID: array[i].line[j].IDDMHangHoa } }).then(data => {
+                                    var price = array[i].line[j].Price ? array[i].line[j].Price : 0
+                                    var amount = array[i].line[j].Amount ? array[i].line[j].Amount : 0
                                     if (data)
                                         arrayTaiSan.push({
                                             name: data.Name,
                                             code: data.Code,
-                                            amount: array[i].line[j].Amount,
+                                            amount: amount,
+                                            unitPrice: price,
+                                            total: amount * price,
                                         })
                                 })
                             }
@@ -766,8 +774,8 @@ module.exports = {
                         var obj = {
                             stt: stt,
                             id: Number(data.ID),
-                            idIDNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
-                            nameIDNhanVien: data.NhanVien ? data.NhanVien.StaffName : null,
+                            idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+                            nameNhanVien: data.NhanVien ? data.NhanVien.StaffName : null,
                             idPhongBan: data.IDPhongBan ? data.IDPhongBan : null,
                             codePhongBan: data.phongban ? data.phongban.DepartmentCode : null,
                             namePhongBan: data.phongban ? data.phongban.DepartmentName : null,
