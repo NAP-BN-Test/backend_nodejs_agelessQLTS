@@ -109,30 +109,35 @@ module.exports = {
                         else
                             update.push({ key: 'RequireDate', value: body.requireDate });
                     }
+                    body.line = JSON.parse(body.line)
+                    body.fileAttach = JSON.parse(body.fileAttach)
+
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
-                                IDYeuCauMuaSam: data.ID,
+                                IDYeuCauMuaSam: body.id,
                             }, {
                                 where: {
                                     ID: body.fileAttach[j].id
                                 }
                             })
-                    if (body.line.length > 0)
+                    console.log(body.line);
+                    if (body.line.length > 0) {
+                        await mtblYeuCauMuaSamDetail(db).destroy({
+                            where: { IDYeuCauMuaSam: body.id }
+                        })
                         for (var i = 0; i < body.line.length; i++) {
-                            await mtblYeuCauMuaSamDetail(db).update({
-                                IDYeuCauMuaSam: data.ID,
-                                IDDMHangHoa: body.line[i].idDMHangHoa,
+                            await mtblYeuCauMuaSamDetail(db).create({
+                                IDYeuCauMuaSam: body.id,
+                                IDDMHangHoa: body.line[i].idDMHangHoa.id,
                                 Amount: body.line[i].amount,
-                                Price: body.line[i].unitPrice
-                            }, {
-                                where: { ID: body.line[i].idLine }
+                                Price: body.line[i].unitPrice ? body.line[i].unitPrice : 0
                             })
                         }
+                    }
+
                     if (body.reason || body.reason === '')
                         update.push({ key: 'Reason', value: body.reason });
-                    if (body.status || body.status === '')
-                        update.push({ key: 'Status', value: body.status });
                     if (body.idPheDuyet2 || body.idPheDuyet2 === '') {
                         if (body.idPheDuyet2 === '')
                             update.push({ key: 'IDPheDuyet2', value: null });
@@ -336,6 +341,7 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -651,6 +657,14 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
+                            var reasonReject = '';
+                            console.log(element.ReasonReject1, element.ReasonReject2, element.ReasonReject);
+                            if (element.ReasonReject1) {
+                                reasonReject = 'Người phê duyệt trước đã từ chối: ' + element.ReasonReject1
+                            }
+                            if (element.ReasonReject2) {
+                                reasonReject = 'Người phê duyệt sau đã từ chối: ' + element.ReasonReject2
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -666,6 +680,7 @@ module.exports = {
                                 namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
                                 idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
                                 namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
+                                reasonReject: reasonReject,
                                 line: element.line,
                             }
                             array.push(obj);
@@ -674,20 +689,25 @@ module.exports = {
                         for (var i = 0; i < array.length; i++) {
                             var arrayTaiSan = []
                             var arrayFile = []
+                            var total = 0;
                             for (var j = 0; j < array[i].line.length; j++) {
                                 await mtblDMHangHoa(db).findOne({ where: { ID: array[i].line[j].IDDMHangHoa } }).then(data => {
                                     var price = array[i].line[j].Price ? array[i].line[j].Price : 0
                                     var amount = array[i].line[j].Amount ? array[i].line[j].Amount : 0
-                                    if (data)
+
+                                    if (data) {
+                                        total += amount * price
                                         arrayTaiSan.push({
                                             name: data.Name,
                                             code: data.Code,
                                             amount: amount,
                                             unitPrice: price,
-                                            total: amount * price,
+                                            id: array[i].line[j].id,
                                         })
+                                    }
                                 })
                             }
+                            array[i]['price'] = total;
                             await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: array[i].id } }).then(file => {
                                 if (file.length > 0) {
                                     for (var e = 0; e < file.length; e++) {
@@ -790,7 +810,11 @@ module.exports = {
                         }
                         var arrayTaiSan = []
                         var arrayFile = []
+                        var total = 0;
                         for (var j = 0; j < obj.line.length; j++) {
+                            var price = obj.line[j].Price ? array[i].line[j].Price : 0
+                            var amount = obj.line[j].Amount ? array[i].line[j].Amount : 0
+                            total += amount * price
                             let tblDMHangHoa = mtblDMHangHoa(db);
                             tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaiTaiSan' })
                             await tblDMHangHoa.findOne({
@@ -811,9 +835,13 @@ module.exports = {
                                     code: data.Code,
                                     amount: obj.line[j] ? obj.line[j].Amount : 0,
                                     nameLoaiTaiSan: data.loaiTaiSan ? data.loaiTaiSan.Name : '',
+                                    idLine: obj.line[j].ID,
+                                    amount: amount,
+                                    unitPrice: price,
                                 })
                             })
                         }
+                        obj[i]['price'] = total;
                         await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: obj.id } }).then(file => {
                             if (file.length > 0) {
                                 for (var e = 0; e < file.length; e++) {

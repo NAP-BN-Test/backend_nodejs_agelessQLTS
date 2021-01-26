@@ -14,6 +14,9 @@ module.exports = function (db) {
         Status: Sequelize.STRING,
         IDPheDuyet1: Sequelize.BIGINT,
         IDPheDuyet2: Sequelize.BIGINT,
+        ReasonReject1: Sequelize.STRING,
+        ReasonReject2: Sequelize.STRING,
+        ReasonReject: Sequelize.STRING,
     });
 
     return table;
