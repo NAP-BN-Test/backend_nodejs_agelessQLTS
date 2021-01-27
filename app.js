@@ -13,6 +13,8 @@ var mtblDMUser = require("./api/tables/constants/tblDMUser");
 var mtblDMNhanvien = require("./api/tables/constants/tblDMNhanvien");
 var mtblYeuCauMuaSam = require("./api/tables/qlnb/tblYeuCauMuaSam");
 var mtblDeNghiThanhToan = require("./api/tables/qlnb/tblDeNghiThanhToan");
+var mtblTemplate = require('./api/tables/qlnb/tblTemplate')
+
 var database = require('./api/database');
 const Op = require('sequelize').Op;
 
@@ -81,9 +83,31 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (
 var fs = require('fs');
 const JSZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
+const Constant = require('./api/constants/constant');
 
-app.get('/qlnb/render_automatic_work', async function (req, res) {
-    var pathFirst = 'D:/images_services/ageless_sendmail/002.docx';
+app.post('/qlnb/render_automatic_work', async function (req, res) {
+    let body = req.body;
+    var pathFirst = '';
+
+    await database.connectDatabase().then(async db => {
+        let tblTemplate = mtblTemplate(db);
+        tblTemplate.hasMany(mtblFileAttach(db), { foreignKey: 'IDTemplate', as: 'tem' })
+        await tblTemplate.findOne({
+            where: { Code: body.code },
+            include: [
+                {
+                    model: mtblFileAttach(db),
+                    required: false,
+                    as: 'tem'
+                },
+            ],
+        }).then(data => {
+            pathFirst = 'D:/images_services/ageless_sendmail/' + data.tem[0].Link.slice(44, 100);
+            if (!data.tem[0].ID) {
+                return res.json('Không tìm thấy code. Vui lòng cấu hình lại mẫu !')
+            }
+        })
+    })
     var pathTo = 'D:/images_services/ageless_sendmail/'
     var pathFinal = '';
     if (pathFirst.slice(-1) == 'c') {
@@ -124,9 +148,14 @@ app.get('/qlnb/render_automatic_work', async function (req, res) {
             // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
             var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
             fs.writeFileSync(path.resolve(pathTo, randomOutput), buf);
-            res.json('done')
+            var result = {
+                link: 'http://118.27.192.106:1357/ageless_sendmail/' + randomOutput,
+                status: Constant.STATUS.SUCCESS,
+                message: Constant.MESSAGE.ACTION_SUCCESS,
+            }
+            res.json(result);
         } catch (error) {
-            res.json('link không chính xác. Vui lòng kiểm tra lại!')
+            res.json('Lỗi file export. Vui lòng cầu hình lại!')
         }
     });
 })
