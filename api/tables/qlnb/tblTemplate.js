@@ -9,8 +9,6 @@ module.exports = function (db) {
         },
         Name: Sequelize.STRING,
         Code: Sequelize.STRING,
-        linkTemplate: Sequelize.STRING
-
     });
 
     return table;

@@ -26,7 +26,7 @@ module.exports = function (app) {
     // Quản lý mẫu in
     app.route('/qlnb/add_tbl_template').post(checkToken.checkToken, tblTemplate.addTBLTemplate);
     app.route('/qlnb/update_tbl_template').post(checkToken.checkToken, tblTemplate.updateTBLTemplate);
-    app.route('/qlnb/get_list_tbl_template').post(checkToken.checkToken, tblTemplate.getListTBLTemplate);
+    app.route('/qlnb/get_list_tbl_template').post(tblTemplate.getListTBLTemplate);
     app.route('/qlnb/delete_tbl_template').post(checkToken.checkToken, tblTemplate.deleteTBLTemplate);
     // Quản lý account
     app.route('/qlnb/login').post(tblDMUser.login);

@@ -87,6 +87,7 @@ module.exports = {
     // update_tbl_yeucaumuasam
     updatetblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -111,6 +112,7 @@ module.exports = {
                     }
                     body.line = JSON.parse(body.line)
                     body.fileAttach = JSON.parse(body.fileAttach)
+                    console.log(body.line);
 
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
@@ -658,7 +660,6 @@ module.exports = {
                         var array = [];
                         data.forEach(element => {
                             var reasonReject = '';
-                            console.log(element.ReasonReject1, element.ReasonReject2, element.ReasonReject);
                             if (element.ReasonReject1) {
                                 reasonReject = 'Người phê duyệt trước đã từ chối: ' + element.ReasonReject1
                             }
@@ -714,6 +715,7 @@ module.exports = {
                                         arrayFile.push({
                                             name: file[e].Name ? file[e].Name : '',
                                             link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].id
                                         })
                                     }
                                 }
@@ -848,13 +850,13 @@ module.exports = {
                                     arrayFile.push({
                                         name: file[e].Name ? file[e].Name : '',
                                         link: file[e].Link ? file[e].Link : '',
+                                        id: file[e].ID
                                     })
                                 }
                             }
                         })
                         obj['arrayTaiSan'] = arrayTaiSan;
                         obj['arrayFile'] = arrayFile;
-
                         var result = {
                             obj: obj,
                             status: Constant.STATUS.SUCCESS,

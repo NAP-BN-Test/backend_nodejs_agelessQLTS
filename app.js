@@ -81,40 +81,54 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (
 var fs = require('fs');
 const JSZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
-app.get('/api/test', async function (req, res) {
-    var CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
-    var defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
-    var Apikey = defaultClient.authentications['Apikey'];
-    Apikey.apiKey = "867a8adc-9881-4c99-85f8-4c9d2cd7aaeb"
 
-    var apiInstance = new CloudmersiveConvertApiClient.ConvertDocumentApi();
-    var inputFile = Buffer.from(fs.readFileSync("D:/images_services/ageless_sendmail/001.doc").buffer); // File | Input file to perform the operation on.
-    var callback = function (error, data, response) {
-        if (error) {
-            console.error(error);
-        } else {
-            fs.writeFileSync(path.resolve('D:/images_services/ageless_sendmail/', 'output.docx'), data);
+app.get('/qlnb/render_automatic_work', async function (req, res) {
+    var pathFirst = 'D:/images_services/ageless_sendmail/002.docx';
+    var pathTo = 'D:/images_services/ageless_sendmail/'
+    var pathFinal = '';
+    if (pathFirst.slice(-1) == 'c') {
+        var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
+        pathFinal = pathTo + randomOutput;
+        var CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
+        var defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
+        var Apikey = defaultClient.authentications['Apikey'];
+        Apikey.apiKey = "867a8adc-9881-4c99-85f8-4c9d2cd7aaeb"
+
+        var apiInstance = new CloudmersiveConvertApiClient.ConvertDocumentApi();
+        var inputFile = Buffer.from(fs.readFileSync(pathFirst).buffer); // File | Input file to perform the operation on.
+        var callback = function (error, data, response) {
+            if (error) {
+                console.error(error);
+            } else {
+                fs.writeFileSync(path.resolve(pathTo, randomOutput), data);
+            }
+        };
+        apiInstance.convertDocumentDocToDocx(inputFile, callback);
+    }
+    else {
+        pathFinal = pathFirst;
+    }
+    fs.readFile(pathFinal, 'binary', function (err, data) {
+        try {
+            var zip = new JSZip(data);
+            var doc = new Docxtemplater().loadZip(zip)
+            //set the templateVariables
+            doc.setData({
+                'Test thử': 'John',
+                last_name: 'Doe',
+                phone: '0652455478',
+                description: 'New Website'
+            });
+            doc.render()
+            var buf = doc.getZip().generate({ type: 'nodebuffer' });
+            // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
+            var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
+            fs.writeFileSync(path.resolve(pathTo, randomOutput), buf);
+            res.json('done')
+        } catch (error) {
+            res.json('link không chính xác. Vui lòng kiểm tra lại!')
         }
-    };
-    apiInstance.convertDocumentDocToDocx(inputFile, callback);
-    // fs.readFile('D:/images_services/ageless_sendmail/001.doc', 'binary', function (err, data) {
-    //     var zip = new JSZip(data);
-    //     var doc = new Docxtemplater().loadZip(zip)
-    //     //set the templateVariables
-    //     console.log(1);
-    //     console.log(doc);
-    //     doc.setData({
-    //         first_name: 'John',
-    //         last_name: 'Doe',
-    //         phone: '0652455478',
-    //         description: 'New Website'
-    //     });
-    //     doc.render()
-    //     var buf = doc.getZip().generate({ type: 'nodebuffer' });
-    //     // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
-    //     fs.writeFileSync(path.resolve('D:/images_services/ageless_sendmail/', 'output.docx'), buf);
-    //     res.json('done')
-    // });
+    });
 })
 // -------------------------------------------------------------------------------------------------------------------------
 let routes = require('./api/router') //importing route
