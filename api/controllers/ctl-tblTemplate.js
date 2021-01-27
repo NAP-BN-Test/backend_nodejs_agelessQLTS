@@ -4,6 +4,7 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblTemplate = require('../tables/qlnb/tblTemplate')
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var tblFileAttach = require('../controllers/ctl-tblFileAttach');
 
 var database = require('../database');
 async function deleteRelationshipTBLTemplate(db, listID) {
@@ -64,6 +65,7 @@ module.exports = {
                         update.push({ key: 'Name', value: body.name });
                     var template = await mtblTemplate(db).findOne({ where: { Code: body.code } })
                     await mtblFileAttach(db).destroy({ where: { IDTemplate: template.ID } })
+                    await tblFileAttach.deleteRelationshiptblFileAttach(db, template.ID)
                     if (body.idTemplate)
                         await mtblFileAttach(db).update({
                             IDTemplate: template.ID,

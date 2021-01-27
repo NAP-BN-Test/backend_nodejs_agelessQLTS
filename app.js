@@ -14,6 +14,8 @@ var mtblDMNhanvien = require("./api/tables/constants/tblDMNhanvien");
 var mtblYeuCauMuaSam = require("./api/tables/qlnb/tblYeuCauMuaSam");
 var mtblDeNghiThanhToan = require("./api/tables/qlnb/tblDeNghiThanhToan");
 var mtblTemplate = require('./api/tables/qlnb/tblTemplate')
+var mtblDMBoPhan = require('./api/tables/constants/tblDMBoPhan')
+var mtblYeuCauMuaSamDetail = require('./api/tables/qlnb/tblYeuCauMuaSamDetail')
 
 var database = require('./api/database');
 const Op = require('sequelize').Op;
@@ -84,29 +86,147 @@ var fs = require('fs');
 const JSZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
 const Constant = require('./api/constants/constant');
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+var mtblDMHangHoa = require('./api/tables/qlnb/tblDMHangHoa');
+var mtblDMLoaiTaiSan = require('./api/tables/qlnb/tblDMLoaiTaiSan');
 
+async function handleRequestShopping(db, idycms) {
+    var objKey = {
+        'BỘ PHẬN ĐỀ XUẤT': '',
+        'NHÂN VIÊN': '',
+        'NGÀY ĐỀ XUẤT': '',
+        'MÃ TS/TB/LK': '',
+        'TÊN TS/TB/LK': '',
+        'ĐƠN GIÁ': '',
+        'SỐ LƯỢNG': '',
+        'GIÁ/TỔNG TIỀN': '',
+        'LÝ DO MUA': '',
+        'TRẠNG THÁI': '',
+    };
+    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
+    tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+    let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
+    tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+
+    await tblYeuCauMuaSam.findOne({
+        order: [
+            ['ID', 'DESC']
+        ],
+        include: [
+            {
+                model: mtblDMBoPhan(db),
+                required: false,
+                as: 'phongban'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'NhanVien'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet1',
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet2',
+            },
+            {
+                model: tblYeuCauMuaSamDetail,
+                required: false,
+                as: 'line'
+            },
+        ],
+        where: { ID: idycms }
+    }).then(async data => {
+        var total = 0;
+        var code = '';
+        var name = '';
+        var unitPrice = '';
+        var amountHH = '';
+        if (data) {
+            for (var j = 0; j < data.line.length; j++) {
+                var price = data.line[j].Price ? data.line[j].Price : 0
+                var amount = data.line[j].Amount ? data.line[j].Amount : 0
+                total += amount * price
+                let tblDMHangHoa = mtblDMHangHoa(db);
+                tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaiTaiSan' })
+                await tblDMHangHoa.findOne({
+                    where: {
+                        ID: data.line[j].IDDMHangHoa,
+                    },
+                    include: [
+                        {
+                            model: mtblDMLoaiTaiSan(db),
+                            required: false,
+                            as: 'loaiTaiSan'
+                        },
+                    ],
+                }).then(data => {
+                    name += ',' + data.Name ? data.Name : ''
+                    code += ',' + data.Code ? data.Code : ''
+                    amount += ',' + amount
+                    unitPrice += ',' + price
+                })
+                objKey = {
+                    'BỘ PHẬN ĐỀ XUẤT': data.phongban ? data.phongban.DepartmentName : '',
+                    'NHÂN VIÊN': data.NhanVien ? data.NhanVien.StaffName : '',
+                    'NGÀY ĐỀ XUẤT': data.RequireDate ? moment(data.RequireDate).format('DD/MM/YYYY') : '',
+                    'MÃ TS/TB/LK': code,
+                    'TÊN TS/TB/LK': name,
+                    'ĐƠN GIÁ': unitPrice,
+                    'SỐ LƯỢNG': amountHH,
+                    'GIÁ/TỔNG TIỀN': total,
+                    'LÝ DO MUA': data.Reason ? data.Reason : '',
+                    'TRẠNG THÁI': data.Status ? data.Status : '',
+                }
+            }
+        }
+
+    })
+    return objKey
+}
+async function getPathFromtblTmplate(db, code, idycms) {
+    let tblTemplate = mtblTemplate(db);
+    var pathFirst = '';
+    tblTemplate.hasMany(mtblFileAttach(db), { foreignKey: 'IDTemplate', as: 'tem' })
+    await tblTemplate.findOne({
+        where: { Code: code },
+        include: [
+            {
+                model: mtblFileAttach(db),
+                required: false,
+                as: 'tem'
+            },
+        ],
+    }).then(data => {
+        //  data.tem[0].Link.slice(44, 100)
+        pathFirst = 'D:/images_services/ageless_sendmail/002.docx';
+        if (!data.tem[0].ID) {
+            return res.json('Không tìm thấy code. Vui lòng cấu hình lại mẫu !')
+        }
+    })
+    return pathFirst
+}
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 app.post('/qlnb/render_automatic_work', async function (req, res) {
     let body = req.body;
     var pathFirst = '';
-
+    var objKey = {};
     await database.connectDatabase().then(async db => {
-        let tblTemplate = mtblTemplate(db);
-        tblTemplate.hasMany(mtblFileAttach(db), { foreignKey: 'IDTemplate', as: 'tem' })
-        await tblTemplate.findOne({
-            where: { Code: body.code },
-            include: [
-                {
-                    model: mtblFileAttach(db),
-                    required: false,
-                    as: 'tem'
-                },
-            ],
-        }).then(data => {
-            pathFirst = 'D:/images_services/ageless_sendmail/' + data.tem[0].Link.slice(44, 100);
-            if (!data.tem[0].ID) {
-                return res.json('Không tìm thấy code. Vui lòng cấu hình lại mẫu !')
-            }
-        })
+        pathFirst = await getPathFromtblTmplate(db, body.code, body.id)
+        if (body.code == 'ycms') {
+            objKey = await handleRequestShopping(db, body.id)
+        } else if (body.code == 'dntt') {
+            objKey = await handleRequestShopping(db, body.id)
+        } else {
+            objKey = await handleRequestShopping(db, body.id)
+        }
     })
     var pathTo = 'D:/images_services/ageless_sendmail/'
     var pathFinal = '';
@@ -137,12 +257,7 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
             var zip = new JSZip(data);
             var doc = new Docxtemplater().loadZip(zip)
             //set the templateVariables
-            doc.setData({
-                'Test thử': 'John',
-                last_name: 'Doe',
-                phone: '0652455478',
-                description: 'New Website'
-            });
+            doc.setData(objKey);
             doc.render()
             var buf = doc.getZip().generate({ type: 'nodebuffer' });
             // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
@@ -155,6 +270,7 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
             }
             res.json(result);
         } catch (error) {
+            console.log(error);
             res.json('Lỗi file export. Vui lòng cầu hình lại!')
         }
     });
