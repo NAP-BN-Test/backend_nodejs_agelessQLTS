@@ -812,8 +812,8 @@ module.exports = {
                         var arrayFile = []
                         var total = 0;
                         for (var j = 0; j < obj.line.length; j++) {
-                            var price = obj.line[j].Price ? array[i].line[j].Price : 0
-                            var amount = obj.line[j].Amount ? array[i].line[j].Amount : 0
+                            var price = obj.line[j].Price ? obj.line[j].Price : 0
+                            var amount = obj.line[j].Amount ? obj.line[j].Amount : 0
                             total += amount * price
                             let tblDMHangHoa = mtblDMHangHoa(db);
                             tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaiTaiSan' })
@@ -841,7 +841,7 @@ module.exports = {
                                 })
                             })
                         }
-                        obj[i]['price'] = total;
+                        obj['price'] = total;
                         await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: obj.id } }).then(file => {
                             if (file.length > 0) {
                                 for (var e = 0; e < file.length; e++) {
