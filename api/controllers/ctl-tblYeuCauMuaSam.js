@@ -338,66 +338,15 @@ module.exports = {
         })
     },
 
-
-
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let whereObj = []
                     let where = []
                     let whereSecond = []
-                    let userObj = [];
-                    if (body.status === "request") {
-                        where = [
-                            { Status: "Chờ phê duyệt" },
-                            { Status: "Đang phê duyệt" },
-                            { Status: "Từ chối" },
-                        ]
-                        if (body.userID) {
-                            let staff = await mtblDMUser(db).findOne({
-                                where: { ID: body.userID }
-                            })
-                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                userObj.push({ IDPheDuyet1: staff.IDNhanvien })
-                                userObj.push({ IDNhanVien: staff.IDNhanvien })
-                                userObj.push({ IDPheDuyet2: staff.IDNhanvien })
-                            }
-
-                        }
-                    }
-                    if (body.status === "approval") {
-                        where = [
-                            { Status: "Đã phê duyệt" },
-                            { Status: "Hủy mua" },
-                        ]
-                        if (body.userID) {
-                            let staff = await mtblDMUser(db).findOne({
-                                where: { ID: body.userID }
-                            })
-                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                userObj.push({ IDNhanVien: staff.IDNhanvien })
-                            }
-
-                        }
-                    }
-                    if (body.status === "success") {
-                        where = [
-                            { Status: "Đã mua" },
-                        ]
-                        if (body.userID) {
-                            let staff = await mtblDMUser(db).findOne({
-                                where: { ID: body.userID }
-                            })
-                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                userObj.push({ IDNhanVien: staff.IDNhanvien })
-                            }
-
-                        }
-                    }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
                         if (data.search) {
@@ -468,14 +417,12 @@ module.exports = {
                                 Status: { [Op.like]: '%%' },
                             })
                         }
-                        if (userObj.length > 0)
-
+                        if (where.length < 1)
                             whereObj = {
-                                [Op.or]: where,
-                                [Op.and]: [{ [Op.or]: whereSecond }, { [Op.or]: userObj }]
+                                // [Op.or]: where,
+                                [Op.and]: [{ [Op.or]: whereSecond }]
                             }
                         else
-
                             whereObj = {
                                 [Op.or]: where,
                                 [Op.and]: [{ [Op.or]: whereSecond }]
