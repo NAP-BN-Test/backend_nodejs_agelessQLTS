@@ -616,10 +616,12 @@ module.exports = {
                     }
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
+                    let tblDMBoPhan = mtblDMBoPhan(db); // bắt buộc
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
                     tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
-                    tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+                    tblYeuCauMuaSam.belongsTo(tblDMBoPhan, { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
                     let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
                     tblYeuCauMuaSam.findAll({
@@ -628,9 +630,16 @@ module.exports = {
                         ],
                         include: [
                             {
-                                model: mtblDMBoPhan(db),
+                                model: tblDMBoPhan,
                                 required: false,
-                                as: 'phongban'
+                                as: 'phongban',
+                                include: [
+                                    {
+                                        model: mtblDMChiNhanh(db),
+                                        required: false,
+                                        as: 'chinhanh',
+                                    }
+                                ]
                             },
                             {
                                 model: mtblDMNhanvien(db),
@@ -674,6 +683,7 @@ module.exports = {
                                 idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
                                 codePhongBan: element.phongban ? element.phongban.DepartmentCode : null,
                                 namePhongBan: element.phongban ? element.phongban.DepartmentName : null,
+                                branchName: element.phongban ? element.phongban.chinhanh ? element.phongban.chinhanh.BranchName : '' : '',
                                 requireDate: element.RequireDate ? moment(element.RequireDate).format('DD/MM/YYYY') : null,
                                 reason: element.Reason ? element.Reason : '',
                                 status: element.Status ? element.Status : '',

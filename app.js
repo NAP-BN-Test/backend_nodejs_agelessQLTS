@@ -69,12 +69,41 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (
         });
     } else {
         database.connectDatabase().then(async db => {
+            var pathTo = 'D:/images_services/ageless_sendmail/'
+            var pathFinal = '';
+            pathFirst = pathTo + 'photo-' + nameMiddle + pathFile;
+            if (pathFirst.slice(-1) == 'c') {
+                var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
+                var CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
+                var defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
+                var Apikey = defaultClient.authentications['Apikey'];
+                Apikey.apiKey = "867a8adc-9881-4c99-85f8-4c9d2cd7aaeb"
+
+                var apiInstance = new CloudmersiveConvertApiClient.ConvertDocumentApi();
+                var inputFile = Buffer.from(fs.readFileSync(pathFirst).buffer); // File | Input file to perform the operation on.
+                var callback = function (error, data, response) {
+                    if (error) {
+                        console.error(error);
+                    } else {
+                        fs.writeFileSync(path.resolve(pathTo, randomOutput), data);
+                    }
+                };
+                apiInstance.convertDocumentDocToDocx(inputFile, callback);
+                pathFinal = pathTo + randomOutput;
+                fs.unlink(pathFirst, (err) => {
+                    if (err) console.log(err);
+                });
+            }
+            else {
+                pathFinal = pathFirst;
+            }
+            pathFinal = pathFinal.slice(36, 100)
             let idLink = await mtblFileAttach(db).create({
                 Name: nameFile + pathFile,
-                Link: 'http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile,
+                Link: 'http://118.27.192.106:1357/ageless_sendmail/' + pathFinal,
             })
             return res.send({
-                link: 'http://118.27.192.106:1357/ageless_sendmail/photo-' + nameMiddle + pathFile,
+                link: 'http://118.27.192.106:1357/ageless_sendmail/' + pathFinal,
                 name: nameFile + pathFile,
                 id: idLink.ID,
                 success: true
@@ -89,7 +118,7 @@ const Constant = require('./api/constants/constant');
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 var mtblDMHangHoa = require('./api/tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('./api/tables/qlnb/tblDMLoaiTaiSan');
-
+var moment = require('moment');
 async function handleRequestShopping(db, idycms) {
     var objKey = {
         'BỘ PHẬN ĐỀ XUẤT': '',
@@ -229,30 +258,7 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
         }
     })
     var pathTo = 'D:/images_services/ageless_sendmail/'
-    var pathFinal = '';
-    if (pathFirst.slice(-1) == 'c') {
-        var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
-        pathFinal = pathTo + randomOutput;
-        var CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
-        var defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
-        var Apikey = defaultClient.authentications['Apikey'];
-        Apikey.apiKey = "867a8adc-9881-4c99-85f8-4c9d2cd7aaeb"
-
-        var apiInstance = new CloudmersiveConvertApiClient.ConvertDocumentApi();
-        var inputFile = Buffer.from(fs.readFileSync(pathFirst).buffer); // File | Input file to perform the operation on.
-        var callback = function (error, data, response) {
-            if (error) {
-                console.error(error);
-            } else {
-                fs.writeFileSync(path.resolve(pathTo, randomOutput), data);
-            }
-        };
-        apiInstance.convertDocumentDocToDocx(inputFile, callback);
-    }
-    else {
-        pathFinal = pathFirst;
-    }
-    fs.readFile(pathFinal, 'binary', function (err, data) {
+    fs.readFile(pathFirst, 'binary', function (err, data) {
         try {
             var zip = new JSZip(data);
             var doc = new Docxtemplater().loadZip(zip)
