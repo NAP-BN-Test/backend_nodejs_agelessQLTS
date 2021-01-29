@@ -11,7 +11,6 @@ module.exports = function (db) {
         IDThemVPP: Sequelize.BIGINT,
         Amount: Sequelize.FLOAT,
         Describe: Sequelize.STRING,
-
     });
 
     return table;

@@ -6,6 +6,8 @@ var moment = require('moment');
 var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMPermission = require('../tables/constants/tblDMPermission');
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
+var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 var database = require('../database');
 let jwt = require('jsonwebtoken');
 
@@ -382,15 +384,33 @@ module.exports = {
         database.connectDatabase().then(async db => {
             try {
                 let tblDMUser = mtblDMUser(db);
+                let tblDMNhanvien = mtblDMNhanvien(db);
+                let tblDMBoPhan = mtblDMBoPhan(db);
                 tblDMUser.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien', as: 'nv' })
+                tblDMNhanvien.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
 
                 var data = await tblDMUser.findOne({
                     where: { UserName: body.userName, Password: body.password },
                     include: [
                         {
-                            model: mtblDMNhanvien(db),
+                            model: tblDMNhanvien,
                             required: false,
-                            as: 'nv'
+                            as: 'nv',
+                            include: [
+                                {
+                                    model: tblDMBoPhan,
+                                    required: false,
+                                    as: 'bp',
+                                    include: [
+                                        {
+                                            model: mtblDMChiNhanh(db),
+                                            required: false,
+                                            as: 'chinhanh'
+                                        },
+                                    ],
+                                },
+                            ],
                         },
                     ],
                 })
@@ -405,7 +425,12 @@ module.exports = {
                         idNhanVien: data.IDNhanvien,
                         staffName: data.nv ? data.nv.StaffName : '',
                         staffCode: data.nv ? data.nv.StaffCode : '',
-                        // list: data.tblPrices
+                        departmentCode: data.nv ? data.nv.bp ? data.nv.bp.DepartmentCode : '' : '',
+                        departmentName: data.nv ? data.nv.bp ? data.nv.bp.DepartmentName : '' : '',
+                        departmentID: data.nv ? data.nv.bp ? data.nv.bp.ID : null : null,
+                        branchCode: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.BranchCode : '' : '' : '',
+                        branchName: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.BranchName : '' : '' : '',
+                        branchID: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.ID : null : null : null,
                     }
                     payload = {
                         "Username": req.body.userName,

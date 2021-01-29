@@ -118,6 +118,8 @@ const Constant = require('./api/constants/constant');
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 var mtblDMHangHoa = require('./api/tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('./api/tables/qlnb/tblDMLoaiTaiSan');
+var mtblDMChiNhanh = require('./api/tables/qlnb/tblDMLoaiTaiSan')
+
 var moment = require('moment');
 async function handleRequestShopping(db, idycms) {
     var objKey = {
@@ -220,6 +222,72 @@ async function handleRequestShopping(db, idycms) {
     })
     return objKey
 }
+async function handlePaymentOrder(db, iddntt) {
+    var objKey = {
+        'CHỨNG TỪ': '',
+        'NGƯỜI ĐỀ NGHỊ': '',
+        'NỘI DUNG THANH TOÁN': '',
+        'SỐ TIỀN THANH TOÁN': '',
+        'NGƯỜI PHÊ DUYỆT TRƯỚC': '',
+        'NGƯỜI PHÊ DUYỆT SAU': '',
+    };
+    let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
+    let tblDMNhanvien = mtblDMNhanvien(db);
+    let tblDMBoPhan = mtblDMBoPhan(db);
+    tblDMNhanvien.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
+    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
+
+    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
+    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
+    await tblDeNghiThanhToan.findOne({
+        where: { ID: iddntt },
+        order: [
+            ['ID', 'DESC']
+        ],
+        include: [
+            {
+                model: tblDMNhanvien,
+                required: false,
+                as: 'NhanVien',
+                include: [
+                    {
+                        model: tblDMBoPhan,
+                        required: false,
+                        as: 'bophan',
+                        include: [
+                            {
+                                model: mtblDMChiNhanh(db),
+                                required: false,
+                                as: 'chinhanh'
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'KTPD'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'LDPD'
+            },
+        ],
+    }).then(async data => {
+        objKey = {
+            'CHỨNG TỪ': '',
+            'NGƯỜI ĐỀ NGHỊ': data.NhanVien ? data.NhanVien.StaffName : '',
+            'NỘI DUNG THANH TOÁN': data.Contents ? data.Contents : '',
+            'SỐ TIỀN THANH TOÁN': data.Cost ? data.Cost : 0,
+            'NGƯỜI PHÊ DUYỆT TRƯỚC': data.KTPD ? data.KTPD.StaffName : '',
+            'NGƯỜI PHÊ DUYỆT SAU': data.LDPD ? data.LDPD.StaffName : '',
+        };
+    })
+    return objKey
+}
 async function getPathFromtblTmplate(db, code, idycms) {
     let tblTemplate = mtblTemplate(db);
     var pathFirst = '';
@@ -235,7 +303,7 @@ async function getPathFromtblTmplate(db, code, idycms) {
         ],
     }).then(data => {
         //  data.tem[0].Link.slice(44, 100)
-        pathFirst = 'D:/images_services/ageless_sendmail/002.docx';
+        pathFirst = data.tem[0].Link.slice(44, 100);
         if (!data.tem[0].ID) {
             return res.json('Không tìm thấy code. Vui lòng cấu hình lại mẫu !')
         }
@@ -247,18 +315,19 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
     let body = req.body;
     var pathFirst = '';
     var objKey = {};
+    console.log(body);
     await database.connectDatabase().then(async db => {
         pathFirst = await getPathFromtblTmplate(db, body.code, body.id)
         if (body.code == 'ycms') {
             objKey = await handleRequestShopping(db, body.id)
         } else if (body.code == 'dntt') {
-            objKey = await handleRequestShopping(db, body.id)
+            objKey = await handlePaymentOrder(db, body.id)
         } else {
             objKey = await handleRequestShopping(db, body.id)
         }
     })
     var pathTo = 'D:/images_services/ageless_sendmail/'
-    fs.readFile(pathFirst, 'binary', function (err, data) {
+    fs.readFile(pathTo + pathFirst, 'binary', function (err, data) {
         try {
             var zip = new JSZip(data);
             var doc = new Docxtemplater().loadZip(zip)

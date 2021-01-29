@@ -50,7 +50,7 @@ module.exports = {
                                     IDVanPhongPham: body.line[i].idVanPhongPham.id,
                                     IDThemVPP: data.ID,
                                     Amount: body.line[i].amount ? body.line[i].amount : 0,
-                                    Describe: body.line[i].describe ? body.line[i].describe : 0,
+                                    Describe: body.line[i].describe ? body.line[i].describe : '',
                                 })
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
@@ -106,7 +106,7 @@ module.exports = {
                             await mThemVPPChiTiet(db).update({
                                 IDVanPhongPham: body.line[i].idVanPhongPham,
                                 Amount: body.line[i].amount,
-                                Describe: body.line[i].describe,
+                                Describe: body.line[i].describe ? body.line[i].describe : '',
                             }, { where: { ID: body.line[i].idLine } })
                     database.updateTable(update, mtblThemVPP(db), body.id).then(response => {
                         if (response == 1) {
@@ -325,14 +325,15 @@ module.exports = {
                                 obj["tsName"][i]['dataValues']['name'] = data[j].line[i] ? data[j].line[i].vpp ? data[j].line[i].vpp.VPPName : '' : '';
                                 if (data[j].line[i].IDVanPhongPham) {
                                     var unit = await mtblVanPhongPham(db).findOne({ where: { ID: data[j].line[i].IDVanPhongPham } })
-                                    if (unit)
+                                    if (unit) {
                                         obj["tsName"][i]['dataValues']['unit'] = unit.Unit
-                                    else
+                                    }
+                                    else {
                                         obj["tsName"][i]['dataValues']['unit'] = ''
+                                    }
 
                                 } else {
                                     obj["tsName"][i]['dataValues']['unit'] = ''
-
                                 }
 
                             }

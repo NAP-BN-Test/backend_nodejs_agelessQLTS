@@ -22,6 +22,7 @@ module.exports = function (db) {
         Describe: Sequelize.STRING,
         DateDiKem: Sequelize.DATE,
         Status: Sequelize.STRING,
+        TSNBNumber: Sequelize.INTEGER,
     });
 
     return table;

@@ -12,7 +12,6 @@ module.exports = function (db) {
         Unit: Sequelize.STRING,
         Specifications: Sequelize.STRING,
         RemainingAmount: Sequelize.FLOAT,
-
     });
 
     return table;

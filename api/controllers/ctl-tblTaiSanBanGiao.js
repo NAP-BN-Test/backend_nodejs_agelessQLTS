@@ -4,6 +4,8 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao')
 var mtblTaiSanHistory = require('../tables/qlnb/tblTaiSanHistory')
+var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
+
 var database = require('../database');
 async function deleteRelationshiptblTaiSanBanGiao(db, listID) {
     await mtblTaiSanHistory(db).destroy({
@@ -46,6 +48,13 @@ module.exports = {
                         body.listHistory = JSON.parse(body.listHistory);
                         if (body.listHistory.length > 0) {
                             for (var i = 0; i < body.listHistory.length; i++) {
+                                await mtblTaiSan(db).update({
+                                    Status: 'Sử dụng',
+                                }, {
+                                    where: {
+                                        ID: body.listHistory[i].idTaiSan.id
+                                    }
+                                })
                                 await mtblTaiSanHistory(db).create({
                                     IDTaiSan: body.listHistory[i].idTaiSan.id,
                                     IDTaiSanBanGiao: data.ID,

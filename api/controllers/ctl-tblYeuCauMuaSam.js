@@ -39,7 +39,6 @@ module.exports = {
             if (db) {
                 try {
                     var deparment = await mtblDMNhanvien(db).findOne({ where: { ID: body.idNhanVien } })
-                    console.log(deparment.IDBoPhan, body.idNhanVien);
                     mtblYeuCauMuaSam(db).create({
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDPhongBan: deparment ? deparment.IDBoPhan ? deparment.IDBoPhan : null : null,
@@ -61,14 +60,24 @@ module.exports = {
                                 })
                         body.line = JSON.parse(body.line)
                         if (body.line.length > 0)
-                            for (var i = 0; i < body.line.length; i++) {
-                                await mtblYeuCauMuaSamDetail(db).create({
-                                    IDYeuCauMuaSam: data.ID,
-                                    IDDMHangHoa: body.line[i].idDMHangHoa.id,
-                                    Amount: body.line[i].amount,
-                                    Price: body.line[i].unitPrice,
-                                })
-                            }
+                            if (body.type == 'asset')
+                                for (var i = 0; i < body.line.length; i++) {
+                                    await mtblYeuCauMuaSamDetail(db).create({
+                                        IDYeuCauMuaSam: data.ID,
+                                        IDDMHangHoa: body.line[i].idDMHangHoa.id,
+                                        Amount: body.line[i].amount,
+                                        Price: body.line[i].unitPrice,
+                                    })
+                                }
+                            else
+                                for (var i = 0; i < body.line.length; i++) {
+                                    await mtblYeuCauMuaSamDetail(db).create({
+                                        IDYeuCauMuaSam: data.ID,
+                                        IDDMHangHoa: body.line[i].idDMHangHoa.id,
+                                        Amount: body.line[i].amount,
+                                        Price: body.line[i].unitPrice,
+                                    })
+                                }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -176,12 +185,30 @@ module.exports = {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblYeuCauMuaSam(db, listID);
-                    var result = {
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    await mtblYeuCauMuaSam(db).findAll({
+                        where: {
+                            [Op.and]: {
+                                ID: { [Op.in]: listID },
+                                Status: { [Op.ne]: 'Chờ phê duyệt' }
+                            }
+                        }
+                    }).then(async data => {
+                        if (data.length > 0) {
+                            var result = {
+                                status: Constant.STATUS.FAIL,
+                                message: 'Không thể xóa yêu cầu đã phê duyệt. Vui lòng kiểm tra lại!',
+                            }
+                            res.json(result);
+                        }
+                        else {
+                            await deleteRelationshiptblYeuCauMuaSam(db, listID);
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        }
+                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -714,7 +741,6 @@ module.exports = {
                     tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
                     let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
-
                     tblYeuCauMuaSam.findOne({
                         order: [
                             ['ID', 'DESC']

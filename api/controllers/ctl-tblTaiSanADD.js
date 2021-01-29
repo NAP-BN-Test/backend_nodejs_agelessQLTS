@@ -327,6 +327,10 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    var status = '';
+                    if (body.liquidationDate) {
+                        status = 'Thanh lý'
+                    }
                     await mtblTaiSan(db).update({
                         OriginalPrice: body.obj.originalPrice ? body.obj.originalPrice : null,
                         Unit: body.obj.unit ? body.obj.unit : '',
@@ -337,7 +341,7 @@ module.exports = {
                         SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
                         Describe: body.obj.describe ? body.obj.describe : '',
                         TSNBCode: body.obj.code ? body.obj.code : '',
-                        Status: body.obj.status ? body.obj.status : '',
+                        Status: status,
                         DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                     }, {
                         where: { ID: body.id }
@@ -387,8 +391,29 @@ module.exports = {
                             }
                         }
                         for (var i = 0; i < body.taisan.length; i++) {
+                            var tsnbCode = '';
+                            var tsnbNumber = 1;
+                            await mtblTaiSan(db).findOne({
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
+                                where: {
+                                    IDDMHangHoa: body.taisan[i].idDMHangHoa.id
+                                }
+                            }).then(data => {
+                                if (data) {
+                                    tsnbCode = body.taisan[i].idDMHangHoa.code + (Number(data.TSNBNumber) + 1 ? Number(data.TSNBNumber) : 1)
+                                    if (data.TSNBNumber)
+                                        tsnbNumber = Number(data.TSNBNumber) + 1;
+                                }
+                                else {
+                                    tsnbCode = body.taisan[i].idDMHangHoa.code + 1
+                                    tsnbNumber = 1
+                                }
+
+                            })
                             mtblTaiSan(db).create({
-                                IDDMHangHoa: body.taisan[i].idDMHangHoa.id ? body.taisan[i].idDMHangHoa.id : null,
+                                IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa.id : null,
                                 OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
@@ -396,8 +421,10 @@ module.exports = {
                                 IDTaiSanDiKem: body.taisan[i].idTaiSanDiKem ? body.taisan[i].idTaiSanDiKem : null,
                                 SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
                                 Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
-                                TSNBCode: body.taisan[i].tsCode ? body.taisan[i].tsCode : '',
+                                TSNBCode: tsnbCode,
+                                TSNBNumber: tsnbNumber,
                                 IDTaiSanADD: data.ID,
+                                Status: 'Lưu kho',
                             })
                         }
                         var result = {
@@ -632,20 +659,20 @@ module.exports = {
             if (db) {
                 try {
                     let listIDTaiSan = [];
-                    await mtblTaiSanHistory(db).findAll({
-                        where: [
-                            {
-                                DateThuHoi: null
-                            }
-                        ]
-                    }).then(data => {
-                        data.forEach(item => {
-                            if (item.IDTaiSan) {
-                                if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                                    listIDTaiSan.push(Number(item.IDTaiSan))
-                            }
-                        })
-                    })
+                    // await mtblTaiSanHistory(db).findAll({
+                    //     where: [
+                    //         {
+                    //             DateThuHoi: null
+                    //         }
+                    //     ]
+                    // }).then(data => {
+                    //     data.forEach(item => {
+                    //         if (item.IDTaiSan) {
+                    //             if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
+                    //                 listIDTaiSan.push(Number(item.IDTaiSan))
+                    //         }
+                    //     })
+                    // })
                     var whereOjb = {};
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
@@ -677,12 +704,6 @@ module.exports = {
                         }
                         whereOjb = { [Op.or]: where };
                         let userFind = {};
-                        userFind['ID'] = {
-                            [Op.notIn]: listIDTaiSan,
-                        }
-                        userFind['IDTaiSanDiKem'] = {
-                            [Op.is]: null
-                        }
                         whereOjb[Op.and] = userFind
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
