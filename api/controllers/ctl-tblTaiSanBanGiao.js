@@ -26,23 +26,10 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    // {
-                    //     idNhanVienBanGiao,
-                    //     idNhanVienSoHuu,
-                    //     idBoPhanSoHuu,
-                    //     date,
-                    //     listHistory: [
-                    //         {
-                    //            idTaiSan,
-                    //            dateThuHoi
-                    //         }
-                    //     ]
-
-                    // }
                     mtblTaiSanBanGiao(db).create({
                         IDNhanVienBanGiao: body.idNhanVienBanGiao ? body.idNhanVienBanGiao : null,
-                        IDNhanVienSoHuu: body.idNhanVienSoHuu ? body.idNhanVienSoHuu : '',
-                        IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : '',
+                        IDNhanVienSoHuu: body.idNhanVienSoHuu ? body.idNhanVienSoHuu : null,
+                        IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : null,
                         Date: body.date ? body.date : '',
                     }).then(async data => {
                         body.listHistory = JSON.parse(body.listHistory);
@@ -50,6 +37,8 @@ module.exports = {
                             for (var i = 0; i < body.listHistory.length; i++) {
                                 await mtblTaiSan(db).update({
                                     Status: 'Sử dụng',
+                                    StatusUsed: body.status ? body.status : 'Cá nhân',
+
                                 }, {
                                     where: {
                                         ID: body.listHistory[i].idTaiSan.id
@@ -123,6 +112,9 @@ module.exports = {
                             update.push({ key: 'Date', value: null });
                         else
                             update.push({ key: 'Date', value: body.date });
+                    }
+                    if (body.status || body.status === '') {
+                        update.push({ key: 'Status', value: body.status });
                     }
                     for (var i = 0; i < body.listHistory; i++) {
                         await mtblTaiSanHistory(db).update({

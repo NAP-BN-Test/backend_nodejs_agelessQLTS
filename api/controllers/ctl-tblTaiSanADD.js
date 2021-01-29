@@ -201,6 +201,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             describe: data.Describe ? data.Describe : '',
             liquidationDate: thanhLy ? thanhLy.LiquidationDate : null,
             status: data.Status ? data.Status : '',
+            statusUsed: data.StatusUsed ? data.StatusUsed : '',
             liquidationReason: thanhLy ? thanhLy.LiquidationReason : '',
         }
     })
@@ -373,7 +374,6 @@ module.exports = {
     // add_tbl_TaiSanADD
     addtblTaiSanADD: (req, res) => {
         let body = req.body;
-        console.log(body);
         body.taisan = JSON.parse(body.taisan)
         body.fileAttach = JSON.parse(body.fileAttach)
         database.connectDatabase().then(async db => {

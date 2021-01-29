@@ -23,6 +23,7 @@ module.exports = function (db) {
         DateDiKem: Sequelize.DATE,
         Status: Sequelize.STRING,
         TSNBNumber: Sequelize.INTEGER,
+        StatusUsed: Sequelize.STRING,
     });
 
     return table;

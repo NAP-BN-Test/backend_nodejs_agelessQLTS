@@ -315,7 +315,6 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
     let body = req.body;
     var pathFirst = '';
     var objKey = {};
-    console.log(body);
     await database.connectDatabase().then(async db => {
         pathFirst = await getPathFromtblTmplate(db, body.code, body.id)
         if (body.code == 'ycms') {
