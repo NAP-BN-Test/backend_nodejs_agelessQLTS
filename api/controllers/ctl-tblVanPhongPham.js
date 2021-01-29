@@ -239,6 +239,7 @@ module.exports = {
                                 vppName: element.VPPName ? element.VPPName : '',
                                 vppCode: element.VPPCode ? element.VPPCode : '',
                                 unit: element.Unit ? element.Unit : '',
+                                remainingAmount: element.RemainingAmount ? element.RemainingAmount : 0,
                             }
                             array.push(obj);
                         });

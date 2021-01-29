@@ -803,6 +803,8 @@ module.exports = {
                                 idDMHangHoa: element.IDDMHangHoa ? element.IDDMHangHoa : null,
                                 nameDMHangHoa: element.hanghoa ? element.hanghoa.Name : '',
                                 codeDMHangHoa: element.TSNBCode ? element.TSNBCode : '',
+                                status: element.Status ? element.Status : '',
+                                statusUsed: element.StatusUsed ? element.StatusUsed : '',
                                 idLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.ID : '' : null,
                                 nameLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.Name : '' : null,
                                 codeLoaiTaiSan: element.loaitaisan ? element.loaitaisan.Code : '',
