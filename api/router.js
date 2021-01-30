@@ -170,6 +170,7 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_them_vpp').post(checkToken.checkToken, tblThemVPP.deleteRelationshipTBLThemVPP);
     app.route('/qlnb/get_list_tbl_them_vpp').post(tblThemVPP.getListTBLThemVPP);
     app.route('/qlnb/get_list_name_tbl_them_vpp').post(checkToken.checkToken, tblThemVPP.getListNameTBLThemVPP);
+    app.route('/qlnb/get_detail_tbl_them_vpp').post(tblThemVPP.getDetailTBLThemVPP);
 
 
     app.route('/qlnb/add_tbl_phanphoi_vpp').post(checkToken.checkToken, tblPhanPhoiVPP.addTBLPhanPhoiVPP);

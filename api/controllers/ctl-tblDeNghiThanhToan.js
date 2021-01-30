@@ -37,7 +37,7 @@ module.exports = {
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                         IDNhanVienLDPD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
-                        Description: body.description ? body.description : null,
+                        Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                     }).then(async data => {
                         body.fileAttach = JSON.parse(body.fileAttach)

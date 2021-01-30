@@ -474,5 +474,94 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+     // get_detail_tbl_them_vpp
+    getDetailTBLThemVPP: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblThemVPP = mtblThemVPP(db);
+                    let stt = 1;
+                    tblThemVPP.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDNhaCungCap', sourceKey: 'IDNhaCungCap', as: 'ncc' })
+                    tblThemVPP.hasMany(mThemVPPChiTiet(db), { foreignKey: 'IDThemVPP', as: 'line' })
+                    var themVPPChiTiet = mThemVPPChiTiet(db);
+                    themVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
+                    var obj = {}
+                    tblThemVPP.findOne({
+                        where: {ID: body.id},
+                        include: [
+                            {
+                                model: mtblDMNhaCungCap(db),
+                                required: false,
+                                as: 'ncc'
+                            },
+                            {
+                                model: themVPPChiTiet,
+                                required: false,
+                                as: 'line',
+                                include: [
+                                    {
+                                        model: mtblVanPhongPham(db),
+                                        required: false,
+                                        as: 'vpp',
+                                    },
+                                ],
+                            },
+                        ],
+                    }).then(async data => {
+                        obj = {
+                            id: Number(data.ID),
+                            idNhaCungCap: data.IDNhaCungCap ? data.IDNhaCungCap : null,
+                            supplierName: data.ncc ? data.ncc.SupplierName : null,
+                            dateReceive: data.Date ? moment(data.Date).format('DD/MM/YYYY') : null,
+                            tsName: data.line
+                        }
+                        for (var i = 0; i < data.line.length; i++) {
+                            obj["tsName"][i]['dataValues']['amount'] = data.line[i].Amount;
+                            obj["tsName"][i]['dataValues']['name'] = data.line[i] ? data.line[i].vpp ? data.line[i].vpp.VPPName : '' : '';
+                            if (data.line[i].IDVanPhongPham) {
+                                var unit = await mtblVanPhongPham(db).findOne({ where: { ID: data.line[i].IDVanPhongPham } })
+                                if (unit) {
+                                    obj["tsName"][i]['dataValues']['unit'] = unit.Unit
+                                }
+                                else {
+                                    obj["tsName"][i]['dataValues']['unit'] = ''
+                                }
+
+                            } else {
+                                obj["tsName"][i]['dataValues']['unit'] = ''
+                            }
+
+                        }       
+                        var arrayFile = []
+                        await mtblFileAttach(db).findAll({ where: { IDVanPhongPham: obj.id } }).then(file => {
+                            if (file.length > 0) {
+                                for (var e = 0; e < file.length; e++) {
+                                    arrayFile.push({
+                                        id: file[e].ID ? file[e].ID : '',
+                                        name: file[e].Name ? file[e].Name : '',
+                                        link: file[e].Link ? file[e].Link : '',
+                                    })
+                                }
+                            }
+                        })
+                        obj['arrayFile'] = arrayFile;
+                        var result = {
+                            obj: obj,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }
