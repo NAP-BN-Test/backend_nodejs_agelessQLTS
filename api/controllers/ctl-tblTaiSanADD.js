@@ -401,8 +401,11 @@ module.exports = {
                                     IDDMHangHoa: body.taisan[i].idDMHangHoa.id
                                 }
                             }).then(data => {
+                                if (!data.TSNBNumber) {
+                                    data.TSNBNumber = 1
+                                }
                                 if (data) {
-                                    tsnbCode = body.taisan[i].idDMHangHoa.code + (Number(data.TSNBNumber) + 1 ? Number(data.TSNBNumber) : 1)
+                                    tsnbCode = body.taisan[i].idDMHangHoa.code + (Number(data.TSNBNumber) + 1 ? data.TSNBNumber : 1)
                                     if (data.TSNBNumber)
                                         tsnbNumber = Number(data.TSNBNumber) + 1;
                                 }
