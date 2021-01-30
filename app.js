@@ -210,9 +210,9 @@ async function handleRequestShopping(db, idycms) {
                     'NGÀY ĐỀ XUẤT': data.RequireDate ? moment(data.RequireDate).format('DD/MM/YYYY') : '',
                     'MÃ TS/TB/LK': code,
                     'TÊN TS/TB/LK': name,
-                    'ĐƠN GIÁ': unitPrice,
+                    'ĐƠN GIÁ': (Number(unitPrice)).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
                     'SỐ LƯỢNG': amountHH,
-                    'GIÁ/TỔNG TIỀN': total,
+                    'GIÁ/TỔNG TIỀN': (Number(total)).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
                     'LÝ DO MUA': data.Reason ? data.Reason : '',
                     'TRẠNG THÁI': data.Status ? data.Status : '',
                 }
@@ -281,7 +281,7 @@ async function handlePaymentOrder(db, iddntt) {
             'CHỨNG TỪ': '',
             'NGƯỜI ĐỀ NGHỊ': data.NhanVien ? data.NhanVien.StaffName : '',
             'NỘI DUNG THANH TOÁN': data.Contents ? data.Contents : '',
-            'SỐ TIỀN THANH TOÁN': data.Cost ? data.Cost : 0,
+            'SỐ TIỀN THANH TOÁN': data.Cost ? (Number(data.Cost)).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') : 0,
             'NGƯỜI PHÊ DUYỆT TRƯỚC': data.KTPD ? data.KTPD.StaffName : '',
             'NGƯỜI PHÊ DUYỆT SAU': data.LDPD ? data.LDPD.StaffName : '',
         };

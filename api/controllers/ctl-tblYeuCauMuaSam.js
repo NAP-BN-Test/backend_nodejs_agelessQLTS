@@ -74,6 +74,13 @@ module.exports = {
                                 }
                             else
                                 for (var i = 0; i < body.line.length; i++) {
+                                    let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].id.id } })
+                                    let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
+                                    await mtblVanPhongPham(db).update({
+                                        RemainingAmount: Number(body.line[i].amount) + Number(amount),
+                                    }, {
+                                        where: {ID: body.line[i].id.id}
+                                    })
                                     await mtblYeuCauMuaSamDetail(db).create({
                                         IDYeuCauMuaSam: data.ID,
                                         IDVanPhongPham: body.line[i].id.id,

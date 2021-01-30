@@ -156,7 +156,10 @@ module.exports = {
                                         { StaffName: { [Op.like]: '%' + data.search + '%' } },
                                         { StaffCode: { [Op.like]: '%' + data.search + '%' } },
                                     ]
-                                }
+                                },
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
                             }).then(data => {
                                 data.forEach(item => {
                                     employeeIDS.push(item.ID);
@@ -308,7 +311,10 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb
+                        where: whereOjb,
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(data => {
                         var array = [];
                         let stt = 1

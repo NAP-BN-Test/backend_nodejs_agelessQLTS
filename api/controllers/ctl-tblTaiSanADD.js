@@ -810,6 +810,11 @@ module.exports = {
                                 codeLoaiTaiSan: element.loaitaisan ? element.loaitaisan.Code : '',
                                 unit: element.hanghoa ? element.hanghoa.Unit : null,
                                 serialNumber: element.SerialNumber ? element.SerialNumber : null,
+                                originalPrice: element.OriginalPrice ? element.OriginalPrice : 0,
+                                depreciationPrice: element.DepreciationPrice ? element.DepreciationPrice : 0,
+                                guaranteeMonth: element.GuaranteeMonth ? element.GuaranteeMonth : 0,
+                                status: element.Status ? element.Status : 0,
+                                data: element.taisan ? element.taisan.Date : null
                             }
                             array.push(obj);
                             stt += 1;
