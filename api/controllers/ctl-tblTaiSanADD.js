@@ -401,8 +401,11 @@ module.exports = {
                                     IDDMHangHoa: body.taisan[i].idDMHangHoa.id
                                 }
                             }).then(data => {
+                                if (!data.TSNBNumber) {
+                                    data.TSNBNumber = 1
+                                }
                                 if (data) {
-                                    tsnbCode = body.taisan[i].idDMHangHoa.code + (Number(data.TSNBNumber) + 1 ? Number(data.TSNBNumber) : 1)
+                                    tsnbCode = body.taisan[i].idDMHangHoa.code + (Number(data.TSNBNumber) + 1 ? data.TSNBNumber : 1)
                                     if (data.TSNBNumber)
                                         tsnbNumber = Number(data.TSNBNumber) + 1;
                                 }
@@ -708,6 +711,18 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                if (data.items[i].fields['name'] === 'MÃ NỘI BỘ') {
+                                    userFind['TSNBCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
                                     userFind['TSNBCode'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%',
@@ -730,6 +745,43 @@ module.exports = {
                                                 { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
                                                 { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
                                             ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDDMHangHoa'] = {
+                                        [Op.in]: list,
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LOẠI TÀI SẢN') {
+                                    var list = [];
+                                    var listTypeAsset = [];
+                                    await mtblDMLoaiTaiSan(db).findAll({
+                                        where: {
+                                            [Op.or]: [
+                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listTypeAsset.push(item.ID);
+                                        })
+                                    })
+                                    await mtblDMHangHoa(db).findAll({
+                                        where: {
+                                            IDDMLoaiTaiSan: { [Op.in]: listTypeAsset }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {

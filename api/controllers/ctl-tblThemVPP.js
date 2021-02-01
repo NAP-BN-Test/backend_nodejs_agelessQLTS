@@ -245,7 +245,7 @@ module.exports = {
                                     await mtblVanPhongPham(db).findAll({
                                         where: {
                                             [Op.or]: [
-                                                { RemainingAmount:  Number(data.items[i]['searchFields'])},
+                                                { RemainingAmount: Number(data.items[i]['searchFields']) },
                                             ]
                                         }
                                     }).then(data => {
@@ -475,7 +475,7 @@ module.exports = {
             }
         })
     },
-     // get_detail_tbl_them_vpp
+    // get_detail_tbl_them_vpp
     getDetailTBLThemVPP: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
@@ -489,7 +489,7 @@ module.exports = {
                     themVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
                     var obj = {}
                     tblThemVPP.findOne({
-                        where: {ID: body.id},
+                        where: { ID: body.id },
                         include: [
                             {
                                 model: mtblDMNhaCungCap(db),
@@ -515,25 +515,25 @@ module.exports = {
                             idNhaCungCap: data.IDNhaCungCap ? data.IDNhaCungCap : null,
                             supplierName: data.ncc ? data.ncc.SupplierName : null,
                             dateReceive: data.Date ? moment(data.Date).format('DD/MM/YYYY') : null,
-                            tsName: data.line
+                            arrayVPP: data.line
                         }
                         for (var i = 0; i < data.line.length; i++) {
-                            obj["tsName"][i]['dataValues']['amount'] = data.line[i].Amount;
-                            obj["tsName"][i]['dataValues']['name'] = data.line[i] ? data.line[i].vpp ? data.line[i].vpp.VPPName : '' : '';
+                            obj["arrayVPP"][i]['dataValues']['amount'] = data.line[i].Amount;
+                            obj["arrayVPP"][i]['dataValues']['name'] = data.line[i] ? data.line[i].vpp ? data.line[i].vpp.VPPName : '' : '';
                             if (data.line[i].IDVanPhongPham) {
                                 var unit = await mtblVanPhongPham(db).findOne({ where: { ID: data.line[i].IDVanPhongPham } })
                                 if (unit) {
-                                    obj["tsName"][i]['dataValues']['unit'] = unit.Unit
+                                    obj["arrayVPP"][i]['dataValues']['unit'] = unit.Unit
                                 }
                                 else {
-                                    obj["tsName"][i]['dataValues']['unit'] = ''
+                                    obj["arrayVPP"][i]['dataValues']['unit'] = ''
                                 }
 
                             } else {
-                                obj["tsName"][i]['dataValues']['unit'] = ''
+                                obj["arrayVPP"][i]['dataValues']['unit'] = ''
                             }
 
-                        }       
+                        }
                         var arrayFile = []
                         await mtblFileAttach(db).findAll({ where: { IDVanPhongPham: obj.id } }).then(file => {
                             if (file.length > 0) {

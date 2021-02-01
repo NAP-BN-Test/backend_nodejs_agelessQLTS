@@ -12,6 +12,8 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
+var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
+var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
@@ -36,7 +38,6 @@ module.exports = {
     // add_tbl_yeucaumuasam
     addtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -49,6 +50,7 @@ module.exports = {
                         Status: 'Chờ phê duyệt',
                         IDPheDuyet1: body.idPheDuyet1 ? body.idPheDuyet1 : null,
                         IDPheDuyet2: body.idPheDuyet2 ? body.idPheDuyet2 : null,
+                        IDSupplier: body.idSupplier ? body.idSupplier : null,
                         Type: body.type ? body.type : '',
                     }).then(async data => {
                         body.fileAttach = JSON.parse(body.fileAttach)
@@ -74,13 +76,6 @@ module.exports = {
                                 }
                             else
                                 for (var i = 0; i < body.line.length; i++) {
-                                    let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].id.id } })
-                                    let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
-                                    await mtblVanPhongPham(db).update({
-                                        RemainingAmount: Number(body.line[i].amount) + Number(amount),
-                                    }, {
-                                        where: {ID: body.line[i].id.id}
-                                    })
                                     await mtblYeuCauMuaSamDetail(db).create({
                                         IDYeuCauMuaSam: data.ID,
                                         IDVanPhongPham: body.line[i].id.id,
@@ -106,7 +101,6 @@ module.exports = {
     // update_tbl_yeucaumuasam
     updatetblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -116,6 +110,12 @@ module.exports = {
                             update.push({ key: 'IDNhanVien', value: null });
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
+                    }
+                    if (body.idSupplier || body.idSupplier === '') {
+                        if (body.idSupplier === '')
+                            update.push({ key: 'IDSupplier', value: null });
+                        else
+                            update.push({ key: 'IDSupplier', value: body.idSupplier });
                     }
                     if (body.idPhongBan || body.idPhongBan === '') {
                         if (body.idPhongBan === '')
@@ -362,15 +362,38 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
+
                     await mtblYeuCauMuaSam(db).update({
                         Status: 'Đã mua',
                         ReasonReject: body.reason,
                     }, { where: { ID: body.id } })
-                    var result = {
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    mtblYeuCauMuaSam(db).findOne({ where: { ID: body.id } }).then(async data => {
+                        var addVPP = await mtblThemVPP(db).create({
+                            IDNhaCungCap: data.IDSupplier ? data.IDSupplier : null,
+                            Date: now,
+                        })
+                        await mtblYeuCauMuaSamDetail(db).findAll({ where: { IDYeuCauMuaSam: data.ID } }).then(async detail => {
+                            for (var i = 0; i < detail.length; i++) {
+                                await mThemVPPChiTiet(db).create({
+                                    IDVanPhongPham: detail[i].IDVanPhongPham,
+                                    IDThemVPP: addVPP.ID,
+                                    Amount: detail[i].Amount ? detail[i].Amount : 0,
+                                    Describe: data.Reason ? data.Reason : '',
+                                })
+                                let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: detail[i].IDVanPhongPham } })
+                                let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
+                                await mtblVanPhongPham(db).update({
+                                    RemainingAmount: Number(detail[i].Amount) + Number(amount),
+                                }, { where: { ID: detail[i].IDVanPhongPham } })
+                            }
+                        })
+                        var result = {
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

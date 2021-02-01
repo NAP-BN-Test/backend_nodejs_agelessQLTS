@@ -18,6 +18,7 @@ module.exports = function (db) {
         ReasonReject2: Sequelize.STRING,
         ReasonReject: Sequelize.STRING,
         Type: Sequelize.STRING,
+        IDSupplier: Sequelize.BIGINT,
     });
 
     return table;
