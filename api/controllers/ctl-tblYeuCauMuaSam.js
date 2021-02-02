@@ -381,7 +381,7 @@ module.exports = {
                                     Describe: data.Reason ? data.Reason : '',
                                 })
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: detail[i].IDVanPhongPham } })
-                                let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
+                                let amount = vpp ? vpp.RemainingAmount : 0;
                                 await mtblVanPhongPham(db).update({
                                     RemainingAmount: Number(detail[i].Amount) + Number(amount),
                                 }, { where: { ID: detail[i].IDVanPhongPham } })

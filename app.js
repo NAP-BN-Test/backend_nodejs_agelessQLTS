@@ -130,7 +130,7 @@ async function handleRequestShopping(db, idycms) {
         'TÊN TS/TB/LK': '',
         'ĐƠN GIÁ': '',
         'SỐ LƯỢNG': '',
-        'GIÁ/TỔNG TIỀN': '',
+        'TỔNG TIỀN': '',
         'LÝ DO MUA': '',
         'TRẠNG THÁI': '',
     };
@@ -199,10 +199,12 @@ async function handleRequestShopping(db, idycms) {
                         },
                     ],
                 }).then(data => {
-                    name += ',' + data.Name ? data.Name : ''
-                    code += ',' + data.Code ? data.Code : ''
-                    amount += ',' + amount
-                    unitPrice += ',' + price
+                    if (data) {
+                        name += ',' + data ? data.Name : ''
+                        code += ',' + data ? data.Code : ''
+                        amount += ',' + amount
+                        unitPrice += ',' + price
+                    }
                 })
                 objKey = {
                     'BỘ PHẬN ĐỀ XUẤT': data.phongban ? data.phongban.DepartmentName : '',

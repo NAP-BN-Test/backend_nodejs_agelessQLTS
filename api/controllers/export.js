@@ -130,7 +130,7 @@ module.exports = {
                         }
                         if (data[i].arrayFileExport.length > 0) {
                             for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 10).string(data[i].arrayFileExport[file].link).style(stylecell)
+                                ws.cell(file + row, 10).link(data[i].arrayFileExport[file].link).style(stylecell)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0 && data[i].arrayTaiSanExport.length > 0) {

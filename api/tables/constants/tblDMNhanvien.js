@@ -31,6 +31,7 @@ module.exports = function (db) {
         IDMayChamCong: Sequelize.BIGINT,
         Email: Sequelize.STRING,
         Status: Sequelize.STRING,
+        ProductivityWages: Sequelize.FLOAT,
     });
 
     return table;

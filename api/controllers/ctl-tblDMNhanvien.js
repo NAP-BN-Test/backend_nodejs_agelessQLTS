@@ -267,6 +267,8 @@ module.exports = {
                             contactUrgent: data.ContactUrgent ? data.ContactUrgent : '',
                             idMayChamCong: data.IDMayChamCong ? data.IDMayChamCong : null,
                             email: data.Email ? data.Email : '',
+                            statusEmployee: data.Status ? data.Status : '',
+                            productivityWages: data.ProductivityWages ? data.ProductivityWages : '',
                         }
                         let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                         tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'loaiHD' })
@@ -349,6 +351,7 @@ module.exports = {
                             ContactUrgent: body.contactUrgent ? body.contactUrgent : '',
                             // IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                             Email: body.email ? body.email : '',
+                            ProductivityWages: body.productivityWages ? body.productivityWages : '',
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                         }).then(async data => {
                             var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
@@ -429,6 +432,12 @@ module.exports = {
                             update.push({ key: 'IDNation', value: null });
                         else
                             update.push({ key: 'IDNation', value: body.idNation });
+                    }
+                    if (body.productivityWages || body.productivityWages === '') {
+                        if (body.productivityWages === '')
+                            update.push({ key: 'ProductivityWages', value: null });
+                        else
+                            update.push({ key: 'ProductivityWages', value: body.productivityWages });
                     }
                     if (body.phoneNumber || body.phoneNumber === '')
                         update.push({ key: 'PhoneNumber', value: body.phoneNumber });
@@ -805,6 +814,7 @@ module.exports = {
                                 idMayChamCong: element.IDMayChamCong ? element.IDMayChamCong : null,
                                 email: element.Email ? element.Email : '',
                                 statusEmployee: element.Status ? element.Status : '',
+                                productivityWages: element.ProductivityWages ? element.ProductivityWages : '',
                             }
                             array.push(obj);
                             stt += 1;

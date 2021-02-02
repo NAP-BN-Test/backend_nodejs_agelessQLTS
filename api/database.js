@@ -30,24 +30,24 @@ async function connectDatabase(dbName, user, pass, ip) {
 }
 
 module.exports = {
-    // config: {
-    //     user: 'sa',
-    //     password: '1234',
-    //     server: 'localhost',
-    //     database: 'AGELESS_QLNB',
-    //     options: {
-    //         encrypt: false,
-    //     },
-    // },
     config: {
-        user: 'ageless_qlnb',
-        password: '123456a$',
-        server: '118.27.192.106',
+        user: 'sa',
+        password: '1234',
+        server: 'localhost',
         database: 'AGELESS_QLNB',
         options: {
             encrypt: false,
         },
     },
+    // config: {
+    //     user: 'ageless_qlnb',
+    //     password: '123456a$',
+    //     server: '118.27.192.106',
+    //     database: 'AGELESS_QLNB',
+    //     options: {
+    //         encrypt: false,
+    //     },
+    // },
     configDBCustomer: {
         user: 'sa',
         password: '1234',

@@ -538,6 +538,9 @@ module.exports = {
                     }, {
                         where: { ID: body.id }
                     })
+                    await mtblYeuCauMuaSam(db).update({
+                        Status: 'Hoàn thành',
+                    }, { where: { IDPaymentOrder: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
