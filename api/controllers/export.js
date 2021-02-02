@@ -1,5 +1,7 @@
 var docxConverter = require('docx-pdf');
 const Constant = require('../constants/constant');
+const Result = require('../constants/result');
+
 // Require library
 var xl = require('excel4node');
 
@@ -47,7 +49,6 @@ module.exports = {
     // convert_docx_to_pdf
     convertDocxToPDF: (req, res) => {
         let body = req.body;
-        console.log(body);
         try {
             var path = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
             docxConverter(path, 'D:/images_services/ageless_sendmail/export-file-pdf.pdf', function (err, result) {
@@ -55,6 +56,7 @@ module.exports = {
                     console.log(err);
                 }
                 var result = {
+                    link: 'http://118.27.192.106:1357/ageless_sendmail/export-file-pdf.pdf',
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                 }
@@ -69,7 +71,7 @@ module.exports = {
     // export_to_file_excel
     exportToFileExcel: (req, res) => {
         let body = req.body;
-        let data = body.data;
+        let data = JSON.parse(body.data);
         let arrayHeader = [
             'STT',
             'LOẠI YÊU CẦU',
@@ -103,30 +105,32 @@ module.exports = {
                     var row = 0;
                     var checkMaxRow = 0;
                     for (let i = 0; i < data.length; i++) {
+                        data[i].arrayTaiSanExport = JSON.parse(data[i].arrayTaiSanExport)
+                        data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
                         var max = 0;
                         if (i > 0)
                             row = checkMaxRow + 2
                         else
                             row = i + 2
-                        if (data[i].arrayTaiSan.length >= data[i].arrayFile.length) {
-                            checkMaxRow += data[i].arrayTaiSan.length;
-                            max = data[i].arrayTaiSan.length;
+                        if (data[i].arrayTaiSanExport.length >= data[i].arrayFileExport.length) {
+                            checkMaxRow += data[i].arrayTaiSanExport.length;
+                            max = data[i].arrayTaiSanExport.length;
                         }
                         else {
-                            checkMaxRow += data[i].arrayFile.length;
-                            max = data[i].arrayFile.length;
+                            checkMaxRow += data[i].arrayFileExport.length;
+                            max = data[i].arrayFileExport.length;
                         }
-                        if (data[i].arrayTaiSan.length > 0) {
-                            for (var taisan = 0; taisan < data[i].arrayTaiSan.length; taisan++) {
-                                ws.cell(taisan + row, 5).string(data[i].arrayTaiSan[taisan].code).style(stylecell)
-                                ws.cell(taisan + row, 6).string(data[i].arrayTaiSan[taisan].name).style(stylecell)
-                                ws.cell(taisan + row, 7).number(data[i].arrayTaiSan[taisan].amount ? data[i].arrayTaiSan[taisan].amount : 0).style(stylecell)
-                                ws.cell(taisan + row, 8).number(data[i].arrayTaiSan[taisan].unitPrice ? data[i].arrayTaiSan[taisan].unitPrice : 0).style(stylecell)
+                        if (data[i].arrayTaiSanExport.length > 0) {
+                            for (var taisan = 0; taisan < data[i].arrayTaiSanExport.length; taisan++) {
+                                ws.cell(taisan + row, 5).string(data[i].arrayTaiSanExport[taisan].code).style(stylecell)
+                                ws.cell(taisan + row, 6).string(data[i].arrayTaiSanExport[taisan].name).style(stylecell)
+                                ws.cell(taisan + row, 7).number(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0).style(stylecell)
+                                ws.cell(taisan + row, 8).number(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0).style(stylecell)
                             }
                         }
-                        if (data[i].arrayFile.length > 0) {
-                            for (var file = 0; file < data[i].arrayFile.length; file++) {
-                                ws.cell(file + row, 10).string(data[i].arrayFile[file].link).style(stylecell)
+                        if (data[i].arrayFileExport.length > 0) {
+                            for (var file = 0; file < data[i].arrayFileExport.length; file++) {
+                                ws.cell(file + row, 10).string(data[i].arrayFileExport[file].link).style(stylecell)
                             }
                         }
                         ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
@@ -137,8 +141,9 @@ module.exports = {
                         ws.cell(row, 11, row + max - 1, 11, true).string(data[i].reason).style(stylecell);
                         ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
                     }
-                    wb.write('D:/images_services/ageless_sendmail/0010.xlsx');
+                    wb.write('D:/images_services/ageless_sendmail/export_excel.xlsx');
                     var result = {
+                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
