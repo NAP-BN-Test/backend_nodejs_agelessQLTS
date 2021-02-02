@@ -219,8 +219,10 @@ module.exports = {
                                     var list = [];
                                     await mtblDMNhanvien(db).findAll({
                                         where: {
-                                            StaffCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' },
-                                            StaffName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                            [Op.or]: [
+                                                { StaffCode: { [Op.like]: '%' + data.search + '%' } },
+                                                { StaffName: { [Op.like]: '%' + data.search + '%' } }
+                                            ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {

@@ -90,7 +90,7 @@ module.exports = {
             if (db) {
                 try {
                     // Add Worksheets to the workbook
-                    var ws = wb.addWorksheet('Sheet 1', options);
+                    var ws = wb.addWorksheet('Sheet 1');
                     var ws2 = wb.addWorksheet('Sheet 2');
 
                     var row = 1
@@ -103,13 +103,13 @@ module.exports = {
                         ws.column(row).setWidth(20);
                     });
                     var row = 0;
-                    var checkMaxRow = 0;
+                    var checkMaxRow = 1;
                     for (let i = 0; i < data.length; i++) {
                         data[i].arrayTaiSanExport = JSON.parse(data[i].arrayTaiSanExport)
                         data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
                         var max = 0;
                         if (i > 0)
-                            row = checkMaxRow + 2
+                            row = checkMaxRow + 1
                         else
                             row = i + 2
                         if (data[i].arrayTaiSanExport.length >= data[i].arrayFileExport.length) {
@@ -124,8 +124,8 @@ module.exports = {
                             for (var taisan = 0; taisan < data[i].arrayTaiSanExport.length; taisan++) {
                                 ws.cell(taisan + row, 5).string(data[i].arrayTaiSanExport[taisan].code).style(stylecell)
                                 ws.cell(taisan + row, 6).string(data[i].arrayTaiSanExport[taisan].name).style(stylecell)
-                                ws.cell(taisan + row, 7).number(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0).style(stylecell)
-                                ws.cell(taisan + row, 8).number(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0).style(stylecell)
+                                ws.cell(taisan + row, 8).number(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0).style(stylecell)
+                                ws.cell(taisan + row, 7).number(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0).style(stylecell)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0) {
@@ -133,13 +133,24 @@ module.exports = {
                                 ws.cell(file + row, 10).string(data[i].arrayFileExport[file].link).style(stylecell)
                             }
                         }
-                        ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
-                        ws.cell(row, 2, row + max - 1, 2, true).string(data[i].type).style(stylecell);
-                        ws.cell(row, 3, row + max - 1, 3, true).string(data[i].nameIDNhanVien).style(stylecell);
-                        ws.cell(row, 4, row + max - 1, 4, true).string(data[i].requireDate).style(stylecell);
-                        ws.cell(row, 9, row + max - 1, 9, true).number(data[i].price ? data[i].price : 0).style(stylecell);
-                        ws.cell(row, 11, row + max - 1, 11, true).string(data[i].reason).style(stylecell);
-                        ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
+                        if (data[i].arrayFileExport.length > 0 && data[i].arrayTaiSanExport.length > 0) {
+                            ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
+                            ws.cell(row, 2, row + max - 1, 2, true).string(data[i].type).style(stylecell);
+                            ws.cell(row, 3, row + max - 1, 3, true).string(data[i].nameIDNhanVien).style(stylecell);
+                            ws.cell(row, 4, row + max - 1, 4, true).string(data[i].requireDate).style(stylecell);
+                            ws.cell(row, 9, row + max - 1, 9, true).number(data[i].price ? data[i].price : 0).style(stylecell);
+                            ws.cell(row, 11, row + max - 1, 11, true).string(data[i].reason).style(stylecell);
+                            ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
+                        }
+                        else {
+                            ws.cell(row, 1).number(data[i].stt).style(stylecell);
+                            ws.cell(row, 2).string(data[i].type).style(stylecell);
+                            ws.cell(row, 3).string(data[i].nameIDNhanVien).style(stylecell);
+                            ws.cell(row, 4).string(data[i].requireDate).style(stylecell);
+                            ws.cell(row, 9).number(data[i].price ? data[i].price : 0).style(stylecell);
+                            ws.cell(row, 11,).string(data[i].reason).style(stylecell);
+                            ws.cell(row, 12,).string(data[i].status).style(stylecell);
+                        }
                     }
                     wb.write('D:/images_services/ageless_sendmail/export_excel.xlsx');
                     var result = {
