@@ -849,6 +849,9 @@ module.exports = {
                         var array = [];
                         var stt = 1;
                         data.forEach(element => {
+                            var guaranteDate;
+                            if (element.taisan)
+                                guaranteDate = element.taisan.Date ? moment(element.taisan.Date).add(Number(element.GuaranteeMonth), 'M').format('DD/MM/YYYY') : ''
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -866,7 +869,8 @@ module.exports = {
                                 depreciationPrice: element.DepreciationPrice ? element.DepreciationPrice : 0,
                                 guaranteeMonth: element.GuaranteeMonth ? element.GuaranteeMonth : 0,
                                 status: element.Status ? element.Status : 0,
-                                data: element.taisan ? element.taisan.Date : null
+                                date: element.taisan ? element.taisan.Date ? moment(element.taisan.Date).format('DD/MM/YYYY') : '' : '',
+                                guaranteDate: guaranteDate,
                             }
                             array.push(obj);
                             stt += 1;

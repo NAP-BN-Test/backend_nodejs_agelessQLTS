@@ -30,6 +30,7 @@ module.exports = function (db) {
         ContactUrgent: Sequelize.STRING,
         IDMayChamCong: Sequelize.BIGINT,
         Email: Sequelize.STRING,
+        Status: Sequelize.STRING,
     });
 
     return table;

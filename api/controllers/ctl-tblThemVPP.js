@@ -76,6 +76,7 @@ module.exports = {
     // update_tbl_them_vpp
     updateTBLThemVPP: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -92,6 +93,7 @@ module.exports = {
                         else
                             update.push({ key: 'Date', value: body.date });
                     }
+                    body.fileAttach = JSON.parse(body.fileAttach)
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
@@ -101,6 +103,7 @@ module.exports = {
                                     ID: body.fileAttach[i].id
                                 }
                             })
+                    body.line = JSON.parse(body.line)
                     if (body.line.length > 0)
                         for (var i = 0; i < body.line.length; i++)
                             await mThemVPPChiTiet(db).update({
@@ -342,6 +345,7 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
+
                             }
                         }
                     }

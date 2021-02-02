@@ -362,8 +362,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
-
+                    let now = moment().format('MM-DD-YYYY HH:mm:ss.SSS');
                     await mtblYeuCauMuaSam(db).update({
                         Status: 'Đã mua',
                         ReasonReject: body.reason,
@@ -744,7 +743,7 @@ module.exports = {
                                                 code: data.VPPCode ? data.VPPCode : '',
                                                 amount: amount,
                                                 unitPrice: price,
-                                                id: array[i].line[j].id,
+                                                id: array[i].line[j].ID,
                                             })
                                         }
                                     })
@@ -925,6 +924,170 @@ module.exports = {
                             obj: obj,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_tbl_request_from_payment
+    gettblYeuCauMuaSamFromDeNghiThanhToan: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
+                    let tblDMBoPhan = mtblDMBoPhan(db); // bắt buộc
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
+                    tblYeuCauMuaSam.belongsTo(tblDMBoPhan, { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
+                    let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
+                    tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+                    tblYeuCauMuaSam.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        include: [
+                            {
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'phongban',
+                                include: [
+                                    {
+                                        model: mtblDMChiNhanh(db),
+                                        required: false,
+                                        as: 'chinhanh',
+                                    }
+                                ]
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'NhanVien'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet1',
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet2',
+                            },
+                            {
+                                model: tblYeuCauMuaSamDetail,
+                                required: false,
+                                as: 'line'
+                            },
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { IDPaymentOrder: body.idPaymentOrder }
+                    }).then(async data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var reasonReject = '';
+                            if (element.ReasonReject1) {
+                                reasonReject = 'Người phê duyệt trước đã từ chối: ' + element.ReasonReject1
+                            }
+                            if (element.ReasonReject2) {
+                                reasonReject = 'Người phê duyệt sau đã từ chối: ' + element.ReasonReject2
+                            }
+                            var obj = {
+                                stt: stt,
+                                id: Number(element.ID),
+                                type: element.Type ? element.Type : '',
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                nameIDNhanVien: element.NhanVien ? element.NhanVien.StaffName : null,
+                                idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
+                                codePhongBan: element.phongban ? element.phongban.DepartmentCode : null,
+                                namePhongBan: element.phongban ? element.phongban.DepartmentName : null,
+                                branchName: element.phongban ? element.phongban.chinhanh ? element.phongban.chinhanh.BranchName : '' : '',
+                                requireDate: element.RequireDate ? moment(element.RequireDate).format('DD/MM/YYYY') : null,
+                                reason: element.Reason ? element.Reason : '',
+                                status: element.Status ? element.Status : '',
+                                idPheDuyet1: element.IDPheDuyet1 ? element.IDPheDuyet1 : null,
+                                namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
+                                idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
+                                namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
+                                reasonReject: reasonReject,
+                                line: element.line,
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        });
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayTaiSan = []
+                            var arrayFile = []
+                            var total = 0;
+                            for (var j = 0; j < array[i].line.length; j++) {
+                                if (array[i].type == 'Tài sản') {
+                                    await mtblDMHangHoa(db).findOne({ where: { ID: array[i].line[j].IDDMHangHoa } }).then(data => {
+                                        var price = array[i].line[j].Price ? array[i].line[j].Price : 0
+                                        var amount = array[i].line[j].Amount ? array[i].line[j].Amount : 0
+
+                                        if (data) {
+                                            total += amount * price
+                                            arrayTaiSan.push({
+                                                name: data.Name,
+                                                code: data.Code,
+                                                amount: amount,
+                                                unitPrice: price,
+                                                id: array[i].line[j].id,
+                                            })
+                                        }
+                                    })
+                                } else {
+                                    await mtblVanPhongPham(db).findOne({ where: { ID: array[i].line[j].IDVanPhongPham } }).then(data => {
+                                        var price = array[i].line[j].Price ? array[i].line[j].Price : 0
+                                        var amount = array[i].line[j].Amount ? array[i].line[j].Amount : 0
+
+                                        if (data) {
+                                            total += amount * price
+                                            arrayTaiSan.push({
+                                                name: data.VPPName ? data.VPPName : '',
+                                                code: data.VPPCode ? data.VPPCode : '',
+                                                amount: amount,
+                                                unitPrice: price,
+                                                id: array[i].line[j].id,
+                                            })
+                                        }
+                                    })
+                                }
+                            }
+                            array[i]['price'] = total;
+                            await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].id
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayTaiSan'] = arrayTaiSan;
+                            array[i]['arrayFile'] = arrayFile;
+
+                        }
+                        // var count = await tblYeuCauMuaSam.count({ IDPaymentOrder: body.idPaymentOrder })
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            // all: count
                         }
                         res.json(result);
                     })

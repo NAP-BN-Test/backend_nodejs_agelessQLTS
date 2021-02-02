@@ -9,6 +9,7 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
+var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     await mtblFileAttach(db).destroy({
@@ -27,6 +28,7 @@ module.exports = {
     // add_tbl_denghi_thanhtoan
     addtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -50,6 +52,13 @@ module.exports = {
                                         ID: body.fileAttach[j].id
                                     }
                                 })
+                        body.listID = JSON.parse(body.listID)
+                        if (body.listID.length > 0)
+                            for (var i = 0; i < body.listID.length; i++)
+                                await mtblYeuCauMuaSam(db).update({
+                                    Status: 'Đang thanh toán',
+                                    IDPaymentOrder: data.ID
+                                }, { where: { ID: body.listID[i] } })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -137,6 +146,10 @@ module.exports = {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
+                    await mtblYeuCauMuaSam(db).update({
+                        Status: 'Đã mua',
+                        IDPaymentOrder: null
+                    }, { where: { IDPaymentOrder: { [Op.in]: listID } } })
                     await deleteRelationshiptblDeNghiThanhToan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -321,7 +334,12 @@ module.exports = {
                                 }
                             })
                             array[i]['arrayFile'] = arrayFile;
-
+                            await mtblYeuCauMuaSam(db).findOne({ where: { IDPaymentOrder: array[i].id } }).then(data => {
+                                if (data)
+                                    array[i]['check'] = true;
+                                else
+                                    array[i]['check'] = false;
+                            })
                         }
                         var count = await mtblDeNghiThanhToan(db).count({ where: whereObj, })
                         var result = {

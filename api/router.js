@@ -18,6 +18,12 @@ module.exports = function (app) {
     var tblFileAttach = require('./controllers/ctl-tblFileAttach');
     var tblNghiPhep = require('./controllers_hr/ctl-tblNghiPhep');
     var tblTemplate = require('./controllers/ctl-tblTemplate');
+    var exportPDF = require('./controllers/export');
+
+    app.route('/qlnb/convert_docx_to_pdf').post(exportPDF.convertDocxToPDF);
+
+    app.route('/qlnb/export_to_file_excel').post(exportPDF.exportToFileExcel);
+
 
     app.route('/qlnb/delete_file').post(tblFileAttach.deletetblFileAttach);
     app.route('/qlnb/delete_file_from_link').post(tblFileAttach.deletetblFileFromLink);
@@ -110,6 +116,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/get_detail_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.getDetailtblYeuCauMuaSam);
 
+    app.route('/qlnb/get_tbl_request_from_payment').post(tblYeuCauMuaSam.gettblYeuCauMuaSamFromDeNghiThanhToan);
+
     app.route('/qlnb/delete_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.deletetblYeuCauMuaSam);
 
     // button approval
@@ -145,7 +153,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.updatetblTaiSanADD);
     app.route('/qlnb/delete_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.deletetblTaiSanADD);
     app.route('/qlnb/get_list_tbl_taisanadd').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanADD);
-    app.route('/qlnb/get_list_tbl_taisan_chuasudung').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanChuaSuDung);
+    app.route('/qlnb/get_list_tbl_taisan_chuasudung').post(tblTaiSan.getListtblTaiSanChuaSuDung);
     app.route('/qlnb/get_list_tbl_taisan_theodoi').post(checkToken.checkToken, tblTaiSan.getListtblTaiSanTheoDoi);
 
 

@@ -349,6 +349,7 @@ module.exports = {
                             ContactUrgent: body.contactUrgent ? body.contactUrgent : '',
                             // IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                             Email: body.email ? body.email : '',
+                            Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                         }).then(async data => {
                             var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
                                 order: [
@@ -421,6 +422,8 @@ module.exports = {
                         update.push({ key: 'CMNDumber', value: body.cmndumber });
                     if (body.address || body.address === '')
                         update.push({ key: 'Address', value: body.address });
+                    if (body.statusEmployee || body.statusEmployee === '')
+                        update.push({ key: 'Status', value: body.statusEmployee });
                     if (body.idNation || body.idNation === '') {
                         if (body.idNation === '')
                             update.push({ key: 'IDNation', value: null });
@@ -690,6 +693,18 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
                                     userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -789,6 +804,7 @@ module.exports = {
                                 contactUrgent: element.ContactUrgent ? element.ContactUrgent : '',
                                 idMayChamCong: element.IDMayChamCong ? element.IDMayChamCong : null,
                                 email: element.Email ? element.Email : '',
+                                statusEmployee: element.Status ? element.Status : '',
                             }
                             array.push(obj);
                             stt += 1;
