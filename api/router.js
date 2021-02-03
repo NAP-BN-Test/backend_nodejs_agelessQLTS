@@ -250,7 +250,7 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.addtblNghiPhep);
     app.route('/qlnb/update_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.updatetblNghiPhep);
     app.route('/qlnb/delete_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.deletetblNghiPhep);
-    app.route('/qlnb/get_list_tbl_nghiphep').post(tblNghiPhep.getListtblNghiPhep);
+    app.route('/qlnb/get_list_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.getListtblNghiPhep);
 
     //  Danh mục tình trạng nhân viên
     app.route('/qlnb/add_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.addtblDMTinhTrangNV);
@@ -368,6 +368,4 @@ module.exports = function (app) {
     var tblVayTamUng = require('./controller_finance/ctl-tblVayTamUng')
     app.route('/qlnb/get_list_tbl_vaytamung').post(tblVayTamUng.getListtblVayTamUng);
     app.route('/qlnb/get_detail_tbl_vaytamung').post(tblVayTamUng.detailtblVayTamUng);
-
-
 }

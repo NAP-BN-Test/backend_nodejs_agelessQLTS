@@ -1356,11 +1356,13 @@ module.exports = {
     // withdraw_asset
     withdrawAsset: (req, res) => {
         let body = req.body;
-        console.log(body);
         let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    await mtblTaiSan(db).update({
+                        Status: 'Lưu kho'
+                    }, { where: { ID: body.id } })
                     await mtblTaiSanHistory(db).update({
                         DateThuHoi: now,
                     }, { where: { IDTaiSan: body.id } })

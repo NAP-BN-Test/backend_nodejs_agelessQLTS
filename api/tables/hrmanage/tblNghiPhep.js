@@ -11,7 +11,13 @@ module.exports = function (db) {
         DateStart: Sequelize.DATE,
         DateEnd: Sequelize.DATE,
         IDNhanVien: Sequelize.BIGINT,
-
+        NumberLeave: Sequelize.STRING,
+        Type: Sequelize.STRING,
+        Date: Sequelize.DATE,
+        Remaining: Sequelize.INTEGER,
+        IDHeadDepartment: Sequelize.BIGINT,
+        IDAdministrationHR: Sequelize.BIGINT,
+        IDHeads: Sequelize.BIGINT,
     });
 
     return table;
