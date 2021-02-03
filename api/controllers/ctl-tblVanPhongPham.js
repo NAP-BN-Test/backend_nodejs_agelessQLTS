@@ -131,6 +131,7 @@ module.exports = {
     // get_list_tbl_vanphongpham
     getListtblVanPhongPham: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -156,7 +157,7 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN VPP') {
+                                if (data.items[i].fields['name'] === 'TÊN VĂN PHÒNG PHẨM') {
                                     userFind['VPPName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
@@ -168,7 +169,7 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'MÃ VPP') {
+                                if (data.items[i].fields['name'] === 'MÃ VĂN PHÒNG PHẨM') {
                                     userFind['VPPCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)

@@ -687,6 +687,9 @@ module.exports = {
                             if (element.ReasonReject2) {
                                 reasonReject = 'Người phê duyệt sau đã từ chối: ' + element.ReasonReject2
                             }
+                            if (element.ReasonReject) {
+                                reasonReject = 'Người mua đã từ chối: ' + element.ReasonReject
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),

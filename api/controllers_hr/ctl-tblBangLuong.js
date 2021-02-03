@@ -833,7 +833,6 @@ module.exports = {
                         objMorning['Ngày nghỉ'] = holiday + freeBreak + takeLeave;
 
                         objMorning['Ngày nghỉ phép'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                        objMorning['Ngày nghỉ lễ'] = arrayHoliday ? arrayHoliday.length : 0;
                         objMorning['Ngày nghỉ tự do'] = freeBreak;
 
                         // push chiều
@@ -841,7 +840,6 @@ module.exports = {
                         objAfternoon['Ngày nghỉ'] = holiday + freeBreak + takeLeave;
 
                         objAfternoon['Ngày nghỉ phép'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                        objAfternoon['Ngày nghỉ lễ'] = arrayHoliday ? arrayHoliday.length : 0;
                         objAfternoon['Ngày nghỉ tự do'] = freeBreak;
                         array.push(objMorning)
                         array.push(objAfternoon)
