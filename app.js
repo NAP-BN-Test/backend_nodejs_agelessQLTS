@@ -326,9 +326,7 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
         } else {
             objKey = await handleRequestShopping(db, body.id)
         }
-        pathFirst = '002.docx'
     })
-    console.log(pathFirst);
     var pathTo = 'D:/images_services/ageless_sendmail/'
     fs.readFile(pathTo + pathFirst, 'binary', function (err, data) {
         try {
