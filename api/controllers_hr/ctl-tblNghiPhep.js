@@ -299,36 +299,4 @@ module.exports = {
             }
         })
     },
-    // // get_list_name_tbl_nghiphep
-    // getListNametblNghiPhep: (req, res) => {
-    //     let body = req.body;
-    //     database.connectDatabase().then(async db => {
-    //         if (db) {
-    //             try {
-    //                 mtblNghiPhep(db).findAll().then(data => {
-    //                     var array = [];
-    //                     data.forEach(element => {
-    //                         var obj = {
-    //                             id: Number(element.ID),
-    //                             name: element.Name ? element.Name : '',
-    //                         }
-    //                         array.push(obj);
-    //                     });
-    //                     var result = {
-    //                         array: array,
-    //                         status: Constant.STATUS.SUCCESS,
-    //                         message: Constant.MESSAGE.ACTION_SUCCESS,
-    //                     }
-    //                     res.json(result);
-    //                 })
-
-    //             } catch (error) {
-    //                 console.log(error);
-    //                 res.json(Result.SYS_ERROR_RESULT)
-    //             }
-    //         } else {
-    //             res.json(Constant.MESSAGE.USER_FAIL)
-    //         }
-    //     })
-    // }
 }

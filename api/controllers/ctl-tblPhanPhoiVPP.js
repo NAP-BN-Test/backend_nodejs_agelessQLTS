@@ -34,6 +34,7 @@ module.exports = {
                         IDNhanVienBanGiao: body.idNhanVienBanGiao ? body.idNhanVienBanGiao : null,
                         IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : null,
                         Date: body.date ? body.date : null,
+                        Status: body.status ? body.status : '',
                     }).then(async data => {
                         body.line = JSON.parse(body.line);
                         if (data)
@@ -110,6 +111,9 @@ module.exports = {
                             update.push({ key: 'Date', value: null });
                         else
                             update.push({ key: 'Date', value: body.date });
+                    }
+                    if (body.status) {
+                        update.push({ key: 'Status', value: body.status });
                     }
                     for (var i = 0; i < body.line; i++) {
                         await mtblPhanPhoiVPPChiTiet(db).create({
@@ -420,7 +424,7 @@ module.exports = {
                                 idNhanVienBanGiao: element.IDNhanVienBanGiao ? element.IDNhanVienBanGiao : null,
                                 nameNhanVienBanGiao: element.nvbg ? element.nvbg.StaffName : '',
                                 idNhanVienSoHuu: element.IDNhanVienSoHuu ? element.IDNhanVienSoHuu : null,
-                                nameNhanVienSoHuu: element.nvsh ? element.nvsh.StaffName : '',
+                                nameNhanVienSoHuu: element.nvsh ? element.nvsh.StaffName : element.Status ? element.Status : '',
                                 idBoPhanSoHuu: element.IDBoPhanSoHuu ? element.IDBoPhanSoHuu : null,
                                 nameBoPhanSoHuu: element.bp ? element.bp.DepartmentName : null,
                                 date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
@@ -428,6 +432,7 @@ module.exports = {
                                 vppCode: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPCode : '' : '',
                                 unit: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.Unit : '' : '',
                                 amount: element.line[0] ? element.line[0].Amount : '',
+                                status: element.Status ? element.Status : '',
                                 // line: element.line,
                             }
                             stt += 1;

@@ -11,6 +11,7 @@ module.exports = function (db) {
         IDNhanVienSoHuu: Sequelize.BIGINT,
         IDBoPhanSoHuu: Sequelize.BIGINT,
         Date: Sequelize.DATE,
+        Status: Sequelize.STRING,
     });
 
     return table;
