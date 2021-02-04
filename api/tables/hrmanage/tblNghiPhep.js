@@ -8,8 +8,8 @@ module.exports = function (db) {
             autoIncrement: true
         },
         IDLoaiChamCong: Sequelize.BIGINT,
-        DateStart: Sequelize.DATE,
-        DateEnd: Sequelize.DATE,
+        DateStart: Sequelize.NOW,
+        DateEnd: Sequelize.NOW,
         IDNhanVien: Sequelize.BIGINT,
         NumberLeave: Sequelize.STRING,
         Type: Sequelize.STRING,

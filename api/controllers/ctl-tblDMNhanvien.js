@@ -517,14 +517,14 @@ module.exports = {
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
                             IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                            SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryNumber: body.workingSalary ? body.workingSalary : '',
                             SalaryText: body.salaryNumber ? body.salaryNumber : '',
                             ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
                             // ContractDateStart: now,
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
                         }, { where: { ID: body.idContract } })
-                        salary = body.salaryNumber ? body.salaryNumber : 0
+                        salary = body.workingSalary ? body.workingSalary : 0
                         await mtblBangLuong(db).create({
                             Date: body.signDate ? body.signDate : null,
                             IDNhanVien: body.id,
@@ -538,7 +538,7 @@ module.exports = {
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
                             IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                            SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryNumber: body.workingSalary ? body.workingSalary : '',
                             SalaryText: body.salaryNumber ? body.salaryNumber : '',
                             ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
                             // ContractDateStart: now,
@@ -547,7 +547,7 @@ module.exports = {
                             IDNhanVien: body.id ? body.id : null,
                             WorkingPlace: ''
                         })
-                        salary = body.salaryNumber ? body.salaryNumber : 0
+                        salary = body.workingSalary ? body.workingSalary : 0
                         await mtblBangLuong(db).create({
                             Date: body.signDate ? body.signDate : null,
                             IDNhanVien: body.id,
@@ -702,7 +702,7 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                if (data.items[i].fields['name'] === 'LOẠI ĐỐI TƯỢNG') {
                                     userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)

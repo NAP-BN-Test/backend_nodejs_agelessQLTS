@@ -24,8 +24,8 @@ module.exports = {
             if (db) {
                 try {
                     mtblNghiPhep(db).create({
-                        DateStart: body.dateStart ? body.dateStart : null,
-                        DateEnd: body.dateEnd ? body.dateEnd : null,
+                        DateStart: body.dateStart ? moment(body.dateStart).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
+                        DateEnd: body.dateEnd ? moment(body.dateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
                         NumberLeave: body.numberLeave ? body.numberLeave : '',
@@ -35,6 +35,7 @@ module.exports = {
                         IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
                         IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
                         IDHeads: body.idHeads ? body.idHeads : null,
+                        Status: 'Chờ phê duyệt',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -96,13 +97,13 @@ module.exports = {
                         if (body.dateEnd === '')
                             update.push({ key: 'DateEnd', value: null });
                         else
-                            update.push({ key: 'DateEnd', value: body.dateEnd });
+                            update.push({ key: 'DateEnd', value: moment(body.dateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') });
                     }
                     if (body.dateStart || body.dateStart === '') {
                         if (body.dateStart === '')
                             update.push({ key: 'DateStart', value: null });
                         else
-                            update.push({ key: 'DateStart', value: body.dateStart });
+                            update.push({ key: 'DateStart', value: moment(body.dateStart).format('DD-MM-YYYY HH:mm:ss.SSS') });
                     }
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
@@ -254,8 +255,8 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                dateEnd: element.DateEnd ? element.DateEnd : '',
-                                dateStart: element.DateStart ? element.DateStart : '',
+                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') : '',
+                                dateStart: element.DateStart ? moment(element.DateStart).format('DD-MM-YYYY HH:mm:ss.SSS') : '',
                                 idLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.ID : '',
                                 nameLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Name : '',
                                 codeLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Code : '',
@@ -264,6 +265,7 @@ module.exports = {
                                 staffName: element.nv ? element.nv.StaffName : '',
                                 departmentName: element.nv ? element.nv.bp ? element.nv.bp.DepartmentName : '' : '',
                                 numberLeave: element.NumberLeave ? element.NumberLeave : '',
+                                status: element.Status ? element.Status : '',
                                 type: element.Type ? element.Type : '',
                                 date: element.Date ? element.Date : null,
                                 remaining: element.Remaining ? element.Remaining : 0,
@@ -290,6 +292,75 @@ module.exports = {
                         res.json(result);
                     })
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // approval_head_department
+    approvalHeadDepartment: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblNghiPhep(db).update({
+                        Status: 'Trưởng bộ phận đã phê duyệt',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // approval_administration_hr
+    approvalAdministrationHR: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblNghiPhep(db).update({
+                        Status: 'Hành chính nhân sự đã phê duyệt',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // approval_heads
+    approvalHeads: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblNghiPhep(db).update({
+                        Status: 'Hoàn thành',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

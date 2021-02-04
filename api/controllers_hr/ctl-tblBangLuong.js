@@ -365,6 +365,7 @@ module.exports = {
     // data_timekeeping
     dataTimekeeping: (req, res) => {
         let body = req.body;
+        console.log(body);
         let arrayData = [
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
@@ -459,6 +460,10 @@ module.exports = {
             // })
             if (db) {
                 try {
+                    var whereobj = {};
+                    if (body.idNhanVien) {
+                        whereobj = { ID: body.idNhanVien }
+                    }
                     var array = [];
                     var month = Number(body.date.slice(5, 7)); // January
                     var year = Number(body.date.slice(0, 4));
@@ -596,7 +601,7 @@ module.exports = {
                     // lấy dữ liệu từ database
                     var array7th = [];
                     var array7thDB = [];
-                    await mtblDMNhanvien(db).findAll().then(async staff => {
+                    await mtblDMNhanvien(db).findAll({ where: whereobj }).then(async staff => {
                         for (var j = 1; j <= dateFinal; j++) {
                             var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
                             if (datetConvert.slice(0, 8) == 'Chủ nhật') {
