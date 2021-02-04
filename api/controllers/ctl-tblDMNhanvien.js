@@ -520,7 +520,6 @@ module.exports = {
                             SalaryNumber: body.workingSalary ? body.workingSalary : '',
                             SalaryText: body.salaryNumber ? body.salaryNumber : '',
                             ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                            // ContractDateStart: now,
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
                         }, { where: { ID: body.idContract } })

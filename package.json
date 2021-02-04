@@ -9,6 +9,7 @@
   "author": "tungnn",
   "license": "ISC",
   "dependencies": {
+    "awesome-unoconv": "^1.0.1",
     "axios": "^0.20.0",
     "body-parser": "^1.19.0",
     "cloudmersive-convert-api-client": "^2.6.1",

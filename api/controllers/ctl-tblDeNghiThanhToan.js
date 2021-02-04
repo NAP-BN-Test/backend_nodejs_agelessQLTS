@@ -52,13 +52,15 @@ module.exports = {
                                         ID: body.fileAttach[j].id
                                     }
                                 })
-                        body.listID = JSON.parse(body.listID)
-                        if (body.listID.length > 0)
-                            for (var i = 0; i < body.listID.length; i++)
-                                await mtblYeuCauMuaSam(db).update({
-                                    Status: 'Đang thanh toán',
-                                    IDPaymentOrder: data.ID
-                                }, { where: { ID: body.listID[i] } })
+                        if (body.listID) {
+                            body.listID = JSON.parse(body.listID)
+                            if (body.listID.length > 0)
+                                for (var i = 0; i < body.listID.length; i++)
+                                    await mtblYeuCauMuaSam(db).update({
+                                        Status: 'Đang thanh toán',
+                                        IDPaymentOrder: data.ID
+                                    }, { where: { ID: body.listID[i] } })
+                        }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

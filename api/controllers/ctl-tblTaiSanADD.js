@@ -1361,7 +1361,7 @@ module.exports = {
             if (db) {
                 try {
                     await mtblTaiSan(db).update({
-                        Status: 'Lưu kho'
+                        Status: ''
                     }, { where: { ID: body.id } })
                     await mtblTaiSanHistory(db).update({
                         DateThuHoi: now,
