@@ -45,24 +45,67 @@ var options = {
         right: 1.5,
     },
 };
+var fs = require('fs');
+
+const path = require('path');
+const PDFNetEndpoint = (main, pathname, res) => {
+    PDFNet.runWithCleanup(main)
+        .then(() => {
+            PDFNet.shutdown();
+            fs.readFile(pathname, (err, data) => {
+                console.log(1);
+                console.log(data);
+                if (err) {
+                    res.statusCode = 500;
+                    res.end(`Error getting the file: ${err}.`);
+                } else {
+                    fs.writeFileSync(pathname, data);
+                }
+            });
+        })
+        .catch((error) => {
+            res.statusCode = 500;
+            console.log(error);
+        });
+};
+const { PDFNet } = require('@pdftron/pdfnet-node');
 module.exports = {
     // convert_docx_to_pdf
     convertDocxToPDF: (req, res) => {
         let body = req.body;
         try {
-            var path = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
-            // var path = 'D:/images_services/ageless_sendmail/002.docx'
-            docxConverter(path, 'D:/images_services/ageless_sendmail/export-file-pdf.pdf', function (err, result) {
-                if (err) {
-                    console.log(err);
-                }
-                var result = {
-                    link: 'http://118.27.192.106:1357/ageless_sendmail/export-file-pdf.pdf',
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                }
-                res.json(result);
-            });
+            // var path = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
+            // // var path = 'D:/images_services/ageless_sendmail/002.docx'
+            // docxConverter(path, 'D:/images_services/ageless_sendmail/export-file-pdf.pdf', function (err, result) {
+            //     if (err) {
+            //         console.log(err);
+            //     }
+            //     var result = {
+            //         link: 'http://118.27.192.106:1357/ageless_sendmail/export-file-pdf.pdf',
+            //         status: Constant.STATUS.SUCCESS,
+            //         message: Constant.MESSAGE.ACTION_SUCCESS,
+            //     }
+            //     res.json(result);
+            // });
+            // let ext = path.parse(filename).ext;
+            // if (ext === '.pdf') {
+            //     res.statusCode = 500;
+            //     res.end(`File is already PDF.`);
+            // }
+
+            const main = async () => {
+                const pdfdoc = await PDFNet.PDFDoc.create();
+                await pdfdoc.initSecurityHandler();
+                await PDFNet.Convert.toPdf(pdfdoc, 'D:/images_services/ageless_sendmail/002.docx');
+                pdfdoc.save(
+                    'D:/images_services/ageless_sendmail/export-file-pdf.pdf',
+                    PDFNet.SDFDoc.SaveOptions.e_linearized,
+                );
+                ext = '.pdf';
+            };
+
+            PDFNetEndpoint(main, 'D:/images_services/ageless_sendmail/export-file-pdf.pdf', res);
+
         } catch (error) {
             console.log(error);
             res.json(Result.SYS_ERROR_RESULT)
