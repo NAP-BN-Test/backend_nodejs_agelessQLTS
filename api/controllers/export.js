@@ -191,7 +191,6 @@ module.exports = {
     exportToFileExcelPayment: (req, res) => {
         let body = req.body;
         let data = JSON.parse(body.data);
-        console.log(data);
         let arrayHeader = [
             'STT',
             'CHỨNG TỪ',
@@ -248,7 +247,6 @@ module.exports = {
                             ws.cell(row, 7, row + max - 1, 7, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
                         }
                         else {
-                            console.log(checkMaxRow, 1);
                             ws.cell(row, 1).number(data[i].stt).style(stylecell)
                             ws.cell(row, 3).string(data[i].nameNhanVien).style(stylecell)
                             ws.cell(row, 4).string(data[i].contents).style(stylecell)

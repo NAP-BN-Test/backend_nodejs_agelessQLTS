@@ -337,10 +337,10 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
             doc.render()
             var buf = doc.getZip().generate({ type: 'nodebuffer' });
             // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
-            var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
-            fs.writeFileSync(path.resolve(pathTo, randomOutput), buf);
+            // var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
+            fs.writeFileSync(path.resolve(pathTo, 'export-file-word.docx'), buf);
             var result = {
-                link: 'http://118.27.192.106:1357/ageless_sendmail/' + randomOutput,
+                link: 'http://118.27.192.106:1357/ageless_sendmail/' + 'export-file-word.docx',
                 status: Constant.STATUS.SUCCESS,
                 message: Constant.MESSAGE.ACTION_SUCCESS,
             }

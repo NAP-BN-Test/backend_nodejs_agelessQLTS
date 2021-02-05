@@ -365,7 +365,6 @@ module.exports = {
     // data_timekeeping
     dataTimekeeping: (req, res) => {
         let body = req.body;
-        console.log(body);
         let arrayData = [
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {

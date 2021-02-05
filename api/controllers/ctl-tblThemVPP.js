@@ -76,7 +76,6 @@ module.exports = {
     // update_tbl_them_vpp
     updateTBLThemVPP: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

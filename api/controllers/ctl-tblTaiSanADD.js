@@ -1253,7 +1253,6 @@ module.exports = {
     // replace_asset_attach
     replateAssetAttach: (req, res) => {
         let body = req.body;
-        console.log(body);
         let array = JSON.parse(body.array);
         // body: {
         //     id,
