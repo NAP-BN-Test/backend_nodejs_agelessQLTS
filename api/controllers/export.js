@@ -70,8 +70,8 @@ module.exports = {
     convertDocxToPDF: (req, res) => {
         let body = req.body;
         try {
-            var path = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
-            // var path = 'D:/images_services/ageless_sendmail/002.docx'
+            // var path = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
+            var path = 'D:/images_services/ageless_sendmail/002.docx'
             const main = async () => {
                 const pdfdoc = await PDFNet.PDFDoc.create();
                 await pdfdoc.initSecurityHandler();
