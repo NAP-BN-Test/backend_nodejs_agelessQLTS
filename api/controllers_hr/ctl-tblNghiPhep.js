@@ -51,17 +51,16 @@ module.exports = {
                 try {
                     var number = 1;
                     var code = 'DXN'
-                    mtblNghiPhep(db).findOne({
+                    await mtblNghiPhep(db).findOne({
                         order: [
                             ['ID', 'DESC']
                         ],
                     }).then(data => {
                         if (data.NumberLeave) {
-                            number = Number(data.NumberLeave.slice(3, 100))
+                            number = Number(data.NumberLeave.slice(3, 100)) + 1
                         }
                     })
                     code += number
-                    console.log(code);
                     mtblNghiPhep(db).create({
                         DateStart: body.dateStart ? moment(body.dateStart).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
                         DateEnd: body.dateEnd ? moment(body.dateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
