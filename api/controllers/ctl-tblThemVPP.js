@@ -208,7 +208,7 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'ĐƠN VỊ TÍNH') {
+                                if (data.items[i].fields['name'] === 'ĐƠN VỊ') {
                                     var listVPP = [];
                                     await mtblVanPhongPham(db).findAll({
                                         where: {
@@ -344,7 +344,38 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-
+                                if (data.items[i].fields['name'] === 'NHÀ CUNG CẤP') {
+                                    var list = [];
+                                    await mtblDMNhaCungCap(db).findAll({
+                                        where: { SupplierName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID);
+                                        })
+                                    })
+                                    userFind['IDNhaCungCap'] = { [Op.in]: list }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGÀY CUNG CẤP') {
+                                    userFind['Date'] = { [Op.substring]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                             }
                         }
                     }

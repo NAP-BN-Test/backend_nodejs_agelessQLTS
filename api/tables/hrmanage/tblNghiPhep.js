@@ -19,6 +19,7 @@ module.exports = function (db) {
         IDAdministrationHR: Sequelize.BIGINT,
         IDHeads: Sequelize.BIGINT,
         Status: Sequelize.STRING,
+        Reason: Sequelize.STRING,
     });
 
     return table;

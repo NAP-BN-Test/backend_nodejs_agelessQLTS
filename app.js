@@ -232,6 +232,7 @@ async function handlePaymentOrder(db, iddntt) {
         'SỐ TIỀN THANH TOÁN': '',
         'NGƯỜI PHÊ DUYỆT TRƯỚC': '',
         'NGƯỜI PHÊ DUYỆT SAU': '',
+        'BỘ PHẬN': '',
     };
     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
     let tblDMNhanvien = mtblDMNhanvien(db);
@@ -286,6 +287,7 @@ async function handlePaymentOrder(db, iddntt) {
             'SỐ TIỀN THANH TOÁN': data.Cost ? (Number(data.Cost)).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') : 0,
             'NGƯỜI PHÊ DUYỆT TRƯỚC': data.KTPD ? data.KTPD.StaffName : '',
             'NGƯỜI PHÊ DUYỆT SAU': data.LDPD ? data.LDPD.StaffName : '',
+            'BỘ PHẬN': data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentName : '' : '',
         };
     })
     return objKey

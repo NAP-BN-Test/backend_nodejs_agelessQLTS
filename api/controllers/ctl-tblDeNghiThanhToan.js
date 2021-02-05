@@ -261,9 +261,11 @@ module.exports = {
                     }
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
-                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
-                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
-                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                    tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
+                    tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
                     tblDeNghiThanhToan.findAll({
                         order: [
                             ['ID', 'DESC']
@@ -273,17 +275,24 @@ module.exports = {
                         where: whereObj,
                         include: [
                             {
-                                model: mtblDMNhanvien(db),
+                                model: tblDMNhanvien,
                                 required: false,
-                                as: 'NhanVien'
+                                as: 'NhanVien',
+                                include: [
+                                    {
+                                        model: mtblDMBoPhan(db),
+                                        required: false,
+                                        as: 'bp'
+                                    },
+                                ]
                             },
                             {
-                                model: mtblDMNhanvien(db),
+                                model: tblDMNhanvien,
                                 required: false,
                                 as: 'KTPD'
                             },
                             {
-                                model: mtblDMNhanvien(db),
+                                model: tblDMNhanvien,
                                 required: false,
                                 as: 'LDPD'
                             },
@@ -310,6 +319,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                                 nameNhanVien: element.NhanVien ? element.NhanVien.StaffName : '',
+                                departmentName: element.NhanVien ? element.NhanVien.bp ? element.NhanVien.bp.DepartmentName : '' : '',
                                 contents: element.Contents ? element.Contents : '',
                                 cost: element.Cost ? element.Cost : null,
                                 idNhanVienKTPD: element.IDNhanVienKTPD ? element.IDNhanVienKTPD : null,

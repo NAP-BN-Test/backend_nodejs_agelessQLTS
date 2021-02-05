@@ -22,12 +22,13 @@ module.exports = {
     // add_tbl_taisan_bangiao
     addtblTaiSanBanGiao: (req, res) => {
         let body = req.body;
+        console.log(body);
         let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblTaiSanBanGiao(db).create({
-                        IDNhanVienBanGiao: body.idNhanVienBanGiao ? body.idNhanVienBanGiao : null,
+                        // IDNhanVienBanGiao: body.idNhanVienBanGiao ? body.idNhanVienBanGiao : null,
                         IDNhanVienSoHuu: body.idNhanVienSoHuu ? body.idNhanVienSoHuu : null,
                         IDBoPhanSoHuu: body.idBoPhanSoHuu ? body.idBoPhanSoHuu : null,
                         Date: body.date ? body.date : '',

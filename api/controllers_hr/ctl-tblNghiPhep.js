@@ -49,12 +49,25 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    var number = 1;
+                    var code = 'DXN'
+                    mtblNghiPhep(db).findOne({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(data => {
+                        if (data.NumberLeave) {
+                            number = Number(data.NumberLeave.slice(3, 100))
+                        }
+                    })
+                    code += number
+                    console.log(code);
                     mtblNghiPhep(db).create({
                         DateStart: body.dateStart ? moment(body.dateStart).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
                         DateEnd: body.dateEnd ? moment(body.dateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
-                        NumberLeave: body.numberLeave ? body.numberLeave : '',
+                        NumberLeave: code,
                         Type: body.type ? body.type : '',
                         Date: body.date ? body.date : null,
                         Remaining: body.remaining ? body.remaining : 0,
@@ -281,8 +294,8 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') : '',
-                                dateStart: element.DateStart ? moment(element.DateStart).format('DD-MM-YYYY HH:mm:ss.SSS') : '',
+                                dateEnd: element.DateEnd ? moment(element.DateEnd).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
+                                dateStart: element.DateStart ? moment(element.DateStart).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
                                 idLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.ID : '',
                                 nameLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Name : '',
                                 codeLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Code : '',
@@ -290,10 +303,11 @@ module.exports = {
                                 staffCode: element.nv ? element.nv.StaffCode : '',
                                 staffName: element.nv ? element.nv.StaffName : '',
                                 departmentName: element.nv ? element.nv.bp ? element.nv.bp.DepartmentName : '' : '',
+                                departmentID: element.nv ? element.nv.bp ? element.nv.bp.ID : '' : '',
                                 numberLeave: element.NumberLeave ? element.NumberLeave : '',
                                 status: element.Status ? element.Status : '',
                                 type: element.Type ? element.Type : '',
-                                date: element.Date ? element.Date : null,
+                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
                                 remaining: element.Remaining ? element.Remaining : 0,
                                 idHeadDepartment: element.IDHeadDepartment ? element.IDHeadDepartment : '',
                                 headDepartmentCode: element.headDepartment ? element.headDepartment.StaffCode : '',
@@ -304,6 +318,7 @@ module.exports = {
                                 idHeads: element.IDHeads ? element.IDHeads : '',
                                 headsCode: element.heads ? element.heads.StaffCode : '',
                                 headsName: element.heads ? element.heads.StaffName : '',
+                                reason: element.Reason ? element.Reason : '',
                             }
                             array.push(obj);
                             stt += 1;
@@ -381,6 +396,78 @@ module.exports = {
                 try {
                     await mtblNghiPhep(db).update({
                         Status: 'Hoàn thành',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // refuse_head_department
+    refuseHeadDepartment: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblNghiPhep(db).update({
+                        Status: 'Hành chính nhân sự đã từ chối',
+                        Reason: body.reason,
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // refuse_administration_hr
+    refuseAdministrationHR: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblNghiPhep(db).update({
+                        Status: 'Thủ trưởng đã từ chối',
+                        Reason: body.reason,
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // refuse_heads
+    refuseHeads: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblNghiPhep(db).update({
+                        Status: 'Thủ trưởng đã từ chối',
+                        Reason: body.reason,
                     }, { where: { ID: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
