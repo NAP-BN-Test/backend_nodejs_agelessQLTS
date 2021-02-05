@@ -725,6 +725,18 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'SỐ CMND') {
+                                    userFind['CMNDNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'PHÒNG BAN/BỘ PHẬN') {
                                     var list = [];
                                     await mtblDMBoPhan(db).findAll({

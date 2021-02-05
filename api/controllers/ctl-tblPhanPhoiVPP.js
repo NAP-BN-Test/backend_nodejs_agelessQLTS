@@ -39,15 +39,15 @@ module.exports = {
                         body.line = JSON.parse(body.line);
                         if (data)
                             for (var i = 0; i < body.line.length; i++) {
-                                await mtblPhanPhoiVPPChiTiet(db).create({
-                                    IDPhanPhoiVPP: data.ID,
-                                    IDVanPhongPham: body.line[i].idVanPhongPham.id ? body.line[i].idVanPhongPham.id : null,
-                                    Amount: body.line[i].amount ? body.line[i].amount : null,
-                                    Describe: body.line[i].describe ? body.line[i].describe : '',
-                                })
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
                                 if (Number(body.line[i].amount) <= amount) {
+                                    await mtblPhanPhoiVPPChiTiet(db).create({
+                                        IDPhanPhoiVPP: data.ID,
+                                        IDVanPhongPham: body.line[i].idVanPhongPham.id ? body.line[i].idVanPhongPham.id : null,
+                                        Amount: body.line[i].amount ? body.line[i].amount : null,
+                                        Describe: body.line[i].describe ? body.line[i].describe : '',
+                                    })
                                     await mtblVanPhongPham(db).update({
                                         RemainingAmount: Number(amount) - Number(body.line[i].amount),
                                     }, { where: { ID: body.line[i].idVanPhongPham.id } })

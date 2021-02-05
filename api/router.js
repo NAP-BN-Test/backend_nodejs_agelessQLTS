@@ -252,7 +252,10 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.addtblNghiPhep);
     app.route('/qlnb/update_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.updatetblNghiPhep);
     app.route('/qlnb/delete_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.deletetblNghiPhep);
-    app.route('/qlnb/get_list_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.getListtblNghiPhep);
+    app.route('/qlnb/approval_head_department').post(checkToken.checkToken, tblNghiPhep.approvalHeadDepartment);
+    app.route('/qlnb/approval_administration_hr').post(checkToken.checkToken, tblNghiPhep.approvalAdministrationHR);
+    app.route('/qlnb/approval_heads').post(checkToken.checkToken, tblNghiPhep.approvalHeads);
+    app.route('/qlnb/handle_take_leave_day').post(tblNghiPhep.handleTakeLeaveDay);
 
     //  Danh mục tình trạng nhân viên
     app.route('/qlnb/add_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.addtblDMTinhTrangNV);

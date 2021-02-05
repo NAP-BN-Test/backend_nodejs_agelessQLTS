@@ -15,6 +15,32 @@ async function deleteRelationshiptblNghiPhep(db, listID) {
         }
     })
 }
+// function getdate(startDate, endDate, addFn, interval) {
+
+//     addFn = addFn || Date.prototype.addDays;
+//     interval = interval || 1;
+
+//     var retVal = [];
+//     var current = new Date(startDate);
+
+//     while (current <= endDate) {
+//         retVal.push(new Date(current));
+//         current = addFn.call(current, interval);
+//     }
+
+//     return retVal;
+
+// }
+var enumerateDaysBetweenDates = function (startDate, endDate) {
+    var dates = [];
+    var currDate = moment(startDate).startOf('day');
+    var lastDate = moment(endDate).startOf('day');
+    while (currDate.add(1, 'days').diff(lastDate) < 0) {
+        dates.push(moment(currDate.clone().toDate()).format('DD-MM-YYYY'));
+    }
+
+    return dates;
+};
 module.exports = {
     deleteRelationshiptblNghiPhep,
     // add_tbl_nghiphep
@@ -35,7 +61,7 @@ module.exports = {
                         IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
                         IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
                         IDHeads: body.idHeads ? body.idHeads : null,
-                        Status: 'Chờ phê duyệt',
+                        Status: 'Chờ trưởng bộ phận phê duyệt',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -275,7 +301,7 @@ module.exports = {
                                 idAdministrationHR: element.IDAdministrationHR ? element.IDAdministrationHR : '',
                                 administrationHRCode: element.adminHR ? element.adminHR.StaffCode : '',
                                 administrationHRName: element.adminHR ? element.adminHR.StaffName : '',
-                                IDHeads: element.IDHeads ? element.IDHeads : '',
+                                idHeads: element.IDHeads ? element.IDHeads : '',
                                 headsCode: element.heads ? element.heads.StaffCode : '',
                                 headsName: element.heads ? element.heads.StaffName : '',
                             }
@@ -308,7 +334,7 @@ module.exports = {
             if (db) {
                 try {
                     await mtblNghiPhep(db).update({
-                        Status: 'Trưởng bộ phận đã phê duyệt',
+                        Status: 'Chờ hành chính nhân sự phê duyệt',
                     }, { where: { ID: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -331,7 +357,7 @@ module.exports = {
             if (db) {
                 try {
                     await mtblNghiPhep(db).update({
-                        Status: 'Hành chính nhân sự đã phê duyệt',
+                        Status: 'Chờ thủ trưởng phê duyệt',
                     }, { where: { ID: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -361,6 +387,23 @@ module.exports = {
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
                     res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // handle_take_leave_day
+    handleTakeLeaveDay: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let days = await enumerateDaysBetweenDates('2020-02-02 11:00:00', '2020-03-02 12:00:11')
+                    console.log(days);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
