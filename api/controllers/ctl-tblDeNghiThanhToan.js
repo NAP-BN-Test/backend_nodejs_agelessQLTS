@@ -222,6 +222,7 @@ module.exports = {
                                             list.push(item.ID);
                                         })
                                     })
+                                    console.log(list);
                                     userFind['IDNhanVien'] = { [Op.in]: list }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereO[Op.and] = userFind
@@ -251,7 +252,7 @@ module.exports = {
 
                             whereObj = {
                                 // [Op.or]: where,
-                                [Op.and]: [{ [Op.or]: userObj }, { [Op.or]: whereO }],
+                                [Op.and]: [{ [Op.or]: userObj }, { [Op.and]: whereO }],
                             }
                         else
                             whereObj = {
@@ -259,6 +260,7 @@ module.exports = {
                                 [Op.and]: [{ [Op.or]: whereO }],
                             }
                     }
+                    console.log(whereObj);
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     let tblDMNhanvien = mtblDMNhanvien(db);

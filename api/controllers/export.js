@@ -172,9 +172,9 @@ module.exports = {
                             ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel.xlsx');
+                    wb.write('D:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
                     var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel.xlsx',
+                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -241,24 +241,26 @@ module.exports = {
                         }
                         if (data[i].arrayFileExport.length > 0) {
                             ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
-                            ws.cell(row, 3, row + max - 1, 3, true).string(data[i].nameNhanVien).style(stylecell);
-                            ws.cell(row, 4, row + max - 1, 4, true).string(data[i].contents).style(stylecell);
-                            ws.cell(row, 5, row + max - 1, 5, true).number(data[i].cost ? data[i].cost : 0).style(stylecell);
-                            ws.cell(row, 6, row + max - 1, 6, true).string(data[i].nameNhanVienKTPD).style(stylecell);
-                            ws.cell(row, 7, row + max - 1, 7, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
+                            ws.cell(row, 3, row + max - 1, 3, true).string(data[i].departmentName).style(stylecell);
+                            ws.cell(row, 3, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
+                            ws.cell(row, 4, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
+                            ws.cell(row, 5, row + max - 1, 6, true).number(data[i].cost ? data[i].cost : 0).style(stylecell);
+                            ws.cell(row, 6, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
+                            ws.cell(row, 7, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
                         }
                         else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell)
-                            ws.cell(row, 3).string(data[i].nameNhanVien).style(stylecell)
-                            ws.cell(row, 4).string(data[i].contents).style(stylecell)
-                            ws.cell(row, 5).number(data[i].cost ? data[i].cost : 0).style(stylecell)
-                            ws.cell(row, 6).string(data[i].nameNhanVienKTPD).style(stylecell)
-                            ws.cell(row, 7).string(data[i].trangThaiPheDuyetLD).style(stylecell)
+                            ws.cell(row, 3).string(data[i].departmentName).style(stylecell)
+                            ws.cell(row, 4).string(data[i].nameNhanVien).style(stylecell)
+                            ws.cell(row, 5).string(data[i].contents).style(stylecell)
+                            ws.cell(row, 6).number(data[i].cost ? data[i].cost : 0).style(stylecell)
+                            ws.cell(row, 7).string(data[i].nameNhanVienKTPD).style(stylecell)
+                            ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
                         }
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_payment.xlsx');
+                    wb.write('D:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
                     var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payment.xlsx',
+                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payment_request.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }

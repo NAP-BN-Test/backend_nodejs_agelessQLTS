@@ -507,6 +507,18 @@ module.exports = {
                                         whereObj[Op.not] = userFind
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'NGÀY ĐỀ XUẤT') {
+                                    userFind['RequireDate'] = { [Op.substring]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereObj[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereObj[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereObj[Op.not] = userFind
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'BỘ PHẬN ĐỀ XUẤT') {
                                     var list = [];
                                     await mtblDMBoPhan(db).findAll({
