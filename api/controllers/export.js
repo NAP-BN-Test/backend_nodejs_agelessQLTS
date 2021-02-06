@@ -6,45 +6,7 @@ const Result = require('../constants/result');
 var xl = require('excel4node');
 
 // Create a new instance of a Workbook class
-var wb = new xl.Workbook();
 var database = require('../database');
-// Create a reusable style
-var styleHearder = wb.createStyle({
-    font: {
-        // color: '#FF0800',
-        size: 14,
-        bold: true,
-    },
-    alignment: {
-        wrapText: true,
-        // ngang
-        horizontal: 'center',
-        // Dọc
-        vertical: 'center',
-    },
-    // numberFormat: '$#,##0.00; ($#,##0.00); -',
-});
-var stylecell = wb.createStyle({
-    font: {
-        // color: '#FF0800',
-        size: 13,
-        bold: false,
-    },
-    alignment: {
-        wrapText: true,
-        // ngang
-        horizontal: 'center',
-        // Dọc
-        vertical: 'center',
-    },
-    // numberFormat: '$#,##0.00; ($#,##0.00); -',
-});
-var options = {
-    margins: {
-        left: 1.5,
-        right: 1.5,
-    },
-};
 var fs = require('fs');
 const PDFNetEndpoint = (main, pathname, res) => {
     PDFNet.runWithCleanup(main)
@@ -92,6 +54,44 @@ module.exports = {
     },
     // export_to_file_excel
     exportToFileExcel: (req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var options = {
+            margins: {
+                left: 1.5,
+                right: 1.5,
+            },
+        };
         let body = req.body;
         let data = JSON.parse(body.data);
         let arrayHeader = [
@@ -190,11 +190,50 @@ module.exports = {
     },
     // export_to_file_excel_payment
     exportToFileExcelPayment: (req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var options = {
+            margins: {
+                left: 1.5,
+                right: 1.5,
+            },
+        };
         let body = req.body;
         let data = JSON.parse(body.data);
         let arrayHeader = [
             'STT',
             'CHỨNG TỪ',
+            'BỘ PHẬN',
             'NGƯỜI ĐỀ NGHỊ',
             'NỘI DUNG THANH TOÁN',
             'SỐ TIỀN THANH TOÁN',
@@ -276,6 +315,44 @@ module.exports = {
     },
     // export_to_file_excel_payroll
     exportToFileExcelPayroll: (req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var options = {
+            margins: {
+                left: 1.5,
+                right: 1.5,
+            },
+        };
         let body = req.body;
         let data = JSON.parse(body.data);
         let arrayHeader = [

@@ -15,28 +15,14 @@ async function deleteRelationshiptblNghiPhep(db, listID) {
         }
     })
 }
-// function getdate(startDate, endDate, addFn, interval) {
+var mModules = require('../constants/modules');
 
-//     addFn = addFn || Date.prototype.addDays;
-//     interval = interval || 1;
-
-//     var retVal = [];
-//     var current = new Date(startDate);
-
-//     while (current <= endDate) {
-//         retVal.push(new Date(current));
-//         current = addFn.call(current, interval);
-//     }
-
-//     return retVal;
-
-// }
 var enumerateDaysBetweenDates = function (startDate, endDate) {
     var dates = [];
     var currDate = moment(startDate).startOf('day');
     var lastDate = moment(endDate).startOf('day');
     while (currDate.add(1, 'days').diff(lastDate) < 0) {
-        dates.push(moment(currDate.clone().toDate()).format('DD-MM-YYYY'));
+        dates.push(moment(currDate.clone().toDate()).format('YYYY-MM-DD'));
     }
 
     return dates;
@@ -56,9 +42,10 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                     }).then(data => {
-                        if (data.NumberLeave) {
-                            number = Number(data.NumberLeave.slice(3, 100)) + 1
-                        }
+                        if (data)
+                            if (data.NumberLeave) {
+                                number = Number(data.NumberLeave.slice(3, 100)) + 1
+                            }
                     })
                     code += number
                     mtblNghiPhep(db).create({
@@ -289,6 +276,7 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
+                        let month = Number(moment().format('MM'));
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
@@ -307,7 +295,7 @@ module.exports = {
                                 status: element.Status ? element.Status : '',
                                 type: element.Type ? element.Type : '',
                                 date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                remaining: element.Remaining ? element.Remaining : 0,
+                                remaining: element.Remaining ? month - 1 - element.Remaining : 0,
                                 idHeadDepartment: element.IDHeadDepartment ? element.IDHeadDepartment : '',
                                 headDepartmentCode: element.headDepartment ? element.headDepartment.StaffCode : '',
                                 headDepartmentName: element.headDepartment ? element.headDepartment.StaffName : '',
@@ -485,11 +473,52 @@ module.exports = {
     // handle_take_leave_day
     handleTakeLeaveDay: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let days = await enumerateDaysBetweenDates('2020-02-02 11:00:00', '2020-03-02 12:00:11')
-                    console.log(days);
+                    let result = 0;
+                    let subtractHalfDay = 0;
+                    let dateStart = body.dateStart;
+                    let dateEnd = body.dateEnd;
+                    let days = await enumerateDaysBetweenDates(dateStart, dateEnd)
+                    let array7th = [];
+                    for (var i = 0; i < days.length; i++) {
+                        var datetConvert = mModules.toDatetimeDay(moment(days[i]).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                            array7th.push(days[i])
+                        }
+                        if (datetConvert.slice(0, 5) == 'Thứ 7') {
+                            array7th.push(days[i])
+                        }
+                    }
+                    let checkDateStart = Number(dateStart.slice(11, 13))
+                    let checkDateEnd = Number(dateEnd.slice(11, 13))
+                    if (checkDateStart < 12) {
+                        if (checkDateEnd <= 12)
+                            subtractHalfDay = 0.5
+                    } else {
+                        subtractHalfDay = 0.5
+                    }
+                    if (days.length < 1)
+                        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
+                            if (checkDateEnd < 17)
+                                result = 1.5
+                            else
+                                result = 2
+                        else
+                            if (checkDateEnd < 17)
+                                result = 0.5
+                            else
+                                result = 1
+                    else
+                        result = days.length + 2 - array7th.length - subtractHalfDay
+                    var resultRes = {
+                        result: result,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(resultRes);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

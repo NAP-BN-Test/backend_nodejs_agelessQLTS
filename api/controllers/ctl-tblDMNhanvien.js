@@ -1055,4 +1055,43 @@ module.exports = {
             }
         })
     },
+    // get_number_leave_day
+    getNumberLeaveDay: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblDMNhanvien(db).findOne({ where: { ID: body.id } }).then(async data => {
+                        let month = Number(moment().format('MM'));
+                        let leave = 0;
+                        await mtblNghiPhep(db).findAll({
+                            where: { IDNhanVien: data.ID }
+                        }).then(np => {
+                            if (np)
+                                np.forEach(item => {
+                                    leave += item.Remaining
+                                })
+                        })
+                        var obj = {
+                            id: Number(data.ID),
+                            numberLeave: month - leave
+                        }
+
+                        var result = {
+                            obj: obj,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

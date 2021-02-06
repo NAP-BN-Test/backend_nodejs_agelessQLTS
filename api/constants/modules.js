@@ -43,6 +43,7 @@ module.exports = {
     },
 
     toDatetimeDay: function (time) {
+        console.log(time);
         if (time) {
             var day = dayInWeek[moment(time).days()];
             return day + ", " + moment(time).format('DD/MM/YYYY');
