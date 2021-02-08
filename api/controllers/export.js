@@ -27,24 +27,50 @@ const PDFNetEndpoint = (main, pathname, res) => {
         });
 };
 const { PDFNet } = require('@pdftron/pdfnet-node');
+var fs = require("fs")
+const path = require('path');
+const unoconv = require('awesome-unoconv');
+const libre = require('libreoffice-convert-win');
 module.exports = {
     // convert_docx_to_pdf
     convertDocxToPDF: (req, res) => {
         let body = req.body;
         try {
-            var path = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
-            // var path = 'D:/images_services/ageless_sendmail/002.docx'
-            const main = async () => {
-                const pdfdoc = await PDFNet.PDFDoc.create();
-                await pdfdoc.initSecurityHandler();
-                await PDFNet.Convert.toPdf(pdfdoc, path);
-                pdfdoc.save(
-                    'D:/images_services/ageless_sendmail/export-file-pdf.pdf',
-                    PDFNet.SDFDoc.SaveOptions.e_linearized,
-                );
-            };
-
-            PDFNetEndpoint(main, 'D:/images_services/ageless_sendmail/export-file-pdf.pdf', res);
+            // var pathlink = 'D:/images_services/ageless_sendmail/002.docx'
+            var pathlink = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
+            const extend = '.pdf'
+            var pathEx = 'D:/images_services/ageless_sendmail/export_pdf_file.pdf'
+            const file = fs.readFileSync(pathlink);
+            // Convert it to pdf format with undefined filter (see Libreoffice doc about filter)
+            libre.convert(file, extend, undefined, (err, done) => {
+                if (err) {
+                    console.log(`Error converting file: ${err}`);
+                }
+                // Here in done you have pdf file which you can save or transfer in another stream
+                fs.writeFileSync(pathEx, done);
+            });
+            var result = {
+                link: 'http://118.27.192.106:1357/ageless_sendmail/export_pdf_file.xlsx',
+                status: Constant.STATUS.SUCCESS,
+                message: Constant.MESSAGE.ACTION_SUCCESS,
+            }
+            res.json(result);
+            // const main = async () => {
+            //     const pdfdoc = await PDFNet.PDFDoc.create();
+            //     await pdfdoc.initSecurityHandler();
+            //     await PDFNet.Convert.toPdf(pdfdoc, path);
+            //     // const page = await doc.pageCreate();
+            //     // doc.pagePushBack(page);
+            //     pdfdoc.save(
+            //         'D:/images_services/ageless_sendmail/export-file-pdf.pdf',
+            //         PDFNet.SDFDoc.SaveOptions.e_linearized,
+            //     );
+            // };
+            // // add your own license key as the second parameter, e.g. PDFNet.runWithCleanup(main, 'YOUR_LICENSE_KEY')
+            // // PDFNet.runWithCleanup(main).catch(function (error) {
+            // //     console.log('Error: ' + JSON.stringify(error));
+            // // }).then(function () { PDFNet.shutdown(); });
+            // PDFNetEndpoint(main, 'D:/images_services/ageless_sendmail/export-file-pdf.pdf', res);
 
         } catch (error) {
             console.log(error);
