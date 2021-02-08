@@ -11,11 +11,12 @@ module.exports = function (db) {
         CompanyBHYT: Sequelize.FLOAT,
         CompanyBHTN: Sequelize.FLOAT,
         StaffBHXH: Sequelize.FLOAT,
+        StaffBHTNLD: Sequelize.FLOAT,
+        StaffUnion: Sequelize.FLOAT,
         StaffBHYT: Sequelize.FLOAT,
         StaffBHTN: Sequelize.FLOAT,
         DateStart: Sequelize.DATE,
         DateEnd: Sequelize.DATE,
-
     });
 
     return table;

@@ -435,4 +435,110 @@ module.exports = {
             }
         })
     },
+    // export_to_file_excel_timekeeping
+    exportToFileExcelTimekeeping: (req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var options = {
+            margins: {
+                left: 1.5,
+                right: 1.5,
+            },
+        };
+        let body = req.body;
+        // let data = JSON.parse(body.data);
+        let arrayHeader = [
+            'STT',
+            'HỌ VÀ TÊN',
+            'TỔNG THU NHẬP',
+            'LƯƠNG BHXH',
+            'LƯƠNG NĂNG SUẤT',
+            'GIẢM TRỪ BHXH',
+            'GIẢM TRỪ BHYT',
+            'GIẢM TRỪ BHTN',
+            'GIẢM TRỪ CÔNG ĐOÀN',
+            'NGƯỜI PHÊ GIA CẢNH GIA ĐÌNH',
+            'LƯƠNG TÍNH THUẾ TNCN',
+            'THUẾ TNCN',
+            'TỔNG CÁC KHOẢN TRỪ',
+            'THỰC NHẬN',
+        ]
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    // Add Worksheets to the workbook
+                    var ws = wb.addWorksheet('Sheet 1');
+                    var row = 1
+                    ws.column(row).setWidth(5);
+                    ws.cell(3, 6, 3, 9, true)
+                        .string('CÁC KHOẢN GIẢM TRỪ')
+                        .style(styleHearder);
+                    ws.cell(1, 1, 1, 14, true)
+                        .string('BẢNG TỔNG HỢP LƯƠNG THÁNG 12 NĂM 2020')
+                        .style(styleHearder);
+                    for (var i = 0; i < arrayHeader.length; i++) {
+                        if (i < 5) {
+                            ws.cell(3, row, 4, row, true)
+                                .string(arrayHeader[i])
+                                .style(styleHearder);
+                        }
+                        else if (i >= 5 && i <= 9) {
+                            ws.cell(4, row)
+                                .string(arrayHeader[i])
+                                .style(styleHearder);
+                        }
+                        else {
+                            ws.cell(3, row, 4, row, true)
+                                .string(arrayHeader[i])
+                                .style(styleHearder);
+                        }
+                        row += 1
+                        ws.column(row).setWidth(20);
+                    }
+                    wb.write('D:/images_services/ageless_sendmail/export_excel_timekeeping.xlsx');
+                    var result = {
+                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payment.xlsx',
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

@@ -242,7 +242,9 @@ module.exports = {
                                 nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : '',
                                 bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
+                                bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
                                 reduce: Number(reduce),
+                                productivityWages: data[i].nv ? data[i].nv.ProductivityWages : '',
                             }
                             array.push(obj);
                             stt += 1;
@@ -258,6 +260,7 @@ module.exports = {
                                 objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : ''
                                 objInsurance['staffBHYT'] = data.StaffBHYT
                                 objInsurance['staffBHTN'] = data.StaffBHTN
+                                objInsurance['union'] = data.StaffUnion ? data.StaffUnion : 0;
                             }
                         })
                         var result = {
@@ -341,6 +344,7 @@ module.exports = {
                                 objInsurance['companyBHXH'] = data.CompanyBHXH ? data.CompanyBHXH : 0
                                 objInsurance['companyBHYT'] = data.CompanyBHYT ? data.CompanyBHYT : 0
                                 objInsurance['companyBHTN'] = data.CompanyBHTN ? data.CompanyBHTN : 0
+                                objInsurance['staffBHTNLD'] = data.StaffBHTNLD ? data.StaffBHTNLD : 0
                             }
                         })
                         var result = {

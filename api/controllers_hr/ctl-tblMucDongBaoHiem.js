@@ -56,7 +56,9 @@ module.exports = {
                         CompanyBHXH: body.companyBHXH ? body.companyBHXH : null,
                         CompanyBHYT: body.companyBHYT ? body.companyBHYT : null,
                         CompanyBHTN: body.companyBHTN ? body.companyBHTN : null,
+                        StaffUnion: body.union ? body.union : null,
                         StaffBHXH: body.staffBHXH ? body.staffBHXH : null,
+                        StaffBHTNLD: body.staffBHTNLD ? body.staffBHTNLD : null,
                         StaffBHYT: body.staffBHYT ? body.staffBHYT : null,
                         StaffBHTN: body.staffBHTN ? body.staffBHTN : null,
                         DateStart: body.dateStart ? body.dateStart : null,
@@ -89,6 +91,12 @@ module.exports = {
                             update.push({ key: 'CompanyBHXH', value: null });
                         else
                             update.push({ key: 'CompanyBHXH', value: body.companyBHXH });
+                    }
+                    if (body.staffBHTNLD || body.staffBHTNLD === '') {
+                        if (body.staffBHTNLD === '')
+                            update.push({ key: 'StaffBHTNLD', value: null });
+                        else
+                            update.push({ key: 'StaffBHTNLD', value: body.staffBHTNLD });
                     }
                     if (body.companyBHYT || body.companyBHYT === '') {
                         if (body.companyBHYT === '')
@@ -131,6 +139,12 @@ module.exports = {
                             update.push({ key: 'DateEnd', value: null });
                         else
                             update.push({ key: 'DateEnd', value: body.dateEnd });
+                    }
+                    if (body.union || body.union === '') {
+                        if (body.union === '')
+                            update.push({ key: 'StaffUnion', value: 0 });
+                        else
+                            update.push({ key: 'StaffUnion', value: body.union });
                     }
                     database.updateTable(update, mtblMucDongBaoHiem(db), body.id).then(response => {
                         if (response == 1) {
@@ -225,12 +239,14 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                companyBHXH: element.CompanyBHXH ? element.CompanyBHXH : null,
-                                companyBHYT: element.CompanyBHYT ? element.CompanyBHYT : null,
-                                companyBHTN: element.CompanyBHTN ? element.CompanyBHTN : null,
-                                staffBHXH: element.StaffBHXH ? element.StaffBHXH : null,
-                                staffBHYT: element.StaffBHYT ? element.StaffBHYT : null,
-                                staffBHTN: element.StaffBHTN ? element.StaffBHTN : null,
+                                companyBHXH: element.CompanyBHXH ? element.CompanyBHXH : 0,
+                                companyBHYT: element.CompanyBHYT ? element.CompanyBHYT : 0,
+                                companyBHTN: element.CompanyBHTN ? element.CompanyBHTN : 0,
+                                union: element.StaffUnion ? element.StaffUnion : 0,
+                                staffBHTNLD: element.StaffBHTNLD ? element.StaffBHTNLD : 0,
+                                staffBHXH: element.StaffBHXH ? element.StaffBHXH : 0,
+                                staffBHYT: element.StaffBHYT ? element.StaffBHYT : 0,
+                                staffBHTN: element.StaffBHTN ? element.StaffBHTN : 0,
                                 dateStart: element.DateStart ? element.DateStart : null,
                                 dateEnd: element.DateEnd ? element.DateEnd : null,
                             }

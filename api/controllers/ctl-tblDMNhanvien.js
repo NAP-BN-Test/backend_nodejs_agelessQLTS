@@ -665,6 +665,18 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'NGÀY SINH') {
+                                    userFind['Birthday'] = { [Op.substring]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'TÊN NHÂN VIÊN') {
                                     userFind['StaffName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {

@@ -26,6 +26,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/export_to_file_excel_payment').post(exportPDF.exportToFileExcelPayment);
 
+    app.route('/qlnb/export_to_file_excel_timekeeping').post(exportPDF.exportToFileExcelTimekeeping);
+
 
     app.route('/qlnb/delete_file').post(tblFileAttach.deletetblFileAttach);
     app.route('/qlnb/delete_file_from_link').post(tblFileAttach.deletetblFileFromLink);
