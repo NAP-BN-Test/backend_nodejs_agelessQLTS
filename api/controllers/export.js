@@ -48,13 +48,13 @@ module.exports = {
                 }
                 // Here in done you have pdf file which you can save or transfer in another stream
                 fs.writeFileSync(pathEx, done);
+                var result = {
+                    link: 'http://118.27.192.106:1357/ageless_sendmail/export_pdf_file.pdf',
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
             });
-            var result = {
-                link: 'http://118.27.192.106:1357/ageless_sendmail/export_pdf_file.pdf',
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-            }
-            res.json(result);
             // const main = async () => {
             //     const pdfdoc = await PDFNet.PDFDoc.create();
             //     await pdfdoc.initSecurityHandler();

@@ -515,7 +515,7 @@ module.exports = {
                                                         statusAfternoon = ''
                                                     }
                                                     statusMorning = '0.5'
-                                                    summaryEndDateS = 0
+                                                    summaryEndDateS = 0.5
                                                 } else {
                                                     // check sáng
                                                     if (minTime > eightH) {
@@ -526,7 +526,7 @@ module.exports = {
                                                         statusMorning = ''
                                                     }
                                                     statusAfternoon = '0.5'
-                                                    summaryEndDateC = 0
+                                                    summaryEndDateC = 0.5
                                                 }
                                             }
                                             if (arrayTimeOfDate.length > 1) {
@@ -547,12 +547,12 @@ module.exports = {
                                                         }
                                                     }
                                                     statusAfternoon = '0.5'
-                                                    summaryEndDateC = 0
+                                                    summaryEndDateC = 0.5
                                                 }
                                                 else {
                                                     if (minTime >= thirteenH) {
                                                         statusMorning = '0.5'
-                                                        summaryEndDateS = 0
+                                                        summaryEndDateS = 0.5
                                                         // check chiều
                                                         if (thirteenH < minTime) {
                                                             statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
@@ -716,9 +716,11 @@ module.exports = {
 
                                         // lấy ngày nghỉ tính theo 3 con số theo yêu cầu
                                         if (timeKeepingM) {
+                                            console.log(timeKeepingM.SummaryEndDate);
                                             summary += timeKeepingM.SummaryEndDate
                                         }
                                         if (timeKeepingA) {
+                                            console.log(timeKeepingA.SummaryEndDate);
                                             summary += timeKeepingA.SummaryEndDate
                                         }
                                     }
@@ -728,7 +730,7 @@ module.exports = {
                             obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
                             obj['freeBreak'] = freeBreak;
                             obj['workingDay'] = workingDay;
-                            obj['dayOff'] = summary;
+                            obj['dayOff'] = Number(Number(summary) + Number(freeBreak)).toFixed(3);
                             obj['staffName'] = staff[i] ? staff[i].StaffName : '';
                             array.push(obj)
 
@@ -784,7 +786,7 @@ module.exports = {
     // data_export_excel
     dataExportExcel: (req, res) => {
         let body = req.body;
-
+        console.log(body);
         database.connectDatabase().then(async db => {
             try {
                 var array = [];
@@ -798,7 +800,11 @@ module.exports = {
                 var count = 0;
                 let checkFor = 0;
                 var arrayHoliday = await getDateholiday(db, month, year)
-                await mtblDMNhanvien(db).findAll().then(async staff => {
+                var obj = [];
+                if (body.idNhanVien) {
+                    obj.push({ ID: body.idNhanVien })
+                }
+                await mtblDMNhanvien(db).findAll({ where: obj }).then(async staff => {
                     for (var i = 0; i < staff.length; i++) {
                         if (count > 0)
                             checkFor = 1;
