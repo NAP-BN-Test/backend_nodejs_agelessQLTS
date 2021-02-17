@@ -493,6 +493,8 @@ module.exports = {
                                 let twelveH = 3600 * 12
                                 let thirteenH = 3600 * 13
                                 var statusMorning = '';
+                                var summaryEndDateS = 0;
+                                var summaryEndDateC = 0;
                                 var statusAfternoon = '';
                                 var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
                                 if (staff) {
@@ -507,20 +509,24 @@ module.exports = {
                                                     // check chiều
                                                     if (thirteenH < maxTime) {
                                                         statusAfternoon = await converFromSecondsToHourLate(maxTime - thirteenH)
+                                                        summaryEndDateC = ((maxTime - thirteenH) / (4 * 60 * 60)).toFixed(3)
                                                     }
                                                     else {
                                                         statusAfternoon = ''
                                                     }
                                                     statusMorning = '0.5'
+                                                    summaryEndDateS = 0
                                                 } else {
                                                     // check sáng
                                                     if (minTime > eightH) {
                                                         statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                        summaryEndDateS = ((minTime - eightH) / (4 * 60 * 60)).toFixed(3)
                                                     }
                                                     else {
                                                         statusMorning = ''
                                                     }
                                                     statusAfternoon = '0.5'
+                                                    summaryEndDateC = 0
                                                 }
                                             }
                                             if (arrayTimeOfDate.length > 1) {
@@ -528,28 +534,34 @@ module.exports = {
                                                     // check sáng
                                                     if (minTime > eightH) {
                                                         statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                        summaryEndDateS = ((minTime - eightH) / (4 * 60 * 60)).toFixed(3)
+
                                                     }
                                                     else {
                                                         if (twelveH > maxTime) {
                                                             statusMorning = await converFromSecondsToHourAftersoon(twelveH - maxTime)
+                                                            summaryEndDateS = ((twelveH - maxTime) / (4 * 60 * 60)).toFixed(3)
                                                         }
                                                         else {
                                                             statusMorning = ''
                                                         }
                                                     }
                                                     statusAfternoon = '0.5'
+                                                    summaryEndDateC = 0
                                                 }
                                                 else {
                                                     if (minTime >= thirteenH) {
                                                         statusMorning = '0.5'
+                                                        summaryEndDateS = 0
                                                         // check chiều
                                                         if (thirteenH < minTime) {
                                                             statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
+                                                            summaryEndDateC = ((minTime - thirteenH) / (4 * 60 * 60)).toFixed(3)
                                                         }
                                                         else {
                                                             if (seventeenH > maxTime) {
                                                                 statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
-
+                                                                summaryEndDateC = ((seventeenH - maxTime) / (4 * 60 * 60)).toFixed(3)
                                                             }
                                                             else {
                                                                 statusAfternoon = ''
@@ -560,6 +572,7 @@ module.exports = {
                                                         // check sáng
                                                         if (minTime > eightH) {
                                                             statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                                                            summaryEndDateS = ((minTime - eightH) / (4 * 60 * 60)).toFixed(3)
                                                         }
                                                         else {
                                                             statusMorning = ''
@@ -567,6 +580,8 @@ module.exports = {
                                                         // check chiều
                                                         if (seventeenH > maxTime) {
                                                             statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+                                                            summaryEndDateC = ((seventeenH - maxTime) / (4 * 60 * 60)).toFixed(3)
+
                                                         }
                                                         else {
                                                             statusAfternoon = ''
@@ -582,6 +597,7 @@ module.exports = {
                                                     Status: statusMorning ? statusMorning : null,
                                                     Reason: '',
                                                     Type: true,
+                                                    SummaryEndDate: summaryEndDateS,
                                                 })
                                                 await mtblChamCong(db).create({
                                                     IDNhanVien: staff ? staff.ID : null,
@@ -590,6 +606,7 @@ module.exports = {
                                                     Status: statusAfternoon ? statusAfternoon : null,
                                                     Reason: '',
                                                     Type: false,
+                                                    SummaryEndDate: summaryEndDateC,
                                                 })
                                             }
                                         }
@@ -632,6 +649,7 @@ module.exports = {
                             }
                         })
                         for (var i = 0; i < staff.length; i++) {
+                            var summary = 0;
                             if (arrayDays.length > 0)
                                 checkFor = 1;
                             var freeBreak = 0;
@@ -695,6 +713,14 @@ module.exports = {
                                                 freeBreak += 1;
                                             }
                                         }
+
+                                        // lấy ngày nghỉ tính theo 3 con số theo yêu cầu
+                                        if (timeKeepingM) {
+                                            summary += timeKeepingM.SummaryEndDate
+                                        }
+                                        if (timeKeepingA) {
+                                            summary += timeKeepingA.SummaryEndDate
+                                        }
                                     }
                                 }
                             }
@@ -702,7 +728,7 @@ module.exports = {
                             obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
                             obj['freeBreak'] = freeBreak;
                             obj['workingDay'] = workingDay;
-                            obj['dayOff'] = holiday + freeBreak + takeLeave;
+                            obj['dayOff'] = summary;
                             obj['staffName'] = staff[i] ? staff[i].StaffName : '';
                             array.push(obj)
 

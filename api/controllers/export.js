@@ -50,7 +50,7 @@ module.exports = {
                 fs.writeFileSync(pathEx, done);
             });
             var result = {
-                link: 'http://118.27.192.106:1357/ageless_sendmail/export_pdf_file.xlsx',
+                link: 'http://118.27.192.106:1357/ageless_sendmail/export_pdf_file.pdf',
                 status: Constant.STATUS.SUCCESS,
                 message: Constant.MESSAGE.ACTION_SUCCESS,
             }

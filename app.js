@@ -317,6 +317,7 @@ async function getPathFromtblTmplate(db, code, idycms) {
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 app.post('/qlnb/render_automatic_work', async function (req, res) {
     let body = req.body;
+    console.log(body);
     var pathFirst = '';
     var objKey = {};
     await database.connectDatabase().then(async db => {

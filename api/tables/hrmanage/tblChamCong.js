@@ -1,4 +1,3 @@
-const { BOOLEAN } = require('sequelize');
 const Sequelize = require('sequelize');
 
 module.exports = function (db) {
@@ -13,7 +12,8 @@ module.exports = function (db) {
         Time: Sequelize.FLOAT,
         Status: Sequelize.STRING,
         Reason: Sequelize.STRING,
-        Type: BOOLEAN,
+        Type: Sequelize.BOOLEAN,
+        SummaryEndDate: Sequelize.FLOAT,
     });
 
     return table;
