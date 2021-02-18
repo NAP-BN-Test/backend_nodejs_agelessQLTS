@@ -387,6 +387,8 @@ module.exports = {
             'TẠM ỨNG',
             'THỰC NHẬN',
         ]
+        var month = Number(body.date.slice(5, 7)); // January
+        var year = Number(body.date.slice(0, 4));
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -398,7 +400,7 @@ module.exports = {
                         .string('CÁC KHOẢN GIẢM TRỪ')
                         .style(styleHearder);
                     ws.cell(1, 1, 1, 14, true)
-                        .string('BẢNG TỔNG HỢP LƯƠNG THÁNG 12 NĂM 2020')
+                        .string('BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year)
                         .style(styleHearder);
 
                     // push vào các khoản trừ %
@@ -436,7 +438,6 @@ module.exports = {
                         row += 1
                         ws.column(row).setWidth(20);
                     }
-                    console.log(body);
                     for (var i = 0; i < data.length; i++) {
                         ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
                         ws.cell(5 + i, 2).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
