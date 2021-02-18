@@ -251,7 +251,7 @@ module.exports = {
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
                                 bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : 0,
                                 reduce: Number(reduce),
-                                productivityWages: data[i].nv.ProductivityWages ? data[i].nv : 0,
+                                productivityWages: data[i].nv ? data[i].nv.ProductivityWages : 0,
                             }
                             array.push(obj);
                             stt += 1;

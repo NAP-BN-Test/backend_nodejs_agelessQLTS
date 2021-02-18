@@ -436,13 +436,13 @@ module.exports = {
                         row += 1
                         ws.column(row).setWidth(20);
                     }
+                    console.log(body);
                     for (var i = 0; i < data.length; i++) {
-                        console.log(data[i]);
                         ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
-                        ws.cell(5 + i, 2).string(data[i].nameStaff).style(stylecell)
-                        ws.cell(5 + i, 3).number(data[i].workingSalary).style(stylecell)
-                        ws.cell(5 + i, 4).number(data[i].bhxhSalary).style(stylecell)
-                        ws.cell(5 + i, 5).number(data[i].productivityWages).style(stylecell)
+                        ws.cell(5 + i, 2).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
+                        ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecell)
+                        ws.cell(5 + i, 4).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecell)
+                        ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecell)
                         ws.cell(5 + i, 6).number(objInsurance.staffBHXH * data[i].bhxhSalary / 100).style(stylecell)
                         ws.cell(5 + i, 7).number(objInsurance.staffBHYT * data[i].bhxhSalary / 100).style(stylecell)
                         ws.cell(5 + i, 8).number(objInsurance.staffBHTN * data[i].bhxhSalary / 100).style(stylecell)
