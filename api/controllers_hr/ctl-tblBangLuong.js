@@ -34,7 +34,7 @@ async function filterByDate(userID, dateFinal, array, month, year) {
         var date = moment(array[i]['Verify Date']).format("YYYY-MM-DD hh:mm:ss")
         if (Number(date.slice(5, 7)) == month && Number(date.slice(0, 4)) == year) {
             if (array[i]['User ID'] == userID && Number(date.slice(8, 10)) == dateFinal) {
-                arrayResult.push(date.slice(11, 22))
+                arrayResult.push(array[i]['Verify Date'].slice(9, 22))
             }
         }
 
@@ -126,6 +126,14 @@ async function converFromSecondsToHourLate(number) {
     }
 
     return result;
+}
+async function roundNumberMinutes(number) {
+    var result = 0;
+    let h = Math.floor(number / 3600)
+    var remainder = Math.floor((number - (h * 3600)) / 60)
+    var minnutes = Math.floor((remainder / 5)) * 5
+    result = Number(h) * 60 + Number(minnutes)
+    return (result / 240).toFixed(3);
 }
 async function converFromSecondsToHourAftersoon(number) {
     var result = '';
@@ -240,11 +248,10 @@ module.exports = {
                                 id: Number(data[i].ID),
                                 idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
-                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : '',
-                                bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
-                                bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
+                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
+                                bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : 0,
                                 reduce: Number(reduce),
-                                productivityWages: data[i].nv ? data[i].nv.ProductivityWages : '',
+                                productivityWages: data[i].nv.ProductivityWages ? data[i].nv : 0,
                             }
                             array.push(obj);
                             stt += 1;
@@ -257,7 +264,7 @@ module.exports = {
                             ],
                         }).then(data => {
                             if (data) {
-                                objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : ''
+                                objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : 0
                                 objInsurance['staffBHYT'] = data.StaffBHYT
                                 objInsurance['staffBHTN'] = data.StaffBHTN
                                 objInsurance['union'] = data.StaffUnion ? data.StaffUnion : 0;
@@ -323,6 +330,7 @@ module.exports = {
                                 id: Number(data[i].ID),
                                 idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
+                                productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : '',
                                 bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
                                 reduce: Number(reduce),
@@ -330,6 +338,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
+                        console.log(array);
                         var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var objInsurance = {};
                         await mtblMucDongBaoHiem(db).findOne({
@@ -367,13 +376,13 @@ module.exports = {
         })
     },
     // data_timekeeping
-    dataTimekeeping: (req, res) => {
+    dataTimekeeping: async (req, res) => {
         let body = req.body;
         let arrayData = [
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-1 08:00:00",
+                'Verify Date': "2021-1-1 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -401,7 +410,7 @@ module.exports = {
             // -06 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-6 09:00:00",
+                'Verify Date': "2021-1-6 9:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -430,20 +439,20 @@ module.exports = {
             // -07 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-7 08:00:00",
+                'Verify Date': "2021-1-7 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-7 15:20:00",
+                'Verify Date': "2021-1-7 9:20:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-01-07 12:00:16",
+                'Verify Date': "2021-1-7 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -486,20 +495,18 @@ module.exports = {
                     if (!timeKeeping) {
                         if (arrayUserID.length > 0) {
                             for (var i = 0; i < arrayUserID.length; i++) {
-                                var takeLeave = 0;
-                                var holiday = 0;
                                 let seventeenH = 3600 * 17
                                 let eightH = 3600 * 8
                                 let twelveH = 3600 * 12
                                 let thirteenH = 3600 * 13
                                 var statusMorning = '';
-                                var summaryEndDateS = 0;
-                                var summaryEndDateC = 0;
                                 var statusAfternoon = '';
                                 var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
                                 if (staff) {
                                     var yearMonth = year + '-' + await convertNumber(month);
                                     for (var j = 1; j <= dateFinal; j++) {
+                                        var summaryEndDateS = 0;
+                                        var summaryEndDateC = 0;
                                         if (!checkDuplicate(arrayHoliday, j)) {
                                             let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData, month, year)
                                             let maxTime = await maxTimeArray(arrayTimeOfDate);
@@ -509,7 +516,7 @@ module.exports = {
                                                     // check chiều
                                                     if (thirteenH < maxTime) {
                                                         statusAfternoon = await converFromSecondsToHourLate(maxTime - thirteenH)
-                                                        summaryEndDateC = ((maxTime - thirteenH) / (4 * 60 * 60)).toFixed(3)
+                                                        summaryEndDateC = await roundNumberMinutes(maxTime - thirteenH)
                                                     }
                                                     else {
                                                         statusAfternoon = ''
@@ -520,7 +527,7 @@ module.exports = {
                                                     // check sáng
                                                     if (minTime > eightH) {
                                                         statusMorning = await converFromSecondsToHourLate(minTime - eightH)
-                                                        summaryEndDateS = ((minTime - eightH) / (4 * 60 * 60)).toFixed(3)
+                                                        summaryEndDateS = await roundNumberMinutes(minTime - eightH)
                                                     }
                                                     else {
                                                         statusMorning = ''
@@ -534,13 +541,13 @@ module.exports = {
                                                     // check sáng
                                                     if (minTime > eightH) {
                                                         statusMorning = await converFromSecondsToHourLate(minTime - eightH)
-                                                        summaryEndDateS = ((minTime - eightH) / (4 * 60 * 60)).toFixed(3)
+                                                        summaryEndDateS = await roundNumberMinutes(minTime - eightH)
 
                                                     }
                                                     else {
                                                         if (twelveH > maxTime) {
                                                             statusMorning = await converFromSecondsToHourAftersoon(twelveH - maxTime)
-                                                            summaryEndDateS = ((twelveH - maxTime) / (4 * 60 * 60)).toFixed(3)
+                                                            summaryEndDateS = await roundNumberMinutes(twelveH - maxTime)
                                                         }
                                                         else {
                                                             statusMorning = ''
@@ -556,12 +563,12 @@ module.exports = {
                                                         // check chiều
                                                         if (thirteenH < minTime) {
                                                             statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
-                                                            summaryEndDateC = ((minTime - thirteenH) / (4 * 60 * 60)).toFixed(3)
+                                                            summaryEndDateC = await roundNumberMinutes(minTime - thirteenH)
                                                         }
                                                         else {
                                                             if (seventeenH > maxTime) {
                                                                 statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
-                                                                summaryEndDateC = ((seventeenH - maxTime) / (4 * 60 * 60)).toFixed(3)
+                                                                summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
                                                             }
                                                             else {
                                                                 statusAfternoon = ''
@@ -572,7 +579,7 @@ module.exports = {
                                                         // check sáng
                                                         if (minTime > eightH) {
                                                             statusMorning = await converFromSecondsToHourLate(minTime - eightH)
-                                                            summaryEndDateS = ((minTime - eightH) / (4 * 60 * 60)).toFixed(3)
+                                                            summaryEndDateS = await roundNumberMinutes(minTime - eightH)
                                                         }
                                                         else {
                                                             statusMorning = ''
@@ -580,7 +587,7 @@ module.exports = {
                                                         // check chiều
                                                         if (seventeenH > maxTime) {
                                                             statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
-                                                            summaryEndDateC = ((seventeenH - maxTime) / (4 * 60 * 60)).toFixed(3)
+                                                            summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
 
                                                         }
                                                         else {
@@ -616,8 +623,6 @@ module.exports = {
                             }
                         }
                     }
-                    var takeLeave = 0;
-                    var holiday = 0;
                     // lấy dữ liệu từ database
                     var array7th = [];
                     var array7thDB = [];
@@ -716,11 +721,9 @@ module.exports = {
 
                                         // lấy ngày nghỉ tính theo 3 con số theo yêu cầu
                                         if (timeKeepingM) {
-                                            console.log(timeKeepingM.SummaryEndDate);
                                             summary += timeKeepingM.SummaryEndDate
                                         }
                                         if (timeKeepingA) {
-                                            console.log(timeKeepingA.SummaryEndDate);
                                             summary += timeKeepingA.SummaryEndDate
                                         }
                                     }

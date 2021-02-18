@@ -26,6 +26,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/export_to_file_excel_payment').post(exportPDF.exportToFileExcelPayment);
 
+    app.route('/qlnb/export_to_file_excel_payroll').post(exportPDF.exportToFileExcelPayroll);
+
     app.route('/qlnb/export_to_file_excel_timekeeping').post(exportPDF.exportToFileExcelTimekeeping);
 
 

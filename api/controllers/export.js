@@ -112,12 +112,6 @@ module.exports = {
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
-        var options = {
-            margins: {
-                left: 1.5,
-                right: 1.5,
-            },
-        };
         let body = req.body;
         let data = JSON.parse(body.data);
         let arrayHeader = [
@@ -373,136 +367,9 @@ module.exports = {
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
-        var options = {
-            margins: {
-                left: 1.5,
-                right: 1.5,
-            },
-        };
         let body = req.body;
         let data = JSON.parse(body.data);
-        let arrayHeader = [
-            'STT',
-            'CHỨNG TỪ',
-            'NGƯỜI ĐỀ NGHỊ',
-            'NỘI DUNG THANH TOÁN',
-            'SỐ TIỀN THANH TOÁN',
-            'NGƯỜI PHÊ DUYỆT TRƯỚC',
-            'NGƯỜI PHÊ DUYỆT SAU'
-        ]
-        database.connectDatabase().then(async db => {
-            if (db) {
-                try {
-                    // Add Worksheets to the workbook
-                    var ws = wb.addWorksheet('Sheet 1');
-                    var row = 1
-                    ws.column(row).setWidth(5);
-                    arrayHeader.forEach(element => {
-                        ws.cell(1, row)
-                            .string(element)
-                            .style(styleHearder);
-                        row += 1
-                        ws.column(row).setWidth(20);
-                    });
-                    var row = 0;
-                    // dùng để check bản ghi chiếm nhiều nhất bao nhiêu dòng
-                    var checkMaxRow = 1;
-                    for (let i = 0; i < data.length; i++) {
-                        data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
-                        var max = 0;
-                        // Hàng lớn nhất của bản ghi trước
-                        if (i > 0)
-                            row = checkMaxRow + 1
-                        // bản ghi đầu tiên
-                        else
-                            row = i + 2
-                        if (data[i].arrayFileExport.length) {
-                            checkMaxRow += data[i].arrayFileExport.length;
-                            // max dùng để đánh dầu hàng tiếp theo
-                            max = data[i].arrayFileExport.length;
-                        } else {
-                            checkMaxRow += 1;
-                        }
-                        if (data[i].arrayFileExport.length > 0) {
-                            for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 2).link(data[i].arrayFileExport[file].link).style(stylecell)
-                            }
-                        }
-                        if (data[i].arrayFileExport.length > 0) {
-                            ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
-                            ws.cell(row, 3, row + max - 1, 3, true).string(data[i].nameNhanVien).style(stylecell);
-                            ws.cell(row, 4, row + max - 1, 4, true).string(data[i].contents).style(stylecell);
-                            ws.cell(row, 5, row + max - 1, 5, true).number(data[i].cost ? data[i].cost : 0).style(stylecell);
-                            ws.cell(row, 6, row + max - 1, 6, true).string(data[i].nameNhanVienKTPD).style(stylecell);
-                            ws.cell(row, 7, row + max - 1, 7, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
-                        }
-                        else {
-                            ws.cell(row, 1).number(data[i].stt).style(stylecell)
-                            ws.cell(row, 3).string(data[i].nameNhanVien).style(stylecell)
-                            ws.cell(row, 4).string(data[i].contents).style(stylecell)
-                            ws.cell(row, 5).number(data[i].cost ? data[i].cost : 0).style(stylecell)
-                            ws.cell(row, 6).string(data[i].nameNhanVienKTPD).style(stylecell)
-                            ws.cell(row, 7).string(data[i].trangThaiPheDuyetLD).style(stylecell)
-                        }
-                    }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_payment.xlsx');
-                    var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payment.xlsx',
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
-                } catch (error) {
-                    console.log(error);
-                    res.json(Result.SYS_ERROR_RESULT)
-                }
-            } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
-            }
-        })
-    },
-    // export_to_file_excel_timekeeping
-    exportToFileExcelTimekeeping: (req, res) => {
-        var wb = new xl.Workbook();
-        // Create a reusable style
-        var styleHearder = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 14,
-                bold: true,
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var stylecell = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 13,
-                bold: false,
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var options = {
-            margins: {
-                left: 1.5,
-                right: 1.5,
-            },
-        };
-        let body = req.body;
-        // let data = JSON.parse(body.data);
+        let objInsurance = JSON.parse(body.objInsurance);
         let arrayHeader = [
             'STT',
             'HỌ VÀ TÊN',
@@ -517,6 +384,7 @@ module.exports = {
             'LƯƠNG TÍNH THUẾ TNCN',
             'THUẾ TNCN',
             'TỔNG CÁC KHOẢN TRỪ',
+            'TẠM ỨNG',
             'THỰC NHẬN',
         ]
         database.connectDatabase().then(async db => {
@@ -532,6 +400,18 @@ module.exports = {
                     ws.cell(1, 1, 1, 14, true)
                         .string('BẢNG TỔNG HỢP LƯƠNG THÁNG 12 NĂM 2020')
                         .style(styleHearder);
+
+                    // push vào các khoản trừ %
+                    var arrayReduct = []
+                    arrayReduct.push(1)
+                    arrayReduct.push(2)
+                    arrayReduct.push(3)
+                    arrayReduct.push(4)
+                    arrayReduct.push(5)
+                    arrayReduct.push(objInsurance.staffBHXH)
+                    arrayReduct.push(objInsurance.staffBHYT)
+                    arrayReduct.push(objInsurance.staffBHTN)
+                    arrayReduct.push(objInsurance.union)
                     for (var i = 0; i < arrayHeader.length; i++) {
                         if (i < 5) {
                             ws.cell(3, row, 4, row, true)
@@ -539,9 +419,14 @@ module.exports = {
                                 .style(styleHearder);
                         }
                         else if (i >= 5 && i <= 9) {
-                            ws.cell(4, row)
-                                .string(arrayHeader[i])
-                                .style(styleHearder);
+                            if (i < 9)
+                                ws.cell(4, row)
+                                    .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
+                                    .style(styleHearder);
+                            else
+                                ws.cell(4, row)
+                                    .string(arrayHeader[i])
+                                    .style(styleHearder);
                         }
                         else {
                             ws.cell(3, row, 4, row, true)
@@ -551,9 +436,27 @@ module.exports = {
                         row += 1
                         ws.column(row).setWidth(20);
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_timekeeping.xlsx');
+                    for (var i = 0; i < data.length; i++) {
+                        console.log(data[i]);
+                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
+                        ws.cell(5 + i, 2).string(data[i].nameStaff).style(stylecell)
+                        ws.cell(5 + i, 3).number(data[i].workingSalary).style(stylecell)
+                        ws.cell(5 + i, 4).number(data[i].bhxhSalary).style(stylecell)
+                        ws.cell(5 + i, 5).number(data[i].productivityWages).style(stylecell)
+                        ws.cell(5 + i, 6).number(objInsurance.staffBHXH * data[i].bhxhSalary / 100).style(stylecell)
+                        ws.cell(5 + i, 7).number(objInsurance.staffBHYT * data[i].bhxhSalary / 100).style(stylecell)
+                        ws.cell(5 + i, 8).number(objInsurance.staffBHTN * data[i].bhxhSalary / 100).style(stylecell)
+                        ws.cell(5 + i, 9).number(objInsurance.union * data[i].bhxhSalary / 100).style(stylecell)
+                        ws.cell(5 + i, 10).number(0).style(stylecell)
+                        ws.cell(5 + i, 11).number(data[i].thueTNCN ? data[i].thueTNCN : 0).style(stylecell)
+                        ws.cell(5 + i, 12).number(data[i].thueTNCN ? data[i].thueTNCN : 0).style(stylecell)
+                        ws.cell(5 + i, 13).number(data[i].tongKhoanTru ? data[i].tongKhoanTru : 0).style(stylecell)
+                        ws.cell(5 + i, 14).number(data[i].tamUng ? data[i].tamUng : 0).style(stylecell)
+                        ws.cell(5 + i, 15).number(data[i].thucLinh ? data[i].thucLinh : 0).style(stylecell)
+                    }
+                    wb.write('D:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payment.xlsx',
+                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payroll.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -566,5 +469,8 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
+    },
+    // export_to_file_excel_payroll
+    exportToFileExcelTimekeeping: (req, res) => {
     },
 }
