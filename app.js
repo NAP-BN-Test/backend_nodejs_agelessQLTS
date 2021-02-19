@@ -119,6 +119,7 @@ const Constant = require('./api/constants/constant');
 var mtblDMHangHoa = require('./api/tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('./api/tables/qlnb/tblDMLoaiTaiSan');
 var mtblDMChiNhanh = require('./api/tables/qlnb/tblDMLoaiTaiSan')
+var mtblMucDongBaoHiem = require('./api/tables/hrmanage/tblMucDongBaoHiem')
 
 var moment = require('moment');
 async function handleRequestShopping(db, idycms) {
@@ -378,7 +379,20 @@ server.listen(port, function () {
 var employee = require("./api/controllers/ctl-tblDMNhanvien");
 io.on("connection", async function (socket) {
     console.log('The user is connecting : ' + socket.id);
-
+    await database.connectDatabase().then(async db => {
+        if (db) {
+            var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
+                order: [
+                    Sequelize.literal('max(DateEnd) DESC'),
+                ],
+                group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd'],
+                where: { DateEnd: { [Op.gt]: moment().subtract(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') } }
+            })
+            if (!insurancePremiums) {
+                io.sockets.emit("check-insurance-premiums", 1);
+            }
+        }
+    })
     socket.on("disconnect", function () {
         console.log(socket.id + " disconnected!");
     });
