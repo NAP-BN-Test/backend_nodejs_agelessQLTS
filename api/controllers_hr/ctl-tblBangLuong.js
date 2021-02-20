@@ -292,10 +292,10 @@ module.exports = {
     // track_insurance_premiums
     trackInsurancePremiums: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
                     let stt = 1;
                     let tblBangLuong = mtblBangLuong(db);
                     // let tblDMNhanvien = mtblDMNhanvien(db)
@@ -338,7 +338,6 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        console.log(array);
                         var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var objInsurance = {};
                         await mtblMucDongBaoHiem(db).findOne({

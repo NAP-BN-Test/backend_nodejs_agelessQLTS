@@ -380,7 +380,7 @@ module.exports = {
             'GIẢM TRỪ BHYT',
             'GIẢM TRỪ BHTN',
             'GIẢM TRỪ CÔNG ĐOÀN',
-            'NGƯỜI PHÊ GIA CẢNH GIA ĐÌNH',
+            'GT GIA CẢNH',
             'LƯƠNG TÍNH THUẾ TNCN',
             'THUẾ TNCN',
             'TỔNG CÁC KHOẢN TRỪ',

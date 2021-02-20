@@ -87,12 +87,23 @@ module.exports = {
                             }
                         })
                         salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
-                        await mtblBangLuong(db).create({
-                            Date: body.signDate,
-                            IDNhanVien: body.idNhanVien,
-                            WorkingSalary: salary,
-                            BHXHSalary: body.salaryNumber,
-                        })
+                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
+                        if (!bl)
+                            await mtblBangLuong(db).create({
+                                Date: body.signDate,
+                                IDNhanVien: body.idNhanVien,
+                                WorkingSalary: salary,
+                                BHXHSalary: body.salaryNumber,
+                                DateEnd: body.contractDateEnd,
+                            })
+                        else {
+                            await mtblBangLuong(db).update({
+                                Date: body.signDate,
+                                WorkingSalary: salary,
+                                BHXHSalary: body.salaryNumber,
+                                DateEnd: body.contractDateEnd,
+                            }, { where: { IDNhanVien: body.idNhanVien } })
+                        }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

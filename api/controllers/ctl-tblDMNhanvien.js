@@ -288,11 +288,12 @@ module.exports = {
                                 },
                             ],
                         }).then(hd => {
+                            // workingSalary ghi đè lên bảng employee
                             obj['contractCode'] = hd ? hd.ContractCode : '';
                             obj['idContract'] = hd ? hd.ID : '';
                             obj['idLoaiHopDong'] = hd ? hd.IDLoaiHopDong : '';
                             obj['signDate'] = hd ? hd.Date : '';
-                            obj['salaryNumber'] = hd ? hd.SalaryNumber : '';
+                            obj['workingSalary'] = hd ? hd.SalaryNumber : '';
                             obj['salaryText'] = hd ? hd.SalaryText : '';
                             obj['contractDateEnd'] = hd ? hd.ContractDateEnd : '';
                             obj['status'] = hd ? hd.Status : '';
@@ -364,13 +365,24 @@ module.exports = {
                                 }
                             })
                             salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
-                            await mtblBangLuong(db).create({
-                                Date: body.signDate,
-                                IDNhanVien: data.ID,
-                                WorkingSalary: salary,
-                                BHXHSalary: body.workingSalary,
-                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                            })
+                            let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: data.ID } })
+                            if (bl)
+                                await mtblBangLuong(db).update({
+                                    Date: body.signDate ? body.signDate : null,
+                                    WorkingSalary: salary,
+                                    BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                                    DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                                }, {
+                                    where: { IDNhanVien: data.ID, }
+                                })
+                            else
+                                await mtblBangLuong(db).create({
+                                    Date: body.signDate ? body.signDate : null,
+                                    WorkingSalary: salary,
+                                    BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                                    DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                                    IDNhanVien: data.ID,
+                                })
                             await mtblHopDongNhanSu(db).create({
                                 IDNhanVien: data.ID,
                                 ContractCode: body.contractCode ? body.contractCode : '',
@@ -524,13 +536,24 @@ module.exports = {
                             Status: body.status ? body.status : '',
                         }, { where: { ID: body.idContract } })
                         salary = body.workingSalary ? body.workingSalary : 0
-                        await mtblBangLuong(db).create({
-                            Date: body.signDate ? body.signDate : null,
-                            IDNhanVien: body.id,
-                            WorkingSalary: salary,
-                            BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                            DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                        })
+                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
+                        if (bl)
+                            await mtblBangLuong(db).update({
+                                Date: body.signDate ? body.signDate : null,
+                                WorkingSalary: body.workingSalary ? body.workingSalary : 0,
+                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                            }, {
+                                where: { IDNhanVien: body.id, }
+                            })
+                        else
+                            await mtblBangLuong(db).create({
+                                Date: body.signDate ? body.signDate : null,
+                                WorkingSalary: body.workingSalary ? body.workingSalary : 0,
+                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                                IDNhanVien: body.id,
+                            })
                     }
                     else {
                         await mtblHopDongNhanSu(db).create({
@@ -547,13 +570,24 @@ module.exports = {
                             WorkingPlace: ''
                         })
                         salary = body.workingSalary ? body.workingSalary : 0
-                        await mtblBangLuong(db).create({
-                            Date: body.signDate ? body.signDate : null,
-                            IDNhanVien: body.id,
-                            WorkingSalary: salary,
-                            BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                            DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                        })
+                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
+                        if (bl)
+                            await mtblBangLuong(db).update({
+                                Date: body.signDate ? body.signDate : null,
+                                WorkingSalary: salary,
+                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                            }, {
+                                where: { IDNhanVien: body.id, }
+                            })
+                        else
+                            await mtblBangLuong(db).create({
+                                Date: body.signDate ? body.signDate : null,
+                                WorkingSalary: salary,
+                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                                IDNhanVien: body.id
+                            })
                     }
                     database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
                         if (response == 1) {
