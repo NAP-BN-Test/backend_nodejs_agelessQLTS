@@ -526,6 +526,8 @@ module.exports = {
             'BHTNLĐ',
             'TỔNG',
         ]
+        var month = Number(body.date.slice(5, 7)); // January
+        var year = Number(body.date.slice(0, 4));
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -534,7 +536,7 @@ module.exports = {
                     var row = 1
                     ws.column(row).setWidth(5);
                     ws.cell(1, 1, 1, 14, true)
-                        .string('THEO DÕI ĐÓNG BẢO HIỂM')
+                        .string('THEO DÕI ĐÓNG BẢO HIỂM ' + month + '/' + year)
                         .style(styleHearder);
                     ws.cell(3, 5, 3, 6, true)
                         .string('BHXH')
@@ -550,14 +552,17 @@ module.exports = {
                     arrayReduct.push(1)
                     arrayReduct.push(2)
                     arrayReduct.push(3)
+                    arrayReduct.push(4)
                     arrayReduct.push(objInsurance.staffBHXH)
                     arrayReduct.push(objInsurance.companyBHXH)
                     arrayReduct.push(objInsurance.staffBHYT)
                     arrayReduct.push(objInsurance.companyBHYT)
                     arrayReduct.push(objInsurance.staffBHTN)
                     arrayReduct.push(objInsurance.companyBHTN)
+                    arrayReduct.push(objInsurance.staffBHTNLD)
+                    arrayReduct.push(objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD)
                     for (var i = 0; i < arrayHeader.length; i++) {
-                        if (i < 4) {
+                        if (i <= 3) {
                             ws.cell(3, row, 4, row, true)
                                 .string(arrayHeader[i])
                                 .style(styleHearder);
@@ -569,7 +574,7 @@ module.exports = {
                         }
                         else {
                             ws.cell(3, row, 4, row, true)
-                                .string(arrayHeader[i])
+                                .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
                                 .style(styleHearder);
                         }
                         row += 1
