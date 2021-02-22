@@ -331,8 +331,8 @@ module.exports = {
                                 idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
                                 productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
-                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : '',
-                                bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : '',
+                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
+                                bhxhSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
                                 reduce: Number(reduce),
                             }
                             array.push(obj);

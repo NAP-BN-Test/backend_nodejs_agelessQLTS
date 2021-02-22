@@ -28,6 +28,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/export_to_file_excel_payroll').post(exportPDF.exportToFileExcelPayroll);
 
+    app.route('/qlnb/export_tofile_excel_insurance_premiums').post(exportPDF.exportToFileExcelInsutancePremiums);
+
     app.route('/qlnb/export_to_file_excel_timekeeping').post(exportPDF.exportToFileExcelTimekeeping);
 
 

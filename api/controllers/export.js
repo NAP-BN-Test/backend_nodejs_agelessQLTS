@@ -474,4 +474,136 @@ module.exports = {
     // export_to_file_excel_payroll
     exportToFileExcelTimekeeping: (req, res) => {
     },
+    // export_tofile_excel_insurance_premiums
+    exportToFileExcelInsutancePremiums: (req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        let body = req.body;
+        console.log(body);
+        let data = JSON.parse(body.data);
+        let objInsurance = JSON.parse(body.objInsurance);
+        let arrayHeader = [
+            'STT',
+            'HỌ VÀ TÊN',
+            'HỆ SỐ LƯƠNG',
+            'MỨC LƯƠNG',
+            'CT',
+            'NV',
+            'CT',
+            'NV',
+            'CT',
+            'NV',
+            'BHTNLĐ',
+            'TỔNG',
+        ]
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    // Add Worksheets to the workbook
+                    var ws = wb.addWorksheet('Sheet 1');
+                    var row = 1
+                    ws.column(row).setWidth(5);
+                    ws.cell(1, 1, 1, 14, true)
+                        .string('THEO DÕI ĐÓNG BẢO HIỂM')
+                        .style(styleHearder);
+                    ws.cell(3, 5, 3, 6, true)
+                        .string('BHXH')
+                        .style(styleHearder);
+                    ws.cell(3, 7, 3, 8, true)
+                        .string('BHYT')
+                        .style(styleHearder);
+                    ws.cell(3, 9, 3, 10, true)
+                        .string('BHTN')
+                        .style(styleHearder);
+                    // // push vào các khoản trừ %
+                    var arrayReduct = []
+                    arrayReduct.push(1)
+                    arrayReduct.push(2)
+                    arrayReduct.push(3)
+                    arrayReduct.push(objInsurance.staffBHXH)
+                    arrayReduct.push(objInsurance.companyBHXH)
+                    arrayReduct.push(objInsurance.staffBHYT)
+                    arrayReduct.push(objInsurance.companyBHYT)
+                    arrayReduct.push(objInsurance.staffBHTN)
+                    arrayReduct.push(objInsurance.companyBHTN)
+                    for (var i = 0; i < arrayHeader.length; i++) {
+                        if (i < 4) {
+                            ws.cell(3, row, 4, row, true)
+                                .string(arrayHeader[i])
+                                .style(styleHearder);
+                        }
+                        else if (i > 3 && i < 10) {
+                            ws.cell(4, row)
+                                .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
+                                .style(styleHearder);
+                        }
+                        else {
+                            ws.cell(3, row, 4, row, true)
+                                .string(arrayHeader[i])
+                                .style(styleHearder);
+                        }
+                        row += 1
+                        ws.column(row).setWidth(20);
+                    }
+                    for (var i = 0; i < data.length; i++) {
+                        let wages = data[i].workingSalary ? data[i].workingSalary : 0;
+                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
+                        ws.cell(5 + i, 2).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
+                        ws.cell(5 + i, 3).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecell)
+                        ws.cell(5 + i, 4).number(wages).style(stylecell)
+                        ws.cell(5 + i, 5).number(wages * objInsurance.staffBHXH / 100).style(stylecell)
+                        ws.cell(5 + i, 6).number(wages * objInsurance.companyBHXH / 100).style(stylecell)
+                        ws.cell(5 + i, 7).number(wages * objInsurance.staffBHYT / 100).style(stylecell)
+                        ws.cell(5 + i, 8).number(wages * objInsurance.companyBHYT / 100).style(stylecell)
+                        ws.cell(5 + i, 9).number(wages * objInsurance.staffBHTN / 100).style(stylecell)
+                        ws.cell(5 + i, 10).number(wages * objInsurance.companyBHTN / 100).style(stylecell)
+                        ws.cell(5 + i, 11).number(wages * objInsurance.staffBHTNLD / 100).style(stylecell)
+                        ws.cell(5 + i, 12).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecell)
+                    }
+                    wb.write('D:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
+                    var result = {
+                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }
