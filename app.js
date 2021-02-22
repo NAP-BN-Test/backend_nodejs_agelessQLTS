@@ -389,7 +389,7 @@ io.on("connection", async function (socket) {
                 where: { DateEnd: { [Op.gt]: moment().subtract(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') } }
             })
             if (!insurancePremiums) {
-                io.sockets.emit("check-insurance-premiums", 1);
+                io.to(socket.id).emit("check-insurance-premiums", 1);
             }
         }
     })
