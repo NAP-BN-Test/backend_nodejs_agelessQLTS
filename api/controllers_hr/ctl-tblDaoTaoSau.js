@@ -262,10 +262,10 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                dateStart: element.DateStart ? element.DateStart : '',
+                                dateStart: element.DateStart ? moment(element.DateStart).format('DD/MM/YYYY') : '',
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : '',
                                 nameNhanVien: element.employee ? element.employee.StaffName : '',
-                                dateEnd: element.DateEnd ? element.DateEnd : '',
+                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD/MM/YYYY') : '',
                                 trainingCourse: element.TrainingCourse ? element.TrainingCourse : '',
                                 companyCost: element.CompanyCost ? element.CompanyCost : '',
                                 result: element.Result ? element.Result : '',
@@ -273,8 +273,8 @@ module.exports = {
                                 majors: element.Majors ? element.Majors : '',
                                 formTraining: element.FormTraining ? element.FormTraining : '',
                                 numberCertificates: element.NumberCertificates ? element.NumberCertificates : '',
-                                rangeDate: element.RangeDate ? element.RangeDate : '',
-                                expirationDate: element.ExpirationDate ? element.ExpirationDate : '',
+                                rangeDate: element.RangeDate ? moment(element.RangeDate).format('DD/MM/YYYY') : '',
+                                expirationDate: element.ExpirationDate ? moment(element.ExpirationDate).format('DD/MM/YYYY') : '',
                             }
                             array.push(obj);
                             stt += 1;

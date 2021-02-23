@@ -241,7 +241,7 @@ module.exports = {
                                 nameNhanVien: element.IDNhanVien ? element.employee.StaffName : null,
                                 relationship: element.Relationship ? element.Relationship : '',
                                 name: element.Name ? element.Name : '',
-                                birthday: element.Birthday ? element.Birthday : null,
+                                birthday: element.Birthday ? moment(element.Birthday).format('DD/MM/YYYY') : null,
                                 gender: element.Gender ? element.Gender : '',
                                 cmndNumber: element.CMNDNumber ? element.CMNDNumber : '',
                                 address: element.Address ? element.Address : '',
