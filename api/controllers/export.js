@@ -552,12 +552,12 @@ module.exports = {
                     arrayReduct.push(2)
                     arrayReduct.push(3)
                     arrayReduct.push(4)
-                    arrayReduct.push(objInsurance.staffBHXH)
                     arrayReduct.push(objInsurance.companyBHXH)
-                    arrayReduct.push(objInsurance.staffBHYT)
+                    arrayReduct.push(objInsurance.staffBHXH)
                     arrayReduct.push(objInsurance.companyBHYT)
-                    arrayReduct.push(objInsurance.staffBHTN)
+                    arrayReduct.push(objInsurance.staffBHYT)
                     arrayReduct.push(objInsurance.companyBHTN)
+                    arrayReduct.push(objInsurance.staffBHTN)
                     arrayReduct.push(objInsurance.staffBHTNLD)
                     arrayReduct.push(objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD)
                     for (var i = 0; i < arrayHeader.length; i++) {
@@ -580,10 +580,10 @@ module.exports = {
                         ws.column(row).setWidth(20);
                     }
                     for (var i = 0; i < data.length; i++) {
-                        let wages = data[i].workingSalary ? data[i].workingSalary : 0;
+                        let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
                         ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
                         ws.cell(5 + i, 2).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
-                        ws.cell(5 + i, 3).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecell)
+                        ws.cell(5 + i, 3).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecell)
                         ws.cell(5 + i, 4).number(wages).style(stylecell)
                         ws.cell(5 + i, 5).number(wages * objInsurance.staffBHXH / 100).style(stylecell)
                         ws.cell(5 + i, 6).number(wages * objInsurance.companyBHXH / 100).style(stylecell)

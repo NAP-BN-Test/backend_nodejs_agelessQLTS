@@ -247,8 +247,8 @@ module.exports = {
                                 staffBHXH: element.StaffBHXH ? element.StaffBHXH : 0,
                                 staffBHYT: element.StaffBHYT ? element.StaffBHYT : 0,
                                 staffBHTN: element.StaffBHTN ? element.StaffBHTN : 0,
-                                dateStart: element.DateStart ? element.DateStart : null,
-                                dateEnd: element.DateEnd ? element.DateEnd : null,
+                                dateStart: element.DateStart ? moment(element.DateStart).format('DD/MM/YYYY') : null,
+                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD/MM/YYYY') : null,
                             }
                             array.push(obj);
                             stt += 1;
