@@ -17,6 +17,7 @@ module.exports = function (db) {
         StaffBHTN: Sequelize.FLOAT,
         DateStart: Sequelize.DATE,
         DateEnd: Sequelize.DATE,
+        MinimumWage: Sequelize.FLOAT,
     });
 
     return table;

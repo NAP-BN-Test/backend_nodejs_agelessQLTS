@@ -234,6 +234,21 @@ module.exports = {
                         },
                     }).then(async data => {
                         var array = [];
+                        var minimumWage = 0;
+                        var objInsurance = {};
+                        await mtblMucDongBaoHiem(db).findOne({
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                        }).then(data => {
+                            if (data) {
+                                minimumWage = data.MinimumWage ? data.MinimumWage : 0;
+                                objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : 0
+                                objInsurance['staffBHYT'] = data.StaffBHYT
+                                objInsurance['staffBHTN'] = data.StaffBHTN
+                                objInsurance['union'] = data.StaffUnion ? data.StaffUnion : 0;
+                            }
+                        })
                         for (var i = 0; i < data.length; i++) {
                             var reduce = 0;
                             await mtblDMGiaDinh(db).findAll({
@@ -243,13 +258,15 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
+                            var coefficientsSalary = 0;
+                            coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
                                 idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : 0,
+                                bhxhSalary: minimumWage * coefficientsSalary,
                                 reduce: Number(reduce),
                                 productivityWages: data[i].nv ? data[i].nv.ProductivityWages : 0,
                             }
@@ -257,19 +274,6 @@ module.exports = {
                             stt += 1;
                         }
                         var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
-                        var objInsurance = {};
-                        await mtblMucDongBaoHiem(db).findOne({
-                            order: [
-                                ['ID', 'DESC']
-                            ],
-                        }).then(data => {
-                            if (data) {
-                                objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : 0
-                                objInsurance['staffBHYT'] = data.StaffBHYT
-                                objInsurance['staffBHTN'] = data.StaffBHTN
-                                objInsurance['union'] = data.StaffUnion ? data.StaffUnion : 0;
-                            }
-                        })
                         var result = {
                             objInsurance: objInsurance,
                             array: array,
@@ -292,7 +296,6 @@ module.exports = {
     // track_insurance_premiums
     trackInsurancePremiums: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -316,36 +319,15 @@ module.exports = {
                         where: { Date: { [Op.substring]: body.date } },
                     }).then(async data => {
                         var array = [];
-                        for (var i = 0; i < data.length; i++) {
-                            var reduce = 0;
-                            await mtblDMGiaDinh(db).findAll({
-                                where: { IDNhanVien: data[i].IDNhanVien }
-                            }).then(family => {
-                                family.forEach(element => {
-                                    reduce += Number(element.Reduce);
-                                });
-                            })
-                            var obj = {
-                                stt: stt,
-                                id: Number(data[i].ID),
-                                idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
-                                nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
-                                productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
-                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                bhxhSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                reduce: Number(reduce),
-                            }
-                            array.push(obj);
-                            stt += 1;
-                        }
-                        var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var objInsurance = {};
+                        var minimumWage = 0;
                         await mtblMucDongBaoHiem(db).findOne({
                             order: [
                                 ['ID', 'DESC']
                             ],
                         }).then(data => {
                             if (data) {
+                                minimumWage = data.MinimumWage ? data.MinimumWage : 0;
                                 objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : 0
                                 objInsurance['staffBHYT'] = data.StaffBHYT ? data.StaffBHYT : 0
                                 objInsurance['staffBHTN'] = data.StaffBHTN ? data.StaffBHTN : 0
@@ -355,6 +337,31 @@ module.exports = {
                                 objInsurance['staffBHTNLD'] = data.StaffBHTNLD ? data.StaffBHTNLD : 0
                             }
                         })
+                        for (var i = 0; i < data.length; i++) {
+                            var reduce = 0;
+                            await mtblDMGiaDinh(db).findAll({
+                                where: { IDNhanVien: data[i].IDNhanVien }
+                            }).then(family => {
+                                family.forEach(element => {
+                                    reduce += Number(element.Reduce);
+                                });
+                            })
+                            var coefficientsSalary = data[i].IDNhanVien ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0;
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                                nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
+                                productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
+                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
+                                bhxhSalary: coefficientsSalary * minimumWage,
+                                reduce: Number(reduce),
+                                coefficientsSalary: coefficientsSalary
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var result = {
                             objInsurance: objInsurance,
                             array: array,

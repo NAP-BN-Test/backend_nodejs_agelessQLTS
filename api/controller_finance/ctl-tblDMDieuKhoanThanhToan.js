@@ -57,7 +57,7 @@ module.exports = {
                     mtblDMDieuKhoanThanhToan(db).create({
                         RuleName: body.ruleName ? body.ruleName : '',
                         RuleCode: body.ruleCode ? body.ruleCode : '',
-                        NumberDate: body.numberDate ? body.numberDate : '',
+                        NumberDate: body.numberDate ? body.numberDate : 0,
                         Status: body.status ? body.status : '',
                     }).then(data => {
                         var result = {

@@ -272,4 +272,37 @@ module.exports = {
             }
         })
     },
+    // update_minimum_wage
+    updateMinimumWage: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                await mtblMucDongBaoHiem(db).update({
+                    MinimumWage: body.minimumWage ? body.minimumWage : null,
+                }, {
+                    where: { ID: { [Op.ne]: null } }
+                })
+                var result = {
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            }
+        })
+    },
+    // get_minimum_wage
+    getMinimumWage: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                var minimumWage = await mtblMucDongBaoHiem(db).findOne()
+                var result = {
+                    minimumWage: minimumWage ? minimumWage.MinimumWage ? minimumWage.MinimumWage : 0 : 0,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            }
+        })
+    }
 }

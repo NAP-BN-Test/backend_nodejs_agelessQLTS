@@ -269,6 +269,7 @@ module.exports = {
                             email: data.Email ? data.Email : '',
                             statusEmployee: data.Status ? data.Status : '',
                             productivityWages: data.ProductivityWages ? data.ProductivityWages : '',
+                            coefficientsSalary: data.CoefficientsSalary ? data.CoefficientsSalary : 0,
                         }
                         let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                         tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'loaiHD' })
@@ -353,6 +354,7 @@ module.exports = {
                             // IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                             Email: body.email ? body.email : '',
                             ProductivityWages: body.productivityWages ? body.productivityWages : '',
+                            CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : 0,
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                         }).then(async data => {
                             var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
@@ -427,6 +429,8 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.coefficientsSalary)
+                        update.push({ key: 'CoefficientsSalary', value: body.coefficientsSalary });
                     if (body.cmndNumber || body.cmndNumber === '')
                         update.push({ key: 'CMNDNumber', value: body.cmndNumber });
                     if (body.staffCode || body.staffCode === '')

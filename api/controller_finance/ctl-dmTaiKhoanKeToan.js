@@ -13,39 +13,6 @@ async function deleteRelationshiptblDMTaiKhoanKeToan(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblDMTaiKhoanKeToan,
-    //  get_detail_tbl_dm_taikhoanketoan
-    // detailtblDMTaiKhoanKeToan: (req, res) => {
-    //     let body = req.body;
-    //     database.connectDatabase().then(async db => {
-    //         if (db) {
-    //             try {
-    //                 mtblDMTaiKhoanKeToan(db).findOne({ where: { ID: body.id } }).then(data => {
-    //                     if (data) {
-    //                         var obj = {
-    //                             id: data.ID,
-    //                             name: data.Name,
-    //                             code: data.Code,
-    //                         }
-    //                         var result = {
-    //                             obj: obj,
-    //                             status: Constant.STATUS.SUCCESS,
-    //                             message: Constant.MESSAGE.ACTION_SUCCESS,
-    //                         }
-    //                         res.json(result);
-    //                     } else {
-    //                         res.json(Result.NO_DATA_RESULT)
-
-    //                     }
-
-    //                 })
-    //             } catch (error) {
-    //                 res.json(Result.SYS_ERROR_RESULT)
-    //             }
-    //         } else {
-    //             res.json(Constant.MESSAGE.USER_FAIL)
-    //         }
-    //     })
-    // },
     // add_tbl_dm_taikhoanketoan
     addtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
