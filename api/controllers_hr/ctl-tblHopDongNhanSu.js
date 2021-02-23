@@ -312,7 +312,7 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 contractCode: element.ContractCode ? element.ContractCode : '',
-                                signDate: element.Date ? element.Date : null,
+                                signDate: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
                                 idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
                                 loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
                                 salaryNumber: element.SalaryNumber ? element.SalaryNumber : '',

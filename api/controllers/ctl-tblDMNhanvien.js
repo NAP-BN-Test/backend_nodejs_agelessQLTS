@@ -863,12 +863,12 @@ module.exports = {
                                 taxCode: element.TaxCode ? element.TaxCode : '',
                                 bankNumber: element.BankNumber ? element.BankNumber : '',
                                 bankName: element.BankName ? element.BankName : '',
-                                birthday: element.Birthday ? moment(element.Birthday).format('DD-MM-YYYY') : '',
+                                birthday: element.Birthday ? moment(element.Birthday).format('DD/MM/YYYY') : '',
                                 degree: element.Degree ? element.Degree : '',
                                 permanentResidence: element.PermanentResidence ? element.PermanentResidence : '',
-                                probationaryDate: element.ProbationaryDate ? moment(element.ProbationaryDate).format('DD-MM-YYYY') : '',
+                                probationaryDate: element.ProbationaryDate ? moment(element.ProbationaryDate).format('DD/MM/YYYY') : '',
                                 probationarySalary: element.ProbationarySalary ? element.ProbationarySalary : null,
-                                workingDate: element.WorkingDate ? moment(element.WorkingDate).format('DD-MM-YYYY') : null,
+                                workingDate: element.WorkingDate ? moment(element.WorkingDate).format('DD/MM/YYYY') : null,
                                 workingSalary: element.WorkingSalary ? element.WorkingSalary : null,
                                 bhxhSalary: element.BHXHSalary ? element.BHXHSalary : null,
                                 contactUrgent: element.ContactUrgent ? element.ContactUrgent : '',
@@ -980,8 +980,8 @@ module.exports = {
                                                 id: id,
                                                 codeDevice: tsht[j].taisan ? tsht[j].taisan.TSNBCode : '',
                                                 nameDevice: tsht[j].taisan ? tsht[j].taisan.hanghoa ? tsht[j].taisan.hanghoa.Name : '' : '',
-                                                dateFrom: moment(date).format('DD-MM-YYYY'),
-                                                dateTo: moment(tsht[j].DateThuHoi).format('DD-MM-YYYY'),
+                                                dateFrom: moment(date).format('DD/MM/YYYY'),
+                                                dateTo: moment(tsht[j].DateThuHoi).format('DD/MM/YYYY'),
                                             })
                                             stt += 1;
                                         }
