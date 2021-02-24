@@ -32,6 +32,7 @@ module.exports = {
     // add_tbl_nghiphep
     addtblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -49,8 +50,8 @@ module.exports = {
                     })
                     code += number
                     mtblNghiPhep(db).create({
-                        DateStart: body.dateStart ? moment(body.dateStart).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
-                        DateEnd: body.dateEnd ? moment(body.dateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') : null,
+                        DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                        DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
                         NumberLeave: code,
