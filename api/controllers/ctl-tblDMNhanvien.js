@@ -289,6 +289,7 @@ module.exports = {
                                 },
                             ],
                         }).then(hd => {
+                            console.log(hd.ID, body);
                             // workingSalary ghi đè lên bảng employee
                             obj['contractCode'] = hd ? hd.ContractCode : '';
                             obj['idContract'] = hd ? hd.ID : '';

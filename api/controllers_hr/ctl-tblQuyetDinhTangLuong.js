@@ -5,6 +5,8 @@ var moment = require('moment');
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 
 async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
     await mtblQuyetDinhTangLuong(db).destroy({
@@ -91,7 +93,43 @@ module.exports = {
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         SalaryIncrease: body.salaryIncrease ? body.salaryIncrease : '',
                         Status: body.status ? body.status : '',
-                    }).then(data => {
+                    }).then(async data => {
+                        var hd = await mtblHopDongNhanSu(db).findOne({
+                            where: {
+                                IDNhanVien: body.idNhanVien
+                            },
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                        })
+                        if (hd)
+                            await mtblHopDongNhanSu(db).update({
+                                workingSalary: body.salaryIncrease,
+                                SalaryNumber: body.salaryIncrease,
+                            }, {
+                                where: {
+                                    ID: hd.ID
+                                },
+                            })
+                        salary = body.workingSalary ? body.workingSalary : 0
+                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
+                        if (bl)
+                            await mtblBangLuong(db).update({
+                                Date: body.increaseDate ? body.increaseDate : null,
+                                WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
+                                SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
+                                DateEnd: body.stopDate ? body.stopDate : null,
+                            }, {
+                                where: { IDNhanVien: body.idNhanVien, }
+                            })
+                        else
+                            await mtblBangLuong(db).create({
+                                Date: body.increaseDate ? body.increaseDate : null,
+                                WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
+                                SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
+                                DateEnd: body.stopDate ? body.stopDate : null,
+                                IDNhanVien: body.idNhanVien,
+                            })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -142,10 +180,53 @@ module.exports = {
                         update.push({ key: 'DecisionCode', value: body.decisionCode });
                     if (body.stopReason || body.stopReason === '')
                         update.push({ key: 'StopReason', value: body.stopReason });
-                    if (body.salaryIncrease || body.salaryIncrease === '')
+                    if (body.salaryIncrease || body.salaryIncrease === '') {
+                        var staff = await mtblQuyetDinhTangLuong(db).findOne({ where: { ID: body.id } })
+                        var hd = await mtblHopDongNhanSu(db).findOne({
+                            where: {
+                                IDNhanVien: staff.IDNhanVien
+                            },
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                        })
+                        if (hd)
+                            await mtblHopDongNhanSu(db).update({
+                                workingSalary: body.salaryIncrease,
+                                SalaryNumber: body.salaryIncrease,
+                            }, {
+                                where: {
+                                    ID: hd.ID
+                                },
+                            })
                         update.push({ key: 'SalaryIncrease', value: body.salaryIncrease });
+                        let bl = await mtblBangLuong(db).findOne({
+                            where: { IDNhanVien: staff.IDNhanVien },
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                        })
+                        if (bl)
+                            await mtblBangLuong(db).update({
+                                Date: body.increaseDate ? body.increaseDate : null,
+                                WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
+                                SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
+                                DateEnd: body.stopDate ? body.stopDate : null,
+                            }, {
+                                where: { ID: bl.ID },
+                            })
+                        else
+                            await mtblBangLuong(db).create({
+                                Date: body.increaseDate ? body.increaseDate : null,
+                                WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
+                                SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
+                                DateEnd: body.stopDate ? body.stopDate : null,
+                                IDNhanVien: staff.IDNhanVien,
+                            })
+                    }
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
+
                     database.updateTable(update, mtblQuyetDinhTangLuong(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
