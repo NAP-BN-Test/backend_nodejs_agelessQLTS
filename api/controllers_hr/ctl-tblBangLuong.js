@@ -233,6 +233,7 @@ module.exports = {
                             ]
                         },
                     }).then(async data => {
+                        console.log(data.ID);
                         var array = [];
                         var minimumWage = 0;
                         var objInsurance = {};

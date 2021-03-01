@@ -115,7 +115,7 @@ module.exports = {
                         let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
                         if (bl)
                             await mtblBangLuong(db).update({
-                                Date: body.increaseDate ? body.increaseDate : null,
+                                Date: body.decisionDate ? body.decisionDate : null,
                                 WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
                                 SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
                                 DateEnd: body.stopDate ? body.stopDate : null,
@@ -124,7 +124,7 @@ module.exports = {
                             })
                         else
                             await mtblBangLuong(db).create({
-                                Date: body.increaseDate ? body.increaseDate : null,
+                                Date: body.decisionDate ? body.decisionDate : null,
                                 WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
                                 SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
                                 DateEnd: body.stopDate ? body.stopDate : null,
@@ -148,6 +148,7 @@ module.exports = {
     // update_tbl_quyetdinh_tangluong
     updatetblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -208,7 +209,7 @@ module.exports = {
                         })
                         if (bl)
                             await mtblBangLuong(db).update({
-                                Date: body.increaseDate ? body.increaseDate : null,
+                                Date: body.decisionDate ? body.decisionDate : null,
                                 WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
                                 SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
                                 DateEnd: body.stopDate ? body.stopDate : null,
@@ -217,7 +218,7 @@ module.exports = {
                             })
                         else
                             await mtblBangLuong(db).create({
-                                Date: body.increaseDate ? body.increaseDate : null,
+                                Date: body.decisionDate ? body.decisionDate : null,
                                 WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
                                 SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
                                 DateEnd: body.stopDate ? body.stopDate : null,
