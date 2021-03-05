@@ -419,4 +419,22 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.deletetblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListtblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_name_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListNametblDMTaiKhoanKeToan);
+
+
+
+
+
+    // api phần mềm chuyên môn
+    var apiSpecializedSoftware = require('./controller_finance/ctl-apiSpecializedSoftware')
+    app.route('/qlnb/get_list_department').post(apiSpecializedSoftware.getListDepartment);
+    app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
+    app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
+    app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);
+    app.route('/qlnb/get_list_user').post(apiSpecializedSoftware.getListUser);
+
+
+    // youtube
+    var youtube = require('./controller_finance/youtube')
+    app.route('/youtube').post(youtube.youtube);
+
 }

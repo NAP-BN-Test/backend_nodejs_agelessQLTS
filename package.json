@@ -23,6 +23,8 @@
     "express-session": "^1.17.1",
     "form-data": "^3.0.0",
     "fs": "0.0.1-security",
+    "google-auth-library": "^7.0.2",
+    "googleapis": "^67.1.1",
     "http": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "libreoffice-convert-win": "^1.1.1",
