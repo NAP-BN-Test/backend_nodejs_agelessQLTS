@@ -42,7 +42,10 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
         IDNhanVienSoHuu: null,
     }, { where: { IDNhanVienSoHuu: { [Op.in]: listID } } })
     await mtblChamCong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblChamCong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblNghiPhep(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblNghiPhep(db).destroy({ where: { IDHeadDepartment: { [Op.in]: listID } } })
+    await mtblNghiPhep(db).destroy({ where: { IDAdministrationHR: { [Op.in]: listID } } })
     await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDMGiaDinh(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblBangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
