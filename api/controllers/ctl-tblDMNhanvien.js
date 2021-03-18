@@ -45,7 +45,7 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblChamCong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblNghiPhep(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblNghiPhep(db).destroy({ where: { IDHeadDepartment: { [Op.in]: listID } } })
-    await mtblNghiPhep(db).destroy({ where: { IDAdministrationHR: { [Op.in]: listID } } })
+    await mtblNghiPhep(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDMGiaDinh(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblBangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
@@ -578,7 +578,7 @@ module.exports = {
                             WorkingPlace: ''
                         })
                         salary = body.workingSalary ? body.workingSalary : 0
-                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
+                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
                         if (bl)
                             await mtblBangLuong(db).update({
                                 Date: body.signDate ? body.signDate : null,
