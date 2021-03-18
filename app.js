@@ -59,7 +59,7 @@ let storage = multer.diskStorage({
     }
 });
 let upload = multer({ storage: storage });
-const DIR = 'D:/images_services/ageless_sendmail';
+const DIR = 'C:/images_services/ageless_sendmail';
 
 app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (req, res) {
     if (!req.files) {
@@ -69,7 +69,7 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (
         });
     } else {
         database.connectDatabase().then(async db => {
-            var pathTo = 'D:/images_services/ageless_sendmail/'
+            var pathTo = 'C:/images_services/ageless_sendmail/'
             var pathFinal = '';
             pathFirst = pathTo + 'photo-' + nameMiddle + pathFile;
             if (pathFirst.slice(-1) == 'c') {
@@ -331,7 +331,7 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
             objKey = await handleRequestShopping(db, body.id)
         }
     })
-    var pathTo = 'D:/images_services/ageless_sendmail/'
+    var pathTo = 'C:/images_services/ageless_sendmail/'
     fs.readFile(pathTo + pathFirst, 'binary', function (err, data) {
         try {
             var zip = new JSZip(data);

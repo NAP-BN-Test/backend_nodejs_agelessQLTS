@@ -79,7 +79,7 @@ const getYoutubeChannelId = require('get-youtube-channel-id');
 module.exports = {
     youtube: (res, req) => {
         // Load client secrets from a local file.
-        fs.readFile('D:/images_services/ageless_sendmail/client_secret.json', function processClientSecrets(err, content) {
+        fs.readFile('C:/images_services/ageless_sendmail/client_secret.json', function processClientSecrets(err, content) {
             if (err) {
                 console.log('Error loading client secret file: ' + err);
                 return;

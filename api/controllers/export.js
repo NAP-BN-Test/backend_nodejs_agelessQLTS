@@ -36,10 +36,10 @@ module.exports = {
     convertDocxToPDF: (req, res) => {
         let body = req.body;
         try {
-            // var pathlink = 'D:/images_services/ageless_sendmail/002.docx'
-            var pathlink = 'D:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
+            // var pathlink = 'C:/images_services/ageless_sendmail/002.docx'
+            var pathlink = 'C:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
             const extend = '.pdf'
-            var pathEx = 'D:/images_services/ageless_sendmail/export_pdf_file.pdf'
+            var pathEx = 'C:/images_services/ageless_sendmail/export_pdf_file.pdf'
             const file = fs.readFileSync(pathlink);
             // Convert it to pdf format with undefined filter (see Libreoffice doc about filter)
             libre.convert(file, extend, undefined, (err, done) => {
@@ -62,7 +62,7 @@ module.exports = {
             //     // const page = await doc.pageCreate();
             //     // doc.pagePushBack(page);
             //     pdfdoc.save(
-            //         'D:/images_services/ageless_sendmail/export-file-pdf.pdf',
+            //         'C:/images_services/ageless_sendmail/export-file-pdf.pdf',
             //         PDFNet.SDFDoc.SaveOptions.e_linearized,
             //     );
             // };
@@ -70,7 +70,7 @@ module.exports = {
             // // PDFNet.runWithCleanup(main).catch(function (error) {
             // //     console.log('Error: ' + JSON.stringify(error));
             // // }).then(function () { PDFNet.shutdown(); });
-            // PDFNetEndpoint(main, 'D:/images_services/ageless_sendmail/export-file-pdf.pdf', res);
+            // PDFNetEndpoint(main, 'C:/images_services/ageless_sendmail/export-file-pdf.pdf', res);
 
         } catch (error) {
             console.log(error);
@@ -192,7 +192,7 @@ module.exports = {
                             ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
+                    wb.write('C:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
                     var result = {
                         link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
                         status: Constant.STATUS.SUCCESS,
@@ -317,7 +317,7 @@ module.exports = {
                             ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
                         }
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
+                    wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
                     var result = {
                         link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payment_request.xlsx',
                         status: Constant.STATUS.SUCCESS,
@@ -455,7 +455,7 @@ module.exports = {
                         ws.cell(5 + i, 14).number(data[i].tamUng ? data[i].tamUng : 0).style(stylecell)
                         ws.cell(5 + i, 15).number(data[i].thucLinh ? data[i].thucLinh : 0).style(stylecell)
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
+                    wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     var result = {
                         link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payroll.xlsx',
                         status: Constant.STATUS.SUCCESS,
@@ -594,7 +594,7 @@ module.exports = {
                         ws.cell(5 + i, 11).number(wages * objInsurance.staffBHTNLD / 100).style(stylecell)
                         ws.cell(5 + i, 12).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecell)
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
+                    wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
                     var result = {
                         link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
                         status: Constant.STATUS.SUCCESS,
