@@ -436,5 +436,8 @@ module.exports = function (app) {
     // youtube
     var youtube = require('./controller_finance/youtube')
     app.route('/youtube').post(youtube.youtube);
+    app.route('/youtubev2').post(youtube.youtubev2);
+    app.route('/youtubev3').post(youtube.youtubev3);
+    app.route('/youtubev4').post(youtube.youtubev4);
 
 }

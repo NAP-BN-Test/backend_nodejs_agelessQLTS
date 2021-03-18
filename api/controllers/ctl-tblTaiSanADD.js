@@ -332,19 +332,37 @@ module.exports = {
                     if (body.liquidationDate) {
                         status = 'Thanh lý'
                     }
-                    await mtblTaiSan(db).update({
-                        OriginalPrice: body.obj.originalPrice ? body.obj.originalPrice : null,
-                        Unit: body.obj.unit ? body.obj.unit : '',
-                        Specifications: body.obj.specifications ? body.obj.specifications : '',
-                        DepreciationPrice: body.obj.depreciationPrice ? body.obj.depreciationPrice : 0,
-                        DepreciationDate: body.obj.depreciationDate ? body.obj.depreciationDate : null,
-                        GuaranteeMonth: body.obj.guaranteeMonth ? body.obj.guaranteeMonth : null,
-                        SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
-                        Describe: body.obj.describe ? body.obj.describe : '',
-                        TSNBCode: body.obj.code ? body.obj.code : '',
-                        Status: status,
-                        DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
-                    }, {
+                    console.log(status);
+                    var obj = {}
+                    if (status == '') {
+                        obj = {
+                            OriginalPrice: body.obj.originalPrice ? body.obj.originalPrice : null,
+                            Unit: body.obj.unit ? body.obj.unit : '',
+                            Specifications: body.obj.specifications ? body.obj.specifications : '',
+                            DepreciationPrice: body.obj.depreciationPrice ? body.obj.depreciationPrice : 0,
+                            DepreciationDate: body.obj.depreciationDate ? body.obj.depreciationDate : null,
+                            GuaranteeMonth: body.obj.guaranteeMonth ? body.obj.guaranteeMonth : null,
+                            SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
+                            Describe: body.obj.describe ? body.obj.describe : '',
+                            TSNBCode: body.obj.code ? body.obj.code : '',
+                            DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
+                        }
+                    } else {
+                        obj = {
+                            OriginalPrice: body.obj.originalPrice ? body.obj.originalPrice : null,
+                            Unit: body.obj.unit ? body.obj.unit : '',
+                            Specifications: body.obj.specifications ? body.obj.specifications : '',
+                            DepreciationPrice: body.obj.depreciationPrice ? body.obj.depreciationPrice : 0,
+                            DepreciationDate: body.obj.depreciationDate ? body.obj.depreciationDate : null,
+                            GuaranteeMonth: body.obj.guaranteeMonth ? body.obj.guaranteeMonth : null,
+                            SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
+                            Describe: body.obj.describe ? body.obj.describe : '',
+                            TSNBCode: body.obj.code ? body.obj.code : '',
+                            Status: status,
+                            DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
+                        }
+                    }
+                    await mtblTaiSan(db).update(obj, {
                         where: { ID: body.id }
                     })
                     let idAdd = await mtblTaiSan(db).findOne({ where: { ID: body.id } })

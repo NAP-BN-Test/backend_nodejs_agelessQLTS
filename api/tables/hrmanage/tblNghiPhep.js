@@ -14,7 +14,7 @@ module.exports = function (db) {
         NumberLeave: Sequelize.STRING,
         Type: Sequelize.STRING,
         Date: Sequelize.DATE,
-        Remaining: Sequelize.INTEGER,
+        Remaining: Sequelize.FLOAT,
         IDHeadDepartment: Sequelize.BIGINT,
         IDAdministrationHR: Sequelize.BIGINT,
         IDHeads: Sequelize.BIGINT,

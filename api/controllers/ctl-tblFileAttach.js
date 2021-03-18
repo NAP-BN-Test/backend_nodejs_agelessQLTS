@@ -8,7 +8,7 @@ const fs = require('fs');
 async function deleteRelationshiptblFileAttach(db, id) {
     await mtblFileAttach(db).findOne({ where: { ID: id } }).then(data => {
         if (data) {
-            var file = data.Link.replace("http://118.27.192.106:1357/ageless_sendmail/", "")
+            var file = data.Link.replace("http://103.154.100.26:1357/ageless_sendmail/", "")
             fs.unlink("D:/images_services/ageless_sendmail/" + file, (err) => {
                 if (err) console.log(err);
             });
@@ -113,7 +113,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var file = body.link.replace("http://118.27.192.106:1357/ageless_sendmail/", "")
+                    var file = body.link.replace("http://103.154.100.26:1357/ageless_sendmail/", "")
                     fs.unlink("D:/images_services/ageless_sendmail/" + file, (err) => {
                         if (err) console.log(err);
                     });

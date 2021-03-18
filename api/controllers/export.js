@@ -49,7 +49,7 @@ module.exports = {
                 // Here in done you have pdf file which you can save or transfer in another stream
                 fs.writeFileSync(pathEx, done);
                 var result = {
-                    link: 'http://118.27.192.106:1357/ageless_sendmail/export_pdf_file.pdf',
+                    link: 'http://103.154.100.26:1357/ageless_sendmail/export_pdf_file.pdf',
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                 }
@@ -194,7 +194,7 @@ module.exports = {
                     }
                     wb.write('D:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
                     var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
+                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -319,7 +319,7 @@ module.exports = {
                     }
                     wb.write('D:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
                     var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payment_request.xlsx',
+                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payment_request.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -457,7 +457,7 @@ module.exports = {
                     }
                     wb.write('D:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_payroll.xlsx',
+                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payroll.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -596,7 +596,7 @@ module.exports = {
                     }
                     wb.write('D:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
                     var result = {
-                        link: 'http://118.27.192.106:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
+                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }

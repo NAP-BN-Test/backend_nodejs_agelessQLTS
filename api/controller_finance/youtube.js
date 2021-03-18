@@ -6,6 +6,8 @@ var SCOPES = ['https://www.googleapis.com/auth/youtube.readonly'];
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'youtube-nodejs-quickstart.json';
+const axios = require('axios');
+
 function authorize(credentials, callback) {
     var clientSecret = credentials.client_secret;
     var clientId = credentials.client_id;
@@ -68,6 +70,12 @@ function getChannel(auth) {
         }
     });
 }
+const { YoutubeDataAPI } = require("youtube-v3-api")
+const API_KEY = 'AIzaSyAtCI4qXGCuc4OfZbqYPjH0QCXWFnNwCPA';
+const api = new YoutubeDataAPI(API_KEY);
+var search = require('youtube-search');
+var ypi = require('youtube-channel-videos');
+const getYoutubeChannelId = require('get-youtube-channel-id');
 module.exports = {
     youtube: (res, req) => {
         // Load client secrets from a local file.
@@ -76,9 +84,80 @@ module.exports = {
                 console.log('Error loading client secret file: ' + err);
                 return;
             }
-            console.log(content);
+            console.log(JSON.parse(content));
             // Authorize a client with the loaded credentials, then call the YouTube API.
-            authorize(JSON.parse(content), getChannel);
+            // authorize(JSON.parse(content), getChannel);
         });
-    }
+    },
+    youtubev2: (res, req) => {
+        // var opts = {
+        //     maxResults: 100,
+        //     key: 'AIzaSyAtCI4qXGCuc4OfZbqYPjH0QCXWFnNwCPA'
+        // };
+        // search('8291129582155939458 ', opts, function (err, results) {
+        //     if (err) return console.log(err);
+
+        //     // console.dir(results.length);
+        //     req.json(results)
+        // });
+        var url = 'https://www.youtube.com/channel/UCqIkpLdlBmqk1JTKSMUdJFw';
+        // var url = 'https://www.youtube.com/channel/UCFW28bvTsD-a9HKTuLHqepQ';
+        // AIzaSyCwwxGuObftytgmOoogEoAyNC0TMZwnOKI:  Cao Nguyen
+        var result = false;
+        // ypi.channelVideos("AIzaSyCwwxGuObftytgmOoogEoAyNC0TMZwnOKI", 'UCGALuZglid2HUDS859HifOg', function (channelItems) {
+        //     console.log(channelItems, 1);
+        // });
+        (async function () {
+            result = await getYoutubeChannelId(url);
+            console.log(result);
+
+            if (result !== false) {
+                if (result.error) {
+                    console.log(`Have a error, try again`);
+                } else {
+
+                    ypi.channelVideos("AIzaSyCwwxGuObftytgmOoogEoAyNC0TMZwnOKI", result.id, function (channelItems) {
+                        console.log(channelItems, 1);
+                    });
+                    console.log(`Channel ID: ${result.id}`);
+                }
+            } else {
+                console.log('Invalid youtube channel URL');
+            }
+        })();
+    },
+    youtubev3: (res, req) => {
+        const { google } = require('googleapis');
+        const youtube = google.youtube('v3');
+
+        youtube.playlistItems.list({
+            key: 'AIzaSyAtCI4qXGCuc4OfZbqYPjH0QCXWFnNwCPA',
+            part: 'id,snippet',
+            playlistId: 'PLvxLmGsmqdZc-GYVeLhS0N_6jfrzEleQm',
+            maxResult: 10,
+        }, (err, results) => {
+            console.log(err ? err.message : results.items[0].snippet);
+        });
+    },
+    // &order=viewCount
+    // "nextPageToken": "CAIQAA", thay đổi vào pageToken=CAIQAA sẽ next trang
+    // "prevPageToken": "CAEQAQ",
+    youtubev4: async (req, res) => {
+        await axios.get(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyCwwxGuObftytgmOoogEoAyNC0TMZwnOKI&channelId=UC7tPk1F9H5e2vGUmTDlz9nQ&part=snippet,id&order=date&maxResults=10&type=video&pageToken=CAIQAA`).then(data => {
+            if (data) {
+                console.log(data.data.items.length);
+                var result = {
+                    array: data.data,
+                    // status: Constant.STATUS.SUCCESS,
+                    // message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: data.data.items.length
+                }
+                res.json(result);
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+            // console.log(data.data);
+        })
+    },
 }

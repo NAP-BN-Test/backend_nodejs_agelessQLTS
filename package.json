@@ -23,6 +23,7 @@
     "express-session": "^1.17.1",
     "form-data": "^3.0.0",
     "fs": "0.0.1-security",
+    "get-youtube-channel-id": "0.0.4",
     "google-auth-library": "^7.0.2",
     "googleapis": "^67.1.1",
     "http": "0.0.1-security",
@@ -40,6 +41,9 @@
     "socket.io": "^2.3.0",
     "tedious": "^9.2.1",
     "word2pdf": "0.0.1-security",
+    "youtube-channel-videos": "^1.0.0",
+    "youtube-search": "^1.1.6",
+    "youtube-v3-api": "^1.1.1",
     "zalo-sdk": "^2.0.4",
     "zapoj-office-to-pdf": "^1.0.1"
   }
