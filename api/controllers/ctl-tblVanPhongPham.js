@@ -6,10 +6,16 @@ var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
+var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail');
 
 var database = require('../database');
 async function deleteRelationshiptblVanPhongPham(db, listID) {
     await mtblFileAttach(db).destroy({
+        where: {
+            IDVanPhongPham: { [Op.in]: listID }
+        }
+    })
+    await mtblYeuCauMuaSamDetail(db).destroy({
         where: {
             IDVanPhongPham: { [Op.in]: listID }
         }

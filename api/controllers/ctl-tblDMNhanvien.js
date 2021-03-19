@@ -45,7 +45,8 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblChamCong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblNghiPhep(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblNghiPhep(db).destroy({ where: { IDHeadDepartment: { [Op.in]: listID } } })
-    await mtblNghiPhep(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
+    await mtblNghiPhep(db).destroy({ where: { IDHeads: { [Op.in]: listID } } })
+    await mtblNghiPhep(db).destroy({ where: { IDAdministrationHR: { [Op.in]: listID } } })
     await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblDMGiaDinh(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
     await mtblBangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
@@ -371,24 +372,13 @@ module.exports = {
                                 }
                             })
                             salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
-                            let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: data.ID } })
-                            if (bl)
-                                await mtblBangLuong(db).update({
-                                    Date: body.signDate ? body.signDate : null,
-                                    WorkingSalary: salary,
-                                    BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                                    DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                                }, {
-                                    where: { IDNhanVien: data.ID, }
-                                })
-                            else
-                                await mtblBangLuong(db).create({
-                                    Date: body.signDate ? body.signDate : null,
-                                    WorkingSalary: salary,
-                                    BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                                    DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                                    IDNhanVien: data.ID,
-                                })
+                            await mtblBangLuong(db).create({
+                                Date: body.signDate ? body.signDate : null,
+                                WorkingSalary: salary,
+                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                                IDNhanVien: data.ID,
+                            })
                             await mtblHopDongNhanSu(db).create({
                                 IDNhanVien: data.ID,
                                 ContractCode: body.contractCode ? body.contractCode : '',
