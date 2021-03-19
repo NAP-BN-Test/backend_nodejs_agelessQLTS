@@ -15,6 +15,9 @@ module.exports = function (db) {
         SalaryIncrease: Sequelize.STRING,
         IDNhanVien: Sequelize.BIGINT,
         Status: Sequelize.STRING,
+        StatusDecision: Sequelize.STRING,
+        IDEmployeeApproval: Sequelize.BIGINT,
+        Reason: Sequelize.STRING,
     });
 
     return table;

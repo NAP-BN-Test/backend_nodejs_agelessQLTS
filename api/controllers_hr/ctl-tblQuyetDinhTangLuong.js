@@ -23,9 +23,11 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    console.log(body.idNhanVien, body);
                     let stt = 1;
                     let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
                     tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
+                    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDEmployeeApproval', sourceKey: 'IDEmployeeApproval', as: 'employeeApproval' })
                     tblQuyetDinhTangLuong.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -35,6 +37,11 @@ module.exports = {
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'employee'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'employeeApproval'
                             },
                         ],
                         order: [
@@ -55,6 +62,10 @@ module.exports = {
                                 nameNhanVien: element.IDNhanVien ? element.employee.StaffName : null,
                                 salaryIncrease: element.SalaryIncrease ? element.SalaryIncrease : '',
                                 status: element.Status ? element.Status : '',
+                                reason: element.Reason ? element.Reason : '',
+                                statusDecision: element.StatusDecision ? element.StatusDecision : '',
+                                idStaffApproval: element.IDEmployeeApproval ? element.IDEmployeeApproval : null,
+                                nameStaffApproval: element.employeeApproval ? element.employeeApproval.StaffName : null,
                             }
                             array.push(obj);
                             stt += 1;
@@ -81,6 +92,7 @@ module.exports = {
     // add_tbl_quyetdinh_tangluong
     addtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -91,8 +103,10 @@ module.exports = {
                         StopDate: body.stopDate ? body.stopDate : null,
                         StopReason: body.stopReason ? body.stopReason : '',
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
+                        IDEmployeeApproval: body.idStaffApproval ? body.idStaffApproval : null,
                         SalaryIncrease: body.salaryIncrease ? body.salaryIncrease : '',
-                        Status: body.status ? body.status : '',
+                        StatusDecision: body.statusDecision ? body.statusDecision : '',
+                        Status: 'Chờ phê duyệt',
                     }).then(async data => {
                         var hd = await mtblHopDongNhanSu(db).findOne({
                             where: {
@@ -176,6 +190,12 @@ module.exports = {
                             update.push({ key: 'IDNhanVien', value: null });
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
+                    }
+                    if (body.idEmployeeApproval || body.idEmployeeApproval === '') {
+                        if (body.idEmployeeApproval === '')
+                            update.push({ key: 'IDEmployeeApproval', value: null });
+                        else
+                            update.push({ key: 'IDEmployeeApproval', value: body.idEmployeeApproval });
                     }
                     if (body.decisionCode || body.decisionCode === '')
                         update.push({ key: 'DecisionCode', value: body.decisionCode });
@@ -323,6 +343,7 @@ module.exports = {
                     let stt = 1;
                     let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
                     tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
+                    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDEmployeeApproval', sourceKey: 'IDEmployeeApproval', as: 'employeeApp' })
                     tblQuyetDinhTangLuong.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -332,6 +353,11 @@ module.exports = {
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'employee'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'employeeApp'
                             },
                         ],
                         order: [
@@ -349,7 +375,11 @@ module.exports = {
                                 stopDate: element.StopDate ? moment(element.StopDate).format('DD/MM/YYYY') : null,
                                 stopReason: element.StopReason ? element.StopReason : '',
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
-                                nameNhanVien: element.IDNhanVien ? element.employee.StaffName : null,
+                                nameNhanVien: element.IDNhanVien ? element.employee.StaffName : '',
+                                idStaffApproval: element.IDEmployeeApproval ? element.IDEmployeeApproval : null,
+                                nameStaffApproval: element.employeeApp ? element.employeeApp.StaffName : '',
+                                statusDecision: element.StatusDecision ? element.StatusDecision : '',
+                                reason: element.Reason ? element.Reason : '',
                                 salaryIncrease: element.SalaryIncrease ? element.SalaryIncrease : '',
                                 status: element.Status ? element.Status : '',
                             }
@@ -406,5 +436,53 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    // approval_decision
+    approvalDecision: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            let body = req.body;
+            if (db) {
+                try {
+                    await mtblQuyetDinhTangLuong(db).update({
+                        Status: 'Đã phê duyệt',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // refuse_decision
+    refuseDecisoon: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblQuyetDinhTangLuong(db).update({
+                        Reason: body.reason,
+                        Status: 'Đã từ chối',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }
