@@ -303,8 +303,6 @@ module.exports = {
                                 required: false,
                                 as: 'lhd'
                             },
-                        ],
-                        include: [
                             {
                                 model: mtblDMNhanvien(db),
                                 required: false,
@@ -331,7 +329,7 @@ module.exports = {
                                 unitSalary: 'VND',
                                 status: element.Status ? element.Status : '',
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
-                                staffName: element.nv ? element.nv.staffName : null,
+                                staffName: element.nv ? element.nv.StaffName : '',
                             }
                             array.push(obj);
                             stt += 1;

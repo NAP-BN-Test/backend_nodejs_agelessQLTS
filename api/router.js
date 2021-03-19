@@ -319,7 +319,7 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.addtblHopDongNhanSu);
     app.route('/qlnb/update_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.updatetblHopDongNhanSu);
     app.route('/qlnb/delete_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.deletetblHopDongNhanSu);
-    app.route('/qlnb/get_list_tbl_hopdong_nhansu').post(checkToken.checkToken, tblHopDongNhanSu.getListtblHopDongNhanSu);
+    app.route('/qlnb/get_list_tbl_hopdong_nhansu').post(tblHopDongNhanSu.getListtblHopDongNhanSu);
 
     app.route('/qlnb/get_list_tbl_hopdong_nhansu_detail').post(tblHopDongNhanSu.getListtblHopDongNhanSuDetail);
 
