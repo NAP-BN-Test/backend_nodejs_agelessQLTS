@@ -8,6 +8,7 @@ var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 const Sequelize = require('sequelize');
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblHopDongNhanSu(db).destroy({
@@ -291,6 +292,7 @@ module.exports = {
                     let stt = 1;
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
+                    tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                     tblHopDongNhanSu.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -300,6 +302,13 @@ module.exports = {
                                 model: mtblLoaiHopDong(db),
                                 required: false,
                                 as: 'lhd'
+                            },
+                        ],
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
                             },
                         ],
                         order: [
@@ -322,6 +331,7 @@ module.exports = {
                                 unitSalary: 'VND',
                                 status: element.Status ? element.Status : '',
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                staffName: element.nv ? element.nv.staffName : null,
                             }
                             array.push(obj);
                             stt += 1;
