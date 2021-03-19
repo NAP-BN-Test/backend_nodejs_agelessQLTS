@@ -534,7 +534,7 @@ module.exports = {
                             Status: body.status ? body.status : '',
                         }, { where: { ID: body.idContract } })
                         salary = body.workingSalary ? body.workingSalary : 0
-                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
+                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.contractCode } })
                         if (bl)
                             await mtblBangLuong(db).update({
                                 Date: body.signDate ? body.signDate : null,

@@ -77,29 +77,29 @@ module.exports = {
                         WorkingPlace: '',
                         Status: body.status ? body.status : '',
                     }).then(async data => {
-                        var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
-                            order: [
-                                Sequelize.literal('max(DecisionDate) DESC'),
-                            ],
-                            group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
-                            where: {
-                                IDNhanVien: body.idNhanVien,
-                            }
-                        })
-                        salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
+                        // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
+                        //     order: [
+                        //         Sequelize.literal('max(DecisionDate) DESC'),
+                        //     ],
+                        //     group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                        //     where: {
+                        //         IDNhanVien: body.idNhanVien,
+                        //     }
+                        // })
+                        // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
                         let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
                         if (!bl)
                             await mtblBangLuong(db).create({
                                 Date: body.signDate,
                                 IDNhanVien: body.idNhanVien,
-                                WorkingSalary: salary,
+                                WorkingSalary: body.salaryNumber,
                                 BHXHSalary: body.salaryNumber,
                                 DateEnd: body.contractDateEnd,
                             })
                         else {
                             await mtblBangLuong(db).update({
                                 Date: body.signDate,
-                                WorkingSalary: salary,
+                                WorkingSalary: body.salaryNumber,
                                 BHXHSalary: body.salaryNumber,
                                 DateEnd: body.contractDateEnd,
                             }, { where: { IDNhanVien: body.idNhanVien } })
