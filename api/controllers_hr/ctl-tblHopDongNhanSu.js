@@ -62,9 +62,14 @@ module.exports = {
     // add_tbl_hopdong_nhansu
     addtblHopDongNhanSu: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (body.idSalaryIncrease)
+                        mtblQuyetDinhTangLuong(db).update({
+                            Status: "Đã tạo hợp đồng"
+                        }, { where: { ID: body.idSalaryIncrease } })
                     mtblHopDongNhanSu(db).create({
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         ContractCode: body.contractCode ? body.contractCode : '',

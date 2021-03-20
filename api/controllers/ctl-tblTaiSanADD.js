@@ -12,6 +12,7 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 var mtblThayTheTaiSan = require('../tables/qlnb/tblThayTheTaiSan');
+var tblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam');
 
 var database = require('../database');
 const tblTaiSanBanGiao = require('../tables/qlnb/tblTaiSanBanGiao');
@@ -397,6 +398,14 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (body.idPurchaseRequest)
+                        await tblYeuCauMuaSam(db).update({
+                            Status: "Đã thêm mới tài sản",
+                        }, {
+                            where: {
+                                ID: body.idPurchaseRequest
+                            }
+                        })
                     mtblTaiSanADD(db).create({
                         IDNhaCungCap: body.idNhaCungCap ? body.idNhaCungCap : null,
                         Date: moment(body.date).format('YYYY-MM-DD HH:mm:ss.SSS') ? body.date : null,
@@ -413,7 +422,7 @@ module.exports = {
                             var tsnbNumber = 1;
                             await mtblTaiSan(db).findOne({
                                 order: [
-                                    ['ID', 'DESC']
+                                    ['TSNBNumber', 'DESC']
                                 ],
                                 where: {
                                     IDDMHangHoa: body.taisan[i].idDMHangHoa.id

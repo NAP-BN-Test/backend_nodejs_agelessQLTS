@@ -108,42 +108,42 @@ module.exports = {
                         StatusDecision: body.statusDecision ? body.statusDecision : '',
                         Status: 'Chờ phê duyệt',
                     }).then(async data => {
-                        var hd = await mtblHopDongNhanSu(db).findOne({
-                            where: {
-                                IDNhanVien: body.idNhanVien
-                            },
-                            order: [
-                                ['ID', 'DESC']
-                            ],
-                        })
-                        if (hd)
-                            await mtblHopDongNhanSu(db).update({
-                                workingSalary: body.salaryIncrease,
-                                SalaryNumber: body.salaryIncrease,
-                            }, {
-                                where: {
-                                    ID: hd.ID
-                                },
-                            })
-                        salary = body.workingSalary ? body.workingSalary : 0
-                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
-                        if (bl)
-                            await mtblBangLuong(db).update({
-                                Date: body.decisionDate ? body.decisionDate : null,
-                                WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
-                                SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
-                                DateEnd: body.stopDate ? body.stopDate : null,
-                            }, {
-                                where: { IDNhanVien: body.idNhanVien, }
-                            })
-                        else
-                            await mtblBangLuong(db).create({
-                                Date: body.decisionDate ? body.decisionDate : null,
-                                WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
-                                SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
-                                DateEnd: body.stopDate ? body.stopDate : null,
-                                IDNhanVien: body.idNhanVien,
-                            })
+                        // var hd = await mtblHopDongNhanSu(db).findOne({
+                        //     where: {
+                        //         IDNhanVien: body.idNhanVien
+                        //     },
+                        //     order: [
+                        //         ['ID', 'DESC']
+                        //     ],
+                        // })
+                        // if (hd)
+                        //     await mtblHopDongNhanSu(db).update({
+                        //         workingSalary: body.salaryIncrease,
+                        //         SalaryNumber: body.salaryIncrease,
+                        //     }, {
+                        //         where: {
+                        //             ID: hd.ID
+                        //         },
+                        //     })
+                        // salary = body.workingSalary ? body.workingSalary : 0
+                        // let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
+                        // if (bl)
+                        //     await mtblBangLuong(db).update({
+                        //         Date: body.decisionDate ? body.decisionDate : null,
+                        //         WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
+                        //         SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
+                        //         DateEnd: body.stopDate ? body.stopDate : null,
+                        //     }, {
+                        //         where: { IDNhanVien: body.idNhanVien, }
+                        //     })
+                        // else
+                        //     await mtblBangLuong(db).create({
+                        //         Date: body.decisionDate ? body.decisionDate : null,
+                        //         WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
+                        //         SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
+                        //         DateEnd: body.stopDate ? body.stopDate : null,
+                        //         IDNhanVien: body.idNhanVien,
+                        //     })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
