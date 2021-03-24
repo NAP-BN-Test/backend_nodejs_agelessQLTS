@@ -301,11 +301,11 @@ module.exports = {
                         if (data[i].arrayFileExport.length > 0) {
                             ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
                             ws.cell(row, 3, row + max - 1, 3, true).string(data[i].departmentName).style(stylecell);
-                            ws.cell(row, 3, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
-                            ws.cell(row, 4, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
-                            ws.cell(row, 5, row + max - 1, 6, true).number(data[i].cost ? data[i].cost : 0).style(stylecell);
-                            ws.cell(row, 6, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
-                            ws.cell(row, 7, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
+                            ws.cell(row, 4, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
+                            ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
+                            ws.cell(row, 6, row + max - 1, 6, true).number(data[i].cost ? data[i].cost : 0).style(stylecell);
+                            ws.cell(row, 7, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
+                            ws.cell(row, 8, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
                         }
                         else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell)

@@ -423,9 +423,12 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListtblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_name_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListNametblDMTaiKhoanKeToan);
 
-
-
-
+    var tblCurrency = require('./controller_finance/ctl-tblCurrency')
+    app.route('/qlnb/add_tbl_currency').post(checkToken.checkToken, tblCurrency.addtblCurrency);
+    app.route('/qlnb/update_tbl_currency').post(checkToken.checkToken, tblCurrency.updatetblCurrency);
+    app.route('/qlnb/get_list_tbl_currency').post(checkToken.checkToken, tblCurrency.getListtblCurrency);
+    app.route('/qlnb/delete_tbl_currency').post(checkToken.checkToken, tblCurrency.deletetblCurrency);
+    app.route('/qlnb/get_list_name_tbl_currency').post(checkToken.checkToken, tblCurrency.getListNametblCurrency);
 
     // api phần mềm chuyên môn
     var apiSpecializedSoftware = require('./controller_finance/ctl-apiSpecializedSoftware')
@@ -434,13 +437,5 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);
     app.route('/qlnb/get_list_user').post(apiSpecializedSoftware.getListUser);
-
-
-    // youtube
-    var youtube = require('./controller_finance/youtube')
-    app.route('/youtube').post(youtube.youtube);
-    app.route('/youtubev2').post(youtube.youtubev2);
-    app.route('/youtubev3').post(youtube.youtubev3);
-    app.route('/youtubev4').post(youtube.youtubev4);
 
 }

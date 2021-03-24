@@ -215,7 +215,7 @@ async function handleRequestShopping(db, idycms) {
                     'TÊN TS/TB/LK': name,
                     'ĐƠN GIÁ': (Number(unitPrice)).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
                     'SỐ LƯỢNG': amountHH,
-                    'GIÁ/TỔNG TIỀN': (Number(total)).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
+                    'TỔNG TIỀN': (Number(total)).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
                     'LÝ DO MUA': data.Reason ? data.Reason : '',
                     'TRẠNG THÁI': data.Status ? data.Status : '',
                 }
@@ -318,7 +318,6 @@ async function getPathFromtblTmplate(db, code, idycms) {
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 app.post('/qlnb/render_automatic_work', async function (req, res) {
     let body = req.body;
-    console.log(body);
     var pathFirst = '';
     var objKey = {};
     await database.connectDatabase().then(async db => {

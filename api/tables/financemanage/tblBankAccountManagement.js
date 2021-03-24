@@ -8,7 +8,7 @@ module.exports = function (db) {
             autoIncrement: true
         },
         Name: Sequelize.STRING,
-        BranchName: Sequelize.STRING,
+        BranchID: Sequelize.STRING,
         IDEmployee: Sequelize.BIGINT,
         AccountNumber: Sequelize.STRING,
         Surplus: Sequelize.FLOAT

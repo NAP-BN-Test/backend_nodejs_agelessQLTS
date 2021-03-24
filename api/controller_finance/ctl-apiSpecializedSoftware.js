@@ -4,7 +4,7 @@ const Constant = require('../constants/constant');
 module.exports = {
     // get_list_department
     getListDepartment: async (req, res) => {
-        await axios.get(`http://ageless-ldms-api.vnsolution.tech/api/v1/department/share`).then(data => {
+        await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/department/share`).then(data => {
             if (data) {
                 var result = {
                     array: data.data.data,
@@ -22,7 +22,7 @@ module.exports = {
     },
     // get_list_partner
     getListPartner: async (req, res) => {
-        await axios.get(`http://ageless-ldms-api.vnsolution.tech/api/v1/address_book/share`).then(data => {
+        await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/share`).then(data => {
             // console.log(data.data);
             if (data) {
                 var result = {
@@ -41,7 +41,7 @@ module.exports = {
     },
     // get_list_customer
     getListCustomer: async (req, res) => {
-        await axios.get(`http://ageless-ldms-api.vnsolution.tech/api/v1/address_book/partners_share`).then(data => {
+        await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(data => {
             if (data) {
                 var result = {
                     array: data.data.data,
@@ -59,7 +59,7 @@ module.exports = {
     },
     // get_list_user
     getListUser: async (req, res) => {
-        await axios.get(`http://ageless-ldms-api.vnsolution.tech/api/v1/user/share`).then(data => {
+        await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/user/share`).then(data => {
             if (data) {
                 var result = {
                     array: data.data.data,
@@ -84,20 +84,23 @@ module.exports = {
                 "currentPage": 0
             }
         }
-        await axios.post(`http://ageless-ldms-api.vnsolution.tech/api/v1/invoice/share`, obj).then(data => {
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
             if (data) {
-                var result = {
-                    array: data.data.data.list,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: data.data.data.pager.rowsCount
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
                 }
-                res.json(result);
             }
             else {
                 res.json(Result.SYS_ERROR_RESULT)
             }
-            // console.log(data.data);
         })
     },
 }

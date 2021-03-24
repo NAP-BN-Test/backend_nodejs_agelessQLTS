@@ -22,6 +22,13 @@ const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblTaiSanADD(db, listID) {
+    await mtblThanhLyTaiSan(db).destroy({
+        where: {
+            [Op.or]: {
+                IDTaiSan: { [Op.in]: listID },
+            }
+        }
+    })
     await mtblThayTheTaiSan(db).destroy({
         where: {
             [Op.or]: {
@@ -444,7 +451,7 @@ module.exports = {
                                 }
 
                             })
-                            mtblTaiSan(db).create({
+                            await mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa.id : null,
                                 OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',

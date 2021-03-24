@@ -366,7 +366,7 @@ module.exports = {
                                 order: [
                                     Sequelize.literal('max(DecisionDate) DESC'),
                                 ],
-                                group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                                group: ['Status', 'StatusDecision', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
                                 where: {
                                     IDNhanVien: data.ID,
                                 }
@@ -1139,7 +1139,7 @@ module.exports = {
                         })
                         var obj = {
                             id: Number(data.ID),
-                            numberLeave: month - leave
+                            numberLeave: month - 1 - leave
                         }
 
                         var result = {

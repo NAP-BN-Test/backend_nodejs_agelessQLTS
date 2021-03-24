@@ -2,78 +2,28 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblBankAccountManagement = require('../tables/financemanage/tblBankAccountManagement')
-var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblCustomer = require('../tables/financemanage/tblCustomer')
 var database = require('../database');
-async function deleteRelationshiptblBankAccountManagement(db, listID) {
-    await mtblBankAccountManagement(db).destroy({
+async function deleteRelationshiptblCustomer(db, listID) {
+    await mtblCustomer(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblBankAccountManagement,
-    //  get_detail_tbl_bank_account_management
-    detailtblBankAccountManagement: (req, res) => {
+    deleteRelationshiptblCustomer,
+    // add_tbl_customer
+    addtblCustomer: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let tblBankAccountManagement = mtblBankAccountManagement(db);
-                    tblBankAccountManagement.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDEmployee', sourceKey: 'IDEmployee', as: 'employee' })
-                    mtblBankAccountManagement(db).findOne({
-                        where: { ID: body.id },
-                        include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'employee'
-                            },
-                        ],
-                    }).then(data => {
-                        if (data) {
-                            var obj = {
-                                id: data.ID,
-                                name: data.Name ? data.Name : '',
-                                branchName: data.BranchName ? data.BranchName : '',
-                                idEmployee: data.IDEmployee ? data.IDEmployee : '',
-                                nameEmployee: data.IDEmployee ? data.employee.StaffName : '',
-                                accountNumber: data.AccountNumber ? data.AccountNumber : '',
-                                surplus: data.Surplus ? data.Surplus : 0,
-                            }
-                            var result = {
-                                obj: obj,
-                                status: Constant.STATUS.SUCCESS,
-                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                            }
-                            res.json(result);
-                        } else {
-                            res.json(Result.NO_DATA_RESULT)
-
-                        }
-
-                    })
-                } catch (error) {
-                    res.json(Result.SYS_ERROR_RESULT)
-                }
-            } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
-            }
-        })
-    },
-    // add_tbl_bank_account_management
-    addtblBankAccountManagement: (req, res) => {
-        let body = req.body;
-        database.connectDatabase().then(async db => {
-            if (db) {
-                try {
-                    mtblBankAccountManagement(db).create({
-                        Name: body.name ? body.name : '',
-                        BranchID: body.branchID ? body.branchID : '',
-                        IDEmployee: body.idEmployee ? body.idEmployee : null,
-                        AccountNumber: body.accountNumber ? body.accountNumber : '',
-                        Surplus: body.surplus ? body.surplus : 0,
+                    mtblCustomer(db).create({
+                        IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
+                        AmountUnspecified: body.amountUnspecified ? body.amountUnspecified : null,
+                        AmountSpent: body.amountSpent ? body.amountSpent : null,
+                        AmountReceivable: body.amountReceivable ? body.amountReceivable : null,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -90,32 +40,38 @@ module.exports = {
             }
         })
     },
-    // update_tbl_bank_account_management
-    updatetblBankAccountManagement: (req, res) => {
+    // update_tbl_customer
+    updatetblCustomer: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
-                    if (body.branchName || body.branchName === '')
-                        update.push({ key: 'BranchName', value: body.branchName });
-                    if (body.idEmployee || body.idEmployee === '') {
-                        if (body.idEmployee === '')
-                            update.push({ key: 'IDEmployee', value: null });
+                    if (body.idSpecializedSoftware || body.idSpecializedSoftware === '') {
+                        if (body.idSpecializedSoftware === '')
+                            update.push({ key: 'IDSpecializedSoftware', value: null });
                         else
-                            update.push({ key: 'IDEmployee', value: body.idEmployee });
+                            update.push({ key: 'IDSpecializedSoftware', value: body.idSpecializedSoftware });
                     }
-                    if (body.accountNumber || body.accountNumber === '')
-                        update.push({ key: 'AccountNumber', value: body.accountNumber });
-                    if (body.surplus || body.surplus === '') {
-                        if (body.surplus === '')
-                            update.push({ key: 'Surplus', value: null });
+                    if (body.amountUnspecified || body.amountUnspecified === '') {
+                        if (body.amountUnspecified === '')
+                            update.push({ key: 'AmountUnspecified', value: null });
                         else
-                            update.push({ key: 'Surplus', value: body.surplus });
+                            update.push({ key: 'AmountUnspecified', value: body.amountUnspecified });
                     }
-                    database.updateTable(update, mtblBankAccountManagement(db), body.id).then(response => {
+                    if (body.amountSpent || body.amountSpent === '') {
+                        if (body.amountSpent === '')
+                            update.push({ key: 'AmountSpent', value: null });
+                        else
+                            update.push({ key: 'AmountSpent', value: body.amountSpent });
+                    }
+                    if (body.amountReceivable || body.amountReceivable === '') {
+                        if (body.amountReceivable === '')
+                            update.push({ key: 'AmountReceivable', value: null });
+                        else
+                            update.push({ key: 'AmountReceivable', value: body.amountReceivable });
+                    }
+                    database.updateTable(update, mtblCustomer(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -131,14 +87,14 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_bank_account_management
-    deletetblBankAccountManagement: (req, res) => {
+    // delete_tbl_customer
+    deletetblCustomer: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblBankAccountManagement(db, listID);
+                    await deleteRelationshiptblCustomer(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -153,8 +109,8 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_bank_account_management
-    getListtblBankAccountManagement: (req, res) => {
+    // get_list_tbl_customer
+    getListtblCustomer: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -198,10 +154,10 @@ module.exports = {
                     //     }
                     // }
                     let stt = 1;
-                    mtblBankAccountManagement(db).findAll({
+                    mtblCustomer(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        // where: whereOjb,
+                        where: whereOjb,
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -211,17 +167,15 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                branchName: element.BranchName ? element.BranchName : '',
-                                idEmployee: element.IDEmployee ? element.IDEmployee : '',
-                                nameEmployee: element.IDEmployee ? element.employee.StaffName : '',
-                                accountNumber: element.AccountNumber ? element.AccountNumber : '',
-                                surplus: element.Surplus ? element.Surplus : 0,
+                                idSpecializedSoftware: element.IDSpecializedSoftware ? element.IDSpecializedSoftware : null,
+                                amountUnspecified: element.AmountUnspecified ? element.AmountUnspecified : null,
+                                amountSpent: element.AmountSpent ? element.AmountSpent : null,
+                                amountReceivable: element.AmountReceivable ? element.AmountReceivable : null,
                             }
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblBankAccountManagement(db).count()
+                        var count = await mtblCustomer(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -240,18 +194,18 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_bank_account_management
-    getListNametblBankAccountManagement: (req, res) => {
+    // get_list_name_tbl_customer
+    getListNametblCustomer: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblBankAccountManagement(db).findAll().then(data => {
+                    mtblCustomer(db).findAll().then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                idSpecializedSoftware: element.IDSpecializedSoftware ? element.IDSpecializedSoftware : '',
                             }
                             array.push(obj);
                         });
