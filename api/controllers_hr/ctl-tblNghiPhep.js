@@ -32,7 +32,6 @@ module.exports = {
     // add_tbl_nghiphep
     addtblNghiPhep: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -354,7 +353,7 @@ module.exports = {
                                 status: element.Status ? element.Status : '',
                                 type: element.Type ? element.Type : '',
                                 date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                remaining: element.Remaining ? month - 1 - element.Remaining : 0,
+                                // remaining: element.Remaining ? month - element.Remaining : 0,
                                 idHeadDepartment: element.IDHeadDepartment ? element.IDHeadDepartment : '',
                                 headDepartmentCode: element.headDepartment ? element.headDepartment.StaffCode : '',
                                 headDepartmentName: element.headDepartment ? element.headDepartment.StaffName : '',
@@ -369,6 +368,24 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
+                        for (var i = 0; i < array.length; i++) {
+                            let leave = 0;
+                            await mtblNghiPhep(db).findAll({
+                                where: { IDNhanVien: array[i].idNhanVien }
+                            }).then(np => {
+                                if (np) {
+                                    np.forEach(item => {
+                                        leave += item.Remaining
+                                    })
+                                    array[i]["remaining"] = month - leave
+                                }
+                                else {
+                                    array[i]["remaining"] = month
+                                }
+
+                            })
+                            console.log(array[i]);
+                        }
                         var count = await mtblNghiPhep(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

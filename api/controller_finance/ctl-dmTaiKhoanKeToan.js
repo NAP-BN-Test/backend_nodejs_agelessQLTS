@@ -2,28 +2,72 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMLoaiTaiKhoanKeToan')
+var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
+var mtblDMLoaiTaiKhoanKeToan = require('../tables/financemanage/tblDMLoaiTaiKhoanKeToan')
 var database = require('../database');
 async function deleteRelationshiptblDMTaiKhoanKeToan(db, listID) {
+    await mtblDMTaiKhoanKeToan(db).destroy({
+        where: {
+            IDLevelAbove: { [Op.in]: listID }
+        }
+    })
     await mtblDMTaiKhoanKeToan(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
     })
 }
+
+async function findAcountingFollowLevel(db, level, idLevelAbove) {
+    var result = []
+    let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
+    tblDMTaiKhoanKeToan.belongsTo(mtblDMLoaiTaiKhoanKeToan(db), { foreignKey: 'IDLoaiTaiKhoanKeToan', sourceKey: 'IDLoaiTaiKhoanKeToan', as: 'Loai' })
+    await tblDMTaiKhoanKeToan.findAll({
+        include: [
+            {
+                model: mtblDMLoaiTaiKhoanKeToan(db),
+                required: false,
+                as: 'Loai'
+            },
+        ],
+        where: {
+            Levels: level,
+            IDLevelAbove: idLevelAbove,
+        },
+        order: [
+            ['ID', 'DESC']
+        ],
+    }).then(data => {
+        for (var i = 0; i < data.length; i++) {
+            result.push({
+                id: data[i].ID,
+                accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                idLevelAbove: idLevelAbove ? idLevelAbove : '',
+                levels: level ? level : '',
+            })
+        }
+    })
+    return result
+}
+
 module.exports = {
     deleteRelationshiptblDMTaiKhoanKeToan,
     // add_tbl_dm_taikhoanketoan
     addtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
+            console.log(body);
             if (db) {
                 try {
                     mtblDMTaiKhoanKeToan(db).create({
-                        AccountingCodeI: body.accountingCodeI ? body.accountingCodeI : '',
-                        AccountingCodeII: body.accountingCodeII ? body.accountingCodeII : '',
+                        AccountingCode: body.accountingCode ? body.accountingCode : '',
                         AccountingName: body.accountingName ? body.accountingName : '',
                         IDLoaiTaiKhoanKeToan: body.idLoaiTaiKhoanKeToan ? body.idLoaiTaiKhoanKeToan : null,
+                        Levels: body.levels ? body.levels : 1,
+                        IDLevelAbove: body.idLevelAbove ? body.idLevelAbove : null,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -47,10 +91,8 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    if (body.accountingCodeI || body.accountingCodeI === '')
-                        update.push({ key: 'AccountingCodeI', value: body.accountingCodeI });
-                    if (body.accountingCodeII || body.accountingCodeII === '')
-                        update.push({ key: 'AccountingCodeII', value: body.accountingCodeII });
+                    if (body.accountingCode || body.accountingCode === '')
+                        update.push({ key: 'AccountingCode', value: body.accountingCode });
                     if (body.accountingName || body.accountingName === '')
                         update.push({ key: 'AccountingName', value: body.accountingName });
                     if (body.idLoaiTaiKhoanKeToan || body.idLoaiTaiKhoanKeToan === '') {
@@ -140,28 +182,85 @@ module.exports = {
                         // }
                     }
                     let stt = 1;
-                    mtblDMTaiKhoanKeToan(db).findAll({
+                    let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
+                    tblDMTaiKhoanKeToan.belongsTo(mtblDMLoaiTaiKhoanKeToan(db), { foreignKey: 'IDLoaiTaiKhoanKeToan', sourceKey: 'IDLoaiTaiKhoanKeToan', as: 'Loai' })
+                    tblDMTaiKhoanKeToan.findAll({
+                        include: [
+                            {
+                                model: mtblDMLoaiTaiKhoanKeToan(db),
+                                required: false,
+                                as: 'Loai'
+                            },
+                        ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: { Levels: 1 },
                         order: [
                             ['ID', 'DESC']
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
-                            var obj = {
-                                stt: stt,
-                                id: Number(element.ID),
-                                accountingCodeI: element.AccountingCodeI ? element.AccountingCodeI : '',
-                                accountingCodeII: element.AccountingCodeII ? element.AccountingCodeII : '',
-                                accountingName: element.AccountingName ? element.AccountingName : '',
-                                idLoaiTaiKhoanKeToan: element.IDLoaiTaiKhoanKeToan ? element.IDLoaiTaiKhoanKeToan : null,
+                        for (var i = 0; i < data.length; i++) {
+                            var arrayChildern2 = []
+                            arrayChildern2 = await findAcountingFollowLevel(db, 2, data[i].ID)
+                            if (arrayChildern2.length > 0) {
+                                for (var c2 = 0; c2 < arrayChildern2.length; c2++) {
+                                    var arrayChildern3 = []
+                                    arrayChildern3 = await findAcountingFollowLevel(db, 3, arrayChildern2[c2].id)
+                                    if (arrayChildern3.length > 0) {
+                                        arrayChildern2[c2]['children'] = arrayChildern3
+                                        for (var c3 = 0; c3 < arrayChildern3.length; c3++) {
+                                            var arrayChildern4 = []
+                                            arrayChildern4 = await findAcountingFollowLevel(db, 4, arrayChildern3[c3].id)
+                                            if (arrayChildern4.length > 0) {
+                                                arrayChildern3[c3]['children'] = arrayChildern4
+                                                for (var c4 = 0; c4 < arrayChildern4.length; c4++) {
+                                                    var arrayChildern5 = []
+                                                    arrayChildern5 = await findAcountingFollowLevel(db, 5, arrayChildern4[c4].id)
+                                                    arrayChildern4[c4]['children'] = arrayChildern5
+                                                }
+                                            } else {
+                                                obj = {
+                                                    id: data[i].ID,
+                                                    accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                                    accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                                    idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                                    nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                                    idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                                    levels: data[i].Levels ? data[i].Levels : '',
+                                                    children: arrayChildern2
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        obj = {
+                                            id: data[i].ID,
+                                            accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                            accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                            idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                            nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                            idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                            levels: data[i].Levels ? data[i].Levels : '',
+                                            children: arrayChildern2
+                                        }
+                                    }
+                                }
+                            } else {
+                                obj = {
+                                    id: data[i].ID,
+                                    accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                    accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                    idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                    nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                    idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                    levels: data[i].Levels ? data[i].Levels : '',
+                                    children: arrayChildern2
+                                }
                             }
-                            array.push(obj);
-                            stt += 1;
-                        });
-                        var count = await mtblDMTaiKhoanKeToan(db).count({ where: whereOjb, })
+                            array.push(obj)
+
+                        }
+                        var count = await mtblDMTaiKhoanKeToan(db).count({ where: { Levels: 1 }, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

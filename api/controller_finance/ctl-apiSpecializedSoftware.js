@@ -88,7 +88,7 @@ module.exports = {
             if (data) {
                 if (data.data.status_code == 200) {
                     var result = {
-                        array: data.data.data,
+                        array: data.data.data.list,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                         all: data.data.data

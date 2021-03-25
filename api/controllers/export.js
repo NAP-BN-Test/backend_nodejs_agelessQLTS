@@ -31,6 +31,28 @@ var fs = require("fs")
 const path = require('path');
 const unoconv = require('awesome-unoconv');
 const libre = require('libreoffice-convert-win');
+
+function transform(amount, decimalCount = 2, decimal = '.', thousands = ',') {
+    if (amount >= 100) {
+        decimalCount = Math.abs(decimalCount);
+        decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
+
+        const negativeSign = amount < 0 ? '-' : '';
+
+        let i = parseInt(
+            (amount = Math.abs(Number(amount) || 0).toFixed(decimalCount))
+        ).toString();
+        let j = i.length > 3 ? i.length % 3 : 0;
+
+        return (
+            negativeSign +
+            (j ? i.substr(0, j) + thousands : '') +
+            i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + thousands)
+        );
+    } else {
+        return amount.toString();
+    }
+}
 module.exports = {
     // convert_docx_to_pdf
     convertDocxToPDF: (req, res) => {
@@ -112,6 +134,21 @@ module.exports = {
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
         let body = req.body;
         let data = JSON.parse(body.data);
         let arrayHeader = [
@@ -164,13 +201,13 @@ module.exports = {
                             for (var taisan = 0; taisan < data[i].arrayTaiSanExport.length; taisan++) {
                                 ws.cell(taisan + row, 5).string(data[i].arrayTaiSanExport[taisan].code).style(stylecell)
                                 ws.cell(taisan + row, 6).string(data[i].arrayTaiSanExport[taisan].name).style(stylecell)
-                                ws.cell(taisan + row, 8).number(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0).style(stylecell)
-                                ws.cell(taisan + row, 7).number(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0).style(stylecell)
+                                ws.cell(taisan + row, 8).string(transform(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0) + '').style(stylecellNumber)
+                                ws.cell(taisan + row, 7).string(transform(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0) + '').style(stylecellNumber)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0) {
                             for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 10).link(data[i].arrayFileExport[file].link).style(stylecell)
+                                ws.cell(file + row, 10).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0 && data[i].arrayTaiSanExport.length > 0) {
@@ -178,7 +215,7 @@ module.exports = {
                             ws.cell(row, 2, row + max - 1, 2, true).string(data[i].type).style(stylecell);
                             ws.cell(row, 3, row + max - 1, 3, true).string(data[i].nameIDNhanVien).style(stylecell);
                             ws.cell(row, 4, row + max - 1, 4, true).string(data[i].requireDate).style(stylecell);
-                            ws.cell(row, 9, row + max - 1, 9, true).number(data[i].price ? data[i].price : 0).style(stylecell);
+                            ws.cell(row, 9, row + max - 1, 9, true).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
                             ws.cell(row, 11, row + max - 1, 11, true).string(data[i].reason).style(stylecell);
                             ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
                         }
@@ -187,7 +224,7 @@ module.exports = {
                             ws.cell(row, 2).string(data[i].type).style(stylecell);
                             ws.cell(row, 3).string(data[i].nameIDNhanVien).style(stylecell);
                             ws.cell(row, 4).string(data[i].requireDate).style(stylecell);
-                            ws.cell(row, 9).number(data[i].price ? data[i].price : 0).style(stylecell);
+                            ws.cell(row, 9).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
                             ws.cell(row, 11,).string(data[i].reason).style(stylecell);
                             ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
@@ -237,6 +274,21 @@ module.exports = {
                 wrapText: true,
                 // ngang
                 horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
                 // Dọc
                 vertical: 'center',
             },
@@ -295,7 +347,7 @@ module.exports = {
                         }
                         if (data[i].arrayFileExport.length > 0) {
                             for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 2).link(data[i].arrayFileExport[file].link).style(stylecell)
+                                ws.cell(file + row, 2).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0) {
@@ -303,7 +355,7 @@ module.exports = {
                             ws.cell(row, 3, row + max - 1, 3, true).string(data[i].departmentName).style(stylecell);
                             ws.cell(row, 4, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
                             ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
-                            ws.cell(row, 6, row + max - 1, 6, true).number(data[i].cost ? data[i].cost : 0).style(stylecell);
+                            ws.cell(row, 6, row + max - 1, 6, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
                             ws.cell(row, 7, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
                             ws.cell(row, 8, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
                         }
@@ -312,7 +364,7 @@ module.exports = {
                             ws.cell(row, 3).string(data[i].departmentName).style(stylecell)
                             ws.cell(row, 4).string(data[i].nameNhanVien).style(stylecell)
                             ws.cell(row, 5).string(data[i].contents).style(stylecell)
-                            ws.cell(row, 6).number(data[i].cost ? data[i].cost : 0).style(stylecell)
+                            ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber)
                             ws.cell(row, 7).string(data[i].nameNhanVienKTPD).style(stylecell)
                             ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
                         }

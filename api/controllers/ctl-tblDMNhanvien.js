@@ -1139,7 +1139,7 @@ module.exports = {
                         })
                         var obj = {
                             id: Number(data.ID),
-                            numberLeave: month - 1 - leave
+                            numberLeave: month - leave
                         }
 
                         var result = {
