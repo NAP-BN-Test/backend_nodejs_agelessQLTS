@@ -9,11 +9,14 @@ module.exports = function (db) {
         },
         NumberReceipts: Sequelize.FLOAT,
         CreateDate: Sequelize.DATE,
-        Submitter: Sequelize.STRING,
-        Address: Sequelize.STRING,
+        EntryDate: Sequelize.DATE,
+        Number: Sequelize.STRING,
         Reason: Sequelize.STRING,
-        Amount: Sequelize.FLOAT
-
+        IDAccounting: Sequelize.BIGINT,
+        DebtIncurred: Sequelize.FLOAT,
+        CreditIncurred: Sequelize.FLOAT,
+        DebtSurplus: Sequelize.FLOAT,
+        CreaditSurplus: Sequelize.FLOAT,
     });
 
     return table;

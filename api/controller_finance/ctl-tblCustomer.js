@@ -11,6 +11,8 @@ async function deleteRelationshiptblCustomer(db, listID) {
         }
     })
 }
+const axios = require('axios');
+
 module.exports = {
     deleteRelationshiptblCustomer,
     // add_tbl_customer
@@ -115,76 +117,56 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
-                    // if (body.dataSearch) {
-                    //     var data = JSON.parse(body.dataSearch)
-
-                    //     if (data.search) {
-                    //         where = [
-                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
-                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
-                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
-                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                    //         ];
-                    //     } else {
-                    //         where = [
-                    //             { FullName: { [Op.ne]: '%%' } },
-                    //         ];
-                    //     }
-                    //     whereOjb = {
-                    //         [Op.and]: [{ [Op.or]: where }],
-                    //         [Op.or]: [{ ID: { [Op.ne]: null } }],
-                    //     };
-                    //     if (data.items) {
-                    //         for (var i = 0; i < data.items.length; i++) {
-                    //             let userFind = {};
-                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                    //                 if (data.items[i].conditionFields['name'] == 'And') {
-                    //                     whereOjb[Op.and].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
-                    //                     whereOjb[Op.or].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
-                    //                     whereOjb[Op.not] = userFind
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
-                    let stt = 1;
-                    mtblCustomer(db).findAll({
-                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
-                        limit: Number(body.itemPerPage),
-                        where: whereOjb,
-                        order: [
-                            ['ID', 'DESC']
-                        ],
-                    }).then(async data => {
-                        var array = [];
-                        data.forEach(element => {
-                            var obj = {
-                                stt: stt,
-                                id: Number(element.ID),
-                                idSpecializedSoftware: element.IDSpecializedSoftware ? element.IDSpecializedSoftware : null,
-                                amountUnspecified: element.AmountUnspecified ? element.AmountUnspecified : null,
-                                amountSpent: element.AmountSpent ? element.AmountSpent : null,
-                                amountReceivable: element.AmountReceivable ? element.AmountReceivable : null,
+                    await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(async data => {
+                        if (data) {
+                            var array = data.data.data;
+                            var arrayResult = [];
+                            var stt = 1;
+                            for (var i = 0; i < array.length; i++) {
+                                var cus = await mtblCustomer(db).findOne({
+                                    where: {
+                                        IDSpecializedSoftware: array[i].id
+                                    }
+                                })
+                                if (!cus) {
+                                    await mtblCustomer(db).create({
+                                        IDSpecializedSoftware: array[i].id ? array[i].id : null,
+                                        AmountUnspecified: 0,
+                                        AmountSpent: 0,
+                                        AmountReceivable: 0,
+                                    })
+                                }
+                                await mtblCustomer(db).findOne({
+                                    where: { IDSpecializedSoftware: array[i].id },
+                                }).then(async data => {
+                                    var obj = {
+                                        stt: stt,
+                                        id: Number(data.ID),
+                                        name: array[i].name ? array[i].name : '',
+                                        code: array[i].code ? array[i].code : '',
+                                        idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : null,
+                                        amountUnspecified: data.AmountUnspecified ? data.AmountUnspecified : null,
+                                        amountSpent: data.AmountSpent ? data.AmountSpent : null,
+                                        amountReceivable: data.AmountReceivable ? data.AmountReceivable : null,
+                                    }
+                                    arrayResult.push(obj);
+                                    stt += 1;
+                                })
                             }
-                            array.push(obj);
-                            stt += 1;
-                        });
-                        var count = await mtblCustomer(db).count({ where: whereOjb, })
-                        var result = {
-                            array: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
+                            var count = await mtblCustomer(db).count()
+                            var result = {
+                                array: arrayResult,
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                                all: count
+                            }
+                            res.json(result);
                         }
-                        res.json(result);
+                        else {
+                            res.json(Result.SYS_ERROR_RESULT)
+                        }
+                        // console.log(data.data);
                     })
-
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

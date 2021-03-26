@@ -18,6 +18,8 @@ module.exports = function (db) {
         IDTaiKhoanKeToanCost: Sequelize.BIGINT,
         IDNhanVienLD: Sequelize.BIGINT,
         TrangThaiPheDuyetLD: Sequelize.STRING,
+        IDNhanVienPD: Sequelize.BIGINT,
+        TrangThaiPheDuyetPD: Sequelize.STRING,
         Reason: Sequelize.STRING,
         Refunds: Sequelize.BOOLEAN,
     });

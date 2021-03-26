@@ -29,6 +29,7 @@ module.exports = {
                     tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienCreate', sourceKey: 'IDNhanVienCreate', as: 'staffCreate' })
                     tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienAdvance', sourceKey: 'IDNhanVienAdvance', as: 'staffAdvance' })
                     tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienLD', sourceKey: 'IDNhanVienLD', as: 'staffLD' })
+                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienPD', sourceKey: 'IDNhanVienPD', as: 'staffPD' })
                     tblVayTamUng.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhanNVCreate', sourceKey: 'IDBoPhanNVCreate', as: 'departmentCreate' })
                     tblVayTamUng.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhanNVAdvance', sourceKey: 'IDBoPhanNVAdvance', as: 'departmentAdvance' })
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'branch' })
@@ -97,6 +98,9 @@ module.exports = {
                                 idNhanVienLD: data.IDNhanVienLD ? data.IDNhanVienLD : null,
                                 nameNhanVienLD: data.staffLD ? data.staffLD.StaffName : '',
                                 trangThaiPheDuyetLD: data.TrangThaiPheDuyetLD ? data.TrangThaiPheDuyetLD : '',
+                                idNhanVienPD: data.IDNhanVienPD ? data.IDNhanVienPD : null,
+                                nameNhanVienPD: data.staffPD ? data.staffPD.StaffName : '',
+                                trangThaiPheDuyetPD: data.TrangThaiPheDuyetPD ? data.TrangThaiPheDuyetPD : '',
                                 reason: data.Reason ? data.Reason : '',
                                 refunds: data.Refunds ? data.Refunds : true,
                             }
@@ -138,6 +142,8 @@ module.exports = {
                         IDTaiKhoanKeToanCost: body.idTaiKhoanKeToanCost ? body.idTaiKhoanKeToanCost : null,
                         IDNhanVienLD: body.idNhanVienLD ? body.idNhanVienLD : null,
                         TrangThaiPheDuyetLD: body.trangThaiPheDuyetLD ? body.trangThaiPheDuyetLD : '',
+                        IDNhanVienPD: body.idNhanVienPD ? body.idNhanVienPD : null,
+                        TrangThaiPheDuyetPD: body.trangThaiPheDuyetPD ? body.trangThaiPheDuyetPD : '',
                         Reason: body.reason ? body.reason : '',
                         Refunds: body.refunds ? body.refunds : true,
                     }).then(data => {
@@ -217,6 +223,14 @@ module.exports = {
                     }
                     if (body.trangThaiPheDuyetLD || body.trangThaiPheDuyetLD === '')
                         update.push({ key: 'TrangThaiPheDuyetLD', value: body.trangThaiPheDuyetLD });
+                    if (body.idNhanVienpd || body.idNhanVienpd === '') {
+                        if (body.idNhanVienpd === '')
+                            update.push({ key: 'IDNhanVienpd', value: null });
+                        else
+                            update.push({ key: 'IDNhanVienpd', value: body.idNhanVienpd });
+                    }
+                    if (body.trangThaiPheDuyetPD || body.trangThaiPheDuyetPD === '')
+                        update.push({ key: 'TrangThaiPheDuyetPD', value: body.trangThaiPheDuyetPD });
                     if (body.reason || body.reason === '')
                         update.push({ key: 'Reason', value: body.reason });
                     if (body.refunds || body.refunds === '') {
@@ -388,6 +402,9 @@ module.exports = {
                                 idNhanVienLD: element.IDNhanVienLD ? element.IDNhanVienLD : null,
                                 nameNhanVienLD: element.staffLD ? element.staffLD.StaffName : '',
                                 trangThaiPheDuyetLD: element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '',
+                                idNhanVienPD: null,
+                                nameNhanVienLD: '',
+                                trangThaiPheDuyetLD: '',
                                 reason: element.Reason ? element.Reason : '',
                                 refunds: element.Refunds ? element.Refunds : true,
                             }

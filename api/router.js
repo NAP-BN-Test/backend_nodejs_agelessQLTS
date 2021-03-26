@@ -430,12 +430,36 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_currency').post(checkToken.checkToken, tblCurrency.deletetblCurrency);
     app.route('/qlnb/get_list_name_tbl_currency').post(checkToken.checkToken, tblCurrency.getListNametblCurrency);
 
+    var tblCustomer = require('./controller_finance/ctl-tblCustomer')
+    app.route('/qlnb/add_tbl_customer').post(tblCustomer.addtblCustomer);
+    app.route('/qlnb/update_tbl_customer').post(tblCustomer.updatetblCustomer);
+    app.route('/qlnb/get_list_tbl_customer').post(tblCustomer.getListtblCustomer);
+    app.route('/qlnb/delete_tbl_customer').post(tblCustomer.deletetblCustomer);
+    app.route('/qlnb/get_list_name_tbl_customer').post(tblCustomer.getListNametblCustomer);
+
     // api phần mềm chuyên môn
     var apiSpecializedSoftware = require('./controller_finance/ctl-apiSpecializedSoftware')
     app.route('/qlnb/get_list_department').post(apiSpecializedSoftware.getListDepartment);
     app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
+    app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
     app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);
     app.route('/qlnb/get_list_user').post(apiSpecializedSoftware.getListUser);
 
+    // Danh sách phiếu thu / chi
+    var tblReceiptsPayment = require('./controller_finance/ctl-tblReceiptsPayment')
+    app.route('/qlnb/get_detail_tbl_receipts_payment').post(tblReceiptsPayment.detailtblReceiptsPayment);
+    app.route('/qlnb/add_tbl_receipts_payment').post(tblReceiptsPayment.addtblReceiptsPayment);
+    app.route('/qlnb/update_tbl_receipts_payment').post(tblReceiptsPayment.updatetblReceiptsPayment);
+    app.route('/qlnb/get_list_tbl_receipts_payment').post(tblReceiptsPayment.getListtblReceiptsPayment);
+    app.route('/qlnb/delete_tbl_receipts_payment').post(tblReceiptsPayment.deletetblReceiptsPayment);
+    app.route('/qlnb/get_list_name_tbl_receipts_payment').post(tblReceiptsPayment.getListNametblReceiptsPayment);
+
+    // Danh sách giấy báo nợ/ có
+    var tblCreditDebtnotices = require('./controller_finance/ctl-tblCreditDebtnotices')
+    app.route('/qlnb/get_detail_tbl_credit_debt_notices').post(tblCreditDebtnotices.detailtblCreditDebtnotices);
+    app.route('/qlnb/add_tbl_receipts_payment').post(tblCreditDebtnotices.addtblCreditDebtnotices);
+    app.route('/qlnb/update_tbl_receipts_payment').post(tblCreditDebtnotices.updatetblCreditDebtnotices);
+    app.route('/qlnb/delete_tbl_receipts_payment').post(tblCreditDebtnotices.getListtblCreditDebtnotices);
+    app.route('/qlnb/get_list_tbl_receipts_payment').post(tblCreditDebtnotices.deletetblCreditDebtnotices);
 }

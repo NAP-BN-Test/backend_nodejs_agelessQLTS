@@ -23,8 +23,16 @@ module.exports = {
                         if (data) {
                             var obj = {
                                 id: data.ID,
-                                name: data.Name,
-                                code: data.Code,
+                                numberReceipts: data.NumberReceipts ? data.NumberReceipts : '',
+                                createDate: data.CreateDate ? data.CreateDate : null,
+                                entryDate: data.EntryDate ? data.EntryDate : null,
+                                number: data.Number ? data.Number : '',
+                                reason: data.Reason ? data.Reason : '',
+                                idAccounting: data.IDAccounting ? data.IDAccounting : null,
+                                debtIncurred: data.DebtIncurred ? data.DebtIncurred : null,
+                                creditIncurred: data.CreditIncurred ? data.CreditIncurred : null,
+                                debtSurplus: data.DebtSurplus ? data.DebtSurplus : null,
+                                creaditSurplus: data.CreaditSurplus ? data.CreaditSurplus : null,
                             }
                             var result = {
                                 obj: obj,
@@ -53,8 +61,16 @@ module.exports = {
             if (db) {
                 try {
                     mtblAccountingBooks(db).create({
-                        Code: body.code ? body.code : 'null',
-                        Name: body.name ? body.name : '',
+                        NumberReceipts: body.numberReceipts ? body.numberReceipts : '',
+                        CreateDate: body.createDate ? body.createDate : null,
+                        EntryDate: body.entryDate ? body.entryDate : null,
+                        Number: body.number ? body.number : '',
+                        Reason: body.reason ? body.reason : '',
+                        IDAccounting: body.idAccounting ? body.idAccounting : null,
+                        DebtIncurred: body.debtIncurred ? body.debtIncurred : null,
+                        CreditIncurred: body.creditIncurred ? body.creditIncurred : null,
+                        DebtSurplus: body.debtSurplus ? body.debtSurplus : null,
+                        CreaditSurplus: body.creaditSurplus ? body.creaditSurplus : null,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -78,10 +94,54 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    if (body.code || body.code === '')
-                        update.push({ key: 'Code', value: body.code });
-                    if (body.name || body.name === '')
-                        update.push({ key: 'Name', value: body.name });
+                    if (body.number || body.number === '')
+                        update.push({ key: 'Number', value: body.number });
+                    if (body.reason || body.reason === '')
+                        update.push({ key: 'Reason', value: body.reason });
+                    if (body.numberReceipts || body.numberReceipts === '')
+                        update.push({ key: 'NumberReceipts', value: body.numberReceipts });
+                    if (body.createDate || body.createDate === '') {
+                        if (body.createDate === '')
+                            update.push({ key: 'CreateDate', value: null });
+                        else
+                            update.push({ key: 'CreateDate', value: body.createDate });
+                    }
+                    if (body.entryDate || body.entryDate === '') {
+                        if (body.entryDate === '')
+                            update.push({ key: 'EntryDate', value: null });
+                        else
+                            update.push({ key: 'EntryDate', value: body.entryDate });
+                    }
+                    if (body.idAccounting || body.idAccounting === '') {
+                        if (body.idAccounting === '')
+                            update.push({ key: 'IDAccounting', value: null });
+                        else
+                            update.push({ key: 'IDAccounting', value: body.idAccounting });
+                    }
+                    if (body.debtIncurred || body.debtIncurred === '') {
+                        if (body.debtIncurred === '')
+                            update.push({ key: 'DebtIncurred', value: null });
+                        else
+                            update.push({ key: 'DebtIncurred', value: body.debtIncurred });
+                    }
+                    if (body.creditIncurred || body.creditIncurred === '') {
+                        if (body.creditIncurred === '')
+                            update.push({ key: 'CreditIncurred', value: null });
+                        else
+                            update.push({ key: 'CreditIncurred', value: body.creditIncurred });
+                    }
+                    if (body.debtSurplus || body.debtSurplus === '') {
+                        if (body.debtSurplus === '')
+                            update.push({ key: 'DebtSurplus', value: null });
+                        else
+                            update.push({ key: 'DebtSurplus', value: body.debtSurplus });
+                    }
+                    if (body.creaditSurplus || body.creaditSurplus === '') {
+                        if (body.creaditSurplus === '')
+                            update.push({ key: 'CreaditSurplus', value: null });
+                        else
+                            update.push({ key: 'CreaditSurplus', value: body.creaditSurplus });
+                    }
                     database.updateTable(update, mtblAccountingBooks(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -127,43 +187,43 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
-                    if (body.dataSearch) {
-                        var data = JSON.parse(body.dataSearch)
+                    // if (body.dataSearch) {
+                    //     var data = JSON.parse(body.dataSearch)
 
-                        if (data.search) {
-                            where = [
-                                { FullName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { CMND: { [Op.like]: '%' + data.search + '%' } },
-                                { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                            ];
-                        } else {
-                            where = [
-                                { FullName: { [Op.ne]: '%%' } },
-                            ];
-                        }
-                        whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
-                        };
-                        if (data.items) {
-                            for (var i = 0; i < data.items.length; i++) {
-                                let userFind = {};
-                                if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                    userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and].push(userFind)
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or].push(userFind)
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    //     if (data.search) {
+                    //         where = [
+                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
+                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
+                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
+                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                    //         ];
+                    //     } else {
+                    //         where = [
+                    //             { FullName: { [Op.ne]: '%%' } },
+                    //         ];
+                    //     }
+                    //     whereOjb = {
+                    //         [Op.and]: [{ [Op.or]: where }],
+                    //         [Op.or]: [{ ID: { [Op.ne]: null } }],
+                    //     };
+                    //     if (data.items) {
+                    //         for (var i = 0; i < data.items.length; i++) {
+                    //             let userFind = {};
+                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                    //                 if (data.items[i].conditionFields['name'] == 'And') {
+                    //                     whereOjb[Op.and].push(userFind)
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
+                    //                     whereOjb[Op.or].push(userFind)
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
+                    //                     whereOjb[Op.not] = userFind
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     let stt = 1;
                     mtblAccountingBooks(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
@@ -178,8 +238,16 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
+                                numberReceipts: element.NumberReceipts ? element.NumberReceipts : '',
+                                createDate: element.CreateDate ? element.CreateDate : null,
+                                entryDate: element.EntryDate ? element.EntryDate : null,
+                                number: element.Number ? element.Number : '',
+                                reason: element.Reason ? element.Reason : '',
+                                idAccounting: element.IDAccounting ? element.IDAccounting : null,
+                                debtIncurred: element.DebtIncurred ? element.DebtIncurred : null,
+                                creditIncurred: element.CreditIncurred ? element.CreditIncurred : null,
+                                debtSurplus: element.DebtSurplus ? element.DebtSurplus : null,
+                                creaditSurplus: element.CreaditSurplus ? element.CreaditSurplus : null,
                             }
                             array.push(obj);
                             stt += 1;
@@ -203,36 +271,5 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_accounting_books
-    getListNametblAccountingBooks: (req, res) => {
-        let body = req.body;
-        database.connectDatabase().then(async db => {
-            if (db) {
-                try {
-                    mtblAccountingBooks(db).findAll().then(data => {
-                        var array = [];
-                        data.forEach(element => {
-                            var obj = {
-                                id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                            }
-                            array.push(obj);
-                        });
-                        var result = {
-                            array: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
-                    })
 
-                } catch (error) {
-                    console.log(error);
-                    res.json(Result.SYS_ERROR_RESULT)
-                }
-            } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
-            }
-        })
-    }
 }

@@ -123,7 +123,8 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let listID = JSON.parse(body.listID);
+                    let listID = [];
+                    listID.push(body.listID);
                     await deleteRelationshiptblDMTaiKhoanKeToan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -285,12 +286,17 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMTaiKhoanKeToan(db).findAll().then(data => {
+                    mtblDMTaiKhoanKeToan(db).findAll({
+                        order: [
+                            ['ID', 'ASC']
+                        ],
+                    }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
                                 accountingName: element.AccountingName ? element.AccountingName : '',
+                                accountingCode: element.AccountingCode ? element.AccountingCode : '',
                             }
                             array.push(obj);
                         });
