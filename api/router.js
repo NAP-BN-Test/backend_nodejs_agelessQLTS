@@ -426,9 +426,16 @@ module.exports = function (app) {
     var tblCurrency = require('./controller_finance/ctl-tblCurrency')
     app.route('/qlnb/add_tbl_currency').post(checkToken.checkToken, tblCurrency.addtblCurrency);
     app.route('/qlnb/update_tbl_currency').post(checkToken.checkToken, tblCurrency.updatetblCurrency);
-    app.route('/qlnb/get_list_tbl_currency').post(checkToken.checkToken, tblCurrency.getListtblCurrency);
+    app.route('/qlnb/get_list_tbl_currency').post(tblCurrency.getListtblCurrency);
     app.route('/qlnb/delete_tbl_currency').post(checkToken.checkToken, tblCurrency.deletetblCurrency);
     app.route('/qlnb/get_list_name_tbl_currency').post(checkToken.checkToken, tblCurrency.getListNametblCurrency);
+
+    var tblRate = require('./controller_finance/ctl-tblRate')
+    app.route('/qlnb/add_tbl_rate').post(checkToken.checkToken, tblRate.addtblRate);
+    app.route('/qlnb/update_tbl_rate').post(checkToken.checkToken, tblRate.updatetblRate);
+    app.route('/qlnb/get_list_tbl_rate').post(checkToken.checkToken, tblRate.getListtblRate);
+    app.route('/qlnb/delete_tbl_rate').post(checkToken.checkToken, tblRate.deletetblRate);
+    app.route('/qlnb/get_list_tbl_rate_from_currency').post(checkToken.checkToken, tblRate.getListtblRateFromCurrency);
 
     var tblCustomer = require('./controller_finance/ctl-tblCustomer')
     app.route('/qlnb/add_tbl_customer').post(tblCustomer.addtblCustomer);
@@ -446,6 +453,9 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);
     app.route('/qlnb/get_list_user').post(apiSpecializedSoftware.getListUser);
 
+    app.route('/qlnb/get_list_credit_from_customer').post(apiSpecializedSoftware.getListCreditFromCustomer);
+    app.route('/qlnb/get_list_invoice_from_customer').post(apiSpecializedSoftware.getListInvoiceFromCustomer);
+
     // Danh sách phiếu thu / chi
     var tblReceiptsPayment = require('./controller_finance/ctl-tblReceiptsPayment')
     app.route('/qlnb/get_detail_tbl_receipts_payment').post(tblReceiptsPayment.detailtblReceiptsPayment);
@@ -454,6 +464,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_receipts_payment').post(tblReceiptsPayment.getListtblReceiptsPayment);
     app.route('/qlnb/delete_tbl_receipts_payment').post(tblReceiptsPayment.deletetblReceiptsPayment);
     app.route('/qlnb/get_list_name_tbl_receipts_payment').post(tblReceiptsPayment.getListNametblReceiptsPayment);
+    app.route('/qlnb/get_list_receipts_payment_unknown').post(tblReceiptsPayment.getListReceiptsPaymentUnknown);
 
     // Danh sách giấy báo nợ/ có
     var tblCreditDebtnotices = require('./controller_finance/ctl-tblCreditDebtnotices')

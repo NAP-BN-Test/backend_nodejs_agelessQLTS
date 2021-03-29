@@ -55,6 +55,19 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (body.ruleCode) {
+                        var check = await mtblDMDieuKhoanThanhToan(db).findOne({
+                            RuleCode: body.ruleCode
+                        })
+                        if (check) {
+                            var result = {
+                                status: Constant.STATUS.FAIL,
+                                message: "Mã điều khoản thanh toán đã tồn tại. Vui lòng kiểm tra lại !",
+                            }
+                            res.json(result);
+                            return
+                        }
+                    }
                     mtblDMDieuKhoanThanhToan(db).create({
                         RuleName: body.ruleName ? body.ruleName : '',
                         RuleCode: body.ruleCode ? body.ruleCode : '',
@@ -83,6 +96,19 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.ruleCode) {
+                        var check = await mtblDMDieuKhoanThanhToan(db).findOne({
+                            RuleCode: body.ruleCode
+                        })
+                        if (check) {
+                            var result = {
+                                status: Constant.STATUS.FAIL,
+                                message: "Mã điều khoản thanh toán đã tồn tại. Vui lòng kiểm tra lại !",
+                            }
+                            res.json(result);
+                            return
+                        }
+                    }
                     if (body.ruleCode || body.ruleCode === '')
                         update.push({ key: 'RuleCode', value: body.ruleCode });
                     if (body.ruleName || body.ruleName === '')

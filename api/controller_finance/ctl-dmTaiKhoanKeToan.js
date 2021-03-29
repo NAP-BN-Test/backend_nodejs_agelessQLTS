@@ -197,7 +197,7 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: { Levels: 1 },
                         order: [
-                            ['ID', 'DESC']
+                            ['ID', 'ASC']
                         ],
                     }).then(async data => {
                         var array = [];

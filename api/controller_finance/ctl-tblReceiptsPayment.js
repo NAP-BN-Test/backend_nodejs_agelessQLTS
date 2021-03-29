@@ -29,6 +29,7 @@ module.exports = {
                             var obj = {
                                 id: data.ID,
                                 type: data.Type ? data.Type : '',
+                                codeNumber: data.CodeNumber ? data.CodeNumber : '',
                                 idCurrency: data.IDCurrency ? data.IDCurrency : null,
                                 date: data.Date ? data.Date : null,
                                 idCustomer: data.IDCustomer ? data.IDCustomer : null,
@@ -41,6 +42,8 @@ module.exports = {
                                 idTreasurer: data.IDTreasurer ? data.IDTreasurer : null,
                                 idEstablishment: data.IDEstablishment ? data.IDEstablishment : null,
                                 idSubmitter: data.IDSubmitter ? data.IDSubmitter : null,
+                                licenseNumber: data.LicenseNumber ? data.LicenseNumber : '',
+                                licenseDate: data.LicenseDate ? data.LicenseDate : null,
                             }
                             let arrayCredit = []
                             let arraydebit = []
@@ -62,7 +65,7 @@ module.exports = {
                                 data.forEach(item => {
                                     arrayCredit.push({
                                         nameAccount: acc.AccountingCode,
-                                        amount: item.Account,
+                                        amountOfMoney: item.Amount,
                                     })
                                 })
                             })
@@ -83,7 +86,7 @@ module.exports = {
                                 data.forEach(item => {
                                     arraydebit.push({
                                         nameAccount: acc.AccountingCode,
-                                        amount: item.Account,
+                                        amountOfMoney: item.Amount,
                                     })
                                 })
                             })
@@ -112,13 +115,27 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: (req, res) => {
         let body = req.body;
+        console.log(body);
         var listCredit = JSON.parse(body.listCredit)
         var listDebit = JSON.parse(body.listDebit)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (body.licenseNumber)
+                        var check = await mtblReceiptsPayment(db).findOne({
+                            LicenseNumber: body.licenseNumber
+                        })
+                    if (check) {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Số chứng từ đã tồn tại",
+                        }
+                        res.json(result);
+                        return
+                    }
                     mtblReceiptsPayment(db).create({
                         Type: body.type ? body.type : '',
+                        CodeNumber: 'Test',
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
                         IDCustomer: body.idCustomer ? body.idCustomer : null,
@@ -131,21 +148,23 @@ module.exports = {
                         IDTreasurer: body.idTreasurer ? body.idTreasurer : null,
                         IDEstablishment: body.idEstablishment ? body.idEstablishment : null,
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
+                        VoucherNumber: body.voucherNumber ? body.voucherNumber : null,
+                        VoucherDate: body.voucherDate ? body.voucherDate : null,
                     }).then(async data => {
                         for (var i = 0; i < listCredit.length; i++) {
                             await mtblPaymentAccounting(db).create({
                                 IDReceiptsPayment: data.ID,
-                                IDAccounting: listCredit[i].id,
+                                IDAccounting: listCredit[i].hasAccount.id,
                                 Type: "CREDIT",
-                                Amount: listCredit[i].amount ? listCredit[i].amount : 0,
+                                Amount: listCredit[i].amountOfMoney ? listCredit[i].amountOfMoney : 0,
                             })
                         }
                         for (var j = 0; j < listDebit.length; j++) {
                             await mtblPaymentAccounting(db).create({
-                                IDReceiptsPayment: data.ID,
-                                IDAccounting: listDebit[j].id,
+                                IDReceiptsPayment: data.debtAccount.ID,
+                                IDAccounting: listDebit[j].hasAccount.id,
                                 Type: "DEBIT",
-                                Amount: listDebit[j].amount ? listDebit[j].amount : 0,
+                                Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
                         }
                         var result = {
@@ -177,22 +196,36 @@ module.exports = {
                         for (var i = 0; i < listCredit.length; i++) {
                             await mtblPaymentAccounting(db).create({
                                 IDReceiptsPayment: body.id,
-                                IDAccounting: listCredit[i].id,
+                                IDAccounting: listCredit[i].hasAccount.id,
                                 Type: "CREDIT",
-                                Amount: listCredit[i].amount ? listCredit[i].amount : 0,
+                                Amount: listCredit[i].amountOfMoney ? listCredit[i].amountOfMoney : 0,
                             })
                         }
                         for (var j = 0; j < listDebit.length; j++) {
                             await mtblPaymentAccounting(db).create({
                                 IDReceiptsPayment: body.id,
-                                IDAccounting: listDebit[j].id,
+                                IDAccounting: listDebit[j].debtAccount.id,
                                 Type: "DEBIT",
-                                Amount: listDebit[j].amount ? listDebit[j].amount : 0,
+                                Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
                         }
                     }
+                    if (body.licenseNumber)
+                        var check = await mtblReceiptsPayment(db).findOne({
+                            LicenseNumber: body.licenseNumber
+                        })
+                    if (check) {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Số chứng từ đã tồn tại",
+                        }
+                        res.json(result);
+                        return
+                    }
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
+                    if (body.voucherNumber || body.voucherNumber === '')
+                        update.push({ key: 'VoucherNumber', value: body.voucherNumber });
                     if (body.address || body.address === '')
                         update.push({ key: 'Address', value: body.address });
                     if (body.amountWords || body.amountWords === '')
@@ -204,6 +237,12 @@ module.exports = {
                             update.push({ key: 'IDCurrency', value: null });
                         else
                             update.push({ key: 'IDCurrency', value: body.idCurrency });
+                    }
+                    if (body.voucherDate || body.voucherDate === '') {
+                        if (body.voucherDate === '')
+                            update.push({ key: 'VoucherDate', value: null });
+                        else
+                            update.push({ key: 'VoucherDate', value: body.voucherDate });
                     }
                     if (body.date || body.date === '') {
                         if (body.date === '')
@@ -350,6 +389,9 @@ module.exports = {
                                 stt: stt,
                                 id: Number(data[i].ID),
                                 type: data[i].Type ? data[i].Type : '',
+                                codeNumber: data[i].CodeNumber ? data[i].CodeNumber : '',
+                                voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
+                                voucherDate: data[i].VoucherDate ? data[i].VoucherDate : null,
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
                                 date: data[i].Date ? data[i].Date : null,
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
@@ -389,7 +431,7 @@ module.exports = {
                                 data.forEach(item => {
                                     arrayCredit.push({
                                         nameAccount: acc.AccountingCode,
-                                        amount: item.Account,
+                                        amountOfMoney: item.Amount,
                                     })
                                 })
                             })
@@ -410,7 +452,7 @@ module.exports = {
                                 data.forEach(item => {
                                     arraydebit.push({
                                         nameAccount: acc.AccountingCode,
-                                        amount: item.Account,
+                                        amountOfMoney: item.Amount,
                                     })
                                 })
                             })
@@ -469,5 +511,47 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    // get_list_receipts_payment_unknown
+    getListReceiptsPaymentUnknown: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    mtblReceiptsPayment(db).findAll({
+                        where: { IDCustomer: body.idCustomer },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                codeNumber: data[i].CodeNumber ? data[i].CodeNumber : '',
+                                amount: data[i].Amount ? data[i].Amount : '',
+                                type: "Phiếu thu",
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

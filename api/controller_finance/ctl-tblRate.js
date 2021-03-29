@@ -2,62 +2,29 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
-var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var database = require('../database');
-async function deleteRelationshiptblCurrency(db, listID) {
-    await mtblCurrency(db).destroy({
+var mtblCurrency = require('../tables/financemanage/tblCurrency')
+
+async function deleteRelationshiptblRate(db, listID) {
+    await mtblRate(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
     })
 }
 module.exports = {
-    deleteRelationshiptblCurrency,
-    //  get_detail_tbl_currency
-    detailtblCurrency: (req, res) => {
+    deleteRelationshiptblRate,
+    // add_tbl_rate
+    addtblRate: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblCurrency(db).findOne({ where: { ID: body.id } }).then(data => {
-                        if (data) {
-                            var obj = {
-                                id: data.ID,
-                                date: data.Date,
-                                fullName: data.FullName,
-                                shortName: data.ShortName,
-                                exchangeRate: data.ExchangeRate,
-                            }
-                            var result = {
-                                obj: obj,
-                                status: Constant.STATUS.SUCCESS,
-                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                            }
-                            res.json(result);
-                        } else {
-                            res.json(Result.NO_DATA_RESULT)
-
-                        }
-
-                    })
-                } catch (error) {
-                    res.json(Result.SYS_ERROR_RESULT)
-                }
-            } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
-            }
-        })
-    },
-    // add_tbl_currency
-    addtblCurrency: (req, res) => {
-        let body = req.body;
-        database.connectDatabase().then(async db => {
-            if (db) {
-                try {
-                    mtblCurrency(db).create({
-                        ShortName: body.shortName ? body.shortName : '',
-                        FullName: body.fullName ? body.fullName : '',
+                    mtblRate(db).create({
+                        IDCurrency: body.idCurrency ? body.idCurrency : null,
+                        Date: body.date ? body.date : null,
+                        ExchangeRate: body.exchangeRate ? body.exchangeRate : null,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -74,18 +41,32 @@ module.exports = {
             }
         })
     },
-    // update_tbl_currency
-    updatetblCurrency: (req, res) => {
+    // update_tbl_rate
+    updatetblRate: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.shortName || body.shortName === '')
-                        update.push({ key: 'ShortName', value: body.shortName });
-                    if (body.fullName || body.fullName === '')
-                        update.push({ key: 'FullName', value: body.fullName });
-                    database.updateTable(update, mtblCurrency(db), body.id).then(response => {
+                    if (body.exchangeRate || body.exchangeRate === '') {
+                        if (body.exchangeRate === '')
+                            update.push({ key: 'ExchangeRate', value: null });
+                        else
+                            update.push({ key: 'ExchangeRate', value: body.exchangeRate });
+                    }
+                    if (body.date || body.date === '') {
+                        if (body.date === '')
+                            update.push({ key: 'Date', value: null });
+                        else
+                            update.push({ key: 'Date', value: body.date });
+                    }
+                    if (body.idCurrency || body.idCurrency === '') {
+                        if (body.idCurrency === '')
+                            update.push({ key: 'IDCurrency', value: null });
+                        else
+                            update.push({ key: 'IDCurrency', value: body.idCurrency });
+                    }
+                    database.updateTable(update, mtblRate(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
                         } else {
@@ -101,14 +82,14 @@ module.exports = {
             }
         })
     },
-    // delete_tbl_currency
-    deletetblCurrency: (req, res) => {
+    // delete_tbl_rate
+    deletetblRate: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblCurrency(db, listID);
+                    await deleteRelationshiptblRate(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -123,8 +104,8 @@ module.exports = {
             }
         })
     },
-    // get_list_tbl_currency
-    getListtblCurrency: (req, res) => {
+    // get_list_tbl_rate
+    getListtblRate: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -168,40 +149,38 @@ module.exports = {
                     //     }
                     // }
                     let stt = 1;
-                    let now = moment().format('DD-MM-YYYY');
-                    let searchNow = moment().format('YYYY-MM-DD');
-                    mtblCurrency(db).findAll({
+                    let tblRate = mtblRate(db);
+                    tblRate.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+
+                    tblRate.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         order: [
                             ['ID', 'DESC']
                         ],
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
+                        ],
                     }).then(async data => {
                         var array = [];
-                        for (var i = 0; i < data.length; i++) {
-                            let rateNow = 0;
-                            await mtblRate(db).findOne({
-                                where: {
-                                    Date: { [Op.substring]: searchNow },
-                                    IDCurrency: data[i].ID
-                                }
-                            }).then(Rate => {
-                                if (Rate)
-                                    rateNow = Rate.ExchangeRate
-                            })
+                        data.forEach(element => {
                             var obj = {
                                 stt: stt,
-                                id: Number(data[[i]].ID),
-                                date: now,
-                                exchangeRate: rateNow,
-                                shortName: data[[i]].ShortName ? data[[i]].ShortName : '',
-                                fullName: data[[i]].FullName ? data[[i]].FullName : '',
+                                id: Number(element.ID),
+                                date: element.Date ? element.Date : '',
+                                exchangeRate: element.ExchangeRate ? element.ExchangeRate : '',
+                                fullNameCurrency: element.currency.FullName ? element.currency.FullName : '',
+                                shortNameCurrency: element.currency.ShortName ? element.currency.ShortName : '',
                             }
                             array.push(obj);
                             stt += 1;
-                        }
-                        var count = await mtblCurrency(db).count({ where: whereOjb, })
+                        });
+                        var count = await mtblRate(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -220,25 +199,88 @@ module.exports = {
             }
         })
     },
-    // get_list_name_tbl_currency
-    getListNametblCurrency: (req, res) => {
+    // get_list_tbl_rate_from_currency
+    getListtblRateFromCurrency: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblCurrency(db).findAll().then(data => {
+                    var whereOjb = [];
+                    // if (body.dataSearch) {
+                    //     var data = JSON.parse(body.dataSearch)
+
+                    //     if (data.search) {
+                    //         where = [
+                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
+                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
+                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
+                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
+                    //         ];
+                    //     } else {
+                    //         where = [
+                    //             { FullName: { [Op.ne]: '%%' } },
+                    //         ];
+                    //     }
+                    //     whereOjb = {
+                    //         [Op.and]: [{ [Op.or]: where }],
+                    //         [Op.or]: [{ ID: { [Op.ne]: null } }],
+                    //     };
+                    //     if (data.items) {
+                    //         for (var i = 0; i < data.items.length; i++) {
+                    //             let userFind = {};
+                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
+                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                    //                 if (data.items[i].conditionFields['name'] == 'And') {
+                    //                     whereOjb[Op.and].push(userFind)
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
+                    //                     whereOjb[Op.or].push(userFind)
+                    //                 }
+                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
+                    //                     whereOjb[Op.not] = userFind
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
+                    let stt = 1;
+                    let tblRate = mtblRate(db);
+                    tblRate.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+
+                    tblRate.findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { IDCurrency: body.id },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
+                        ],
+                    }).then(async data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
+                                stt: stt,
                                 id: Number(element.ID),
-                                fullName: element.FullName ? element.FullName : '',
+                                date: element.Date ? element.Date : '',
+                                exchangeRate: element.ExchangeRate ? element.ExchangeRate : '',
+                                fullNameCurrency: element.currency.FullName ? element.currency.FullName : '',
+                                shortNameCurrency: element.currency.ShortName ? element.currency.ShortName : '',
                             }
                             array.push(obj);
+                            stt += 1;
                         });
+                        var count = await tblRate(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
                         }
                         res.json(result);
                     })

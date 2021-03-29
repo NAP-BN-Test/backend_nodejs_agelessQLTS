@@ -8,6 +8,7 @@ module.exports = function (db) {
             autoIncrement: true
         },
         Type: Sequelize.STRING,
+        CodeNumber: Sequelize.STRING,
         IDCurrency: Sequelize.BIGINT,
         Date: Sequelize.DATE,
         IDCustomer: Sequelize.INTEGER,
@@ -20,6 +21,8 @@ module.exports = function (db) {
         IDTreasurer: Sequelize.INTEGER,
         IDEstablishment: Sequelize.INTEGER,
         IDSubmitter: Sequelize.INTEGER,
+        VoucherNumber: Sequelize.STRING,
+        VoucherDate: Sequelize.DATE,
     });
 
     return table;
