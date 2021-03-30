@@ -6,7 +6,8 @@ var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblPaymentAccounting = require('../tables/financemanage/tblPaymentAccounting')
 var database = require('../database');
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
-
+var mtblInvoice = require('../tables/financemanage/tblInvoice')
+var mtblRate = require('../tables/financemanage/tblRate')
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     await mtblPaymentAccounting(db).destroy({ where: { IDReceiptsPayment: { [Op.in]: listID } } })
 
@@ -18,16 +19,38 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
 }
 async function handleCodeNumber(str) {
     var endCode = '';
-    if ((Number(str.slice(2, 10)) + 1) < 10)
-        endCode = '000' + (Number(str.slice(2, 10)) + 1)
-    if ((Number(str.slice(2, 10)) + 1) >= 10 && (Number(str.slice(2, 10)) + 1) < 100)
-        endCode = '00' + (Number(str.slice(2, 10)) + 1)
-    if ((Number(str.slice(2, 10)) + 1) >= 100 && (Number(str.slice(2, 10)) + 1) < 1000)
-        endCode = '0' + (Number(str.slice(2, 10)) + 1)
-    if ((Number(str.slice(2, 10)) + 1) >= 1000)
-        endCode = '' + (Number(str.slice(2, 10)) + 1)
+    var behind = Number(str.slice(2, 10)) + 1
+    if (behind < 10)
+        endCode = '000' + behind
+    if (behind >= 10 && behind < 100)
+        endCode = '00' + behind
+    if (behind >= 100 && behind < 1000)
+        endCode = '0' + behind
+    if (behind >= 1000)
+        endCode = behind
 
     return str.slice(0, 2) + endCode
+}
+async function createRate(db, exchangeRate, idCurrency) {
+    let check;
+    let searchNow = moment().format('YYYY-MM-DD');
+    if (idCurrency)
+        check = await mtblRate(db).findOne({
+            where: {
+                Date: { [Op.substring]: searchNow },
+                IDCurrency: idCurrency,
+            }
+        })
+    if (check)
+        mtblRate(db).update({
+            ExchangeRate: exchangeRate ? exchangeRate : null,
+        }, { where: { ID: check.ID } })
+    else
+        mtblRate(db).create({
+            IDCurrency: idCurrency ? idCurrency : null,
+            Date: searchNow,
+            ExchangeRate: exchangeRate ? exchangeRate : null,
+        })
 }
 
 module.exports = {
@@ -40,11 +63,17 @@ module.exports = {
                 try {
                     mtblReceiptsPayment(db).findOne({ where: { ID: body.id } }).then(async data => {
                         if (data) {
+                            var currency = await mtblRate(db).findOne({
+                                where: { IDCurrency: data.IDCurrency }
+                            })
                             var obj = {
                                 id: data.ID,
                                 type: data.Type ? data.Type : '',
+                                voucherNumber: data.VoucherNumber ? data.VoucherNumber : null,
+                                voucherDate: data.VoucherDate ? data.VoucherDate : null,
                                 codeNumber: data.CodeNumber ? data.CodeNumber : '',
                                 idCurrency: data.IDCurrency ? data.IDCurrency : null,
+                                exchangeRate: currency ? currency.ExchangeRate : 0,
                                 date: data.Date ? data.Date : null,
                                 idCustomer: data.IDCustomer ? data.IDCustomer : null,
                                 address: data.Address ? data.Address : '',
@@ -58,6 +87,10 @@ module.exports = {
                                 idSubmitter: data.IDSubmitter ? data.IDSubmitter : null,
                                 licenseNumber: data.LicenseNumber ? data.LicenseNumber : '',
                                 licenseDate: data.LicenseDate ? data.LicenseDate : null,
+                                unpaidAmount: data.UnpaidAmount ? data.UnpaidAmount : null,
+                                paidAmount: data.PaidAmount ? data.PaidAmount : null,
+                                initialAmount: data.InitialAmount ? data.InitialAmount : null,
+
                             }
                             let arrayCredit = []
                             let arraydebit = []
@@ -78,12 +111,15 @@ module.exports = {
                             }).then(data => {
                                 data.forEach(item => {
                                     arrayCredit.push({
-                                        nameAccount: acc.AccountingCode,
+                                        hasAccount: {
+                                            id: item.acc ? item.acc.ID : '',
+                                            accountingName: item.acc ? item.acc.AccountingName : '',
+                                            accountingCode: item.acc ? item.acc.AccountingCode : '',
+                                        },
                                         amountOfMoney: item.Amount,
                                     })
                                 })
                             })
-                            tblPaymentAccounting.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'acc' })
                             await tblPaymentAccounting.findAll({
                                 include: [
                                     {
@@ -99,13 +135,35 @@ module.exports = {
                             }).then(data => {
                                 data.forEach(item => {
                                     arraydebit.push({
-                                        nameAccount: acc.AccountingCode,
+                                        debtAccount: {
+                                            id: item.acc ? item.acc.ID : '',
+                                            accountingName: item.acc ? item.acc.AccountingName : '',
+                                            accountingCode: item.acc ? item.acc.AccountingCode : '',
+                                        },
                                         amountOfMoney: item.Amount,
                                     })
                                 })
                             })
                             obj['arrayCredit'] = arrayCredit
-                            obj['arraydebit'] = arraydebit
+                            obj['arrayDebit'] = arraydebit
+                            var listInvoiceID = []
+                            var listUndefinedID = []
+                            await mtblInvoice(db).findAll({ where: { Status: 'paid' } }).then(data => {
+                                data.forEach(item => {
+                                    listInvoiceID.push(Number(item.IDSpecializedSoftware))
+                                })
+                            })
+                            let withdrawal = 0;
+                            await mtblReceiptsPayment(db).findAll({ where: { PaidAmount: { [Op.ne]: null } } }).then(data => {
+                                data.forEach(item => {
+                                    listUndefinedID.push(Number(item.ID))
+                                    withdrawal += item.PaidAmount
+                                })
+                            })
+                            obj['listInvoiceID'] = listInvoiceID
+                            obj['withdrawal'] = withdrawal
+                            obj['listUndefinedID'] = listUndefinedID
+
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -127,13 +185,63 @@ module.exports = {
         })
     },
     // add_tbl_receipts_payment
-    addtblReceiptsPayment: (req, res) => {
+    addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
+        console.log(body);
+        var listUndefinedID = JSON.parse(body.listUndefinedID)
+        var listInvoiceID = JSON.parse(body.listInvoiceID)
         var listCredit = JSON.parse(body.listCredit)
         var listDebit = JSON.parse(body.listDebit)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    // Xóa dữ liệu cũ sau đó thêm mới
+                    await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { Status: 'paid' } })
+                    await mtblReceiptsPayment(db).update({ PaidAmount: null }, { where: { PaidAmount: { [Op.ne]: null } } })
+                    for (var i = 0; i < listInvoiceID.length; i++) {
+                        await mtblInvoice(db).update(
+                            {
+                                Status: 'paid'
+                            },
+                            { where: { IDSpecializedSoftware: listInvoiceID[i] } }
+                        )
+                    }
+                    for (var i = 0; i < listUndefinedID.length; i++) {
+                        var withdrawalMoney = Number(body.withdrawal);
+                        if (withdrawalMoney > 0) {
+                            await mtblReceiptsPayment(db).findOne({
+                                where: {
+                                    ID: listUndefinedID[i]
+                                }
+                            }).then(async data => {
+                                if (withdrawalMoney >= data.UnpaidAmount) {
+                                    withdrawalMoney = withdrawalMoney - data.UnpaidAmount
+                                    await mtblReceiptsPayment(db).update({
+                                        UnpaidAmount: 0,
+                                        PaidAmount: data.UnpaidAmount,
+                                    }, {
+                                        where: {
+                                            ID: data.ID
+
+                                        }
+                                    })
+                                }
+                                else {
+                                    await mtblReceiptsPayment(db).update({
+                                        UnpaidAmount: data.UnpaidAmount - withdrawalMoney,
+                                        PaidAmount: withdrawalMoney,
+                                    }, {
+                                        where: {
+                                            ID: data.ID
+
+                                        }
+                                    })
+                                    withdrawalMoney = 0
+                                }
+                            })
+                        }
+                    }
+                    await createRate(db, body.exchangeRate, body.idCurrency)
                     if (body.licenseNumber)
                         var check = await mtblReceiptsPayment(db).findOne({
                             where: { VoucherNumber: body.voucherNumber }
@@ -148,13 +256,12 @@ module.exports = {
                     }
                     var check = await mtblReceiptsPayment(db).findOne({
                         order: [
-                            ['CodeNumber', 'ASC']
+                            ['CodeNumber', 'DESC']
                         ],
                         where: {
                             Type: body.type,
                         }
                     })
-                    var codeNumber = '';
                     var automaticCode = '';
                     if (!check && body.type == 'receipt') {
                         codeNumber = 'PT0001'
@@ -180,6 +287,9 @@ module.exports = {
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
                         VoucherNumber: body.voucherNumber ? body.voucherNumber : null,
                         VoucherDate: body.voucherDate ? body.voucherDate : null,
+                        // Số tiền ban đầu
+                        InitialAmount: body.amount ? body.amount : null,
+                        UnpaidAmount: body.amount ? body.amount : null,
                     }).then(async data => {
                         for (var i = 0; i < listCredit.length; i++) {
                             await mtblPaymentAccounting(db).create({
@@ -191,8 +301,8 @@ module.exports = {
                         }
                         for (var j = 0; j < listDebit.length; j++) {
                             await mtblPaymentAccounting(db).create({
-                                IDReceiptsPayment: data.debtAccount.ID,
-                                IDAccounting: listDebit[j].hasAccount.id,
+                                IDReceiptsPayment: data.ID,
+                                IDAccounting: listDebit[j].debtAccount.id,
                                 Type: "DEBIT",
                                 Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
@@ -287,10 +397,14 @@ module.exports = {
                             update.push({ key: 'IDCustomer', value: body.idCustomer });
                     }
                     if (body.amount || body.amount === '') {
-                        if (body.amount === '')
+                        if (body.amount === '') {
                             update.push({ key: 'Amount', value: null });
-                        else
+                            update.push({ key: 'InitialAmount', value: null });
+                        }
+                        else {
                             update.push({ key: 'Amount', value: body.amount });
+                            update.push({ key: 'InitialAmount', value: body.amount });
+                        }
                     }
                     if (body.idManager || body.idManager === '') {
                         if (body.idManager === '')
@@ -408,7 +522,7 @@ module.exports = {
                     mtblReceiptsPayment(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        // where: { Type: body.type },
+                        where: { Type: body.type },
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -425,7 +539,7 @@ module.exports = {
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
                                 date: data[i].Date ? data[i].Date : null,
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
-                                nameSpecializedSoftware: '',
+                                nameCustomer: 'Customer chưa có',
                                 address: data[i].Address ? data[i].Address : '',
                                 amount: data[i].Amount ? data[i].Amount : null,
                                 amountWords: data[i].AmountWords ? data[i].AmountWords : '',
@@ -461,6 +575,7 @@ module.exports = {
                                 data.forEach(item => {
                                     arrayCredit.push({
                                         nameAccount: item.acc ? item.acc.AccountingCode : '',
+                                        nameAccount: item.acc ? item.acc.AccountingCode : '',
                                         amountOfMoney: item.Amount,
                                     })
                                 })
@@ -486,7 +601,7 @@ module.exports = {
                                 })
                             })
                             obj['arrayCredit'] = arrayCredit
-                            obj['arraydebit'] = arraydebit
+                            obj['arrayDebit'] = arraydebit
                             array.push(obj);
                             stt += 1;
                         }
@@ -560,7 +675,9 @@ module.exports = {
                                 stt: stt,
                                 id: Number(data[i].ID),
                                 codeNumber: data[i].CodeNumber ? data[i].CodeNumber : '',
-                                amount: data[i].Amount ? data[i].Amount : '',
+                                unpaidAmount: data[i].UnpaidAmount ? data[i].UnpaidAmount : 0,
+                                paidAmount: data[i].PaidAmount ? data[i].PaidAmount : 0,
+                                initialAmount: data[i].InitialAmount ? data[i].InitialAmount : 0,
                                 type: "Phiếu thu",
                             }
                             array.push(obj);

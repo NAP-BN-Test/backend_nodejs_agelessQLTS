@@ -23,6 +23,9 @@ module.exports = function (db) {
         IDSubmitter: Sequelize.INTEGER,
         VoucherNumber: Sequelize.STRING,
         VoucherDate: Sequelize.DATE,
+        UnpaidAmount: Sequelize.FLOAT,
+        PaidAmount: Sequelize.FLOAT,
+        InitialAmount: Sequelize.FLOAT,
     });
 
     return table;

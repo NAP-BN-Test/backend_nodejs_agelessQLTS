@@ -448,7 +448,7 @@ module.exports = function (app) {
     // api phần mềm chuyên môn
     var apiSpecializedSoftware = require('./controller_finance/ctl-apiSpecializedSoftware')
     app.route('/qlnb/get_list_department').post(apiSpecializedSoftware.getListDepartment);
-    app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
+    // app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
     app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
     app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);
@@ -474,4 +474,9 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_receipts_payment').post(tblCreditDebtnotices.updatetblCreditDebtnotices);
     app.route('/qlnb/delete_tbl_receipts_payment').post(tblCreditDebtnotices.getListtblCreditDebtnotices);
     app.route('/qlnb/get_list_tbl_receipts_payment').post(tblCreditDebtnotices.deletetblCreditDebtnotices);
+
+
+    var tblInvoice = require('./controller_finance/ctl-tblInvoice')
+    app.route('/qlnb/get_list_invoice').post(tblInvoice.getListtblInvoice);
+
 }

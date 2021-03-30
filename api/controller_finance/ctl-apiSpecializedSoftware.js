@@ -138,7 +138,6 @@ module.exports = {
     // get_list_invoice_from_customer
     getListInvoiceFromCustomer: async (req, res) => {
         var body = req.body
-        console.log(body.idCustomer);
         var obj = {
             "paging":
             {
