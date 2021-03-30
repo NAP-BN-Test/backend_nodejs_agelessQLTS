@@ -20,28 +20,48 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblCurrency(db).findOne({ where: { ID: body.id } }).then(data => {
-                        if (data) {
+                    let stt = 1;
+                    let tblRate = mtblRate(db);
+                    tblRate.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+                    var array = [];
+                    await tblRate.findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { IDCurrency: body.id },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
+                        ],
+                    }).then(async data => {
+                        data.forEach(element => {
                             var obj = {
-                                id: data.ID,
-                                date: data.Date,
-                                fullName: data.FullName,
-                                shortName: data.ShortName,
-                                exchangeRate: data.ExchangeRate,
+                                stt: stt,
+                                id: Number(element.ID),
+                                date: element.Date ? element.Date : '',
+                                exchangeRate: element.ExchangeRate ? element.ExchangeRate : '',
+                                fullNameCurrency: element.currency.FullName ? element.currency.FullName : '',
+                                shortNameCurrency: element.currency.ShortName ? element.currency.ShortName : '',
                             }
-                            var result = {
-                                obj: obj,
-                                status: Constant.STATUS.SUCCESS,
-                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                            }
-                            res.json(result);
-                        } else {
-                            res.json(Result.NO_DATA_RESULT)
-
-                        }
-
+                            array.push(obj);
+                            stt += 1;
+                        });
                     })
+                    var count = await mtblRate(db).count({ where: { IDCurrency: body.id }, })
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: count,
+                    }
+                    res.json(result);
                 } catch (error) {
+                    console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
                 }
             } else {

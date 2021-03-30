@@ -424,6 +424,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_name_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListNametblDMTaiKhoanKeToan);
 
     var tblCurrency = require('./controller_finance/ctl-tblCurrency')
+    app.route('/qlnb/get_detail_tbl_currency').post(tblCurrency.detailtblCurrency);
     app.route('/qlnb/add_tbl_currency').post(checkToken.checkToken, tblCurrency.addtblCurrency);
     app.route('/qlnb/update_tbl_currency').post(checkToken.checkToken, tblCurrency.updatetblCurrency);
     app.route('/qlnb/get_list_tbl_currency').post(tblCurrency.getListtblCurrency);
@@ -431,7 +432,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_name_tbl_currency').post(checkToken.checkToken, tblCurrency.getListNametblCurrency);
 
     var tblRate = require('./controller_finance/ctl-tblRate')
-    app.route('/qlnb/add_tbl_rate').post(checkToken.checkToken, tblRate.addtblRate);
+    app.route('/qlnb/add_tbl_rate').post(tblRate.addtblRate);
     app.route('/qlnb/update_tbl_rate').post(checkToken.checkToken, tblRate.updatetblRate);
     app.route('/qlnb/get_list_tbl_rate').post(checkToken.checkToken, tblRate.getListtblRate);
     app.route('/qlnb/delete_tbl_rate').post(checkToken.checkToken, tblRate.deletetblRate);

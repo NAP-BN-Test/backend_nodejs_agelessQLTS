@@ -15,7 +15,7 @@ module.exports = function (db) {
         Address: Sequelize.STRING,
         Amount: Sequelize.FLOAT,
         AmountWords: Sequelize.STRING,
-        Reson: Sequelize.STRING,
+        Reason: Sequelize.STRING,
         IDManager: Sequelize.INTEGER,
         IDAccountant: Sequelize.INTEGER,
         IDTreasurer: Sequelize.INTEGER,

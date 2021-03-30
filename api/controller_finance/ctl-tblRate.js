@@ -21,17 +21,29 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblRate(db).create({
-                        IDCurrency: body.idCurrency ? body.idCurrency : null,
-                        Date: body.date ? body.date : null,
-                        ExchangeRate: body.exchangeRate ? body.exchangeRate : null,
-                    }).then(data => {
-                        var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
-                    })
+                    let check;
+                    if (body.date && body.idCurrency)
+                        check = await mtblRate(db).findOne({
+                            where: {
+                                date: body.date,
+                                IDCurrency: body.idCurrency,
+                            }
+                        })
+                    if (check)
+                        mtblRate(db).update({
+                            ExchangeRate: body.exchangeRate ? body.exchangeRate : null,
+                        }, { where: { ID: check.ID } })
+                    else
+                        mtblRate(db).create({
+                            IDCurrency: body.idCurrency ? body.idCurrency : null,
+                            Date: body.date ? body.date : null,
+                            ExchangeRate: body.exchangeRate ? body.exchangeRate : null,
+                        })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -16,10 +16,24 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
         }
     })
 }
+async function handleCodeNumber(str) {
+    var endCode = '';
+    if ((Number(str.slice(2, 10)) + 1) < 10)
+        endCode = '000' + (Number(str.slice(2, 10)) + 1)
+    if ((Number(str.slice(2, 10)) + 1) >= 10 && (Number(str.slice(2, 10)) + 1) < 100)
+        endCode = '00' + (Number(str.slice(2, 10)) + 1)
+    if ((Number(str.slice(2, 10)) + 1) >= 100 && (Number(str.slice(2, 10)) + 1) < 1000)
+        endCode = '0' + (Number(str.slice(2, 10)) + 1)
+    if ((Number(str.slice(2, 10)) + 1) >= 1000)
+        endCode = '' + (Number(str.slice(2, 10)) + 1)
+
+    return str.slice(0, 2) + endCode
+}
+
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
-    detailtblReceiptsPayment: (req, res) => {
+    detailtblReceiptsPayment: async (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -36,7 +50,7 @@ module.exports = {
                                 address: data.Address ? data.Address : '',
                                 amount: data.Amount ? data.Amount : null,
                                 amountWords: data.AmountWords ? data.AmountWords : '',
-                                reson: data.Reson ? data.Reson : '',
+                                reason: data.Reason ? data.Reason : '',
                                 idManager: data.IDManager ? data.IDManager : null,
                                 idAccountant: data.IDAccountant ? data.IDAccountant : null,
                                 idTreasurer: data.IDTreasurer ? data.IDTreasurer : null,
@@ -115,7 +129,6 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: (req, res) => {
         let body = req.body;
-        console.log(body);
         var listCredit = JSON.parse(body.listCredit)
         var listDebit = JSON.parse(body.listDebit)
         database.connectDatabase().then(async db => {
@@ -123,7 +136,7 @@ module.exports = {
                 try {
                     if (body.licenseNumber)
                         var check = await mtblReceiptsPayment(db).findOne({
-                            LicenseNumber: body.licenseNumber
+                            where: { VoucherNumber: body.voucherNumber }
                         })
                     if (check) {
                         var result = {
@@ -133,16 +146,33 @@ module.exports = {
                         res.json(result);
                         return
                     }
+                    var check = await mtblReceiptsPayment(db).findOne({
+                        order: [
+                            ['CodeNumber', 'ASC']
+                        ],
+                        where: {
+                            Type: body.type,
+                        }
+                    })
+                    var codeNumber = '';
+                    var automaticCode = '';
+                    if (!check && body.type == 'receipt') {
+                        codeNumber = 'PT0001'
+                    } else if (!check && body.type == 'payment') {
+                        codeNumber = 'PC0001'
+                    } else {
+                        automaticCode = await handleCodeNumber(check.CodeNumber)
+                    }
                     mtblReceiptsPayment(db).create({
                         Type: body.type ? body.type : '',
-                        CodeNumber: 'Test',
+                        CodeNumber: automaticCode,
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
                         IDCustomer: body.idCustomer ? body.idCustomer : null,
                         Address: body.address ? body.address : '',
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',
-                        Reson: body.reson ? body.reson : '',
+                        Reason: body.reason ? body.reason : '',
                         IDManager: body.idManager ? body.idManager : null,
                         IDAccountant: body.idAccountant ? body.idAccountant : null,
                         IDTreasurer: body.idTreasurer ? body.idTreasurer : null,
@@ -230,8 +260,8 @@ module.exports = {
                         update.push({ key: 'Address', value: body.address });
                     if (body.amountWords || body.amountWords === '')
                         update.push({ key: 'AmountWords', value: body.amountWords });
-                    if (body.reson || body.reson === '')
-                        update.push({ key: 'Reson', value: body.reson });
+                    if (body.reason || body.reason === '')
+                        update.push({ key: 'Reason', value: body.reason });
                     if (body.idCurrency || body.idCurrency === '') {
                         if (body.idCurrency === '')
                             update.push({ key: 'IDCurrency', value: null });
@@ -378,7 +408,7 @@ module.exports = {
                     mtblReceiptsPayment(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        // where: { Type: body.type },
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -399,7 +429,7 @@ module.exports = {
                                 address: data[i].Address ? data[i].Address : '',
                                 amount: data[i].Amount ? data[i].Amount : null,
                                 amountWords: data[i].AmountWords ? data[i].AmountWords : '',
-                                reson: data[i].Reson ? data[i].Reson : '',
+                                reason: data[i].Reason ? data[i].Reason : '',
                                 idManager: data[i].IDManager ? data[i].IDManager : null,
                                 idManager: '',
                                 idAccountant: data[i].IDAccountant ? data[i].IDAccountant : null,
@@ -430,12 +460,11 @@ module.exports = {
                             }).then(data => {
                                 data.forEach(item => {
                                     arrayCredit.push({
-                                        nameAccount: acc.AccountingCode,
+                                        nameAccount: item.acc ? item.acc.AccountingCode : '',
                                         amountOfMoney: item.Amount,
                                     })
                                 })
                             })
-                            tblPaymentAccounting.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'acc' })
                             await tblPaymentAccounting.findAll({
                                 include: [
                                     {
@@ -451,7 +480,7 @@ module.exports = {
                             }).then(data => {
                                 data.forEach(item => {
                                     arraydebit.push({
-                                        nameAccount: acc.AccountingCode,
+                                        nameAccount: item.acc ? item.acc.AccountingCode : '',
                                         amountOfMoney: item.Amount,
                                     })
                                 })
@@ -491,7 +520,7 @@ module.exports = {
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                Reson: element.Reson ? element.Reson : '',
+                                Reason: element.Reason ? element.Reason : '',
                             }
                             array.push(obj);
                         });
