@@ -389,6 +389,8 @@ module.exports = function (app) {
     // ************************************************************** QUẢN LÝ TÀI CHÍNH **********************************************************************************************
     var tblVayTamUng = require('./controller_finance/ctl-tblVayTamUng')
     app.route('/qlnb/get_list_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.getListtblVayTamUng);
+    app.route('/qlnb/add_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.addtblVayTamUng);
+    app.route('/qlnb/update_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.updatetblVayTamUng);
     app.route('/qlnb/get_detail_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.detailtblVayTamUng);
 
     // Điều khoản thanh toán
