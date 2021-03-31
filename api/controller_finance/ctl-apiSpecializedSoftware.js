@@ -196,4 +196,124 @@ module.exports = {
             }
         })
     },
+    // get_list_invoice_wait_for_pay
+    getListInvoiceWaitForPay: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging":
+            {
+                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                "currentPage": body.page ? body.page : 0
+            },
+            "type": body.type
+        }
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // get_list_invoice_paid
+    getListInvoicePaid: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging":
+            {
+                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                "currentPage": body.page ? body.page : 0
+            },
+            "type": body.type
+        }
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // get_list_invoice_edit_request
+    getListInvoiceEditRequest: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging":
+            {
+                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                "currentPage": body.page ? body.page : 0
+            },
+            "type": body.type
+        }
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // get_list_invoice_delete_request
+    getListInvoiceDeleteRequest: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging":
+            {
+                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                "currentPage": body.page ? body.page : 0
+            },
+            "type": body.type
+        }
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
 }

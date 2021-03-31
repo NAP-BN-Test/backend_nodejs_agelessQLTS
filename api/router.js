@@ -459,6 +459,13 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_credit_from_customer').post(apiSpecializedSoftware.getListCreditFromCustomer);
     app.route('/qlnb/get_list_invoice_from_customer').post(apiSpecializedSoftware.getListInvoiceFromCustomer);
 
+
+    app.route('/qlnb/get_list_invoice_wait_for_pay').post(apiSpecializedSoftware.getListInvoiceWaitForPay);
+    app.route('/qlnb/get_list_invoice_paid').post(apiSpecializedSoftware.getListInvoicePaid);
+    app.route('/qlnb/get_list_invoice_edit_request').post(apiSpecializedSoftware.getListInvoiceEditRequest);
+    app.route('/qlnb/get_list_invoice_delete_request').post(apiSpecializedSoftware.getListInvoiceDeleteRequest);
+
+
     // Danh sách phiếu thu / chi
     var tblReceiptsPayment = require('./controller_finance/ctl-tblReceiptsPayment')
     app.route('/qlnb/get_detail_tbl_receipts_payment').post(tblReceiptsPayment.detailtblReceiptsPayment);
@@ -472,10 +479,10 @@ module.exports = function (app) {
     // Danh sách giấy báo nợ/ có
     var tblCreditDebtnotices = require('./controller_finance/ctl-tblCreditDebtnotices')
     app.route('/qlnb/get_detail_tbl_credit_debt_notices').post(tblCreditDebtnotices.detailtblCreditDebtnotices);
-    app.route('/qlnb/add_tbl_receipts_payment').post(tblCreditDebtnotices.addtblCreditDebtnotices);
-    app.route('/qlnb/update_tbl_receipts_payment').post(tblCreditDebtnotices.updatetblCreditDebtnotices);
-    app.route('/qlnb/delete_tbl_receipts_payment').post(tblCreditDebtnotices.getListtblCreditDebtnotices);
-    app.route('/qlnb/get_list_tbl_receipts_payment').post(tblCreditDebtnotices.deletetblCreditDebtnotices);
+    app.route('/qlnb/add_tbl_credit_debt_notices').post(tblCreditDebtnotices.addtblCreditDebtnotices);
+    app.route('/qlnb/update_tbl_credit_debt_notices').post(tblCreditDebtnotices.updatetblCreditDebtnotices);
+    app.route('/qlnb/get_list_tbl_credit_debt_notices').post(tblCreditDebtnotices.getListtblCreditDebtnotices);
+    app.route('/qlnb/delete_tbl_credit_debt_notices').post(tblCreditDebtnotices.deletetblCreditDebtnotices);
 
 
     var tblInvoice = require('./controller_finance/ctl-tblInvoice')

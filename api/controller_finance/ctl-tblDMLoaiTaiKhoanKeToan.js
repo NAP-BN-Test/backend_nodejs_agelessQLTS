@@ -65,8 +65,9 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    console.log(body);
                     if (body.typeName || body.typeName === '')
-                        update.push({ key: 'typeName', value: body.typeName });
+                        update.push({ key: 'TypeName', value: body.typeName });
                     database.updateTable(update, mtblDMLoaiTaiKhoanKeToan(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);

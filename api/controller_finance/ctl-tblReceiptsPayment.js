@@ -64,7 +64,127 @@ async function createRate(db, exchangeRate, idCurrency) {
             ExchangeRate: exchangeRate ? exchangeRate : null,
         })
 }
+async function deleteAndCreateAllPayment(db, id, listUndefinedID, withdrawalMoney) {
+    // Xóa bản ghi cũ, công lại tiền cho bản ghi cũ
+    var payment = await mtblPaymentRPayment(db).findAll({
+        where: {
+            IDPayment: id
+        }
+    })
+    if (payment) {
+        for (var i = 0; i < payment.length; i++) {
+            let paymentUpdate = await mtblReceiptsPayment(db).findOne({
+                where: { ID: payment[i].IDPaymentR }
+            })
+            await mtblReceiptsPayment(db).update({
+                UnpaidAmount: paymentUpdate.UnpaidAmount + (payment[i].Amount ? payment[i].Amount : 0),
+                PaidAmount: paymentUpdate.PaidAmount - (payment[i].Amount ? payment[i].Amount : 0),
+            }, {
+                where: {
+                    ID: payment[i].IDPaymentR
+                }
+            })
+        }
+    }
+    await mtblPaymentRPayment(db).destroy({
+        where: {
+            IDPayment: id
+        }
+    })
 
+    for (var i = 0; i < listUndefinedID.length; i++) {
+        if (withdrawalMoney > 0) {
+            await mtblReceiptsPayment(db).findOne({
+                where: {
+                    ID: listUndefinedID[i]
+                }
+            }).then(async data => {
+                if (withdrawalMoney >= data.UnpaidAmount) {
+                    withdrawalMoney = withdrawalMoney - data.UnpaidAmount
+                    await mtblPaymentRPayment(db).create({
+                        IDPayment: id,
+                        IDPaymentR: listUndefinedID[i],
+                        Amount: data.UnpaidAmount,
+                    })
+                    await mtblReceiptsPayment(db).update({
+                        UnpaidAmount: 0,
+                        PaidAmount: data.UnpaidAmount + data.PaidAmount,
+                    }, {
+                        where: {
+                            ID: listUndefinedID[i]
+                        }
+                    })
+                }
+                else {
+                    await mtblPaymentRPayment(db).create({
+                        IDPayment: id,
+                        IDPaymentR: listUndefinedID[i],
+                        Amount: withdrawalMoney,
+                    })
+                    await mtblReceiptsPayment(db).update({
+                        UnpaidAmount: data.UnpaidAmount - withdrawalMoney,
+                        PaidAmount: withdrawalMoney,
+                    }, {
+                        where: {
+                            ID: listUndefinedID[i]
+
+                        }
+                    })
+                    withdrawalMoney = 0
+                }
+            })
+        }
+    }
+}
+async function deleteAndCreateAllInvoice(db, id, listInvoiceID) {
+    // Xóa dữ liệu cũ sau đó thêm mới
+    await mtblPaymentRInvoice(db).destroy({
+        where: {
+            IDPayment: id
+        }
+    })
+    // await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { IDSpecializedSoftware: { [Op.in]: listInvoiceID } } })
+
+    // Thêm mới
+    for (var i = 0; i < listInvoiceID.length; i++) {
+        await mtblPaymentRInvoice(db).create({
+            IDPayment: id,
+            IDSpecializedSoftware: listInvoiceID[i]
+        })
+        await mtblInvoice(db).update(
+            {
+                Status: 'paid'
+            },
+            { where: { IDSpecializedSoftware: listInvoiceID[i] } }
+        )
+    }
+
+    // Cập nhật mới
+    // for (var i = 0; i < listInvoiceID.length; i++) {
+    //     await mtblInvoice(db).update(
+    //         {
+    //             Status: 'paid'
+    //         },
+    //         { where: { IDSpecializedSoftware: listInvoiceID[i] } }
+    //     )
+    // }
+}
+async function checkUpdateError(db, listUndefinedID, withdrawalMoney) {
+    let check = 0;
+    for (var i = 0; i < listUndefinedID.length; i++) {
+        await mtblReceiptsPayment(db).findOne({
+            where: {
+                ID: listUndefinedID[i]
+            }
+        }).then(async data => {
+            check += data.UnpaidAmount
+        })
+    }
+    if (check < withdrawalMoney)
+        return false
+    else
+        return true
+}
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
@@ -196,6 +316,7 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
+        console.log(body);
         var listUndefinedID = JSON.parse(body.listUndefinedID)
         var listInvoiceID = JSON.parse(body.listInvoiceID)
         var listCredit = JSON.parse(body.listCredit)
@@ -227,10 +348,11 @@ module.exports = {
                             Type: body.type,
                         }
                     })
-                    var automaticCode = '';
+                    var automaticCode = 'PT0001';
                     if (!check && body.type == 'receipt') {
                         codeNumber = 'PT0001'
                     } else if (!check && body.type == 'payment') {
+                        automaticCode = 'PC0001'
                         codeNumber = 'PC0001'
                     } else {
                         automaticCode = await handleCodeNumber(check.CodeNumber)
@@ -275,40 +397,44 @@ module.exports = {
                             if (withdrawalMoney > 0) {
                                 await mtblReceiptsPayment(db).findOne({
                                     where: {
-                                        ID: data.ID
+                                        ID: listUndefinedID[i]
                                     }
-                                }).then(async data => {
-                                    if (withdrawalMoney >= data.UnpaidAmount) {
-                                        withdrawalMoney = withdrawalMoney - data.UnpaidAmount
+                                }).then(async paymentR => {
+                                    // Trường hợp nếu tiền rút lớn hơn hoặc bằng số tiền chưa thanh toán
+                                    if (withdrawalMoney >= paymentR.UnpaidAmount) {
+                                        withdrawalMoney = withdrawalMoney - paymentR.UnpaidAmount
+                                        // Tạo trước khi update
+                                        await mtblPaymentRPayment(db).create({
+                                            IDPayment: data.ID,
+                                            IDPaymentR: paymentR.ID,
+                                            Amount: paymentR.UnpaidAmount,
+                                        })
+                                        // Cập nhật số tiền thanh toán và không thanh toán của phiếu
                                         await mtblReceiptsPayment(db).update({
                                             UnpaidAmount: 0,
-                                            PaidAmount: data.UnpaidAmount + data.PaidAmount,
+                                            PaidAmount: paymentR.InitialAmount,
                                         }, {
                                             where: {
-                                                ID: data.ID
+                                                ID: paymentR.ID
 
                                             }
-                                        })
-                                        await mtblPaymentRPayment(db).create({
-                                            IDPayment: data.ID,
-                                            IDPaymentR: listUndefinedID[i],
-                                            Amount: data.UnpaidAmount + data.PaidAmount,
                                         })
                                     }
+                                    // Trường hợp nếu tiền rút nhỏ hơn số tiền chưa thanh toán
                                     else {
-                                        await mtblReceiptsPayment(db).update({
-                                            UnpaidAmount: data.UnpaidAmount - withdrawalMoney,
-                                            PaidAmount: withdrawalMoney,
-                                        }, {
-                                            where: {
-                                                ID: data.ID
-
-                                            }
-                                        })
                                         await mtblPaymentRPayment(db).create({
                                             IDPayment: data.ID,
-                                            IDPaymentR: listUndefinedID[i],
+                                            IDPaymentR: paymentR.ID,
                                             Amount: withdrawalMoney,
+                                        })
+                                        await mtblReceiptsPayment(db).update({
+                                            UnpaidAmount: paymentR.UnpaidAmount - withdrawalMoney,
+                                            PaidAmount: paymentR.PaidAmount + withdrawalMoney,
+                                        }, {
+                                            where: {
+                                                ID: paymentR.ID
+
+                                            }
                                         })
                                         withdrawalMoney = 0
                                     }
@@ -359,146 +485,18 @@ module.exports = {
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
-                    // Xóa dữ liệu cũ sau đó thêm mới
-                    await mtblPaymentRInvoice(db).destroy({
-                        where: {
-                            IDPayment: body.id
-                        }
-                    })
-                    await mtblReceiptsPayment(db).findOne({
-                        where: { ID: body.id }
-                    }).then(async data => {
-                        var payment = await mtblPaymentRPayment(db).findOne({
-                            where: {
-                                IDPayment: body.id
-                            }
-                        })
-                        if (payment)
-                            await mtblReceiptsPayment(db).update({
-                                UnpaidAmount: data.UnpaidAmount + payment.Amount,
-                                PaidAmount: data.PaidAmount - payment.Amount,
-                            }, {
-                                where: {
-                                    ID: data.ID
-                                }
-                            })
-                    })
-                    await mtblPaymentRPayment(db).destroy({
-                        where: {
-                            IDPayment: body.id
-                        }
-                    })
-
-                    // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
-                    for (var i = 0; i < listInvoiceID.length; i++) {
-                        await mtblPaymentRInvoice(db).create({
-                            IDPayment: body.id,
-                            IDSpecializedSoftware: listInvoiceID[i]
-                        })
-                        await mtblInvoice(db).update(
-                            {
-                                Status: 'paid'
-                            },
-                            { where: { IDSpecializedSoftware: listInvoiceID[i] } }
-                        )
-                    }
                     var withdrawalMoney = Number(body.withdrawal);
-                    for (var i = 0; i < listUndefinedID.length; i++) {
-                        await mtblPaymentRPayment(db).create({
-                            IDPayment: body.id,
-                            IDPaymentR: listUndefinedID[i],
-                        })
-                        if (withdrawalMoney > 0) {
-                            await mtblReceiptsPayment(db).findOne({
-                                where: {
-                                    ID: listUndefinedID[i]
-                                }
-                            }).then(async data => {
-                                if (withdrawalMoney >= data.UnpaidAmount) {
-                                    withdrawalMoney = withdrawalMoney - data.UnpaidAmount
-                                    await mtblReceiptsPayment(db).update({
-                                        UnpaidAmount: 0,
-                                        PaidAmount: data.UnpaidAmount + data.PaidAmount,
-                                    }, {
-                                        where: {
-                                            ID: body.id
-
-                                        }
-                                    })
-                                }
-                                else {
-                                    await mtblReceiptsPayment(db).update({
-                                        UnpaidAmount: data.UnpaidAmount - withdrawalMoney,
-                                        PaidAmount: withdrawalMoney,
-                                    }, {
-                                        where: {
-                                            ID: body.id
-
-                                        }
-                                    })
-                                    withdrawalMoney = 0
-                                }
-                            })
+                    var check = await checkUpdateError(db, listUndefinedID, withdrawalMoney)
+                    if (!check) {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Số tiền chọn lớn hơn số tiền rút quỹ. Vui lòng kiểm tra lại!",
                         }
+                        res.json(result);
                     }
-                    // -------------------------------------------------------------------------------------------------------------------------------
-
-                    await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { IDSpecializedSoftware: { [Op.in]: listInvoiceID } } })
-                    await mtblReceiptsPayment(db).findAll({ where: { ID: { [Op.in]: listUndefinedID } } }).then(async data => {
-                        for (var i = 0; i < data.length; i++) {
-                            await mtblReceiptsPayment(db).update({
-                                PaidAmount: null,
-                                UnpaidAmount: data[i].InitialAmount,
-                            }, {
-                                where: {
-                                    ID: data[i].ID
-                                }
-                            })
-                        }
-                    })
-                    for (var i = 0; i < listInvoiceID.length; i++) {
-                        await mtblInvoice(db).update(
-                            {
-                                Status: 'paid'
-                            },
-                            { where: { IDSpecializedSoftware: listInvoiceID[i] } }
-                        )
-                    }
-                    var withdrawalMoney = Number(body.withdrawal);
-                    for (var i = 0; i < listUndefinedID.length; i++) {
-                        if (withdrawalMoney > 0) {
-                            await mtblReceiptsPayment(db).findOne({
-                                where: {
-                                    ID: listUndefinedID[i]
-                                }
-                            }).then(async data => {
-                                if (withdrawalMoney >= data.UnpaidAmount) {
-                                    withdrawalMoney = withdrawalMoney - data.UnpaidAmount
-                                    await mtblReceiptsPayment(db).update({
-                                        UnpaidAmount: 0,
-                                        PaidAmount: data.UnpaidAmount + data.PaidAmount,
-                                    }, {
-                                        where: {
-                                            ID: data.ID
-
-                                        }
-                                    })
-                                }
-                                else {
-                                    await mtblReceiptsPayment(db).update({
-                                        UnpaidAmount: data.UnpaidAmount - withdrawalMoney,
-                                        PaidAmount: withdrawalMoney,
-                                    }, {
-                                        where: {
-                                            ID: data.ID
-
-                                        }
-                                    })
-                                    withdrawalMoney = 0
-                                }
-                            })
-                        }
-                    }
+                    // return
+                    await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
+                    await deleteAndCreateAllInvoice(db, body.id, listInvoiceID)
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     if (listCredit.length > 0 && listDebit > 0) {
                         await mtblPaymentAccounting(db).destroy({ where: { IDReceiptsPayment: body.id } })
@@ -518,18 +516,6 @@ module.exports = {
                                 Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
                         }
-                    }
-                    if (body.licenseNumber)
-                        var check = await mtblReceiptsPayment(db).findOne({
-                            LicenseNumber: body.licenseNumber
-                        })
-                    if (check) {
-                        var result = {
-                            status: Constant.STATUS.FAIL,
-                            message: "Số chứng từ đã tồn tại",
-                        }
-                        res.json(result);
-                        return
                     }
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
@@ -630,26 +616,28 @@ module.exports = {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    for (var i = 0; i < listID.length; i++) {
-                        await mtblReceiptsPayment(db).findOne({
-                            where: { ID: listID[i] }
-                        }).then(async data => {
-                            var payment = await mtblPaymentRPayment(db).findOne({
-                                where: {
-                                    IDPayment: listID[i]
-                                }
-                            })
-                            if (payment)
-                                await mtblReceiptsPayment(db).update({
-                                    UnpaidAmount: data.UnpaidAmount + payment.Amount,
-                                    PaidAmount: data.PaidAmount - payment.Amount,
-                                }, {
-                                    where: {
-                                        ID: data.ID
-                                    }
-                                })
-                        })
-                    }
+                    // for (var i = 0; i < listID.length; i++) {
+                    //     var payment = await mtblPaymentRPayment(db).findAll({
+                    //         where: {
+                    //             IDPayment: listID[i]
+                    //         }
+                    //     })
+                    //     if (payment) {
+                    //         for (var i = 0; i < payment.length; i++) {
+                    //             let paymentUpdate = await mtblReceiptsPayment(db).findOne({
+                    //                 where: { ID: payment[i].IDPaymentR }
+                    //             })
+                    //             await mtblReceiptsPayment(db).update({
+                    //                 UnpaidAmount: paymentUpdate.UnpaidAmount + payment[i].Amount,
+                    //                 PaidAmount: paymentUpdate.PaidAmount - payment[i].Amount,
+                    //             }, {
+                    //                 where: {
+                    //                     ID: payment[i].IDPaymentR
+                    //                 }
+                    //             })
+                    //         }
+                    //     }
+                    // }
                     await deleteRelationshiptblReceiptsPayment(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,

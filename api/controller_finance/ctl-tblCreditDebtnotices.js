@@ -4,6 +4,7 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblCreditDebtnotices = require('../tables/financemanage/tblCreditDebtnotices')
 var mtblCreditsAccounting = require('../tables/financemanage/tblCreditsAccounting')
+var mtblNoticesRInvoice = require('../tables/financemanage/tblNoticesRInvoice')
 var database = require('../database');
 async function deleteRelationshiptblCreditDebtnotices(db, listID) {
     await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: { [Op.in]: listID } } })
@@ -64,11 +65,13 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
+                    var listInvoiceID = JSON.parse(body.listInvoiceID)
                     mtblCreditDebtnotices(db).create({
                         Type: body.type ? body.type : '',
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
@@ -85,20 +88,26 @@ module.exports = {
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
                         IDPartner: body.idPartner ? body.idPartner : null,
                     }).then(async data => {
+                        for (var i = 0; i < listInvoiceID.length; i++) {
+                            await mtblNoticesRInvoice(db).create({
+                                IDnotices: data.ID,
+                                IDSpecializedSoftware: listInvoiceID[i],
+                            })
+                        }
                         for (var i = 0; i < listCredit.length; i++) {
                             await mtblCreditsAccounting(db).create({
                                 IDCreditDebtnotices: data.ID,
-                                IDAccounting: listCredit[i].id,
+                                IDAccounting: listCredit[i].hasAccount.id,
                                 Type: "CREDIT",
-                                Amount: listCredit[i].amount ? listCredit[i].amount : 0,
+                                Amount: listCredit[i].amountOfMoney ? listCredit[i].amountOfMoney : 0,
                             })
                         }
                         for (var j = 0; j < listDebit.length; j++) {
                             await mtblCreditsAccounting(db).create({
                                 IDCreditDebtnotices: data.ID,
-                                IDAccounting: listDebit[j].id,
+                                IDAccounting: listDebit[j].hasAccount.id,
                                 Type: "DEBIT",
-                                Amount: listDebit[j].amount ? listDebit[j].amount : 0,
+                                Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
                         }
                         var result = {
@@ -125,6 +134,7 @@ module.exports = {
                     let update = [];
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
+                    var listInvoiceID = JSON.parse(body.listInvoiceID)
                     if (listCredit.length > 0 && listDebit > 0) {
                         await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
@@ -143,6 +153,13 @@ module.exports = {
                                 Amount: listDebit[j].amount ? listDebit[j].amount : 0,
                             })
                         }
+                    }
+                    for (var i = 0; i < listInvoiceID.length; i++) {
+                        await mtblNoticesRInvoice(db).destroy({ where: { ID: body.id } })
+                        await mtblNoticesRInvoice(db).create({
+                            IDnotices: data.ID,
+                            IDSpecializedSoftware: listInvoiceID[i],
+                        })
                     }
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
@@ -298,7 +315,7 @@ module.exports = {
                     mtblCreditDebtnotices(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: { Type: body.type },
                         order: [
                             ['ID', 'DESC']
                         ],
