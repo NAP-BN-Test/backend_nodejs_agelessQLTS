@@ -59,9 +59,28 @@ module.exports = {
     addtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
-            console.log(body);
             if (db) {
                 try {
+                    let check = await mtblDMTaiKhoanKeToan(db).findOne({
+                        where: {
+                            [Op.or]: [
+                                {
+                                    AccountingCode: body.accountingCode,
+                                },
+                                {
+                                    AccountingName: body.accountingName,
+                                }
+                            ]
+                        }
+                    })
+                    if (check) {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Tên hoặc mã tài khoản kế toán đã tồn tại. Vui lòng kiểm tra lại !",
+                        }
+                        res.json(result);
+                        return
+                    }
                     mtblDMTaiKhoanKeToan(db).create({
                         AccountingCode: body.accountingCode ? body.accountingCode : '',
                         AccountingName: body.accountingName ? body.accountingName : '',

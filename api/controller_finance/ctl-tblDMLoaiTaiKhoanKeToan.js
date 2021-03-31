@@ -27,6 +27,19 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let check = await mtblDMLoaiTaiKhoanKeToan(db).findOne({
+                        where: {
+                            TypeName: body.typeName
+                        }
+                    })
+                    if (check) {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Tên tài khoản kế toán đã tồn tại. Vui lòng kiểm tra lại !",
+                        }
+                        res.json(result);
+                        return
+                    }
                     mtblDMLoaiTaiKhoanKeToan(db).create({
                         TypeName: body.typeName ? body.typeName : '',
                     }).then(data => {

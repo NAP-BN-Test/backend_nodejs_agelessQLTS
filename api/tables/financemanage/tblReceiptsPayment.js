@@ -26,6 +26,7 @@ module.exports = function (db) {
         UnpaidAmount: Sequelize.FLOAT,
         PaidAmount: Sequelize.FLOAT,
         InitialAmount: Sequelize.FLOAT,
+        Withdrawal: Sequelize.FLOAT,
     });
 
     return table;

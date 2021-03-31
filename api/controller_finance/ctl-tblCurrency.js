@@ -75,6 +75,21 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let check = await mtblCurrency(db).findOne({
+                        where: {
+                            [Op.or]: [{
+                                ShortName: body.shortName,
+                            }]
+                        }
+                    })
+                    if (check) {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: 'Trùng tên tiền tệ. Vui lòng kiểm tra lại !',
+                        }
+                        res.json(result);
+                        return
+                    }
                     mtblCurrency(db).create({
                         ShortName: body.shortName ? body.shortName : '',
                         FullName: body.fullName ? body.fullName : '',
