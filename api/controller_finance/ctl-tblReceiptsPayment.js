@@ -235,6 +235,7 @@ module.exports = {
                                 paidAmount: data.PaidAmount ? data.PaidAmount : null,
                                 initialAmount: data.InitialAmount ? data.InitialAmount : null,
                                 withdrawal: data.Withdrawal ? data.Withdrawal : null,
+                                unknown: data.Unknown ? data.Unknown : null,
                             }
                             let arrayCredit = []
                             let arraydebit = []
@@ -378,6 +379,7 @@ module.exports = {
                         InitialAmount: body.amount ? body.amount : null,
                         UnpaidAmount: body.amount ? body.amount : null,
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
+                        Unknown: body.undefined ? body.undefined : null,
                     }).then(async data => {
                         // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
                         for (var i = 0; i < listInvoiceID.length; i++) {
@@ -519,6 +521,7 @@ module.exports = {
                     }
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
+                    update.push({ key: 'Unknown', value: body.undefined });
                     if (body.withdrawal || body.withdrawal === '')
                         update.push({ key: 'Withdrawal', value: body.withdrawal });
                     if (body.voucherNumber || body.voucherNumber === '')
@@ -843,7 +846,10 @@ module.exports = {
                 try {
                     let stt = 1;
                     mtblReceiptsPayment(db).findAll({
-                        where: { IDCustomer: body.idCustomer },
+                        where: {
+                            IDCustomer: body.idCustomer,
+                            Unknown: true,
+                        },
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -879,4 +885,5 @@ module.exports = {
             }
         })
     },
+
 }
