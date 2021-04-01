@@ -450,6 +450,7 @@ module.exports = function (app) {
     // api phần mềm chuyên môn
     var apiSpecializedSoftware = require('./controller_finance/ctl-apiSpecializedSoftware')
     app.route('/qlnb/get_list_department').post(apiSpecializedSoftware.getListDepartment);
+    var tblInvoice = require('./controller_finance/ctl-tblInvoice')
     // app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
     app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
     app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
@@ -458,13 +459,21 @@ module.exports = function (app) {
 
     app.route('/qlnb/get_list_credit_from_customer').post(apiSpecializedSoftware.getListCreditFromCustomer);
     app.route('/qlnb/get_list_invoice_from_customer').post(apiSpecializedSoftware.getListInvoiceFromCustomer);
+    app.route('/qlnb/get_list_invoice_from_partner').post(apiSpecializedSoftware.getListInvoiceFromPartner);
 
-
+    // --------------------------------INVOICE---------------------------------------------------------------------------------
+    app.route('/qlnb/get_list_invoice').post(tblInvoice.getListtblInvoice);
     app.route('/qlnb/get_list_invoice_wait_for_pay').post(apiSpecializedSoftware.getListInvoiceWaitForPay);
     app.route('/qlnb/get_list_invoice_paid').post(apiSpecializedSoftware.getListInvoicePaid);
     app.route('/qlnb/get_list_invoice_edit_request').post(apiSpecializedSoftware.getListInvoiceEditRequest);
     app.route('/qlnb/get_list_invoice_delete_request').post(apiSpecializedSoftware.getListInvoiceDeleteRequest);
 
+    // --------------------------------INVOICE---------------------------------------------------------------------------------
+    app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
+    app.route('/qlnb/get_list_credit_wait_for_pay').post(apiSpecializedSoftware.getListCreditWaitForPay);
+    app.route('/qlnb/get_list_credit_paid').post(apiSpecializedSoftware.getListCreditPaid);
+    app.route('/qlnb/get_list_credit_edit_request').post(apiSpecializedSoftware.getListCreditEditRequest);
+    app.route('/qlnb/get_list_credit_delete_request').post(apiSpecializedSoftware.getListCreditDeleteRequest);
 
     // Danh sách phiếu thu / chi
     var tblReceiptsPayment = require('./controller_finance/ctl-tblReceiptsPayment')
@@ -483,9 +492,5 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_credit_debt_notices').post(tblCreditDebtnotices.updatetblCreditDebtnotices);
     app.route('/qlnb/get_list_tbl_credit_debt_notices').post(tblCreditDebtnotices.getListtblCreditDebtnotices);
     app.route('/qlnb/delete_tbl_credit_debt_notices').post(tblCreditDebtnotices.deletetblCreditDebtnotices);
-
-
-    var tblInvoice = require('./controller_finance/ctl-tblInvoice')
-    app.route('/qlnb/get_list_invoice').post(tblInvoice.getListtblInvoice);
 
 }

@@ -5,9 +5,12 @@ var moment = require('moment');
 var mtblCreditDebtnotices = require('../tables/financemanage/tblCreditDebtnotices')
 var mtblCreditsAccounting = require('../tables/financemanage/tblCreditsAccounting')
 var mtblNoticesRInvoice = require('../tables/financemanage/tblNoticesRInvoice')
+var mtblCurrency = require('../tables/financemanage/tblCurrency')
+var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 var database = require('../database');
 async function deleteRelationshiptblCreditDebtnotices(db, listID) {
     await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: { [Op.in]: listID } } })
+    await mtblNoticesRInvoice(db).destroy({ where: { IDnotices: { [Op.in]: listID } } })
 
     await mtblCreditDebtnotices(db).destroy({
         where: {
@@ -23,15 +26,28 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblCreditDebtnotices(db).findOne({ where: { ID: body.id } }).then(data => {
+                    let tblCreditDebtnotices = mtblCreditDebtnotices(db);
+                    tblCreditDebtnotices.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+                    tblCreditDebtnotices.findOne({
+                        where: { ID: body.id },
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
+                        ],
+                    }).then(async data => {
                         if (data) {
                             var obj = {
                                 id: data.ID,
                                 type: data.Type ? data.Type : '',
                                 idCurrency: data.IDCurrency ? data.IDCurrency : null,
+                                fullNameCurrency: data.currency ? data.currency.FullName : null,
+                                shortNameCurrency: data.currency ? data.currency.ShortName : null,
                                 date: data.Date ? data.Date : null,
                                 voucherNumber: data.VoucherNumber ? data.VoucherNumber : '',
-                                idCustomer: data.IDCustomer ? data.IDCustomer : null,
+                                idPartner: data.IDCustomer ? data.IDCustomer : null,
                                 amount: data.Amount ? data.Amount : null,
                                 amountWords: data.AmountWords ? data.AmountWords : '',
                                 reason: data.Reason ? data.Reason : '',
@@ -42,6 +58,67 @@ module.exports = {
                                 idSubmitter: data.IDSubmitter ? data.IDSubmitter : null,
                                 idPartner: data.IDPartner ? data.IDPartner : null,
                             }
+                            var listCredit = []
+                            var listDebit = []
+                            var listInvoiceID = []
+                            await mtblNoticesRInvoice(db).findAll({ where: { IDnotices: data.ID } }).then(data => {
+                                data.forEach(item => {
+                                    listInvoiceID.push(Number(item.IDSpecializedSoftware))
+                                })
+                            })
+                            let tblCreditsAccounting = mtblCreditsAccounting(db);
+                            tblCreditsAccounting.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'acc' })
+                            await tblCreditsAccounting.findAll({
+                                include: [
+                                    {
+                                        model: mtblDMTaiKhoanKeToan(db),
+                                        required: false,
+                                        as: 'acc'
+                                    },
+                                ],
+                                where: {
+                                    IDCreditDebtnotices: data.ID,
+                                    type: "CREDIT"
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listCredit.push({
+                                        hasAccount: {
+                                            id: item.acc ? item.acc.ID : '',
+                                            accountingName: item.acc ? item.acc.AccountingName : '',
+                                            accountingCode: item.acc ? item.acc.AccountingCode : '',
+                                        },
+                                        amountOfMoney: item.Amount,
+                                    })
+                                })
+                            })
+                            await tblCreditsAccounting.findAll({
+                                include: [
+                                    {
+                                        model: mtblDMTaiKhoanKeToan(db),
+                                        required: false,
+                                        as: 'acc'
+                                    },
+                                ],
+                                where: {
+                                    IDCreditDebtnotices: data.ID,
+                                    type: "DEBIT"
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listDebit.push({
+                                        debtAccount: {
+                                            id: item.acc ? item.acc.ID : '',
+                                            accountingName: item.acc ? item.acc.AccountingName : '',
+                                            accountingCode: item.acc ? item.acc.AccountingCode : '',
+                                        },
+                                        amountOfMoney: item.Amount,
+                                    })
+                                })
+                            })
+                            obj['arrayCredit'] = listCredit
+                            obj['arrayDebit'] = listDebit
+                            obj['listInvoiceID'] = listInvoiceID
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -65,7 +142,6 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -77,7 +153,7 @@ module.exports = {
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
                         VoucherNumber: body.voucherNumber ? body.voucherNumber : '',
-                        IDCustomer: body.idCustomer ? body.idCustomer : null,
+                        IDCustomer: body.idPartner ? body.idPartner : null,
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',
                         Reason: body.reason ? body.reason : '',
@@ -105,7 +181,7 @@ module.exports = {
                         for (var j = 0; j < listDebit.length; j++) {
                             await mtblCreditsAccounting(db).create({
                                 IDCreditDebtnotices: data.ID,
-                                IDAccounting: listDebit[j].hasAccount.id,
+                                IDAccounting: listDebit[j].debtAccount.id,
                                 Type: "DEBIT",
                                 Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
@@ -157,7 +233,7 @@ module.exports = {
                     for (var i = 0; i < listInvoiceID.length; i++) {
                         await mtblNoticesRInvoice(db).destroy({ where: { ID: body.id } })
                         await mtblNoticesRInvoice(db).create({
-                            IDnotices: data.ID,
+                            IDnotices: body.id,
                             IDSpecializedSoftware: listInvoiceID[i],
                         })
                     }
@@ -181,11 +257,11 @@ module.exports = {
                         else
                             update.push({ key: 'Date', value: body.date });
                     }
-                    if (body.idCustomer || body.idCustomer === '') {
-                        if (body.idCustomer === '')
-                            update.push({ key: 'IDCustomer', value: null });
+                    if (body.idPartner || body.idPartner === '') {
+                        if (body.idPartner === '')
+                            update.push({ key: 'IDPartner', value: null });
                         else
-                            update.push({ key: 'IDCustomer', value: body.idCustomer });
+                            update.push({ key: 'IDPartner', value: body.idPartner });
                     }
                     if (body.idPartner || body.idPartner === '') {
                         if (body.idPartner === '')
@@ -312,21 +388,33 @@ module.exports = {
                     //     }
                     // }
                     let stt = 1;
-                    mtblCreditDebtnotices(db).findAll({
+                    let tblCreditDebtnotices = mtblCreditDebtnotices(db);
+                    tblCreditDebtnotices.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+
+                    tblCreditDebtnotices.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: { Type: body.type },
                         order: [
                             ['ID', 'DESC']
                         ],
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
+                        ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
+                                id: Number(data[i].ID),
                                 type: data[i].Type ? data[i].Type : '',
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
+                                fullNameCurrency: data[i].currency ? data[i].currency.FullName : null,
+                                shortNameCurrency: data[i].currency ? data[i].currency.ShortName : null,
                                 date: data[i].Date ? data[i].Date : null,
                                 voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
@@ -340,6 +428,60 @@ module.exports = {
                                 idSubmitter: data[i].IDSubmitter ? data[i].IDSubmitter : null,
                                 idPartner: data[i].IDPartner ? data[i].IDPartner : null,
                             }
+                            var listCredit = []
+                            var listDebit = []
+                            let tblCreditsAccounting = mtblCreditsAccounting(db);
+                            tblCreditsAccounting.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'acc' })
+                            await tblCreditsAccounting.findAll({
+                                include: [
+                                    {
+                                        model: mtblDMTaiKhoanKeToan(db),
+                                        required: false,
+                                        as: 'acc'
+                                    },
+                                ],
+                                where: {
+                                    IDCreditDebtnotices: data[i].ID,
+                                    type: "CREDIT"
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listCredit.push({
+                                        hasAccount: {
+                                            id: item.acc ? item.acc.ID : '',
+                                            accountingName: item.acc ? item.acc.AccountingName : '',
+                                            accountingCode: item.acc ? item.acc.AccountingCode : '',
+                                        },
+                                        amountOfMoney: item.Amount,
+                                    })
+                                })
+                            })
+                            await tblCreditsAccounting.findAll({
+                                include: [
+                                    {
+                                        model: mtblDMTaiKhoanKeToan(db),
+                                        required: false,
+                                        as: 'acc'
+                                    },
+                                ],
+                                where: {
+                                    IDCreditDebtnotices: data[i].ID,
+                                    type: "DEBIT"
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listDebit.push({
+                                        debtAccount: {
+                                            id: item.acc ? item.acc.ID : '',
+                                            accountingName: item.acc ? item.acc.AccountingName : '',
+                                            accountingCode: item.acc ? item.acc.AccountingCode : '',
+                                        },
+                                        amountOfMoney: item.Amount,
+                                    })
+                                })
+                            })
+                            obj["arrayCredit"] = listCredit
+                            obj["arrayDebit"] = listDebit
                             array.push(obj);
                             stt += 1;
                         }
