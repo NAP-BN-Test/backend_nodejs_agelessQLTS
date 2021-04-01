@@ -457,9 +457,16 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);
     app.route('/qlnb/get_list_user').post(apiSpecializedSoftware.getListUser);
 
-    app.route('/qlnb/get_list_credit_from_customer').post(apiSpecializedSoftware.getListCreditFromCustomer);
-    app.route('/qlnb/get_list_invoice_from_customer').post(apiSpecializedSoftware.getListInvoiceFromCustomer);
     app.route('/qlnb/get_list_invoice_from_partner').post(apiSpecializedSoftware.getListInvoiceFromPartner);
+
+    // invoice và credit theo khách hàng
+    app.route('/qlnb/get_list_invoice_from_customer').post(apiSpecializedSoftware.getListInvoiceFromCustomer);
+    app.route('/qlnb/get_list_invoice_wait_for_pay_from_customer').post(apiSpecializedSoftware.getListInvoiceWaitForPayFromCustomer);
+    app.route('/qlnb/get_list_invoice_paid_from_customer').post(apiSpecializedSoftware.getListInvoicePaidFromCustomer);
+    app.route('/qlnb/get_list_credit_from_customer').post(apiSpecializedSoftware.getListCreditFromCustomer);
+    app.route('/qlnb/get_list_credit_wait_for_pay_from_customer').post(apiSpecializedSoftware.getListCreditWaitForPayFromCustomer);
+    app.route('/qlnb/get_list_credit_paid_from_customer').post(apiSpecializedSoftware.getListCreditPaidFromCustomer);
+
 
     // --------------------------------INVOICE---------------------------------------------------------------------------------
     app.route('/qlnb/get_list_invoice').post(tblInvoice.getListtblInvoice);
@@ -468,7 +475,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_invoice_edit_request').post(apiSpecializedSoftware.getListInvoiceEditRequest);
     app.route('/qlnb/get_list_invoice_delete_request').post(apiSpecializedSoftware.getListInvoiceDeleteRequest);
 
-    // --------------------------------INVOICE---------------------------------------------------------------------------------
+    // --------------------------------CREDIT---------------------------------------------------------------------------------
     app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
     app.route('/qlnb/get_list_credit_wait_for_pay').post(apiSpecializedSoftware.getListCreditWaitForPay);
     app.route('/qlnb/get_list_credit_paid').post(apiSpecializedSoftware.getListCreditPaid);
@@ -493,4 +500,6 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_credit_debt_notices').post(tblCreditDebtnotices.getListtblCreditDebtnotices);
     app.route('/qlnb/delete_tbl_credit_debt_notices').post(tblCreditDebtnotices.deletetblCreditDebtnotices);
 
+    var tblAccountingBooks = require('./controller_finance/ctl-tblAccountingBooks')
+    app.route('/qlnb/get_list_tbl_accounting_books').post(tblAccountingBooks.getListtblAccountingBooks);
 }

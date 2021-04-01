@@ -75,6 +75,8 @@ module.exports = {
             // console.log(data.data);
         })
     },
+
+    // Invoice follow customer ------------------------------------------------------------------------------------------------------------------
     // get_list_invoice_from_customer
     getListInvoiceFromCustomer: async (req, res) => {
         var body = req.body
@@ -86,6 +88,7 @@ module.exports = {
             },
             "type": body.type
         }
+        console.log(body);
         await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
             if (data) {
                 if (data.data.status_code == 200) {
@@ -105,9 +108,74 @@ module.exports = {
             }
         })
     },
-    // get_list_invoice_from_partner
-    getListInvoiceFromPartner: async (req, res) => {
+    // get_list_invoice_wait_for_pay_from_customer
+    getListInvoiceWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
+        var obj = {
+            "paging":
+            {
+                "pageSize": 10,
+                "currentPage": 1,
+            },
+            "type": body.type
+        }
+        console.log(body);
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // get_list_invoice_paid_from_customer
+    getListInvoicePaidFromCustomer: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging":
+            {
+                "pageSize": 10,
+                "currentPage": 1,
+            },
+            "type": body.type
+        }
+        console.log(body);
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+
+    // Credit follow customer ------------------------------------------------------------------------------------------------------------------
+    // get_list_credit_from_customer
+    getListCreditFromCustomer: async (req, res) => {
+        var body = req.body
+        console.log(body.id);
         var obj = {
             "paging":
             {
@@ -135,10 +203,74 @@ module.exports = {
             }
         })
     },
-    // get_list_credit_from_customer
-    getListCreditFromCustomer: async (req, res) => {
+    // get_list_credit_wait_for_pay_from_customer
+    getListCreditWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
-        console.log(body.idCustomer);
+        console.log(body.id);
+        var obj = {
+            "paging":
+            {
+                "pageSize": 10,
+                "currentPage": 1,
+            },
+            "type": body.type
+        }
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // get_list_credit_paid_from_customer
+    getListCreditPaidFromCustomer: async (req, res) => {
+        var body = req.body
+        console.log(body.id);
+        var obj = {
+            "paging":
+            {
+                "pageSize": 10,
+                "currentPage": 1,
+            },
+            "type": body.type
+        }
+        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            if (data) {
+                if (data.data.status_code == 200) {
+                    var result = {
+                        array: data.data.data.list,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: data.data.data.pager.rowsCount
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            }
+            else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+
+
+    // ------------------------------------------------------------------------------------------------------------------------------------------
+    // get_list_invoice_from_partner
+    getListInvoiceFromPartner: async (req, res) => {
+        var body = req.body
         var obj = {
             "paging":
             {
@@ -287,7 +419,9 @@ module.exports = {
             }
         })
     },
-    // invoice-------------------------------------------------------------------------------------------------------------------------------------
+
+
+    // credit-------------------------------------------------------------------------------------------------------------------------------------
     // get_list_credit
     getListCredit: async (req, res) => {
         var body = req.body
@@ -299,6 +433,7 @@ module.exports = {
             },
             "type": body.type
         }
+        console.log(body);
         await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
             if (data) {
                 if (data.data.status_code == 200) {
