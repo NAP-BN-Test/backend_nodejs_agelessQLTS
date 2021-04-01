@@ -26,50 +26,10 @@ module.exports = {
                 try {
                     let tblVayTamUng = mtblVayTamUng(db);
                     let tblDMBoPhan = mtblDMBoPhan(db);
-                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienCreate', sourceKey: 'IDNhanVienCreate', as: 'staffCreate' })
-                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienAdvance', sourceKey: 'IDNhanVienAdvance', as: 'staffAdvance' })
-                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienLD', sourceKey: 'IDNhanVienLD', as: 'staffLD' })
-                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienPD', sourceKey: 'IDNhanVienPD', as: 'staffPD' })
-                    tblVayTamUng.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhanNVCreate', sourceKey: 'IDBoPhanNVCreate', as: 'departmentCreate' })
-                    tblVayTamUng.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhanNVAdvance', sourceKey: 'IDBoPhanNVAdvance', as: 'departmentAdvance' })
-                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'branch' })
                     tblVayTamUng.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDTaiKhoanKeToanCost', sourceKey: 'IDTaiKhoanKeToanCost', as: 'tkkt' })
                     tblVayTamUng.findOne({
                         where: { ID: body.id },
                         include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staffCreate'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staffAdvance'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staffLD'
-                            },
-                            {
-                                model: tblDMBoPhan,
-                                required: false,
-                                as: 'departmentCreate',
-                                include:
-                                    [
-                                        {
-                                            model: mtblDMChiNhanh(db),
-                                            required: false,
-                                            as: 'branch'
-                                        }
-                                    ],
-                            },
-                            {
-                                model: tblDMBoPhan,
-                                required: false,
-                                as: 'departmentAdvance'
-                            },
                             {
                                 model: mtblDMTaiKhoanKeToan(db),
                                 required: false,
@@ -82,24 +42,24 @@ module.exports = {
                                 id: Number(data.ID),
                                 advanceCode: data.AdvanceCode ? data.AdvanceCode : '',
                                 idNhanVienCreate: data.IDNhanVienCreate ? data.IDNhanVienCreate : null,
-                                nameNhanVienCreate: data.staffCreate ? data.staffCreate.StaffName : '',
+                                nameNhanVienCreate: 'chưa có dữ liệu',
                                 idBoPhanNVCreate: data.IDBoPhanNVCreate ? data.IDBoPhanNVCreate : null,
-                                nameBoPhanNVCreate: data.departmentCreate ? data.departmentCreate.DepartmentName : '',
-                                nameChiNhanhCreate: data.departmentCreate ? data.departmentCreate.branch ? data.departmentCreate.branch.BranchName : '' : '',
+                                nameBoPhanNVCreate: 'chưa có dữ liệu',
+                                nameChiNhanhCreate: 'chưa có dữ liệu',
                                 idNhanVienAdvance: data.IDNhanVienAdvance ? data.IDNhanVienAdvance : null,
-                                nameNhanVienAdvance: data.staffAdvance ? data.staffAdvance.StaffName : '',
+                                nameNhanVienAdvance: 'chưa có dữ liệu',
                                 idBoPhanNVAdvance: data.IDBoPhanNVAdvance ? data.IDBoPhanNVAdvance : null,
-                                nameBoPhanNVAdvance: data.departmentAdvance ? data.departmentAdvance.DepartmentName : null,
+                                nameBoPhanNVAdvance: 'chưa có dữ liệu',
                                 date: data.Date ? data.Date : null,
                                 contents: data.Contents ? data.Contents : '',
                                 cost: data.Cost ? data.Cost : null,
                                 idTaiKhoanKeToanCost: data.IDTaiKhoanKeToanCost ? data.IDTaiKhoanKeToanCost : null,
                                 nameTaiKhoanKeToanCost: data.tkkt ? data.tkkt.AccountingName : '',
                                 idNhanVienLD: data.IDNhanVienLD ? data.IDNhanVienLD : null,
-                                nameNhanVienLD: data.staffLD ? data.staffLD.StaffName : '',
+                                nameNhanVienLD: 'chưa có dữ liệu',
                                 trangThaiPheDuyetLD: data.TrangThaiPheDuyetLD ? data.TrangThaiPheDuyetLD : '',
                                 idNhanVienPD: data.IDNhanVienPD ? data.IDNhanVienPD : null,
-                                nameNhanVienPD: data.staffPD ? data.staffPD.StaffName : '',
+                                nameNhanVienPD: 'chưa có dữ liệu',
                                 trangThaiPheDuyetPD: data.TrangThaiPheDuyetPD ? data.TrangThaiPheDuyetPD : '',
                                 reason: data.Reason ? data.Reason : '',
                                 refunds: data.Refunds ? data.Refunds : true,
@@ -127,6 +87,7 @@ module.exports = {
     // add_tbl_vaytamung
     addtblVayTamUng: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -323,13 +284,6 @@ module.exports = {
                     //  }
                     let stt = 1;
                     let tblVayTamUng = mtblVayTamUng(db);
-                    let tblDMBoPhan = mtblDMBoPhan(db);
-                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienCreate', sourceKey: 'IDNhanVienCreate', as: 'staffCreate' })
-                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienAdvance', sourceKey: 'IDNhanVienAdvance', as: 'staffAdvance' })
-                    tblVayTamUng.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienLD', sourceKey: 'IDNhanVienLD', as: 'staffLD' })
-                    tblVayTamUng.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhanNVCreate', sourceKey: 'IDBoPhanNVCreate', as: 'departmentCreate' })
-                    tblVayTamUng.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhanNVAdvance', sourceKey: 'IDBoPhanNVAdvance', as: 'departmentAdvance' })
-                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'branch' })
                     tblVayTamUng.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDTaiKhoanKeToanCost', sourceKey: 'IDTaiKhoanKeToanCost', as: 'tkkt' })
                     tblVayTamUng.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
@@ -339,39 +293,6 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staffCreate'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staffAdvance'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staffLD'
-                            },
-                            {
-                                model: tblDMBoPhan,
-                                required: false,
-                                as: 'departmentCreate',
-                                include:
-                                    [
-                                        {
-                                            model: mtblDMChiNhanh(db),
-                                            required: false,
-                                            as: 'branch'
-                                        }
-                                    ],
-                            },
-                            {
-                                model: tblDMBoPhan,
-                                required: false,
-                                as: 'departmentAdvance'
-                            },
                             {
                                 model: mtblDMTaiKhoanKeToan(db),
                                 required: false,
@@ -386,25 +307,25 @@ module.exports = {
                                 id: Number(element.ID),
                                 advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
                                 idNhanVienCreate: element.IDNhanVienCreate ? element.IDNhanVienCreate : null,
-                                nameNhanVienCreate: element.staffCreate ? element.staffCreate.StaffName : '',
+                                nameNhanVienCreate: 'chưa có dữ liệu',
                                 idBoPhanNVCreate: element.IDBoPhanNVCreate ? element.IDBoPhanNVCreate : null,
-                                nameBoPhanNVCreate: element.departmentCreate ? element.departmentCreate.DepartmentName : '',
-                                nameChiNhanhCreate: element.departmentCreate ? element.departmentCreate.branch ? element.departmentCreate.branch.BranchName : '' : '',
+                                nameBoPhanNVCreate: 'chưa có dữ liệu',
+                                nameChiNhanhCreate: 'chưa có dữ liệu',
                                 idNhanVienAdvance: element.IDNhanVienAdvance ? element.IDNhanVienAdvance : null,
-                                nameNhanVienAdvance: element.staffAdvance ? element.staffAdvance.StaffName : '',
+                                nameNhanVienAdvance: 'chưa có dữ liệu',
                                 idBoPhanNVAdvance: element.IDBoPhanNVAdvance ? element.IDBoPhanNVAdvance : null,
-                                nameBoPhanNVAdvance: element.departmentAdvance ? element.departmentAdvance.DepartmentName : null,
+                                nameBoPhanNVAdvance: 'chưa có dữ liệu',
                                 date: element.Date ? element.Date : null,
                                 contents: element.Contents ? element.Contents : '',
                                 cost: element.Cost ? element.Cost : null,
                                 idTaiKhoanKeToanCost: element.IDTaiKhoanKeToanCost ? element.IDTaiKhoanKeToanCost : null,
                                 nameTaiKhoanKeToanCost: element.tkkt ? element.tkkt.AccountingName : '',
                                 idNhanVienLD: element.IDNhanVienLD ? element.IDNhanVienLD : null,
-                                nameNhanVienLD: element.staffLD ? element.staffLD.StaffName : '',
+                                nameNhanVienLD: 'chưa có dữ liệu',
                                 trangThaiPheDuyetLD: element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '',
-                                idNhanVienPD: null,
-                                nameNhanVienLD: '',
-                                trangThaiPheDuyetLD: '',
+                                idNhanVienPD: element.IDNhanVienPD ? element.IDNhanVienPD : null,
+                                nameNhanVienPD: 'chưa có dữ liệu',
+                                trangThaiPheDuyetPD: element.TrangThaiPheDuyetPD ? element.TrangThaiPheDuyetPD : '',
                                 reason: element.Reason ? element.Reason : '',
                                 refunds: element.Refunds ? element.Refunds : true,
                             }

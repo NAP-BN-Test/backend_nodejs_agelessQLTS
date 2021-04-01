@@ -1,5 +1,7 @@
 const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
+const Sequelize = require('sequelize');
+
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
@@ -10,6 +12,8 @@ var mtblInvoice = require('../tables/financemanage/tblInvoice')
 var mtblPaymentRPayment = require('../tables/financemanage/tblPaymentRPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 var mtblRate = require('../tables/financemanage/tblRate')
+var mtblCurrency = require('../tables/financemanage/tblCurrency')
+
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     await mtblPaymentRInvoice(db).destroy({
         where: {
@@ -235,7 +239,7 @@ module.exports = {
                                 paidAmount: data.PaidAmount ? data.PaidAmount : null,
                                 initialAmount: data.InitialAmount ? data.InitialAmount : null,
                                 withdrawal: data.Withdrawal ? data.Withdrawal : null,
-                                unknown: data.Unknown ? data.Unknown : null,
+                                isUndefined: data.Unknown
                             }
                             let arrayCredit = []
                             let arraydebit = []
@@ -317,7 +321,6 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
-        console.log(body);
         var listUndefinedID = JSON.parse(body.listUndefinedID)
         var listInvoiceID = JSON.parse(body.listInvoiceID)
         var listCredit = JSON.parse(body.listCredit)
@@ -329,7 +332,7 @@ module.exports = {
                     // await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { Status: 'paid' } })
                     // await mtblReceiptsPayment(db).update({ PaidAmount: null }, { where: { PaidAmount: { [Op.ne]: null } } })
                     await createRate(db, body.exchangeRate, body.idCurrency)
-                    if (body.licenseNumber)
+                    if (body.voucherNumber)
                         var check = await mtblReceiptsPayment(db).findOne({
                             where: { VoucherNumber: body.voucherNumber }
                         })
@@ -379,7 +382,7 @@ module.exports = {
                         InitialAmount: body.amount ? body.amount : null,
                         UnpaidAmount: body.amount ? body.amount : null,
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
-                        Unknown: body.undefined ? body.undefined : null,
+                        Unknown: body.isUndefined ? body.isUndefined : null,
                     }).then(async data => {
                         // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
                         for (var i = 0; i < listInvoiceID.length; i++) {
@@ -479,6 +482,7 @@ module.exports = {
     // update_tbl_receipts_payment
     updatetblReceiptsPayment: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -500,7 +504,7 @@ module.exports = {
                     await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
                     await deleteAndCreateAllInvoice(db, body.id, listInvoiceID)
                     await createRate(db, body.exchangeRate, body.idCurrency)
-                    if (listCredit.length > 0 && listDebit > 0) {
+                    if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblPaymentAccounting(db).destroy({ where: { IDReceiptsPayment: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
                             await mtblPaymentAccounting(db).create({
@@ -521,7 +525,7 @@ module.exports = {
                     }
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
-                    update.push({ key: 'Unknown', value: body.undefined });
+                    update.push({ key: 'Unknown', value: body.isUndefined });
                     if (body.withdrawal || body.withdrawal === '')
                         update.push({ key: 'Withdrawal', value: body.withdrawal });
                     if (body.voucherNumber || body.voucherNumber === '')
@@ -845,13 +849,22 @@ module.exports = {
             if (db) {
                 try {
                     let stt = 1;
-                    mtblReceiptsPayment(db).findAll({
+                    let tblReceiptsPayment = mtblReceiptsPayment(db);
+                    tblReceiptsPayment.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+                    tblReceiptsPayment.findAll({
                         where: {
                             IDCustomer: body.idCustomer,
                             Unknown: true,
                         },
                         order: [
                             ['ID', 'DESC']
+                        ],
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -863,13 +876,41 @@ module.exports = {
                                 unpaidAmount: data[i].UnpaidAmount ? data[i].UnpaidAmount : 0,
                                 paidAmount: data[i].PaidAmount ? data[i].PaidAmount : 0,
                                 initialAmount: data[i].InitialAmount ? data[i].InitialAmount : 0,
+                                amount: data[i].Amount ? data[i].Amount : 0,
+                                reason: data[i].Reason ? data[i].Reason : '',
+                                date: data[i].Date ? data[i].Date : 0,
+                                idCurrency: data[i].IDCurrency ? data[i].IDCurrency : 0,
+                                shortNameCurrency: data[i].currency ? data[i].currency.ShortName : 0,
+                                fullNameCurrency: data[i].currency ? data[i].currency.FullName : 0,
                                 type: "Phiếu thu",
                             }
                             array.push(obj);
                             stt += 1;
                         }
+                        let arrayAmountMoney = []
+                        await mtblCurrency(db).findAll().then(async data => {
+                            for (var i = 0; i < data.length; i++) {
+                                await mtblReceiptsPayment(db).findAll({
+                                    attributes: [
+                                        [Sequelize.fn('SUM', Sequelize.col('Amount')), 'total_amount'],
+                                    ],
+                                    // group: ['ID', 'Unknown', 'Withdrawal', 'InitialAmount', 'PaidAmount', 'UnpaidAmount', 'VoucherDate', 'VoucherNumber', 'IDManager', 'Reason', 'AmountWords', 'Amount', 'Address', 'IDCustomer', 'Date', 'IDCurrency', 'CodeNumber', 'Type'],
+                                    where: {
+                                        IDCurrency: data[i].ID
+                                    }
+                                }).then(payment => {
+                                    var obj = {
+                                        name: data[i].FullName ? data[i].FullName : '',
+                                        sum: payment[0].dataValues.total_amount
+                                    }
+                                    arrayAmountMoney.push(obj)
+                                })
+                            }
+                        })
                         var result = {
                             array: array,
+                            totalMoney: 0,
+                            arrayAmountMoney: arrayAmountMoney,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

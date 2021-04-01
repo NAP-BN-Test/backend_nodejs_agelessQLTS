@@ -46,7 +46,7 @@ module.exports = {
                                         Status: array[i].statusName,
                                     })
                                 } else {
-                                    array[i].statusName = inv.Status
+                                    array[i]['statusName'] = inv.Status;
                                 }
                                 stt += 1;
                             }
