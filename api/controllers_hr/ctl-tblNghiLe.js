@@ -207,22 +207,7 @@ module.exports = {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'LOẠI NGHỈ LỄ') {
                                     var list = [];
-                                    await mtblLoaiChamCong(db).findAll({
-                                        order: [
-                                            ['ID', 'DESC']
-                                        ],
-                                        where: {
-                                            [Op.or]: [
-                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDLoaiChamCong'] = { [Op.in]: list }
+                                    userFind['IDLoaiChamCong'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }

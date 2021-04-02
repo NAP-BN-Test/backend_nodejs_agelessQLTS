@@ -33,6 +33,7 @@ module.exports = function (db) {
         Status: Sequelize.STRING,
         ProductivityWages: Sequelize.FLOAT,
         CoefficientsSalary: Sequelize.FLOAT,
+        IDSpecializedSoftware: Sequelize.INTEGER,
     });
 
     return table;

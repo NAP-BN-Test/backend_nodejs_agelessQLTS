@@ -101,9 +101,9 @@ module.exports = {
                         Cost: body.cost ? body.cost : null,
                         IDTaiKhoanKeToanCost: body.idTaiKhoanKeToanCost ? body.idTaiKhoanKeToanCost : null,
                         IDNhanVienLD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
-                        TrangThaiPheDuyetLD: body.trangThaiPheDuyetLD ? body.trangThaiPheDuyetLD : '',
+                        TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                         IDNhanVienPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
-                        TrangThaiPheDuyetPD: body.trangThaiPheDuyetPD ? body.trangThaiPheDuyetPD : '',
+                        TrangThaiPheDuyetPD: 'Chờ phê duyệt',
                         Reason: body.reason ? body.reason : '',
                         Refunds: body.refunds ? body.refunds : true,
                     }).then(data => {
@@ -319,10 +319,10 @@ module.exports = {
                                 nameTaiKhoanKeToanCost: element.tkkt ? element.tkkt.AccountingName : '',
                                 idNhanVienLDPD: element.IDNhanVienLD ? element.IDNhanVienLD : null,
                                 nameNhanVienLDPD: 'chưa có dữ liệu',
-                                trangThaiPheDuyetPDLD: element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '',
+                                trangThaiPheDuyetLD: element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '',
                                 idNhanVienKTPD: element.IDNhanVienPD ? element.IDNhanVienPD : null,
                                 nameNhanVienKTPD: 'chưa có dữ liệu',
-                                trangThaiPheDuyetKTPD: element.TrangThaiPheDuyetPD ? element.TrangThaiPheDuyetPD : '',
+                                trangThaiPheDuyetKT: element.TrangThaiPheDuyetPD ? element.TrangThaiPheDuyetPD : '',
                                 reason: element.Reason ? element.Reason : '',
                                 refunds: element.Refunds ? element.Refunds : true,
                             }
@@ -379,5 +379,108 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+
+    // approval_employee_accountant_kvtu
+    approvalNhanVienKTPD: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblVayTamUng(db).update({
+                        TrangThaiPheDuyetPD: 'Đã phê duyệt'
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // approval_employee_leader_kvtu
+    approvalNhanVienLDPD: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblVayTamUng(db).update({
+                        TrangThaiPheDuyetLD: 'Đã phê duyệt'
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    //  refuse_employee_accountant_kvtu
+    refuseNhanVienKTPD: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblVayTamUng(db).update({
+                        TrangThaiPheDuyetPD: 'Từ chối',
+                        Reason: body.reason ? body.reason : '',
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    //  refuse_employee_leader_kvtu
+    refuseNhanVienLDPD: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblVayTamUng(db).update({
+                        TrangThaiPheDuyetLD: 'Từ chối',
+                        Reason: body.reason ? body.reason : '',
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

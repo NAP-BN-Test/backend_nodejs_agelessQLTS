@@ -12,6 +12,8 @@ module.exports = function (db) {
         IDNhanvien: Sequelize.BIGINT,
         Active: Sequelize.BOOLEAN,
         IDPermission: Sequelize.BIGINT,
+        IDSpecializedSoftware: Sequelize.INTEGER,
+        NameSpecializedSoftware: Sequelize.STRING,
 
     });
 

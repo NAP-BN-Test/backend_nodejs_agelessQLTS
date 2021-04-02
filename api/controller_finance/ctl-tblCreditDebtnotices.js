@@ -18,6 +18,20 @@ async function deleteRelationshiptblCreditDebtnotices(db, listID) {
         }
     })
 }
+async function handleCodeNumber(str) {
+    var endCode = '';
+    var behind = Number(str.slice(3, 10)) + 1
+    if (behind < 10)
+        endCode = '000' + behind
+    if (behind >= 10 && behind < 100)
+        endCode = '00' + behind
+    if (behind >= 100 && behind < 1000)
+        endCode = '0' + behind
+    if (behind >= 1000)
+        endCode = behind
+
+    return str.slice(0, 3) + endCode
+}
 module.exports = {
     deleteRelationshiptblCreditDebtnotices,
     //  get_detail_tbl_credit_debt_notices
@@ -148,6 +162,22 @@ module.exports = {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
+                    var check = await mtblCreditDebtnotices(db).findOne({
+                        order: [
+                            ['VoucherNumber', 'DESC']
+                        ],
+                        where: {
+                            Type: body.type,
+                        }
+                    })
+                    var voucherNumber = 'GBN0001';
+                    if (!check && body.type == 'spending') {
+                        voucherNumber = 'GBC0001'
+                    } else if (!check && body.type == 'debit') {
+                        voucherNumber = 'GBN0001'
+                    } else {
+                        voucherNumber = await handleCodeNumber(check.CodeNumber)
+                    }
                     mtblCreditDebtnotices(db).create({
                         Type: body.type ? body.type : '',
                         IDCurrency: body.idCurrency ? body.idCurrency : null,

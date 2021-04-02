@@ -361,6 +361,7 @@ module.exports = {
                             ProductivityWages: body.productivityWages ? body.productivityWages : '',
                             CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : 0,
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
+                            IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                         }).then(async data => {
                             var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
                                 order: [
@@ -437,6 +438,8 @@ module.exports = {
                         update.push({ key: 'Address', value: body.address });
                     if (body.statusEmployee || body.statusEmployee === '')
                         update.push({ key: 'Status', value: body.statusEmployee });
+                    if (body.idSpecializedSoftware || body.idSpecializedSoftware === '')
+                        update.push({ key: 'IDSpecializedSoftware', value: body.idSpecializedSoftware });
                     if (body.idNation || body.idNation === '') {
                         if (body.idNation === '')
                             update.push({ key: 'IDNation', value: null });
@@ -877,6 +880,7 @@ module.exports = {
                                 email: element.Email ? element.Email : '',
                                 statusEmployee: element.Status ? element.Status : '',
                                 productivityWages: element.ProductivityWages ? element.ProductivityWages : '',
+                                idSpecializedSoftware: element.idSpecializedSoftware ? element.idSpecializedSoftware : null,
                             }
                             array.push(obj);
                             stt += 1;

@@ -23,6 +23,7 @@ module.exports = {
     // add_tbl_dmuser
     addtblDMUser: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -34,6 +35,8 @@ module.exports = {
                             IDNhanvien: body.idNhanvien ? body.idNhanvien : null,
                             Active: body.active ? body.active : '',
                             IDPermission: body.idPermission ? body.idPermission : null,
+                            IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
+                            NameSpecializedSoftware: body.specializedSoftwareName ? body.specializedSoftwareName : '',
                         }).then(data => {
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -66,6 +69,10 @@ module.exports = {
                     let update = [];
                     if (body.username || body.username === '')
                         update.push({ key: 'Username', value: body.username });
+                    if (body.idSpecializedSoftware || body.idSpecializedSoftware === '')
+                        update.push({ key: 'IDSpecializedSoftware', value: body.idSpecializedSoftware });
+                    if (body.specializedSoftwareName || body.specializedSoftwareName === '')
+                        update.push({ key: 'NameSpecializedSoftware', value: body.specializedSoftwareName });
                     if (body.password || body.password === '')
                         update.push({ key: 'Password', value: body.password });
                     if (body.idNhanvien || body.idNhanvien === '') {
@@ -327,6 +334,8 @@ module.exports = {
                                 idNhanvien: element.IDNhanvien ? element.IDNhanvien : null,
                                 staffName: element.tblDMNhanvien ? element.tblDMNhanvien.StaffName : '',
                                 staffCode: element.tblDMNhanvien ? element.tblDMNhanvien.StaffCode : '',
+                                idSpecializedSoftware: element.IDSpecializedSoftware ? element.IDSpecializedSoftware : null,
+                                nameSpecializedSoftware: element.NameSpecializedSoftware ? element.NameSpecializedSoftware : null,
                                 active: element.Active ? 'Có hiệu lực' : 'Vô hiệu hóa',
                                 idPermission: element.IDPermission ? element.IDPermission : null,
                                 permissionName: element.tblDMPermission ? element.tblDMPermission.PermissionName : '',
@@ -428,6 +437,8 @@ module.exports = {
                         userName: data.Username,
                         password: data.Password,
                         idNhanVien: data.IDNhanvien,
+                        idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : null,
+                        specializedSoftwareName: data.NameSpecializedSoftware ? data.NameSpecializedSoftware : '',
                         staffName: data.nv ? data.nv.StaffName : '',
                         staffCode: data.nv ? data.nv.StaffCode : '',
                         departmentCode: data.nv ? data.nv.bp ? data.nv.bp.DepartmentCode : '' : '',

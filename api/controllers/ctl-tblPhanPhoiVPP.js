@@ -221,7 +221,7 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'NGƯỜI TIẾP NHẬN') {
+                                if (data.items[i].fields['name'] === 'NGƯỜI SỞ HỮU') {
                                     var list = [];
                                     userFind['IDNhanVienSoHuu'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -414,7 +414,7 @@ module.exports = {
                                 idNhanVienBanGiao: element.IDNhanVienBanGiao ? element.IDNhanVienBanGiao : null,
                                 nameNhanVienBanGiao: element.nvbg ? element.nvbg.StaffName : '',
                                 idNhanVienSoHuu: element.IDNhanVienSoHuu ? element.IDNhanVienSoHuu : null,
-                                nameNhanVienSoHuu: element.nvsh ? element.nvsh.StaffName : element.Status ? element.Status : '',
+                                nameNhanVienSoHuu: element.nvsh ? element.nvsh.StaffName : '',
                                 idBoPhanSoHuu: element.IDBoPhanSoHuu ? element.IDBoPhanSoHuu : null,
                                 nameBoPhanSoHuu: element.bp ? element.bp.DepartmentName : null,
                                 date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,

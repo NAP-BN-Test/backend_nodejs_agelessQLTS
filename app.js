@@ -460,7 +460,9 @@ io.on("connection", async function (socket) {
                                             IDNhanVienKTPD: user[i].IDNhanvien,
                                             TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                                         },
+                                    }, {
                                         [Op.and]: {
+                                            TrangThaiPheDuyetKT: { [Op.ne]: 'Chờ phê duyệt' },
                                             IDNhanVienLDPD: user[i].IDNhanvien,
                                             TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                                         }
