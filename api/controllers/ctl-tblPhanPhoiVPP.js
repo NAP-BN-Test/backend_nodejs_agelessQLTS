@@ -8,6 +8,7 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var database = require('../database');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
+var mModules = require('../constants/modules');
 
 async function deleteRelationshipTBLPhanPhoiVPP(db, listID) {
     // await mtblFileAttach(db).destroy({
@@ -208,7 +209,8 @@ module.exports = {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGÀY TIẾP NHẬN') {
-                                    userFind['Date'] = { [Op.substring]: '%' + data.items[i]['searchFields'] + '%' }
+                                    var date = data.items[i]['searchFields'].slice(6, 10) + "-" + data.items[i]['searchFields'].slice(3, 5) + "-" + data.items[i]['searchFields'].slice(0, 2);
+                                    userFind['Date'] = { [Op.substring]: date }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

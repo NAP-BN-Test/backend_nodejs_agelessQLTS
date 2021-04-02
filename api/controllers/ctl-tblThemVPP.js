@@ -358,7 +358,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY CUNG CẤP') {
-                                    userFind['Date'] = { [Op.substring]: '%' + data.items[i]['searchFields'] + '%' }
+                                    var date = data.items[i]['searchFields'].slice(6, 10) + "-" + data.items[i]['searchFields'].slice(3, 5) + "-" + data.items[i]['searchFields'].slice(0, 2);
+
+                                    userFind['Date'] = { [Op.substring]: '%' + date + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
