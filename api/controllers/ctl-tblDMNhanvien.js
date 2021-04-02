@@ -803,23 +803,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'PHÒNG BAN/BỘ PHẬN') {
-                                    var list = [];
-                                    await mtblDMBoPhan(db).findAll({
-                                        order: [
-                                            ['ID', 'DESC']
-                                        ],
-                                        where: {
-                                            [Op.or]: [
-                                                { DepartmentCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { DepartmentName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDBoPhan'] = { [Op.in]: list }
+                                    userFind['IDBoPhan'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }

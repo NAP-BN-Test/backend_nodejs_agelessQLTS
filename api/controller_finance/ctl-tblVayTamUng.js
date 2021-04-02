@@ -55,12 +55,12 @@ module.exports = {
                                 cost: data.Cost ? data.Cost : null,
                                 idTaiKhoanKeToanCost: data.IDTaiKhoanKeToanCost ? data.IDTaiKhoanKeToanCost : null,
                                 nameTaiKhoanKeToanCost: data.tkkt ? data.tkkt.AccountingName : '',
-                                idNhanVienLD: data.IDNhanVienLD ? data.IDNhanVienLD : null,
-                                nameNhanVienLD: 'chưa có dữ liệu',
-                                trangThaiPheDuyetLD: data.TrangThaiPheDuyetLD ? data.TrangThaiPheDuyetLD : '',
-                                idNhanVienPD: data.IDNhanVienPD ? data.IDNhanVienPD : null,
-                                nameNhanVienPD: 'chưa có dữ liệu',
-                                trangThaiPheDuyetPD: data.TrangThaiPheDuyetPD ? data.TrangThaiPheDuyetPD : '',
+                                idNhanVienLDPD: data.IDNhanVienLD ? data.IDNhanVienLD : null,
+                                nameNhanVienLDPD: 'chưa có dữ liệu',
+                                trangThaiPheDuyetPDLD: data.TrangThaiPheDuyetLD ? data.TrangThaiPheDuyetLD : '',
+                                idNhanVienKTPD: data.IDNhanVienPD ? data.IDNhanVienPD : null,
+                                nameNhanVienKTPD: 'chưa có dữ liệu',
+                                trangThaiPheDuyetKTPD: data.TrangThaiPheDuyetPD ? data.TrangThaiPheDuyetPD : '',
                                 reason: data.Reason ? data.Reason : '',
                                 refunds: data.Refunds ? data.Refunds : true,
                             }
@@ -87,7 +87,6 @@ module.exports = {
     // add_tbl_vaytamung
     addtblVayTamUng: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -101,9 +100,9 @@ module.exports = {
                         Contents: body.contents ? body.contents : '',
                         Cost: body.cost ? body.cost : null,
                         IDTaiKhoanKeToanCost: body.idTaiKhoanKeToanCost ? body.idTaiKhoanKeToanCost : null,
-                        IDNhanVienLD: body.idNhanVienLD ? body.idNhanVienLD : null,
+                        IDNhanVienLD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
                         TrangThaiPheDuyetLD: body.trangThaiPheDuyetLD ? body.trangThaiPheDuyetLD : '',
-                        IDNhanVienPD: body.idNhanVienPD ? body.idNhanVienPD : null,
+                        IDNhanVienPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetPD: body.trangThaiPheDuyetPD ? body.trangThaiPheDuyetPD : '',
                         Reason: body.reason ? body.reason : '',
                         Refunds: body.refunds ? body.refunds : true,
@@ -176,22 +175,18 @@ module.exports = {
                         else
                             update.push({ key: 'IDTaiKhoanKeToanCost', value: body.idTaiKhoanKeToanCost });
                     }
-                    if (body.idNhanVienLD || body.idNhanVienLD === '') {
-                        if (body.idNhanVienLD === '')
+                    if (body.idNhanVienLDPD || body.idNhanVienLDPD === '') {
+                        if (body.idNhanVienLDPD === '')
                             update.push({ key: 'IDNhanVienLD', value: null });
                         else
-                            update.push({ key: 'IDNhanVienLD', value: body.idNhanVienLD });
+                            update.push({ key: 'IDNhanVienLD', value: body.idNhanVienLDPD });
                     }
-                    if (body.trangThaiPheDuyetLD || body.trangThaiPheDuyetLD === '')
-                        update.push({ key: 'TrangThaiPheDuyetLD', value: body.trangThaiPheDuyetLD });
-                    if (body.idNhanVienpd || body.idNhanVienpd === '') {
-                        if (body.idNhanVienpd === '')
-                            update.push({ key: 'IDNhanVienpd', value: null });
+                    if (body.idNhanVienKTPD || body.idNhanVienKTPD === '') {
+                        if (body.idNhanVienKTPD === '')
+                            update.push({ key: 'IDNhanVienPD', value: null });
                         else
-                            update.push({ key: 'IDNhanVienpd', value: body.idNhanVienpd });
+                            update.push({ key: 'IDNhanVienPD', value: body.idNhanVienKTPD });
                     }
-                    if (body.trangThaiPheDuyetPD || body.trangThaiPheDuyetPD === '')
-                        update.push({ key: 'TrangThaiPheDuyetPD', value: body.trangThaiPheDuyetPD });
                     if (body.reason || body.reason === '')
                         update.push({ key: 'Reason', value: body.reason });
                     if (body.refunds || body.refunds === '') {
@@ -241,6 +236,8 @@ module.exports = {
     // get_list_tbl_vaytamung
     getListtblVayTamUng: (req, res) => {
         let body = req.body;
+        console.log(body);
+        let dataSearch = JSON.parse(body.dataSearch)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -320,12 +317,12 @@ module.exports = {
                                 cost: element.Cost ? element.Cost : null,
                                 idTaiKhoanKeToanCost: element.IDTaiKhoanKeToanCost ? element.IDTaiKhoanKeToanCost : null,
                                 nameTaiKhoanKeToanCost: element.tkkt ? element.tkkt.AccountingName : '',
-                                idNhanVienLD: element.IDNhanVienLD ? element.IDNhanVienLD : null,
-                                nameNhanVienLD: 'chưa có dữ liệu',
-                                trangThaiPheDuyetLD: element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '',
-                                idNhanVienPD: element.IDNhanVienPD ? element.IDNhanVienPD : null,
-                                nameNhanVienPD: 'chưa có dữ liệu',
-                                trangThaiPheDuyetPD: element.TrangThaiPheDuyetPD ? element.TrangThaiPheDuyetPD : '',
+                                idNhanVienLDPD: element.IDNhanVienLD ? element.IDNhanVienLD : null,
+                                nameNhanVienLDPD: 'chưa có dữ liệu',
+                                trangThaiPheDuyetPDLD: element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '',
+                                idNhanVienKTPD: element.IDNhanVienPD ? element.IDNhanVienPD : null,
+                                nameNhanVienKTPD: 'chưa có dữ liệu',
+                                trangThaiPheDuyetKTPD: element.TrangThaiPheDuyetPD ? element.TrangThaiPheDuyetPD : '',
                                 reason: element.Reason ? element.Reason : '',
                                 refunds: element.Refunds ? element.Refunds : true,
                             }

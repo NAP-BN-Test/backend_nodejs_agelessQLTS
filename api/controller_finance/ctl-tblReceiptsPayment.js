@@ -128,6 +128,7 @@ async function deleteAndCreateAllPayment(db, id, listUndefinedID, withdrawalMone
                     await mtblReceiptsPayment(db).update({
                         UnpaidAmount: data.UnpaidAmount - withdrawalMoney,
                         PaidAmount: withdrawalMoney,
+                        Unknown: false,
                     }, {
                         where: {
                             ID: listUndefinedID[i]

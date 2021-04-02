@@ -453,10 +453,20 @@ io.on("connection", async function (socket) {
                         let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                         tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                         await tblDeNghiThanhToan.findAll({
-                            where: [
-                                { IDNhanVienKTPD: user[i].IDNhanvien },
-                                { TrangThaiPheDuyetKT: 'Chờ phê duyệt' }
-                            ],
+                            where: {
+                                [Op.or]: [
+                                    {
+                                        [Op.and]: {
+                                            IDNhanVienKTPD: user[i].IDNhanvien,
+                                            TrangThaiPheDuyetKT: 'Chờ phê duyệt',
+                                        },
+                                        [Op.and]: {
+                                            IDNhanVienLDPD: user[i].IDNhanvien,
+                                            TrangThaiPheDuyetLD: 'Chờ phê duyệt',
+                                        }
+                                    }
+                                ],
+                            },
                             include: [
                                 {
                                     model: mtblDMNhanvien(db),
@@ -474,33 +484,33 @@ io.on("connection", async function (socket) {
                                 count += 1;
                             })
                         })
-                        await tblDeNghiThanhToan.findAll({
-                            where: [
-                                { IDNhanVienLDPD: user[i].IDNhanvien },
-                                {
-                                    [Op.or]: [
-                                        { TrangThaiPheDuyetKT: 'Đã phê duyệt' },
-                                        { TrangThaiPheDuyetKT: 'Đã hủy' },
-                                    ]
-                                }
-                            ],
-                            include: [
-                                {
-                                    model: mtblDMNhanvien(db),
-                                    required: false,
-                                    as: 'nv'
-                                },
-                            ],
-                        }).then(data => {
-                            data.forEach(item => {
-                                array.push({
-                                    name: item.nv ? item.nv.StaffName : 'admin',
-                                    type: 'payment',
-                                    userID: user[i].ID,
-                                })
-                                count += 1;
-                            })
-                        })
+                        // await tblDeNghiThanhToan.findAll({
+                        //     where: [
+                        //         { IDNhanVienLDPD: user[i].IDNhanvien },
+                        //         {
+                        //             [Op.or]: [
+                        //                 { TrangThaiPheDuyetKT: 'Đã phê duyệt' },
+                        //                 { TrangThaiPheDuyetKT: 'Đã hủy' },
+                        //             ]
+                        //         }
+                        //     ],
+                        //     include: [
+                        //         {
+                        //             model: mtblDMNhanvien(db),
+                        //             required: false,
+                        //             as: 'nv'
+                        //         },
+                        //     ],
+                        // }).then(data => {
+                        //     data.forEach(item => {
+                        //         array.push({
+                        //             name: item.nv ? item.nv.StaffName : 'admin',
+                        //             type: 'payment',
+                        //             userID: user[i].ID,
+                        //         })
+                        //         count += 1;
+                        //     })
+                        // })
                     }
                 }
             } else {

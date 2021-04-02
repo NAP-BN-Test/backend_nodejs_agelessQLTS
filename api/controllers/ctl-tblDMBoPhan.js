@@ -190,20 +190,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'CHI NHÁNH') {
-                                    var list = [];
-                                    await mtblDMChiNhanh(db).findAll({
-                                        where: {
-                                            [Op.or]: [
-                                                { BranchCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { BranchName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDChiNhanh'] = { [Op.in]: list }
+                                    userFind['IDChiNhanh'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -218,7 +205,6 @@ module.exports = {
                             }
                         }
                     }
-                    console.log(whereOjb);
                     var stt = 1;
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })

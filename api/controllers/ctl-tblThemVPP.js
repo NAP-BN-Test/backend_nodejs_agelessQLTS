@@ -346,14 +346,7 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'NHÀ CUNG CẤP') {
                                     var list = [];
-                                    await mtblDMNhaCungCap(db).findAll({
-                                        where: { SupplierName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDNhaCungCap'] = { [Op.in]: list }
+                                    userFind['IDNhaCungCap'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

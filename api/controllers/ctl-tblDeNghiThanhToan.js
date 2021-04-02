@@ -206,24 +206,7 @@ module.exports = {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGƯỜI ĐỀ NGHỊ') {
-                                    var list = [];
-                                    await mtblDMNhanvien(db).findAll({
-                                        order: [
-                                            ['ID', 'DESC']
-                                        ],
-                                        where: {
-                                            [Op.or]: [
-                                                { StaffCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { StaffName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    console.log(list);
-                                    userFind['IDNhanVien'] = { [Op.in]: list }
+                                    userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereO[Op.and] = userFind
                                     }
@@ -260,7 +243,6 @@ module.exports = {
                                 [Op.and]: [{ [Op.or]: whereO }],
                             }
                     }
-                    console.log(whereObj);
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     let tblDMNhanvien = mtblDMNhanvien(db);

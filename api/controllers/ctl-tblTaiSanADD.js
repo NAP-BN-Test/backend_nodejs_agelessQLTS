@@ -814,22 +814,9 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'LOẠI TÀI SẢN') {
                                     var list = [];
-                                    var listTypeAsset = [];
-                                    await mtblDMLoaiTaiSan(db).findAll({
-                                        where: {
-                                            [Op.or]: [
-                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            listTypeAsset.push(item.ID);
-                                        })
-                                    })
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
-                                            IDDMLoaiTaiSan: { [Op.in]: listTypeAsset }
+                                            IDDMLoaiTaiSan: { [Op.eq]: data.items[i]['searchFields'] }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {

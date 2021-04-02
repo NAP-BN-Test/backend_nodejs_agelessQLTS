@@ -198,20 +198,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'LOẠI TÀI SẢN') {
-                                    var list = [];
-                                    await mtblDMLoaiTaiSan(db).findAll({
-                                        where: {
-                                            [Op.or]: [
-                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDDMLoaiTaiSan'] = { [Op.in]: list }
+                                    userFind['IDDMLoaiTaiSan'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }

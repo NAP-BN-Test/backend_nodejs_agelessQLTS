@@ -414,6 +414,7 @@ module.exports = {
                     let whereSecond = []
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
+                        console.log(data);
                         if (data.search) {
                             var listStaff = [];
                             await mtblDMNhanvien(db).findAll({
@@ -519,46 +520,8 @@ module.exports = {
                                         whereObj[Op.not] = userFind
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'BỘ PHẬN ĐỀ XUẤT') {
-                                    var list = [];
-                                    await mtblDMBoPhan(db).findAll({
-                                        where: {
-                                            [Op.or]: [
-                                                { DepartmentName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { DepartmentCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDPhongBan'] = { [Op.in]: list }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereObj[Op.and] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereObj[Op.or] = userFind
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereObj[Op.not] = userFind
-                                    }
-                                }
                                 if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
-                                    var list = [];
-                                    await mtblDMNhanvien(db).findAll({
-                                        where: {
-                                            [Op.or]: [
-                                                { StaffName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { StaffCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDNhanVien'] = { [Op.in]: list }
+                                    userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereObj[Op.and] = userFind
                                     }

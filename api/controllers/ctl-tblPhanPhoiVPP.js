@@ -208,7 +208,6 @@ module.exports = {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGÀY TIẾP NHẬN') {
-                                    console.log(1);
                                     userFind['Date'] = { [Op.substring]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
@@ -222,20 +221,7 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'NGƯỜI TIẾP NHẬN') {
                                     var list = [];
-                                    console.log(body);
-                                    await mtblDMNhanvien(db).findAll({
-                                        where: {
-                                            [Op.or]: [
-                                                { StaffCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { StaffName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
-                                        }
-                                    }).then(data => {
-                                        data.forEach(item => {
-                                            list.push(item.ID);
-                                        })
-                                    })
-                                    userFind['IDNhanVienSoHuu'] = { [Op.in]: list }
+                                    userFind['IDNhanVienSoHuu'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
