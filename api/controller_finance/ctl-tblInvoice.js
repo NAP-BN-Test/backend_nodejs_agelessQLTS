@@ -13,6 +13,11 @@ async function deleteRelationshiptblInvoice(db, listID) {
         }
     })
 }
+let dataTemplate = [
+    {
+
+    }
+]
 module.exports = {
     deleteRelationshiptblInvoice,
     // get_list_tbl_invoice

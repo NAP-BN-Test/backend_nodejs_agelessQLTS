@@ -271,5 +271,4 @@ module.exports = {
             }
         })
     },
-
 }

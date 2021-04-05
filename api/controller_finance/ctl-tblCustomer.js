@@ -12,7 +12,6 @@ async function deleteRelationshiptblCustomer(db, listID) {
     })
 }
 const axios = require('axios');
-
 module.exports = {
     deleteRelationshiptblCustomer,
     // add_tbl_customer

@@ -243,22 +243,22 @@ module.exports = {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
-                    if (listCredit.length > 0 && listDebit > 0) {
+                    if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
                             await mtblCreditsAccounting(db).create({
                                 IDCreditDebtnotices: body.id,
-                                IDAccounting: listCredit[i].id,
+                                IDAccounting: listCredit[i].hasAccount.id,
                                 Type: "CREDIT",
-                                Amount: listCredit[i].amount ? listCredit[i].amount : 0,
+                                Amount: listCredit[i].amountOfMoney ? listCredit[i].amountOfMoney : 0,
                             })
                         }
                         for (var j = 0; j < listDebit.length; j++) {
                             await mtblCreditsAccounting(db).create({
                                 IDCreditDebtnotices: body.id,
-                                IDAccounting: listDebit[j].id,
+                                IDAccounting: listDebit[j].debtAccount.id,
                                 Type: "DEBIT",
-                                Amount: listDebit[j].amount ? listDebit[j].amount : 0,
+                                Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
                         }
                     }
