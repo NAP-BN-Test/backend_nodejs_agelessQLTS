@@ -380,7 +380,6 @@ module.exports = {
             }
         })
     },
-
     // approval_employee_accountant_kvtu
     approvalNhanVienKTPD: (req, res) => {
         let body = req.body;

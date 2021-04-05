@@ -5,6 +5,7 @@ var moment = require('moment');
 var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
 var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
 var database = require('../database');
+
 async function deleteRelationshiptblLoaiChamCong(db, listID) {
     await mtblNghiLe(db).update({
         IDLoaiChamCong: null,

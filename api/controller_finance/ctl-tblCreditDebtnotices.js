@@ -170,19 +170,21 @@ module.exports = {
                             Type: body.type,
                         }
                     })
+                    console.log(body);
                     var voucherNumber = 'GBN0001';
                     if (!check && body.type == 'spending') {
                         voucherNumber = 'GBC0001'
                     } else if (!check && body.type == 'debit') {
                         voucherNumber = 'GBN0001'
                     } else {
-                        voucherNumber = await handleCodeNumber(check.CodeNumber)
+                        console.log(check);
+                        voucherNumber = await handleCodeNumber(check.CodeNumber ? check.CodeNumber : voucherNumber)
                     }
                     mtblCreditDebtnotices(db).create({
                         Type: body.type ? body.type : '',
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
-                        VoucherNumber: body.voucherNumber ? body.voucherNumber : '',
+                        VoucherNumber: voucherNumber,
                         IDCustomer: body.idPartner ? body.idPartner : null,
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',

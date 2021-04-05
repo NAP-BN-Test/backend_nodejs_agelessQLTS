@@ -7,14 +7,8 @@ module.exports = function (db) {
             primaryKey: true,
             autoIncrement: true
         },
-        IDSoTienDauKy: Sequelize.BIGINT,
-        SoChungTu: Sequelize.STRING,
-        NgayChungTu: Sequelize.DATE,
-        Payment: Sequelize.FLOAT,
-        PaymentType: Sequelize.BOOLEAN,
-        CostBill: Sequelize.FLOAT,
-        CostFunds: Sequelize.FLOAT,
-
+        IDSpecializedSoftware: Sequelize.BIGINT,
+        Status: Sequelize.STRING,
     });
 
     return table;

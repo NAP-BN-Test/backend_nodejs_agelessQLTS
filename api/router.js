@@ -393,6 +393,10 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.updatetblVayTamUng);
     app.route('/qlnb/get_detail_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.detailtblVayTamUng);
 
+    app.route('/qlnb/approval_employee_leader_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienLDPD);
+    app.route('/qlnb/refuse_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.refuseNhanVienKTPD);
+    app.route('/qlnb/refuse_employee_leader_kvtu').post(checkToken.checkToken, tblVayTamUng.refuseNhanVienLDPD);
+    app.route('/qlnb/approval_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienKTPD);
     // Điều khoản thanh toán
     var tblDMDieuKhoanThanhToan = require('./controller_finance/ctl-tblDMDieuKhoanThanhToan')
     app.route('/qlnb/add_tbl_dm_dieukhoan_thanhtoan').post(checkToken.checkToken, tblDMDieuKhoanThanhToan.addtblDMDieuKhoanThanhToan);
@@ -502,4 +506,8 @@ module.exports = function (app) {
 
     var tblAccountingBooks = require('./controller_finance/ctl-tblAccountingBooks')
     app.route('/qlnb/get_list_tbl_accounting_books').post(tblAccountingBooks.getListtblAccountingBooks);
+
+
+    var tblStateAgencies = require('./controller_finance/ctl-tblCoQuanNhaNuoc')
+    app.route('/qlnb/get_list_tbl_state_agencies').post(tblStateAgencies.getListtblCoQuanNhaNuoc);
 }
