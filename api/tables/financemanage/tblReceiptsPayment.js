@@ -28,6 +28,7 @@ module.exports = function (db) {
         InitialAmount: Sequelize.FLOAT,
         Withdrawal: Sequelize.FLOAT,
         Unknown: Sequelize.BOOLEAN,
+        ExchangeRate: Sequelize.FLOAT,
     });
 
     return table;

@@ -240,6 +240,7 @@ module.exports = {
                                 paidAmount: data.PaidAmount ? data.PaidAmount : null,
                                 initialAmount: data.InitialAmount ? data.InitialAmount : null,
                                 withdrawal: data.Withdrawal ? data.Withdrawal : null,
+                                exchangeRae: data.ExchangeRae ? data.ExchangeRae : 0,
                                 isUndefined: data.Unknown
                             }
                             let arrayCredit = []
@@ -384,6 +385,7 @@ module.exports = {
                         UnpaidAmount: body.amount ? body.amount : null,
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
                         Unknown: body.isUndefined ? body.isUndefined : null,
+                        ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
                     }).then(async data => {
                         // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
                         for (var i = 0; i < listInvoiceID.length; i++) {
@@ -542,6 +544,12 @@ module.exports = {
                             update.push({ key: 'IDCurrency', value: null });
                         else
                             update.push({ key: 'IDCurrency', value: body.idCurrency });
+                    }
+                    if (body.exchangeRae || body.exchangeRae === '') {
+                        if (body.exchangeRae === '')
+                            update.push({ key: 'ExchangeRae', value: null });
+                        else
+                            update.push({ key: 'ExchangeRae', value: body.exchangeRae });
                     }
                     if (body.voucherDate || body.voucherDate === '') {
                         if (body.voucherDate === '')
