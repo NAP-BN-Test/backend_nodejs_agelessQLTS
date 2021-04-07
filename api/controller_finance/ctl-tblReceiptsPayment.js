@@ -13,8 +13,14 @@ var mtblPaymentRPayment = require('../tables/financemanage/tblPaymentRPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 var mtblRate = require('../tables/financemanage/tblRate')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
+var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
+    await mtblVayTamUng(db).destroy({
+        where: {
+            IDReceiptsPayment: { [Op.in]: listID }
+        }
+    })
     await mtblPaymentRInvoice(db).destroy({
         where: {
             IDPayment: { [Op.in]: listID }
@@ -213,7 +219,16 @@ module.exports = {
                                 })
                             })
                             var currency = await mtblRate(db).findOne({
-                                where: { IDCurrency: data.IDCurrency }
+                                where: { IDCurrency: data.IDCurrency },
+                                order: [
+                                    ['ID', 'DESC']
+                                ]
+                            })
+                            var currencyName = await mtblCurrency(db).findOne({
+                                where: { ID: data.IDCurrency },
+                                order: [
+                                    ['ID', 'DESC']
+                                ]
                             })
                             var obj = {
                                 id: data.ID,
@@ -222,6 +237,7 @@ module.exports = {
                                 voucherDate: data.VoucherDate ? data.VoucherDate : null,
                                 codeNumber: data.CodeNumber ? data.CodeNumber : '',
                                 idCurrency: data.IDCurrency ? data.IDCurrency : null,
+                                currencyName: currencyName ? currencyName.ShortName : '',
                                 exchangeRate: currency ? currency.ExchangeRate : 0,
                                 date: data.Date ? data.Date : null,
                                 idCustomer: data.IDCustomer ? data.IDCustomer : null,
@@ -232,6 +248,7 @@ module.exports = {
                                 idManager: data.IDManager ? data.IDManager : null,
                                 idAccountant: data.IDAccountant ? data.IDAccountant : null,
                                 idTreasurer: data.IDTreasurer ? data.IDTreasurer : null,
+                                treasurerName: 'Nguyễn Thị Thu Trang',
                                 idEstablishment: data.IDEstablishment ? data.IDEstablishment : null,
                                 idSubmitter: data.IDSubmitter ? data.IDSubmitter : null,
                                 licenseNumber: data.LicenseNumber ? data.LicenseNumber : '',
@@ -299,7 +316,8 @@ module.exports = {
                             obj['arrayDebit'] = arraydebit
                             obj['listInvoiceID'] = listInvoiceID
                             obj['listUndefinedID'] = listUndefinedID
-
+                            let loanAdvanceID = await mtblVayTamUng(db).findOne({ where: { IDReceiptsPayment: body.id } })
+                            obj['loanAdvanceID'] = loanAdvanceID ? loanAdvanceID.ID : null;
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -330,9 +348,21 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    // Xóa dữ liệu cũ sau đó thêm mới
-                    // await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { Status: 'paid' } })
-                    // await mtblReceiptsPayment(db).update({ PaidAmount: null }, { where: { PaidAmount: { [Op.ne]: null } } })
+                    if (body.loanAdvanceID && body.type == 'payment') {
+                        await mtblVayTamUng(db).update({
+                            Status: 'Chờ hoàn ứng',
+                            IDReceiptsPayment: body.loanAdvanceID,
+                        }, {
+                            where: { ID: body.loanAdvanceID }
+                        })
+                    } else if (body.loanAdvanceID && body.type == 'receipt') {
+                        await mtblVayTamUng(db).update({
+                            Status: 'Đã hoàn ứng',
+                            IDReceiptsPayment: body.loanAdvanceID,
+                        }, {
+                            where: { ID: body.loanAdvanceID }
+                        })
+                    }
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     if (body.voucherNumber)
                         var check = await mtblReceiptsPayment(db).findOne({

@@ -22,6 +22,8 @@ module.exports = function (db) {
         TrangThaiPheDuyetPD: Sequelize.STRING,
         Reason: Sequelize.STRING,
         Refunds: Sequelize.BOOLEAN,
+        Status: Sequelize.STRING,
+        IDReceiptsPayment: Sequelize.BIGINT,
     });
 
     return table;

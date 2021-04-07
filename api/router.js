@@ -396,6 +396,8 @@ module.exports = function (app) {
     app.route('/qlnb/approval_employee_leader_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienLDPD);
     app.route('/qlnb/refuse_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.refuseNhanVienKTPD);
     app.route('/qlnb/refuse_employee_leader_kvtu').post(checkToken.checkToken, tblVayTamUng.refuseNhanVienLDPD);
+    app.route('/qlnb/reimbursement').post(checkToken.checkToken, tblVayTamUng.reimbursement);
+    app.route('/qlnb/get_list_reimbursement').post(checkToken.checkToken, tblVayTamUng.getListReimbursement);
     app.route('/qlnb/approval_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienKTPD);
     // Điều khoản thanh toán
     var tblDMDieuKhoanThanhToan = require('./controller_finance/ctl-tblDMDieuKhoanThanhToan')

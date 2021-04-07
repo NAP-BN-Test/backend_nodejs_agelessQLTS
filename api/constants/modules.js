@@ -25,8 +25,26 @@ var arrMailStatus = [
 ]
 
 var dayInWeek = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-
 module.exports = {
+    automaticCode: async (database, fieldCode, codeBefore) => {
+        let year = moment().format('YYYY');
+        let month = moment().format('MM');
+        var check = await database.findOne({
+            order: [
+                [fieldCode, 'DESC']
+            ]
+        })
+        var automaticCode = codeBefore + month + year + '1';
+        if (!check) {
+            codeNumber = codeBefore + month + year + '1'
+        } else {
+            if (Number(check[fieldCode].slice(codeBefore.length + 2, codeBefore.length + 6)) == year)
+                automaticCode = codeBefore + month + year + (Number(check[fieldCode].slice((codeBefore + month + year).length, 1000)) + 1)
+            else
+                automaticCode = codeBefore + month + year + 1
+        }
+        return automaticCode
+    },
     toDatetimeHour: function (time) {
         if (time) {
             var hour = moment(time).hours();
