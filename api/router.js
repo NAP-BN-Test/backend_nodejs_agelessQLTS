@@ -391,6 +391,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.getListtblVayTamUng);
     app.route('/qlnb/add_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.addtblVayTamUng);
     app.route('/qlnb/update_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.updatetblVayTamUng);
+    app.route('/qlnb/delete_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.deletetblVayTamUng);
     app.route('/qlnb/get_detail_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.detailtblVayTamUng);
 
     app.route('/qlnb/approval_employee_leader_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienLDPD);

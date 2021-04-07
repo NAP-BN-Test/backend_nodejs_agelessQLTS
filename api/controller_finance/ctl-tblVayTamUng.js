@@ -394,9 +394,18 @@ module.exports = {
     // delete_tbl_vaytamung
     deletetblVayTamUng: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (!body.listID || body.listID == '') {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: 'Không thể xóa bản ghi. Vui lòng kiểm tra lại !',
+                        }
+                        res.json(result);
+                        return
+                    }
                     let listID = JSON.parse(body.listID);
                     await deleteRelationshiptblVayTamUng(db, listID);
                     var result = {
@@ -458,7 +467,12 @@ module.exports = {
                     //         }
                     //     }
                     //  }
-                    whereOjb = { Status: { [Op.ne]: 'Chờ hoàn ứng' } }
+                    whereOjb = {
+                        [Op.and]: [
+                            { Status: { [Op.ne]: 'Chờ hoàn ứng' } },
+                            { Status: { [Op.ne]: 'Đã hoàn ứng' } }
+                        ]
+                    }
                     let stt = 1;
                     let tblVayTamUng = mtblVayTamUng(db);
                     tblVayTamUng.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDTaiKhoanKeToanCost', sourceKey: 'IDTaiKhoanKeToanCost', as: 'tkkt' })

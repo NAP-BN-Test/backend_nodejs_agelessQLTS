@@ -201,6 +201,8 @@ module.exports = {
     //  get_detail_tbl_receipts_payment
     detailtblReceiptsPayment: async (req, res) => {
         let body = req.body;
+        console.log(body);
+
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -317,7 +319,7 @@ module.exports = {
                             obj['listInvoiceID'] = listInvoiceID
                             obj['listUndefinedID'] = listUndefinedID
                             let loanAdvanceID = await mtblVayTamUng(db).findOne({ where: { IDReceiptsPayment: body.id } })
-                            obj['loanAdvanceID'] = loanAdvanceID ? loanAdvanceID.ID : null;
+                            obj['loanAdvanceID'] = loanAdvanceID ? loanAdvanceID.ID : '';
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -348,21 +350,6 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    if (body.loanAdvanceID && body.type == 'payment') {
-                        await mtblVayTamUng(db).update({
-                            Status: 'Chờ hoàn ứng',
-                            IDReceiptsPayment: body.loanAdvanceID,
-                        }, {
-                            where: { ID: body.loanAdvanceID }
-                        })
-                    } else if (body.loanAdvanceID && body.type == 'receipt') {
-                        await mtblVayTamUng(db).update({
-                            Status: 'Đã hoàn ứng',
-                            IDReceiptsPayment: body.loanAdvanceID,
-                        }, {
-                            where: { ID: body.loanAdvanceID }
-                        })
-                    }
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     if (body.voucherNumber)
                         var check = await mtblReceiptsPayment(db).findOne({
@@ -417,6 +404,21 @@ module.exports = {
                         Unknown: body.isUndefined ? body.isUndefined : null,
                         ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
                     }).then(async data => {
+                        if (body.loanAdvanceID && body.type == 'payment') {
+                            await mtblVayTamUng(db).update({
+                                Status: 'Chờ hoàn ứng',
+                                IDReceiptsPayment: data.ID,
+                            }, {
+                                where: { ID: body.loanAdvanceID }
+                            })
+                        } else if (body.loanAdvanceID && body.type == 'receipt') {
+                            await mtblVayTamUng(db).update({
+                                Status: 'Đã hoàn ứng',
+                                IDReceiptsPayment: data.ID,
+                            }, {
+                                where: { ID: body.loanAdvanceID }
+                            })
+                        }
                         // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
                         for (var i = 0; i < listInvoiceID.length; i++) {
                             await mtblPaymentRInvoice(db).create({

@@ -268,6 +268,7 @@ module.exports = {
                                         id: Number(data.IDSpecializedSoftware),
                                         name: array[i].name ? array[i].name : '',
                                         code: array[i].customerCode ? array[i].customerCode : '',
+                                        address: array[i].address ? array[i].address : '',
                                         idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : 0,
                                         amountUnspecified: data.AmountUnspecified ? data.AmountUnspecified : 0,
                                         amountSpent: data.AmountSpent ? data.AmountSpent : 0,

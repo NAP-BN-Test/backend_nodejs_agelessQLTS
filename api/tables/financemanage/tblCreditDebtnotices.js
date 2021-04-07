@@ -21,6 +21,7 @@ module.exports = function (db) {
         IDTreasurer: Sequelize.INTEGER,
         IDEstablishment: Sequelize.INTEGER,
         IDSubmitter: Sequelize.INTEGER,
+        Undefined: Sequelize.BOOLEAN,
     });
 
     return table;

@@ -71,6 +71,7 @@ module.exports = {
                                 idEstablishment: data.IDEstablishment ? data.IDEstablishment : null,
                                 idSubmitter: data.IDSubmitter ? data.IDSubmitter : null,
                                 idPartner: data.IDPartner ? data.IDPartner : null,
+                                isUndefined: data.Undefined ? data.Undefined : null,
                             }
                             var listCredit = []
                             var listDebit = []
@@ -156,6 +157,7 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -195,6 +197,7 @@ module.exports = {
                         IDEstablishment: body.idEstablishment ? body.idEstablishment : null,
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
                         IDPartner: body.idPartner ? body.idPartner : null,
+                        Undefined: body.isUndefined ? body.isUndefined : null,
                     }).then(async data => {
                         for (var i = 0; i < listInvoiceID.length; i++) {
                             await mtblNoticesRInvoice(db).create({
@@ -236,6 +239,7 @@ module.exports = {
     // update_tbl_credit_debt_notices
     updatetblCreditDebtnotices: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -269,6 +273,7 @@ module.exports = {
                             IDSpecializedSoftware: listInvoiceID[i],
                         })
                     }
+                    update.push({ key: 'Undefined', value: body.isUndefined ? body.isUndefined : false });
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
                     if (body.voucherNumber || body.voucherNumber === '')
