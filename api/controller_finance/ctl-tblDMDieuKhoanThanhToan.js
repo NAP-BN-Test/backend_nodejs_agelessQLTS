@@ -57,7 +57,10 @@ module.exports = {
                 try {
                     if (body.ruleCode) {
                         var check = await mtblDMDieuKhoanThanhToan(db).findOne({
-                            RuleCode: body.ruleCode
+                            where: {
+                                RuleCode: body.ruleCode
+
+                            }
                         })
                         if (check) {
                             var result = {
