@@ -7,6 +7,7 @@ var mtblCreditsAccounting = require('../tables/financemanage/tblCreditsAccountin
 var mtblNoticesRInvoice = require('../tables/financemanage/tblNoticesRInvoice')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
+var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 var database = require('../database');
 async function deleteRelationshiptblCreditDebtnotices(db, listID) {
     await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: { [Op.in]: listID } } })
@@ -31,6 +32,29 @@ async function handleCodeNumber(str) {
         endCode = behind
 
     return str.slice(0, 3) + endCode
+}
+async function createAccountingBooks(db, listCredit, listDebit, idPayment) {
+    let now = moment().format('DD-MM-YYYY');
+    for (var i = 0; i < listDebit.length; i++) {
+        await mtblAccountingBooks(db).create({
+            CreateDate: now,
+            EntryDate: now,
+            IDAccounting: listDebit[i].debtAccount.id,
+            DebtIncurred: listDebit[i].amountOfMoney,
+            CreditIncurred: 0,
+            IDPayment: idPayment,
+        })
+    }
+    for (var j = 0; j < listCredit.length; j++) {
+        await mtblAccountingBooks(db).create({
+            CreateDate: now,
+            EntryDate: now,
+            IDAccounting: listCredit[j].hasAccount.id,
+            CreditIncurred: listCredit[j].amountOfMoney,
+            DebtIncurred: 0,
+            IDPayment: idPayment,
+        })
+    }
 }
 module.exports = {
     deleteRelationshiptblCreditDebtnotices,
@@ -157,7 +181,6 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -199,6 +222,8 @@ module.exports = {
                         IDPartner: body.idPartner ? body.idPartner : null,
                         Undefined: body.isUndefined ? body.isUndefined : null,
                     }).then(async data => {
+                        await createAccountingBooks(db, listCredit, listDebit, data.ID)
+
                         for (var i = 0; i < listInvoiceID.length; i++) {
                             await mtblNoticesRInvoice(db).create({
                                 IDnotices: data.ID,
@@ -247,6 +272,8 @@ module.exports = {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
+                    await mtblAccountingBooks(db).destroy({ where: { IDAccounting: { [Op.in]: listCredit } } })
+                    await mtblAccountingBooks(db).destroy({ where: { IDAccounting: { [Op.in]: listDebit } } })
                     if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
@@ -266,6 +293,7 @@ module.exports = {
                             })
                         }
                     }
+                    await createAccountingBooks(db, listCredit, listDebit, body.id)
                     for (var i = 0; i < listInvoiceID.length; i++) {
                         await mtblNoticesRInvoice(db).destroy({ where: { ID: body.id } })
                         await mtblNoticesRInvoice(db).create({

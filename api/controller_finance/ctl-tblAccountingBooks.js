@@ -183,47 +183,28 @@ module.exports = {
     // get_list_tbl_accounting_books
     getListtblAccountingBooks: (req, res) => {
         let body = req.body;
+        console.log(body);
+        let array = [
+            'first_six_months',
+            'last_six_months',
+            'one_quarter',
+            'two_quarter',
+            'three_quarter',
+            'four_quarter',
+            'last_year',
+            'this_year',
+        ]
+        let dataSearch = JSON.parse(body.dataSearch)
+        var arrayIDAccount = []
+        if (dataSearch.accountSystemID)
+            arrayIDAccount.push(dataSearch.accountSystemID)
+        if (dataSearch.accountSystemOtherID)
+            arrayIDAccount.push(dataSearch.accountSystemOtherID)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var whereOjb = [];
-                    // if (body.dataSearch) {
-                    //     var data = JSON.parse(body.dataSearch)
-
-                    //     if (data.search) {
-                    //         where = [
-                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
-                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
-                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
-                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                    //         ];
-                    //     } else {
-                    //         where = [
-                    //             { FullName: { [Op.ne]: '%%' } },
-                    //         ];
-                    //     }
-                    //     whereOjb = {
-                    //         [Op.and]: [{ [Op.or]: where }],
-                    //         [Op.or]: [{ ID: { [Op.ne]: null } }],
-                    //     };
-                    //     if (data.items) {
-                    //         for (var i = 0; i < data.items.length; i++) {
-                    //             let userFind = {};
-                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                    //                 if (data.items[i].conditionFields['name'] == 'And') {
-                    //                     whereOjb[Op.and].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
-                    //                     whereOjb[Op.or].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
-                    //                     whereOjb[Op.not] = userFind
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                    whereOjb.push({ IDAccounting: { [Op.in]: arrayIDAccount } })
                     let stt = 1;
                     mtblAccountingBooks(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),

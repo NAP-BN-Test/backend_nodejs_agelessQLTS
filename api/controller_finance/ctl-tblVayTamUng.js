@@ -674,7 +674,7 @@ module.exports = {
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
+                                advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
                             }
                             array.push(obj);
                         });
@@ -814,6 +814,45 @@ module.exports = {
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
                     res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+
+    // get_list_loan_advance_from_staff
+    getListLoanAdvanceFromStaff: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblVayTamUng(db).findAll({
+                        where: { IDNhanVienAdvance: body.staffID }
+                    }).then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
+                                date: element.Date ? element.Date : '',
+                                cost: element.Cost ? element.Cost : '',
+                                contents: element.Contents ? element.Contents : '',
+                                reason: element.Reason ? element.Reason : '',
+                            }
+                            array.push(obj);
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

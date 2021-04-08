@@ -5,15 +5,31 @@ var moment = require('moment');
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 var mtblDMLoaiTaiKhoanKeToan = require('../tables/financemanage/tblDMLoaiTaiKhoanKeToan')
 var database = require('../database');
+var mtblCreditsAccounting = require('../tables/financemanage/tblCreditsAccounting')
+var mtblPaymentAccounting = require('../tables/financemanage/tblPaymentAccounting')
 async function deleteRelationshiptblDMTaiKhoanKeToan(db, listID) {
-    await mtblDMTaiKhoanKeToan(db).destroy({
+    await mtblCreditsAccounting(db).update({
+        IDAccounting: null
+    }, {
         where: {
-            IDLevelAbove: { [Op.in]: listID }
+            IDAccounting: listID
+        }
+    })
+    await mtblPaymentAccounting(db).update({
+        IDAccounting: null
+    }, {
+        where: {
+            IDAccounting: listID
         }
     })
     await mtblDMTaiKhoanKeToan(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            IDLevelAbove: listID
+        }
+    })
+    await mtblDMTaiKhoanKeToan(db).destroy({
+        where: {
+            ID: listID
         }
     })
 }
@@ -142,9 +158,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let listID = [];
-                    listID.push(body.listID);
-                    await deleteRelationshiptblDMTaiKhoanKeToan(db, listID);
+                    await deleteRelationshiptblDMTaiKhoanKeToan(db, body.listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,

@@ -573,7 +573,10 @@ module.exports = {
                                 }
                             }
                             await mtblReceiptsPayment(db).findAll({
-                                where: { IDCustomer: array[i].id }
+                                where: {
+                                    IDCustomer: array[i].id,
+                                    Unknown: true,
+                                }
                             }).then(data => {
                                 data.forEach(item => {
                                     totalUndefind += Number(item.Amount);

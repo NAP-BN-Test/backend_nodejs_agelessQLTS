@@ -29,6 +29,7 @@ module.exports = function (db) {
         Withdrawal: Sequelize.FLOAT,
         Unknown: Sequelize.BOOLEAN,
         ExchangeRate: Sequelize.FLOAT,
+        IDStaff: Sequelize.INTEGER,
     });
 
     return table;

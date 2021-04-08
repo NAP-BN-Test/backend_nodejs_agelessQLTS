@@ -17,6 +17,8 @@ module.exports = function (db) {
         CreditIncurred: Sequelize.FLOAT,
         DebtSurplus: Sequelize.FLOAT,
         CreaditSurplus: Sequelize.FLOAT,
+        IDPayment: Sequelize.BIGINT,
+        IDnotices: Sequelize.BIGINT,
     });
 
     return table;

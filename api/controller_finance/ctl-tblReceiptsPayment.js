@@ -14,6 +14,7 @@ var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 var mtblRate = require('../tables/financemanage/tblRate')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
+var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     await mtblVayTamUng(db).destroy({
@@ -196,17 +197,63 @@ async function checkUpdateError(db, listUndefinedID, withdrawalMoney) {
     else
         return true
 }
+
+async function createLoanAdvances(db, IDpayment, loanAdvanceIDs, type) {
+    if (loanAdvanceIDs.length > 0 && type == 'payment') {
+        for (var i = 0; i < loanAdvanceIDs.length; i++) {
+            await mtblVayTamUng(db).update({
+                Status: 'Chờ hoàn ứng',
+                IDReceiptsPayment: IDpayment,
+            }, {
+                where: { ID: loanAdvanceIDs[i] }
+            })
+        }
+    } else if (loanAdvanceIDs.length > 0 && type == 'receipt') {
+        for (var i = 0; i < loanAdvanceIDs.length; i++) {
+            await mtblVayTamUng(db).update({
+                Status: 'Đã hoàn ứng',
+                IDReceiptsPayment: IDpayment,
+            }, {
+                where: { ID: loanAdvanceIDs[i] }
+            })
+        }
+    }
+}
+async function createAccountingBooks(db, listCredit, listDebit, idPayment) {
+    let now = moment().format('DD-MM-YYYY');
+    for (var i = 0; i < listDebit.length; i++) {
+        await mtblAccountingBooks(db).create({
+            CreateDate: now,
+            EntryDate: now,
+            IDAccounting: listDebit[i].debtAccount.id,
+            DebtIncurred: listDebit[i].amountOfMoney,
+            CreditIncurred: 0,
+            IDPayment: idPayment,
+        })
+    }
+    for (var j = 0; j < listCredit.length; j++) {
+        await mtblAccountingBooks(db).create({
+            CreateDate: now,
+            EntryDate: now,
+            IDAccounting: listCredit[j].hasAccount.id,
+            CreditIncurred: listCredit[j].amountOfMoney,
+            DebtIncurred: 0,
+            IDPayment: idPayment,
+        })
+    }
+}
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
     detailtblReceiptsPayment: async (req, res) => {
         let body = req.body;
-        console.log(body);
-
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblReceiptsPayment(db).findOne({ where: { ID: body.id } }).then(async data => {
+                    let tblReceiptsPayment = mtblReceiptsPayment(db);
+                    tblReceiptsPayment.findOne({
+                        where: { ID: body.id },
+                    }).then(async data => {
                         if (data) {
                             var listInvoiceID = []
                             var listUndefinedID = []
@@ -260,7 +307,9 @@ module.exports = {
                                 initialAmount: data.InitialAmount ? data.InitialAmount : null,
                                 withdrawal: data.Withdrawal ? data.Withdrawal : null,
                                 exchangeRae: data.ExchangeRae ? data.ExchangeRae : 0,
-                                isUndefined: data.Unknown
+                                isUndefined: data.Unknown,
+                                staffID: data.IDStaff ? data.IDStaff : null,
+                                staffName: 'Chưa có dữ liệu' ? 'Chưa có dữ liệu' : null,
                             }
                             let arrayCredit = []
                             let arraydebit = []
@@ -318,8 +367,13 @@ module.exports = {
                             obj['arrayDebit'] = arraydebit
                             obj['listInvoiceID'] = listInvoiceID
                             obj['listUndefinedID'] = listUndefinedID
-                            let loanAdvanceID = await mtblVayTamUng(db).findOne({ where: { IDReceiptsPayment: body.id } })
-                            obj['loanAdvanceID'] = loanAdvanceID ? loanAdvanceID.ID : '';
+                            let loanAdvanceIDs = []
+                            await mtblVayTamUng(db).findAll({ where: { IDReceiptsPayment: body.id } }).then(data => {
+                                data.forEach(item => {
+                                    loanAdvanceIDs.push(Number(item.ID))
+                                })
+                            })
+                            obj['loanAdvanceIDs'] = loanAdvanceIDs;
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -380,12 +434,14 @@ module.exports = {
                     } else {
                         automaticCode = await handleCodeNumber(check.CodeNumber)
                     }
+                    console.log(body.staffID ? null : body.idCustomer ? body.idCustomer : null);
                     mtblReceiptsPayment(db).create({
                         Type: body.type ? body.type : '',
                         CodeNumber: automaticCode,
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
-                        IDCustomer: body.idCustomer ? body.idCustomer : null,
+                        IDCustomer: body.staffID ? null : body.idCustomer ? body.idCustomer : null,
+                        IDStaff: body.staffID ? body.staffID : null,
                         Address: body.address ? body.address : '',
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',
@@ -404,20 +460,11 @@ module.exports = {
                         Unknown: body.isUndefined ? body.isUndefined : null,
                         ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
                     }).then(async data => {
-                        if (body.loanAdvanceID && body.type == 'payment') {
-                            await mtblVayTamUng(db).update({
-                                Status: 'Chờ hoàn ứng',
-                                IDReceiptsPayment: data.ID,
-                            }, {
-                                where: { ID: body.loanAdvanceID }
-                            })
-                        } else if (body.loanAdvanceID && body.type == 'receipt') {
-                            await mtblVayTamUng(db).update({
-                                Status: 'Đã hoàn ứng',
-                                IDReceiptsPayment: data.ID,
-                            }, {
-                                where: { ID: body.loanAdvanceID }
-                            })
+                        await createAccountingBooks(db, listCredit, listDebit, data.ID)
+
+                        if (body.loanAdvanceIDs) {
+                            body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
+                            await createLoanAdvances(db, data.ID, body.loanAdvanceIDs, body.type)
                         }
                         // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
                         for (var i = 0; i < listInvoiceID.length; i++) {
@@ -539,9 +586,11 @@ module.exports = {
                     await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
                     await deleteAndCreateAllInvoice(db, body.id, listInvoiceID)
                     await createRate(db, body.exchangeRate, body.idCurrency)
+                    await mtblAccountingBooks(db).destroy({ where: { IDPayment: body.id } })
                     if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblPaymentAccounting(db).destroy({ where: { IDReceiptsPayment: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
+
                             await mtblPaymentAccounting(db).create({
                                 IDReceiptsPayment: body.id,
                                 IDAccounting: listCredit[i].hasAccount.id,
@@ -558,6 +607,7 @@ module.exports = {
                             })
                         }
                     }
+                    await createAccountingBooks(db, listCredit, listDebit, body.id)
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
                     update.push({ key: 'Unknown', value: body.isUndefined });
@@ -937,21 +987,31 @@ module.exports = {
                                     ],
                                     // group: ['ID', 'Unknown', 'Withdrawal', 'InitialAmount', 'PaidAmount', 'UnpaidAmount', 'VoucherDate', 'VoucherNumber', 'IDManager', 'Reason', 'AmountWords', 'Amount', 'Address', 'IDCustomer', 'Date', 'IDCurrency', 'CodeNumber', 'Type'],
                                     where: {
-                                        IDCurrency: data[i].ID
+                                        IDCurrency: data[i].ID,
+                                        Unknown: true,
+                                        IDCustomer: body.idCustomer,
                                     }
                                 }).then(payment => {
                                     var obj = {
-                                        name: data[i].FullName ? data[i].FullName : '',
-                                        sum: payment[0].dataValues.total_amount
+                                        type: data[i].ShortName ? data[i].ShortName : '',
+                                        total: payment[0].dataValues.total_amount ? payment[0].dataValues.total_amount : 0
                                     }
-                                    arrayAmountMoney.push(obj)
+                                    if (obj.total != 0)
+                                        arrayAmountMoney.push(obj)
                                 })
                             }
+                        })
+                        var count = await tblReceiptsPayment.count({
+                            where: {
+                                IDCustomer: body.idCustomer,
+                                Unknown: true,
+                            },
                         })
                         var result = {
                             array: array,
                             totalMoney: 0,
-                            arrayAmountMoney: arrayAmountMoney,
+                            all: count,
+                            totalMoney: arrayAmountMoney,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
