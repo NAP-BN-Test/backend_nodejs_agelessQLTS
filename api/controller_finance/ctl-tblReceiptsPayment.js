@@ -823,7 +823,7 @@ module.exports = {
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
                                 date: data[i].Date ? data[i].Date : null,
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
-                                nameCustomer: 'Customer chưa có',
+                                customerName: 'Công ty tnhh An Phú',
                                 address: data[i].Address ? data[i].Address : '',
                                 amount: data[i].Amount ? data[i].Amount : null,
                                 amountWords: data[i].AmountWords ? data[i].AmountWords : '',

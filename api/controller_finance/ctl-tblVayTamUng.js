@@ -823,7 +823,6 @@ module.exports = {
             }
         })
     },
-
     // get_list_loan_advance_from_staff
     getListLoanAdvanceFromStaff: (req, res) => {
         let body = req.body;

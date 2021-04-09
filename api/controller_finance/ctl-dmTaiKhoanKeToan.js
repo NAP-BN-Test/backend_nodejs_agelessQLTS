@@ -114,20 +114,13 @@ module.exports = {
                 try {
                     let check = await mtblDMTaiKhoanKeToan(db).findOne({
                         where: {
-                            [Op.or]: [
-                                {
-                                    AccountingCode: body.accountingCode,
-                                },
-                                {
-                                    AccountingName: body.accountingName,
-                                }
-                            ]
+                            AccountingCode: body.accountingCode,
                         }
                     })
                     if (check) {
                         var result = {
                             status: Constant.STATUS.FAIL,
-                            message: "Tên hoặc mã tài khoản kế toán đã tồn tại. Vui lòng kiểm tra lại !",
+                            message: "Mã tài khoản kế toán đã tồn tại. Vui lòng kiểm tra lại !",
                         }
                         res.json(result);
                         return

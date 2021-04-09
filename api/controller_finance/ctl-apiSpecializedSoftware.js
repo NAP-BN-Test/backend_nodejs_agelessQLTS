@@ -1398,8 +1398,8 @@ module.exports = {
 
     //  api waiting SoftWare
     // -----------------------------------------------------------------------------------INVOICE---------------------------------------------------
-    // approval_invoice_wait_for_pay
-    approvalInvoiceWaitForPay: async (req, res) => {
+    // approval_invoice_and_credit
+    approvalInvoiceAndCredit: async (req, res) => {
         var body = req.body
         console.log(body);
         var result = {
@@ -1408,109 +1408,8 @@ module.exports = {
         }
         res.json(result);
     },
-    // refuse_invoice_wait_for_pay
-    refuseInvoiceWaitForPay: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // approval_invoice_edit_request
-    approvalInvoiceEditRequest: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // refuse_invoice_edit_request
-    refuseInvoiceEditRequest: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // approval_invoice_delete_request
-    approvalInvoiceDeleteRequest: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // refuse_invoice_delete_request
-    refuseInvoiceDeleteRequest: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // -----------------------------------------------------------------------------------INVOICE---------------------------------------------------
-    // approval_credit_wait_for_pay
-    approvalCreditWaitForPay: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // refuse_credit_wait_for_pay
-    refuseCreditWaitForPay: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // approval_credit_edit_request
-    approvalCreditEditRequest: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // refuse_credit_edit_request
-    refuseCreditEditRequest: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // approval_credit_delete_request
-    approvalCreditDeleteRequest: async (req, res) => {
-        var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
-    },
-    // refuse_credit_delete_request
-    refuseCreditDeleteRequest: async (req, res) => {
+    // refuse_invoice_and_credit
+    refuseInvoiceAndCredit: async (req, res) => {
         var body = req.body
         console.log(body);
         var result = {

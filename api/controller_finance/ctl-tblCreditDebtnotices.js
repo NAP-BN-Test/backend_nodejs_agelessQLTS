@@ -219,7 +219,7 @@ module.exports = {
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
                         VoucherNumber: voucherNumber,
-                        IDCustomer: body.idPartner ? body.idPartner : null,
+                        IDCustomer: body.idCustomer ? body.idCustomer : null,
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',
                         Reason: body.reason ? body.reason : '',
@@ -228,7 +228,7 @@ module.exports = {
                         IDTreasurer: body.idTreasurer ? body.idTreasurer : null,
                         IDEstablishment: body.idEstablishment ? body.idEstablishment : null,
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
-                        IDPartner: body.idPartner ? body.idPartner : null,
+                        IDPartner: body.idCustomer ? body.idCustomer : null,
                         Undefined: body.isUndefined ? body.isUndefined : null,
                     }).then(async data => {
                         await createAccountingBooks(db, listCredit, listDebit, data.ID, body.reason ? body.reason : '', voucherNumber)
@@ -273,7 +273,6 @@ module.exports = {
     // update_tbl_credit_debt_notices
     updatetblCreditDebtnotices: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -331,17 +330,17 @@ module.exports = {
                         else
                             update.push({ key: 'Date', value: body.date });
                     }
-                    if (body.idPartner || body.idPartner === '') {
-                        if (body.idPartner === '')
+                    if (body.idCustomer || body.idCustomer === '') {
+                        if (body.idCustomer === '')
                             update.push({ key: 'IDPartner', value: null });
                         else
-                            update.push({ key: 'IDPartner', value: body.idPartner });
+                            update.push({ key: 'IDPartner', value: body.idCustomer });
                     }
-                    if (body.idPartner || body.idPartner === '') {
-                        if (body.idPartner === '')
+                    if (body.idCustomer || body.idCustomer === '') {
+                        if (body.idCustomer === '')
                             update.push({ key: 'IDPartner', value: null });
                         else
-                            update.push({ key: 'IDPartner', value: body.idPartner });
+                            update.push({ key: 'IDPartner', value: body.idCustomer });
                     }
                     if (body.amount || body.amount === '') {
                         if (body.amount === '')
@@ -492,6 +491,7 @@ module.exports = {
                                 date: data[i].Date ? data[i].Date : null,
                                 voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
+                                customerName: 'Công ty tnhh An Phú',
                                 amount: data[i].Amount ? data[i].Amount : null,
                                 amountWords: data[i].AmountWords ? data[i].AmountWords : '',
                                 reason: data[i].Reason ? data[i].Reason : '',
