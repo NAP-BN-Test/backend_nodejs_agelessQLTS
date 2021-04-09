@@ -222,8 +222,8 @@ async function createLoanAdvances(db, IDpayment, loanAdvanceIDs, type) {
 }
 async function createAccountingBooks(db, listCredit, listDebit, idPayment, reason, number) {
     if (!number) {
-        await mtblReceiptsPayment(db).findOne({ where: { ID: number } }).then(data => {
-            number = data.CodeNumber
+        await mtblReceiptsPayment(db).findOne({ where: { ID: idPayment } }).then(data => {
+            number = data ? data.CodeNumber : ''
         })
     }
     let now = moment().format('DD-MM-YYYY');

@@ -9,6 +9,8 @@ var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 var database = require('../database');
+var mModules = require('../constants/modules');
+
 async function deleteRelationshiptblCreditDebtnotices(db, listID) {
     await mtblAccountingBooks(db).destroy({ where: { IDnotices: { [Op.in]: listID } } })
     await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: { [Op.in]: listID } } })
@@ -36,8 +38,8 @@ async function handleCodeNumber(str) {
 }
 async function createAccountingBooks(db, listCredit, listDebit, idPayment, reason, number) {
     if (!number) {
-        await mtblReceiptsPayment(db).findOne({ where: { ID: number } }).then(data => {
-            number = data.CodeNumber
+        await mtblCreditDebtnotices(db).findOne({ where: { ID: idPayment } }).then(data => {
+            number = data ? data.VoucherNumber : ''
         })
     }
     let now = moment().format('DD-MM-YYYY');
@@ -91,11 +93,14 @@ module.exports = {
                                 id: data.ID,
                                 type: data.Type ? data.Type : '',
                                 idCurrency: data.IDCurrency ? data.IDCurrency : null,
-                                fullNameCurrency: data.currency ? data.currency.FullName : null,
-                                shortNameCurrency: data.currency ? data.currency.ShortName : null,
+                                // fullNameCurrency: data.currency ? data.currency.FullName : null,
+                                currencyName: data.currency ? data.currency.ShortName : '',
                                 date: data.Date ? data.Date : null,
                                 voucherNumber: data.VoucherNumber ? data.VoucherNumber : '',
-                                idPartner: data.IDCustomer ? data.IDCustomer : null,
+                                idCustomer: data.IDCustomer ? data.IDCustomer : null,
+                                customerName: 'Công ty tnhh An Phú',
+                                customerAddress: 'Số 2 Hoàng Mai Hà Nội',
+                                customerCode: 'KH0001',
                                 amount: data.Amount ? data.Amount : null,
                                 amountWords: data.AmountWords ? data.AmountWords : '',
                                 reason: data.Reason ? data.Reason : '',
@@ -191,28 +196,18 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
-                    var check = await mtblCreditDebtnotices(db).findOne({
-                        order: [
-                            ['VoucherNumber', 'DESC']
-                        ],
-                        where: {
-                            Type: body.type,
-                        }
-                    })
-                    var voucherNumber = 'GBN0001';
-                    if (!check && body.type == 'spending') {
-                        voucherNumber = 'GBC0001'
-                    } else if (!check && body.type == 'debit') {
-                        voucherNumber = 'GBN0001'
+                    var voucherNumber = '';
+                    if (body.type == 'spending') {
+                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBC')
                     } else {
-                        console.log(check);
-                        voucherNumber = await handleCodeNumber(check.CodeNumber ? check.CodeNumber : voucherNumber)
+                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBN')
                     }
                     mtblCreditDebtnotices(db).create({
                         Type: body.type ? body.type : '',
@@ -273,6 +268,7 @@ module.exports = {
     // update_tbl_credit_debt_notices
     updatetblCreditDebtnotices: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -280,11 +276,10 @@ module.exports = {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
-                    await mtblAccountingBooks(db).destroy({ where: { IDAccounting: { [Op.in]: listCredit } } })
-                    await mtblAccountingBooks(db).destroy({ where: { IDAccounting: { [Op.in]: listDebit } } })
                     if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
+                            await mtblAccountingBooks(db).destroy({ where: { IDAccounting: listCredit[i].hasAccount.id } })
                             await mtblCreditsAccounting(db).create({
                                 IDCreditDebtnotices: body.id,
                                 IDAccounting: listCredit[i].hasAccount.id,
@@ -293,6 +288,8 @@ module.exports = {
                             })
                         }
                         for (var j = 0; j < listDebit.length; j++) {
+                            await mtblAccountingBooks(db).destroy({ where: { IDAccounting: listDebit[j].debtAccount.id } })
+
                             await mtblCreditsAccounting(db).create({
                                 IDCreditDebtnotices: body.id,
                                 IDAccounting: listDebit[j].debtAccount.id,
@@ -301,7 +298,7 @@ module.exports = {
                             })
                         }
                     }
-                    await createAccountingBooks(db, listCredit, listDebit, body.i, body.reason ? body.reason : '', null)
+                    await createAccountingBooks(db, listCredit, listDebit, body.id, body.reason ? body.reason : '', null)
                     for (var i = 0; i < listInvoiceID.length; i++) {
                         await mtblNoticesRInvoice(db).destroy({ where: { ID: body.id } })
                         await mtblNoticesRInvoice(db).create({
@@ -309,6 +306,7 @@ module.exports = {
                             IDSpecializedSoftware: listInvoiceID[i],
                         })
                     }
+
                     update.push({ key: 'Undefined', value: body.isUndefined ? body.isUndefined : false });
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
