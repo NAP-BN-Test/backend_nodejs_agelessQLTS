@@ -17,6 +17,7 @@ var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
 var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
+    await mtblAccountingBooks(db).destroy({ where: { IDPayment: { [Op.in]: listID } } })
     await mtblVayTamUng(db).destroy({
         where: {
             IDReceiptsPayment: { [Op.in]: listID }
@@ -219,7 +220,12 @@ async function createLoanAdvances(db, IDpayment, loanAdvanceIDs, type) {
         }
     }
 }
-async function createAccountingBooks(db, listCredit, listDebit, idPayment) {
+async function createAccountingBooks(db, listCredit, listDebit, idPayment, reason, number) {
+    if (!number) {
+        await mtblReceiptsPayment(db).findOne({ where: { ID: number } }).then(data => {
+            number = data.CodeNumber
+        })
+    }
     let now = moment().format('DD-MM-YYYY');
     for (var i = 0; i < listDebit.length; i++) {
         await mtblAccountingBooks(db).create({
@@ -229,6 +235,8 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment) {
             DebtIncurred: listDebit[i].amountOfMoney,
             CreditIncurred: 0,
             IDPayment: idPayment,
+            Reason: reason,
+            Number: number,
         })
     }
     for (var j = 0; j < listCredit.length; j++) {
@@ -239,6 +247,8 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment) {
             CreditIncurred: listCredit[j].amountOfMoney,
             DebtIncurred: 0,
             IDPayment: idPayment,
+            Reason: reason,
+            Number: number,
         })
     }
 }
@@ -434,7 +444,6 @@ module.exports = {
                     } else {
                         automaticCode = await handleCodeNumber(check.CodeNumber)
                     }
-                    console.log(body.staffID ? null : body.idCustomer ? body.idCustomer : null);
                     mtblReceiptsPayment(db).create({
                         Type: body.type ? body.type : '',
                         CodeNumber: automaticCode,
@@ -460,8 +469,7 @@ module.exports = {
                         Unknown: body.isUndefined ? body.isUndefined : null,
                         ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
                     }).then(async data => {
-                        await createAccountingBooks(db, listCredit, listDebit, data.ID)
-
+                        await createAccountingBooks(db, listCredit, listDebit, data.ID, body.reason ? body.reason : '', automaticCode)
                         if (body.loanAdvanceIDs) {
                             body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
                             await createLoanAdvances(db, data.ID, body.loanAdvanceIDs, body.type)
@@ -564,7 +572,6 @@ module.exports = {
     // update_tbl_receipts_payment
     updatetblReceiptsPayment: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -607,7 +614,7 @@ module.exports = {
                             })
                         }
                     }
-                    await createAccountingBooks(db, listCredit, listDebit, body.id)
+                    await createAccountingBooks(db, listCredit, listDebit, body.id, body.reason ? body.reason : '', null)
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
                     update.push({ key: 'Unknown', value: body.isUndefined });
@@ -882,7 +889,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        var count = await mtblReceiptsPayment(db).count({ where: whereOjb, })
+                        var count = await mtblReceiptsPayment(db).count({ where: { Type: body.type } })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

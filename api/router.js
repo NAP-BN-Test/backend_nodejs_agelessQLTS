@@ -491,6 +491,23 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_credit_edit_request').post(apiSpecializedSoftware.getListCreditEditRequest);
     app.route('/qlnb/get_list_credit_delete_request').post(apiSpecializedSoftware.getListCreditDeleteRequest);
 
+    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+    app.route('/qlnb/approval_invoice_wait_for_pay').post(apiSpecializedSoftware.approvalInvoiceWaitForPay);
+    app.route('/qlnb/refuse_invoice_wait_for_pay').post(apiSpecializedSoftware.refuseInvoiceWaitForPay);
+    app.route('/qlnb/approval_invoice_edit_request').post(apiSpecializedSoftware.approvalInvoiceEditRequest);
+    app.route('/qlnb/refuse_invoice_edit_request').post(apiSpecializedSoftware.refuseInvoiceEditRequest);
+    app.route('/qlnb/approval_invoice_delete_request').post(apiSpecializedSoftware.approvalInvoiceDeleteRequest);
+    app.route('/qlnb/refuse_invoice_delete_request').post(apiSpecializedSoftware.refuseInvoiceDeleteRequest);
+
+    app.route('/qlnb/approval_credit_wait_for_pay').post(apiSpecializedSoftware.approvalCreditWaitForPay);
+    app.route('/qlnb/refuse_credit_wait_for_pay').post(apiSpecializedSoftware.refuseCreditWaitForPay);
+    app.route('/qlnb/approval_credit_edit_request').post(apiSpecializedSoftware.approvalCreditEditRequest);
+    app.route('/qlnb/refuse_credit_edit_request').post(apiSpecializedSoftware.refuseCreditEditRequest);
+    app.route('/qlnb/approval_credit_delete_request').post(apiSpecializedSoftware.approvalCreditDeleteRequest);
+    app.route('/qlnb/refuse_credit_delete_request').post(apiSpecializedSoftware.refuseCreditDeleteRequest);
+
+    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
     // Danh sách phiếu thu / chi
     var tblReceiptsPayment = require('./controller_finance/ctl-tblReceiptsPayment')
     app.route('/qlnb/get_detail_tbl_receipts_payment').post(tblReceiptsPayment.detailtblReceiptsPayment);

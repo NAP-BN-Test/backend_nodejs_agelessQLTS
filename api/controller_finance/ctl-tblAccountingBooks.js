@@ -4,6 +4,8 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 var database = require('../database');
+var mModules = require('../constants/modules');
+var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 async function deleteRelationshiptblAccountingBooks(db, listID) {
     await mtblAccountingBooks(db).destroy({
         where: {
@@ -207,12 +209,21 @@ module.exports = {
                     if (arrayIDAccount.length > 0)
                         whereOjb.push({ IDAccounting: { [Op.in]: arrayIDAccount } })
                     let stt = 1;
-                    mtblAccountingBooks(db).findAll({
+                    let tblAccountingBooks = mtblAccountingBooks(db);
+                    tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
+                    tblAccountingBooks.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         order: [
-                            ['ID', 'DESC']
+                            ['ID', 'ASC']
+                        ],
+                        include: [
+                            {
+                                model: mtblDMTaiKhoanKeToan(db),
+                                required: false,
+                                as: 'accounting'
+                            },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -220,6 +231,10 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
+                                accountingName: element.accounting ? element.accounting.AccountingName : '',
+                                accountingCode: element.accounting ? element.accounting.AccountingCode : '',
+                                accountingReciprocalName: element.accounting ? element.accounting.AccountingName : '',
+                                accountingReciprocalCode: element.accounting ? element.accounting.AccountingCode : '',
                                 numberReceipts: element.NumberReceipts ? element.NumberReceipts : '',
                                 createDate: element.CreateDate ? element.CreateDate : null,
                                 entryDate: element.EntryDate ? element.EntryDate : null,

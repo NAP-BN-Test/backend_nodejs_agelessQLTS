@@ -1239,7 +1239,7 @@ module.exports = {
         //     }
         // })
     },
-    // get_list_Credit_wait_for_pay
+    // get_list_credit_wait_for_pay
     getListCreditWaitForPay: async (req, res) => {
         var body = req.body
         var obj = {
@@ -1276,7 +1276,7 @@ module.exports = {
         // }
         // })
     },
-    // get_list_Credit_paid
+    // get_list_credit_paid
     getListCreditPaid: async (req, res) => {
         var body = req.body
         var obj = {
@@ -1313,7 +1313,7 @@ module.exports = {
         // }
         // })
     },
-    // get_list_Credit_edit_request
+    // get_list_credit_edit_request
     getListCreditEditRequest: async (req, res) => {
         var body = req.body
         var obj = {
@@ -1386,5 +1386,137 @@ module.exports = {
         //     res.json(Result.SYS_ERROR_RESULT)
         // }
         // })
+    },
+
+
+
+
+
+
+
+
+
+    //  api waiting SoftWare
+    // -----------------------------------------------------------------------------------INVOICE---------------------------------------------------
+    // approval_invoice_wait_for_pay
+    approvalInvoiceWaitForPay: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // refuse_invoice_wait_for_pay
+    refuseInvoiceWaitForPay: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // approval_invoice_edit_request
+    approvalInvoiceEditRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // refuse_invoice_edit_request
+    refuseInvoiceEditRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // approval_invoice_delete_request
+    approvalInvoiceDeleteRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // refuse_invoice_delete_request
+    refuseInvoiceDeleteRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // -----------------------------------------------------------------------------------INVOICE---------------------------------------------------
+    // approval_credit_wait_for_pay
+    approvalCreditWaitForPay: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // refuse_credit_wait_for_pay
+    refuseCreditWaitForPay: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // approval_credit_edit_request
+    approvalCreditEditRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // refuse_credit_edit_request
+    refuseCreditEditRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // approval_credit_delete_request
+    approvalCreditDeleteRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
+    },
+    // refuse_credit_delete_request
+    refuseCreditDeleteRequest: async (req, res) => {
+        var body = req.body
+        console.log(body);
+        var result = {
+            status: Constant.STATUS.SUCCESS,
+            message: 'Đã phê duyệt thành công',
+        }
+        res.json(result);
     },
 }

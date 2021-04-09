@@ -173,5 +173,5 @@ module.exports = {
             obj[field.key] = field.value
         }
         return obj;
-    }
+    },
 }

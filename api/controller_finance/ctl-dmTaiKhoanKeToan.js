@@ -7,8 +7,33 @@ var mtblDMLoaiTaiKhoanKeToan = require('../tables/financemanage/tblDMLoaiTaiKhoa
 var database = require('../database');
 var mtblCreditsAccounting = require('../tables/financemanage/tblCreditsAccounting')
 var mtblPaymentAccounting = require('../tables/financemanage/tblPaymentAccounting')
+var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 async function deleteRelationshiptblDMTaiKhoanKeToan(db, listID) {
+    let IDLevelAbove = []
+    await mtblDMTaiKhoanKeToan(db).findAll({
+        where: {
+            IDLevelAbove: listID
+        }
+    }).then(data => {
+        data.forEach(item => {
+            IDLevelAbove.push(Number(item.ID))
+        })
+    })
     await mtblCreditsAccounting(db).update({
+        IDAccounting: null
+    }, {
+        where: {
+            IDAccounting: listID
+        }
+    })
+    await mtblCreditsAccounting(db).update({
+        IDAccounting: null
+    }, {
+        where: {
+            IDAccounting: { [Op.in]: IDLevelAbove }
+        }
+    })
+    await mtblPaymentAccounting(db).update({
         IDAccounting: null
     }, {
         where: {
@@ -18,6 +43,16 @@ async function deleteRelationshiptblDMTaiKhoanKeToan(db, listID) {
     await mtblPaymentAccounting(db).update({
         IDAccounting: null
     }, {
+        where: {
+            IDAccounting: { [Op.in]: IDLevelAbove }
+        }
+    })
+    await mtblAccountingBooks(db).destroy({
+        where: {
+            IDAccounting: { [Op.in]: IDLevelAbove }
+        }
+    })
+    await mtblAccountingBooks(db).destroy({
         where: {
             IDAccounting: listID
         }
