@@ -204,7 +204,8 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
-                    whereOjb.push({ IDAccounting: { [Op.in]: arrayIDAccount } })
+                    if (arrayIDAccount.length > 0)
+                        whereOjb.push({ IDAccounting: { [Op.in]: arrayIDAccount } })
                     let stt = 1;
                     mtblAccountingBooks(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
