@@ -202,12 +202,56 @@ module.exports = {
             arrayIDAccount.push(dataSearch.accountSystemID)
         if (dataSearch.accountSystemOtherID)
             arrayIDAccount.push(dataSearch.accountSystemOtherID)
+        const currentYear = new Date().getFullYear()
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var whereOjb = [];
                     if (arrayIDAccount.length > 0)
                         whereOjb.push({ IDAccounting: { [Op.in]: arrayIDAccount } })
+                    if (dataSearch.selection == 'first_six_months') {
+                        const startedDate = new Date(currentYear + "-01-01 14:00:00");
+                        const endDate = new Date(currentYear + "-06-30 14:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.selection == 'last_six_months') {
+                        let startedDate = new Date(currentYear + "-06-01 07:00:00");
+                        let endDate = new Date(currentYear + "-12-30 24:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.selection == 'one_quarter') {
+                        let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                        let endDate = new Date(currentYear + "-04-01 00:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.selection == 'two_quarter') {
+                        let startedDate = new Date(currentYear + "-04-01 07:00:00");
+                        let endDate = new Date(currentYear + "-07-01 00:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.selection == 'three_quarter') {
+                        let startedDate = new Date(currentYear + "-07-01 07:00:00");
+                        let endDate = new Date(currentYear + "-10-01 00:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.selection == 'four_quarter') {
+                        let startedDate = new Date(currentYear + "-10-01 07:00:00");
+                        let endDate = new Date(currentYear + "-12-30 24:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.selection == 'last_year') {
+                        let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
+                        let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.selection == 'this_year') {
+                        let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                        let endDate = new Date(currentYear + "-12-30 24:00:00");
+                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
+                    }
+                    else if (dataSearch.dateFrom && dataSearch.dateTo) {
+                        whereOjb.push({ CreateDate: { [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo] } })
+                    }
                     let stt = 1;
                     let tblAccountingBooks = mtblAccountingBooks(db);
                     tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
@@ -227,28 +271,69 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
-                            var obj = {
-                                stt: stt,
-                                id: Number(element.ID),
-                                accountingName: element.accounting ? element.accounting.AccountingName : '',
-                                accountingCode: element.accounting ? element.accounting.AccountingCode : '',
-                                accountingReciprocalName: element.accounting ? element.accounting.AccountingName : '',
-                                accountingReciprocalCode: element.accounting ? element.accounting.AccountingCode : '',
-                                numberReceipts: element.NumberReceipts ? element.NumberReceipts : '',
-                                createDate: element.CreateDate ? element.CreateDate : null,
-                                entryDate: element.EntryDate ? element.EntryDate : null,
-                                number: element.Number ? element.Number : '',
-                                reason: element.Reason ? element.Reason : '',
-                                idAccounting: element.IDAccounting ? element.IDAccounting : null,
-                                debtIncurred: element.DebtIncurred ? element.DebtIncurred : null,
-                                creditIncurred: element.CreditIncurred ? element.CreditIncurred : null,
-                                debtSurplus: element.DebtSurplus ? element.DebtSurplus : null,
-                                creaditSurplus: element.CreaditSurplus ? element.CreaditSurplus : null,
+                        for (var i = 0; i < data.length; i++) {
+                            var arrayWhere = []
+                            if (data[i].IDPayment) {
+                                arrayWhere.push({
+                                    IDPayment: data[i].IDPayment
+                                })
+                            } else if (data[i].IDnotices) {
+                                arrayWhere.push({
+                                    IDPayment: data[i].IDnotices
+                                })
+                            } else {
+                                arrayWhere.push({
+                                    IDPayment: { [Op.ne]: null }
+                                })
                             }
-                            array.push(obj);
-                            stt += 1;
-                        });
+                            await tblAccountingBooks.findAll({
+                                where: {
+                                    [Op.and]: [
+                                        {
+                                            [Op.or]: arrayWhere
+                                        },
+                                        {
+                                            ID: { [Op.ne]: data[i].ID }
+                                        }
+                                    ]
+                                },
+                                order: [
+                                    ['ID', 'ASC']
+                                ],
+                                include: [
+                                    {
+                                        model: mtblDMTaiKhoanKeToan(db),
+                                        required: false,
+                                        as: 'accounting'
+                                    },
+                                ],
+                            }).then(accounting => {
+                                if (accounting) {
+                                    accounting.forEach(item => {
+                                        var obj = {
+                                            stt: stt,
+                                            id: Number(item.ID),
+                                            accountingName: data[i].accounting ? data[i].accounting.AccountingName : '',
+                                            accountingCode: data[i].accounting ? data[i].accounting.AccountingCode : '',
+                                            accountingReciprocalName: item.accounting ? item.accounting.AccountingName : '',
+                                            accountingReciprocalCode: item.accounting ? item.accounting.AccountingCode : '',
+                                            numberReceipts: item.NumberReceipts ? item.NumberReceipts : '',
+                                            createDate: item.CreateDate ? moment(item.CreateDate).format('DD/MM/YYYY') : null,
+                                            entryDate: item.EntryDate ? moment(item.EntryDate).format('DD/MM/YYYY') : null,
+                                            number: item.Number ? item.Number : '',
+                                            reason: item.Reason ? item.Reason : '',
+                                            idAccounting: item.IDAccounting ? item.IDAccounting : null,
+                                            debtIncurred: item.DebtIncurred ? item.DebtIncurred : null,
+                                            creditIncurred: item.CreditIncurred ? item.CreditIncurred : null,
+                                            debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
+                                            creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
+                                        }
+                                        array.push(obj);
+                                        stt += 1;
+                                    })
+                                }
+                            })
+                        }
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

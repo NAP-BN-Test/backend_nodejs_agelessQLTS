@@ -830,7 +830,76 @@ module.exports = {
             if (db) {
                 try {
                     mtblVayTamUng(db).findAll({
-                        where: { IDNhanVienAdvance: body.staffID }
+                        where: {
+                            [Op.or]: [
+                                {
+                                    [Op.and]: [
+                                        { Status: { [Op.ne]: 'Chờ hoàn ứng' } },
+                                        { IDNhanVienAdvance: body.staffID, }
+                                    ],
+                                }, {
+
+                                    [Op.and]: [
+                                        { Status: { [Op.ne]: 'Đã hoàn ứng' } },
+                                        { IDNhanVienAdvance: body.staffID, }
+                                    ]
+                                }
+                            ]
+                        }
+                    }).then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
+                                date: element.Date ? element.Date : '',
+                                cost: element.Cost ? element.Cost : '',
+                                contents: element.Contents ? element.Contents : '',
+                                reason: element.Reason ? element.Reason : '',
+                            }
+                            array.push(obj);
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_reimbursement_from_staff
+    getListReimbursementFromStaff: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblVayTamUng(db).findAll({
+                        where: {
+                            [Op.or]: [
+                                {
+                                    [Op.and]: [
+                                        { Status: 'Chờ hoàn ứng' },
+                                        { IDNhanVienAdvance: body.staffID, }
+                                    ],
+                                },
+                                {
+                                    [Op.and]: [
+                                        { Status: 'Đã hoàn ứng' },
+                                        { IDNhanVienAdvance: body.staffID, }
+                                    ]
+                                }
+                            ]
+                        }
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {

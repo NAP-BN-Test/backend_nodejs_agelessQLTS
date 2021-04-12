@@ -399,6 +399,7 @@ module.exports = function (app) {
     app.route('/qlnb/refuse_employee_leader_kvtu').post(checkToken.checkToken, tblVayTamUng.refuseNhanVienLDPD);
     app.route('/qlnb/reimbursement').post(checkToken.checkToken, tblVayTamUng.reimbursement);
     app.route('/qlnb/get_list_loan_advance_from_staff').post(checkToken.checkToken, tblVayTamUng.getListLoanAdvanceFromStaff);
+    app.route('/qlnb/get_list_reimbursement_from_staff').post(checkToken.checkToken, tblVayTamUng.getListReimbursementFromStaff);
     app.route('/qlnb/get_list_reimbursement').post(checkToken.checkToken, tblVayTamUng.getListReimbursement);
     app.route('/qlnb/get_list_name_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.getListNametblVayTamUng);
     app.route('/qlnb/approval_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienKTPD);

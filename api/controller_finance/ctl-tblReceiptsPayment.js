@@ -226,7 +226,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
             number = data ? data.CodeNumber : ''
         })
     }
-    let now = moment().format('DD-MM-YYYY');
+    let now = moment().format('YYYY-MM-DD');
     for (var i = 0; i < listDebit.length; i++) {
         await mtblAccountingBooks(db).create({
             CreateDate: now,
@@ -251,6 +251,138 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
             Number: number,
         })
     }
+}
+async function getDetailCustomer(id) {
+    dataCustomer = [
+        {
+            "customerCode": "KH0001",
+            "name": "Công ty tnhh An Phú",
+            "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+            "tax": "123456789",
+            "countryName": "Việt Nam",
+            "address": "Số 2 Hoàng Mai Hà Nội",
+            "mobile": "098705124",
+            "fax": "01234567",
+            "email": "anphu@gmail.com",
+            "id": 1,
+        },
+        {
+            "customerCode": "KH0002",
+            "name": "Công ty tnhh Is Tech Vina",
+            "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
+            "tax": "01245870",
+            "countryName": "Việt Nam",
+            "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
+            "mobile": "082457145",
+            "fax": "0241368451",
+            "email": "istech@gmail.com",
+            "id": 2,
+        },
+        {
+            "customerCode": "KH0003",
+            "name": "Công ty cổ phần Orion Việt Nam",
+            "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
+            "tax": "012341250",
+            "countryName": "Việt nam",
+            "address": "Số 12 Bạch Mai Hà Nội",
+            "mobile": "0315456554",
+            "fax": "132456545",
+            "email": "orion13@gmail.com",
+            "id": 3,
+        },
+        {
+            "customerCode": "KH0004",
+            "name": "Công ty TNHH Rồng Việt",
+            "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
+            "tax": "01323255",
+            "countryName": "Việt Nam",
+            "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+            "mobile": "0445445474",
+            "fax": "1135635",
+            "email": "rongviet@gmail.com",
+            "id": 4,
+        },
+        {
+            "customerCode": "KH0005",
+            "name": "Công ty cổ phần và thương mại Đức Việt",
+            "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
+            "tax": "017654124",
+            "countryName": "Việt Nam",
+            "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
+            "mobile": "0444545401",
+            "fax": "75241241241",
+            "email": "ducviet0209@gmail.com",
+            "id": 5,
+        },
+        {
+            "customerCode": "KH0006",
+            "name": "Công ty TNHH 1 thành viên Bảo Minh",
+            "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
+            "tax": "154654565",
+            "countryName": "Việt Nam",
+            "address": "Số 25 Ba Đình Hà Nội",
+            "mobile": "045102474",
+            "fax": "02137244",
+            "email": "baominh56@gmail.com",
+            "id": 6,
+        },
+        {
+            "customerCode": "KH0007",
+            "name": "Công ty Sx và Tm Minh Hòa",
+            "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
+            "tax": "04785635432",
+            "countryName": "Việt Nam",
+            "address": "Số 21 Hàng Mã Hà Nội",
+            "mobile": "0045454510",
+            "fax": "415265654",
+            "email": "minhhoa1212@gmail.com",
+            "id": 7,
+        },
+        {
+            "customerCode": "KH0008",
+            "name": "Công ty cổ phần EC",
+            "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
+            "tax": "45454545",
+            "countryName": "Việt Nam",
+            "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
+            "mobile": "012345474",
+            "fax": "012244635",
+            "email": "ec1312@gmail.com",
+            "id": 8,
+        },
+        {
+            "customerCode": "KH0009",
+            "name": "Công ty cổ phần Thu Hương",
+            "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
+            "tax": "012546565",
+            "countryName": "Việt Nam",
+            "address": "Số 24 Bạch Mai Hà Nội",
+            "mobile": "015245454",
+            "fax": "45552478",
+            "email": "thuhuong34@gmail.com",
+            "id": 9,
+        },
+        {
+            "customerCode": "KH0010",
+            "name": "Công ty tnhh Hòa Phát",
+            "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
+            "tax": "014775745",
+            "countryName": "Việt Nam",
+            "address": "Số 2 Phố Huế Hà Nội",
+            "mobile": "045245401",
+            "fax": "021455235",
+            "email": "hoaphat0102@gmail.com",
+            "id": 10,
+        },
+    ]
+    var obj = {}
+    dataCustomer.forEach(item => {
+        if (item.id == id) {
+            obj = item
+        }
+    })
+    return obj
+
 }
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
@@ -292,6 +424,7 @@ module.exports = {
                             var obj = {
                                 id: data.ID,
                                 type: data.Type ? data.Type : '',
+                                rpType: data.RPType ? data.RPType : '',
                                 voucherNumber: data.VoucherNumber ? data.VoucherNumber : null,
                                 voucherDate: data.VoucherDate ? data.VoucherDate : null,
                                 codeNumber: data.CodeNumber ? data.CodeNumber : '',
@@ -446,6 +579,7 @@ module.exports = {
                     }
                     mtblReceiptsPayment(db).create({
                         Type: body.type ? body.type : '',
+                        RPType: body.rpType ? body.rpType : '',
                         CodeNumber: automaticCode,
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
@@ -813,17 +947,20 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
+                            let dataCus = await getDetailCustomer(data[i].IDCustomer)
+
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
                                 type: data[i].Type ? data[i].Type : '',
+                                rpType: data[i].RPType ? data[i].RPType : '',
                                 codeNumber: data[i].CodeNumber ? data[i].CodeNumber : '',
                                 voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
                                 voucherDate: data[i].VoucherDate ? data[i].VoucherDate : null,
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
                                 date: data[i].Date ? data[i].Date : null,
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
-                                customerName: 'Công ty tnhh An Phú',
+                                customerName: dataCus.name,
                                 address: data[i].Address ? data[i].Address : '',
                                 amount: data[i].Amount ? data[i].Amount : null,
                                 amountWords: data[i].AmountWords ? data[i].AmountWords : '',

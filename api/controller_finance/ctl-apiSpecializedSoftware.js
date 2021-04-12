@@ -1074,12 +1074,25 @@ module.exports = {
             if (data[i].statusName == 'Chờ thanh toán')
                 array.push(data[i])
         }
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
+
         var result = {
             array: array,
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
+
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);
@@ -1106,6 +1119,16 @@ module.exports = {
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         //     if (data) {
         //         if (data.data.status_code == 200) {
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
         var array = []
         for (var i = 0; i < data.length; i++) {
             if (data[i].statusName == 'Đã thanh toán')
@@ -1116,7 +1139,9 @@ module.exports = {
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
+
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);
@@ -1148,12 +1173,24 @@ module.exports = {
             if (data[i].request == 'Yêu cầu sửa')
                 array.push(data[i])
         }
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
         var result = {
             array: array,
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
+
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);
@@ -1181,6 +1218,16 @@ module.exports = {
         //     if (data) {
         //         if (data.data.status_code == 200) {
         var array = []
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
         for (var i = 0; i < data.length; i++) {
             if (data[i].request == 'Yêu cầu xóa')
                 array.push(data[i])
@@ -1190,7 +1237,9 @@ module.exports = {
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
+
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);
@@ -1258,12 +1307,24 @@ module.exports = {
             if (dataCredit[i].statusName == 'Chờ thanh toán')
                 array.push(dataCredit[i])
         }
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
         var result = {
             array: array,
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
+
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);
@@ -1291,6 +1352,16 @@ module.exports = {
         //     if (data) {
         //         if (data.data.status_code == 200) {
         var array = []
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
         for (var i = 0; i < dataCredit.length; i++) {
             if (dataCredit[i].statusName == 'Đã thanh toán')
                 array.push(dataCredit[i])
@@ -1300,7 +1371,8 @@ module.exports = {
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);
@@ -1327,6 +1399,16 @@ module.exports = {
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         //     if (data) {
         //         if (data.data.status_code == 200) {
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
         var array = []
         for (var i = 0; i < dataCredit.length; i++) {
             if (dataCredit[i].request == 'Yêu cầu sửa')
@@ -1337,7 +1419,9 @@ module.exports = {
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
+
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);
@@ -1369,12 +1453,24 @@ module.exports = {
             if (dataCredit[i].request == 'Yêu cầu xóa')
                 array.push(dataCredit[i])
         }
+        let totalMoney = [
+            {
+                total: 1000000000,
+                type: 'VND',
+            },
+            {
+                total: 1000,
+                type: 'USD',
+            }
+        ];
         var result = {
             array: array,
             // array: data.data.data.list,
             status: Constant.STATUS.SUCCESS,
             message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10
+            all: 10,
+            totalMoney: totalMoney,
+
             // all: data.data.data.pager.rowsCount
         }
         res.json(result);

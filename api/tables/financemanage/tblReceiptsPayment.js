@@ -30,6 +30,7 @@ module.exports = function (db) {
         Unknown: Sequelize.BOOLEAN,
         ExchangeRate: Sequelize.FLOAT,
         IDStaff: Sequelize.INTEGER,
+        RPType: Sequelize.STRING,
     });
 
     return table;
