@@ -185,7 +185,6 @@ module.exports = {
     // get_list_tbl_accounting_books
     getListtblAccountingBooks: (req, res) => {
         let body = req.body;
-        console.log(body);
         let array = [
             'first_six_months',
             'last_six_months',
@@ -279,7 +278,7 @@ module.exports = {
                                 })
                             } else if (data[i].IDnotices) {
                                 arrayWhere.push({
-                                    IDPayment: data[i].IDnotices
+                                    IDnotices: data[i].IDnotices
                                 })
                             } else {
                                 arrayWhere.push({
@@ -310,6 +309,7 @@ module.exports = {
                             }).then(accounting => {
                                 if (accounting) {
                                     accounting.forEach(item => {
+                                        console.log(item.ID);
                                         var obj = {
                                             stt: stt,
                                             id: Number(item.ID),
@@ -323,8 +323,8 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            debtIncurred: item.DebtIncurred ? item.DebtIncurred : null,
-                                            creditIncurred: item.CreditIncurred ? item.CreditIncurred : null,
+                                            debtIncurred: item.CreditIncurred ? item.CreditIncurred : null,
+                                            creditIncurred: item.DebtIncurred ? item.DebtIncurred : null,
                                             debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
                                             creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
                                         }

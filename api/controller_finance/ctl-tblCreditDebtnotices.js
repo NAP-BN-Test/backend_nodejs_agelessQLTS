@@ -222,7 +222,6 @@ module.exports = {
                     }).then(async data => {
                         if (data) {
                             let dataCus = await getDetailCustomer(data.IDCustomer)
-                            console.log(dataCus);
                             var obj = {
                                 id: data.ID,
                                 type: data.Type ? data.Type : '',
@@ -401,7 +400,6 @@ module.exports = {
     // update_tbl_credit_debt_notices
     updatetblCreditDebtnotices: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

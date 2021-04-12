@@ -384,6 +384,149 @@ async function getDetailCustomer(id) {
     return obj
 
 }
+async function getDetailStaff(id) {
+    dataStaff = [
+
+        {
+            id: 1,
+            staffCode: 'NV001',
+            fullName: 'NGUYỄN THỊ THU',
+            gender: 'Nữ',
+            birthday: '20/03/1992',
+            cmndNumber: '125457789',
+            address: 'Số 13 Hoàng Mai Hà Nội',
+            mobile: '065817845',
+            email: 'thu123@gmail.com',
+            departmentName: 'Ban MKT',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 2,
+            staffCode: 'NV002',
+            fullName: 'Nguyễn Anh Tuấn',
+            gender: 'Nam',
+            birthday: '15/04/1994',
+            cmndNumber: '123789210',
+            address: 'Số 21A Kim Ngưu Hoàng Mai Hai Bà Trưng Hà Nội',
+            mobile: '067812345',
+            email: 'tuanna@gmail.com',
+            departmentName: 'Ban sáng chế',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 3,
+            staffCode: 'NV003',
+            fullName: 'LÊ THỊ THẢO',
+            gender: 'Nữ',
+            birthday: '25/10/1997',
+            cmndNumber: '125654421',
+            address: 'Số 203 Minh Khai Hà Nội',
+            mobile: '0989705248',
+            email: 'lethao.nap@gmail.com',
+            departmentName: 'Ban kế toán',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 4,
+            staffCode: 'NV004',
+            fullName: 'Phạm Đức Anh',
+            gender: 'Nam',
+            birthday: '10/05/1985',
+            cmndNumber: '121012351',
+            address: 'Số 2 Đào Tấn Hà Nội',
+            mobile: '0365412784',
+            email: 'anhduc12@gmail.com',
+            departmentName: 'Ban sáng chế',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 5,
+            staffCode: 'NV005',
+            fullName: 'Trần Quỳnh Trang',
+            gender: 'Nữ',
+            birthday: '18/03/1991',
+            cmndNumber: '125317451',
+            address: 'Số 23 Tam Trinh Hoàng Mai Hà Nội',
+            mobile: '0368451274',
+            email: 'trang123@gmail.com',
+            departmentName: 'Ban NH1',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 6,
+            staffCode: 'NV006',
+            fullName: 'Nguyễn Thị Thu Trang',
+            gender: 'Nữ',
+            birthday: '20/09/1988',
+            cmndNumber: '12612468',
+            address: 'Số 1B Ngõ 286 Lĩnh Nam Hoàng Mai Hà Nội',
+            mobile: '098714521',
+            email: 'thutrang@gmail.com',
+            departmentName: 'Ban Kế toán',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 7,
+            staffCode: 'NV007',
+            fullName: 'Vũ Văn Chiến',
+            gender: 'Nam',
+            birthday: '16/06/1990',
+            cmndNumber: '125781423',
+            address: 'Số 25 Ngọc Lâm Long Biên Hà Nội',
+            mobile: '083654127',
+            email: 'vvchien@gmail.com',
+            departmentName: 'Ban Sáng chế',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 8,
+            staffCode: 'NV008',
+            fullName: 'lê Thị Ngọc Diệp',
+            gender: 'Nữ',
+            birthday: '25/10/1996',
+            cmndNumber: '125021342',
+            address: 'Số 3B Hàng Mã Hà Nội',
+            mobile: '012784125',
+            email: 'diephn@gmail.com',
+            departmentName: 'Ban Sáng chế',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 9,
+            staffCode: 'NV009',
+            fullName: 'Vũ Quang Minh',
+            gender: 'Nam',
+            birthday: '06/06/1980',
+            cmndNumber: '126120412',
+            address: 'Số 86 Thái Hà Hà Nội',
+            mobile: '086234517',
+            email: 'vuminh@gmail.com',
+            departmentName: 'Ban NH2',
+            branchName: 'Việt Nam',
+        },
+        {
+            id: 10,
+            staffCode: 'NV010',
+            fullName: 'Nguyễn Thị Thu Hà',
+            gender: 'Nữ',
+            birthday: '14/02/1985',
+            cmndNumber: '121453245',
+            address: 'Số 26 Hàng Chiếu Hà Nội',
+            mobile: '089631242',
+            email: 'thuha12@gmail.com',
+            departmentName: 'Ban Kế toán',
+            branchName: 'Việt Nam',
+        },
+    ]
+    var obj = {}
+    dataStaff.forEach(item => {
+        if (item.id == id) {
+            obj = item
+        }
+    })
+    return obj
+
+}
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
@@ -948,7 +1091,7 @@ module.exports = {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
                             let dataCus = await getDetailCustomer(data[i].IDCustomer)
-
+                            let dataStaff = await getDetailStaff(data[i].IDStaff)
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -960,7 +1103,8 @@ module.exports = {
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
                                 date: data[i].Date ? data[i].Date : null,
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
-                                customerName: dataCus.name,
+                                customerName: dataCus.name ? dataCus.name : dataStaff.fullName,
+                                staffName: dataStaff.fullName,
                                 address: data[i].Address ? data[i].Address : '',
                                 amount: data[i].Amount ? data[i].Amount : null,
                                 amountWords: data[i].AmountWords ? data[i].AmountWords : '',
@@ -976,6 +1120,7 @@ module.exports = {
                                 idSubmitter: data[i].IDSubmitter ? data[i].IDSubmitter : null,
                                 nameSubmitter: '',
                             }
+                            console.log(obj);
                             let arrayCredit = []
                             let arraydebit = []
                             let tblPaymentAccounting = mtblPaymentAccounting(db);
