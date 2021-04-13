@@ -43,10 +43,12 @@ module.exports = {
                 try {
                     var deparment = await mtblDMNhanvien(db).findOne({ where: { ID: body.idNhanVien } })
                     mtblYeuCauMuaSam(db).create({
+                        RequestCode: await mModules.automaticCode(mtblYeuCauMuaSam(db), 'RequestCode', 'YCMS'),
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDPhongBan: deparment ? deparment.IDBoPhan ? deparment.IDBoPhan : null : null,
                         RequireDate: body.requireDate ? body.requireDate : null,
                         Reason: body.reason ? body.reason : '',
+                        AssetName: body.assetName ? body.assetName : '',
                         Status: 'Chờ phê duyệt',
                         IDPheDuyet1: body.idPheDuyet1 ? body.idPheDuyet1 : null,
                         IDPheDuyet2: body.idPheDuyet2 ? body.idPheDuyet2 : null,
@@ -165,6 +167,8 @@ module.exports = {
 
                     if (body.reason || body.reason === '')
                         update.push({ key: 'Reason', value: body.reason });
+                    if (body.assetName || body.assetName === '')
+                        update.push({ key: 'AssetName', value: body.assetName });
                     if (body.idPheDuyet2 || body.idPheDuyet2 === '') {
                         if (body.idPheDuyet2 === '')
                             update.push({ key: 'IDPheDuyet2', value: null });
@@ -414,7 +418,6 @@ module.exports = {
                     let whereSecond = []
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
-                        console.log(data);
                         if (data.search) {
                             var listStaff = [];
                             await mtblDMNhanvien(db).findAll({
@@ -670,6 +673,7 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 type: element.Type ? element.Type : '',
+                                requestCode: element.RequestCode ? element.RequestCode : '',
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                                 nameIDNhanVien: element.NhanVien ? element.NhanVien.StaffName : null,
                                 idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
@@ -704,9 +708,10 @@ module.exports = {
                                             arrayTaiSan.push({
                                                 name: data.Name,
                                                 code: data.Code,
+                                                remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
                                                 amount: amount,
                                                 unitPrice: price,
-                                                id: array[i].line[j].id,
+                                                id: array[i].line[j].ID,
                                             })
                                         }
                                     })
@@ -720,6 +725,7 @@ module.exports = {
                                             arrayTaiSan.push({
                                                 name: data.VPPName ? data.VPPName : '',
                                                 code: data.VPPCode ? data.VPPCode : '',
+                                                remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
                                                 amount: amount,
                                                 unitPrice: price,
                                                 id: array[i].line[j].ID,

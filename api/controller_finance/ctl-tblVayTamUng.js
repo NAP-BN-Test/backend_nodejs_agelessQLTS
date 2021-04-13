@@ -829,13 +829,14 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblVayTamUng(db).findAll({
+                    var array = [];
+                    var arrayUpdate = [];
+                    await mtblVayTamUng(db).findAll({
                         where: {
                             Status: { [Op.ne]: 'Tạo phiếu chi' },
                             IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
-                        var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
@@ -847,13 +848,40 @@ module.exports = {
                             }
                             array.push(obj);
                         });
-                        var result = {
-                            array: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
                     })
+                    await mtblVayTamUng(db).findAll({
+                        where: {
+                            [Op.or]: [
+                                {
+                                    Status: { [Op.ne]: 'Tạo phiếu chi' },
+                                    IDNhanVienAdvance: body.staffID,
+                                },
+                                {
+                                    Status: { [Op.ne]: 'Chờ hoàn ứng' },
+                                    IDNhanVienAdvance: body.staffID,
+                                }
+                            ]
+                        }
+                    }).then(data => {
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
+                                date: element.Date ? element.Date : '',
+                                cost: element.Cost ? element.Cost : '',
+                                contents: element.Contents ? element.Contents : '',
+                                reason: element.Reason ? element.Reason : '',
+                            }
+                            arrayUpdate.push(obj);
+                        });
+                    })
+                    var result = {
+                        arrayCreate: array,
+                        arrayUpdate: arrayUpdate,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
 
                 } catch (error) {
                     console.log(error);
@@ -870,13 +898,14 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblVayTamUng(db).findAll({
+                    var array = [];
+                    var arrayUpdate = [];
+                    await mtblVayTamUng(db).findAll({
                         where: {
                             Status: 'Chờ hoàn ứng',
                             IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
-                        var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
@@ -888,14 +917,40 @@ module.exports = {
                             }
                             array.push(obj);
                         });
-                        var result = {
-                            array: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
                     })
-
+                    await mtblVayTamUng(db).findAll({
+                        where: {
+                            [Op.or]: [
+                                {
+                                    Status: 'Chờ hoàn ứng',
+                                    IDNhanVienAdvance: body.staffID,
+                                },
+                                {
+                                    Status: 'Đã hoàn ứng',
+                                    IDNhanVienAdvance: body.staffID,
+                                },
+                            ]
+                        }
+                    }).then(data => {
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
+                                date: element.Date ? element.Date : '',
+                                cost: element.Cost ? element.Cost : '',
+                                contents: element.Contents ? element.Contents : '',
+                                reason: element.Reason ? element.Reason : '',
+                            }
+                            arrayUpdate.push(obj);
+                        });
+                    })
+                    var result = {
+                        arrayCreate: array,
+                        arrayUpdate: arrayUpdate,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -11,6 +11,7 @@ module.exports = function (db) {
         IDPhongBan: Sequelize.BIGINT,
         RequireDate: Sequelize.DATE,
         Reason: Sequelize.STRING,
+        RequestCode: Sequelize.STRING,
         Status: Sequelize.STRING,
         IDPheDuyet1: Sequelize.BIGINT,
         IDPheDuyet2: Sequelize.BIGINT,
@@ -20,6 +21,7 @@ module.exports = function (db) {
         Type: Sequelize.STRING,
         IDSupplier: Sequelize.BIGINT,
         IDPaymentOrder: Sequelize.BIGINT,
+        AssetName: Sequelize.STRING,
     });
 
     return table;
