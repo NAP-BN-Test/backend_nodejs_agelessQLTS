@@ -17,6 +17,34 @@ var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
 var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
+    // Trả lại tiền
+    var payment = await mtblPaymentRPayment(db).findAll({
+        where: {
+            IDPayment: { [Op.in]: listID }
+        }
+    })
+    if (payment) {
+        for (var i = 0; i < payment.length; i++) {
+            let paymentUpdate = await mtblReceiptsPayment(db).findOne({
+                where: { ID: payment[i].IDPaymentR }
+            })
+
+            await mtblReceiptsPayment(db).update({
+                UnpaidAmount: paymentUpdate.UnpaidAmount + (payment[i].Amount ? payment[i].Amount : 0),
+                PaidAmount: paymentUpdate.PaidAmount - (payment[i].Amount ? payment[i].Amount : 0),
+                Unknown: true,
+            }, {
+                where: {
+                    ID: payment[i].IDPaymentR
+                }
+            })
+        }
+    }
+    await mtblPaymentRPayment(db).destroy({
+        where: {
+            IDPayment: { [Op.in]: listID }
+        }
+    })
     await mtblAccountingBooks(db).destroy({ where: { IDPayment: { [Op.in]: listID } } })
     await mtblVayTamUng(db).destroy({
         where: {
@@ -773,7 +801,7 @@ module.exports = {
                                     }
                                 }).then(async paymentR => {
                                     // Trường hợp nếu tiền rút lớn hơn hoặc bằng số tiền chưa thanh toán
-                                    if (withdrawalMoney >= paymentR.UnpaidAmount) {
+                                    if (withdrawalMoney > paymentR.UnpaidAmount) {
                                         withdrawalMoney = withdrawalMoney - paymentR.UnpaidAmount
                                         // Tạo trước khi update
                                         await mtblPaymentRPayment(db).create({
@@ -800,6 +828,7 @@ module.exports = {
                                             Amount: withdrawalMoney,
                                         })
                                         await mtblReceiptsPayment(db).update({
+                                            Unknown: false,
                                             UnpaidAmount: paymentR.UnpaidAmount - withdrawalMoney,
                                             PaidAmount: paymentR.PaidAmount + withdrawalMoney,
                                         }, {

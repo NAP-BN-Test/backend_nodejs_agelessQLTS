@@ -434,6 +434,8 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.deletetblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_tbl_dm_taikhoanketoan').post(tblDMTaiKhoanKeToan.getListtblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_name_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListNametblDMTaiKhoanKeToan);
+    app.route('/qlnb/get_list_loan_advance_accounting').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListAdvanceLoanAccouting);
+    app.route('/qlnb/get_list_reimbursement_accounting').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListReimbursementAccouting);
 
     var tblCurrency = require('./controller_finance/ctl-tblCurrency')
     app.route('/qlnb/get_detail_tbl_currency').post(tblCurrency.detailtblCurrency);

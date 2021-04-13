@@ -377,5 +377,85 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
+    },
+    // get_list_loan_advance_accounting
+    getListAdvanceLoanAccouting: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblDMTaiKhoanKeToan(db).findAll({
+                        order: [
+                            ['ID', 'ASC']
+                        ],
+                        where: {
+                            AccountingCode: { [Op.in]: ['111', '112', '152'] }
+                        }
+                    }).then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                accountingName: element.AccountingName ? element.AccountingName : '',
+                                accountingCode: element.AccountingCode ? element.AccountingCode : '',
+                            }
+                            array.push(obj);
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_reimbursement_accounting
+    getListReimbursementAccouting: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblDMTaiKhoanKeToan(db).findAll({
+                        order: [
+                            ['ID', 'ASC']
+                        ],
+                        where: {
+                            AccountingCode: { [Op.in]: ['111', '334', '152'] }
+                        }
+                    }).then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                accountingName: element.AccountingName ? element.AccountingName : '',
+                                accountingCode: element.AccountingCode ? element.AccountingCode : '',
+                            }
+                            array.push(obj);
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
     }
 }
