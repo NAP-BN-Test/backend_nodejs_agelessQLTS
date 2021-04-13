@@ -45,6 +45,11 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             IDPayment: { [Op.in]: listID }
         }
     })
+    await mtblPaymentRPayment(db).destroy({
+        where: {
+            IDPaymentR: { [Op.in]: listID }
+        }
+    })
     await mtblAccountingBooks(db).destroy({ where: { IDPayment: { [Op.in]: listID } } })
     await mtblVayTamUng(db).destroy({
         where: {
@@ -1149,7 +1154,6 @@ module.exports = {
                                 idSubmitter: data[i].IDSubmitter ? data[i].IDSubmitter : null,
                                 nameSubmitter: '',
                             }
-                            console.log(obj);
                             let arrayCredit = []
                             let arraydebit = []
                             let tblPaymentAccounting = mtblPaymentAccounting(db);
@@ -1263,6 +1267,100 @@ module.exports = {
                     tblReceiptsPayment.findAll({
                         where: {
                             IDCustomer: body.idCustomer,
+                            // Unknown: true,
+                        },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                codeNumber: data[i].CodeNumber ? data[i].CodeNumber : '',
+                                unpaidAmount: data[i].UnpaidAmount ? data[i].UnpaidAmount : 0,
+                                paidAmount: data[i].PaidAmount ? data[i].PaidAmount : 0,
+                                initialAmount: data[i].InitialAmount ? data[i].InitialAmount : 0,
+                                amount: data[i].Amount ? data[i].Amount : 0,
+                                reason: data[i].Reason ? data[i].Reason : '',
+                                date: data[i].Date ? data[i].Date : 0,
+                                idCurrency: data[i].IDCurrency ? data[i].IDCurrency : 0,
+                                shortNameCurrency: data[i].currency ? data[i].currency.ShortName : 0,
+                                fullNameCurrency: data[i].currency ? data[i].currency.FullName : 0,
+                                type: "Phiếu thu",
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        let arrayAmountMoney = []
+                        await mtblCurrency(db).findAll().then(async data => {
+                            for (var i = 0; i < data.length; i++) {
+                                await mtblReceiptsPayment(db).findAll({
+                                    attributes: [
+                                        [Sequelize.fn('SUM', Sequelize.col('Amount')), 'total_amount'],
+                                    ],
+                                    // group: ['ID', 'Unknown', 'Withdrawal', 'InitialAmount', 'PaidAmount', 'UnpaidAmount', 'VoucherDate', 'VoucherNumber', 'IDManager', 'Reason', 'AmountWords', 'Amount', 'Address', 'IDCustomer', 'Date', 'IDCurrency', 'CodeNumber', 'Type'],
+                                    where: {
+                                        IDCurrency: data[i].ID,
+                                        Unknown: true,
+                                        IDCustomer: body.idCustomer,
+                                    }
+                                }).then(payment => {
+                                    var obj = {
+                                        type: data[i].ShortName ? data[i].ShortName : '',
+                                        total: payment[0].dataValues.total_amount ? payment[0].dataValues.total_amount : 0
+                                    }
+                                    if (obj.total != 0)
+                                        arrayAmountMoney.push(obj)
+                                })
+                            }
+                        })
+                        var count = await tblReceiptsPayment.count({
+                            where: {
+                                IDCustomer: body.idCustomer,
+                                Unknown: true,
+                            },
+                        })
+                        var result = {
+                            array: array,
+                            totalMoney: 0,
+                            all: count,
+                            totalMoney: arrayAmountMoney,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_receipts_payment_unknown_from_customer
+    getListReceiptsPaymentUnknownFromCustomer: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let tblReceiptsPayment = mtblReceiptsPayment(db);
+                    tblReceiptsPayment.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+                    tblReceiptsPayment.findAll({
+                        where: {
+                            IDCustomer: body.idCustomer,
                             Unknown: true,
                         },
                         order: [
@@ -1345,5 +1443,4 @@ module.exports = {
             }
         })
     },
-
 }

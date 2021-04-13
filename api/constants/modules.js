@@ -26,14 +26,20 @@ var arrMailStatus = [
 
 var dayInWeek = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 module.exports = {
-    automaticCode: async (database, fieldCode, codeBefore) => {
+    automaticCode: async (database, fieldCode, codeBefore, type = '') => {
         let year = moment().format('YYYY');
         let month = moment().format('MM');
+        let where = []
+        if (type != '') {
+            where.push({ Type: type })
+        }
         var check = await database.findOne({
             order: [
                 [fieldCode, 'DESC']
-            ]
+            ],
+            where: where,
         })
+        console.log(check[fieldCode]);
         // console.log(check.VoucherNumber);
         var automaticCode = codeBefore + month + year + '1';
         if (!check) {

@@ -42,11 +42,11 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
             number = data ? data.VoucherNumber : ''
         })
     }
-    let now = moment().format('DD-MM-YYYY');
+    let now = moment().format('YYYY-MM-DD');
     for (var i = 0; i < listDebit.length; i++) {
         await mtblAccountingBooks(db).create({
-            CreateDate: now,
-            EntryDate: now,
+            // CreateDate: now,
+            // EntryDate: now,
             IDAccounting: listDebit[i].debtAccount.id,
             DebtIncurred: listDebit[i].amountOfMoney,
             CreditIncurred: 0,
@@ -337,9 +337,9 @@ module.exports = {
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
                     var voucherNumber = '';
                     if (body.type == 'spending') {
-                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBC')
+                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBC', 'spending')
                     } else {
-                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBN')
+                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBN', 'debit')
                     }
                     mtblCreditDebtnotices(db).create({
                         Type: body.type ? body.type : '',
