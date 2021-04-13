@@ -831,20 +831,8 @@ module.exports = {
                 try {
                     mtblVayTamUng(db).findAll({
                         where: {
-                            [Op.or]: [
-                                {
-                                    [Op.and]: [
-                                        { Status: { [Op.ne]: 'Chờ hoàn ứng' } },
-                                        { IDNhanVienAdvance: body.staffID, }
-                                    ],
-                                }, {
-
-                                    [Op.and]: [
-                                        { Status: { [Op.ne]: 'Đã hoàn ứng' } },
-                                        { IDNhanVienAdvance: body.staffID, }
-                                    ]
-                                }
-                            ]
+                            Status: { [Op.ne]: 'Tạo phiếu chi' },
+                            IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
                         var array = [];
@@ -879,26 +867,13 @@ module.exports = {
     // get_list_reimbursement_from_staff
     getListReimbursementFromStaff: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblVayTamUng(db).findAll({
                         where: {
-                            [Op.or]: [
-                                {
-                                    [Op.and]: [
-                                        { Status: 'Chờ hoàn ứng' },
-                                        { IDNhanVienAdvance: body.staffID, }
-                                    ],
-                                },
-                                {
-                                    [Op.and]: [
-                                        { Status: 'Đã hoàn ứng' },
-                                        { IDNhanVienAdvance: body.staffID, }
-                                    ]
-                                }
-                            ]
+                            Status: 'Chờ hoàn ứng',
+                            IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
                         var array = [];

@@ -509,6 +509,7 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_receipts_payment').post(tblReceiptsPayment.deletetblReceiptsPayment);
     app.route('/qlnb/get_list_name_tbl_receipts_payment').post(tblReceiptsPayment.getListNametblReceiptsPayment);
     app.route('/qlnb/get_list_receipts_payment_unknown').post(tblReceiptsPayment.getListReceiptsPaymentUnknown);
+    app.route('/qlnb/get_list_receipts_payment_unknown_customer_menu').post(tblReceiptsPayment.getListReceiptsPaymentUnknownFromCustomer);
 
     // Danh sách giấy báo nợ/ có
     var tblCreditDebtnotices = require('./controller_finance/ctl-tblCreditDebtnotices')
