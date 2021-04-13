@@ -14,6 +14,7 @@ var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
 var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
+var mModules = require('../constants/modules');
 
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {

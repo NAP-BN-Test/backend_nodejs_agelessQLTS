@@ -43,11 +43,15 @@ module.exports = {
         if (!check) {
             codeNumber = codeBefore + month + year + '1'
         } else {
-            console.log(check[fieldCode]);
-            if (Number(check[fieldCode].slice(codeBefore.length + 2, codeBefore.length + 6)) == year)
-                automaticCode = codeBefore + month + year + (Number(check[fieldCode].slice((codeBefore + month + year).length, 1000)) + 1)
-            else
+            if (check[fieldCode]) {
+                if (Number(check[fieldCode].slice(codeBefore.length + 2, codeBefore.length + 6)) == year)
+                    automaticCode = codeBefore + month + year + (Number(check[fieldCode].slice((codeBefore + month + year).length, 1000)) + 1)
+                else
+                    automaticCode = codeBefore + month + year + 1
+            } else {
                 automaticCode = codeBefore + month + year + 1
+
+            }
         }
         return automaticCode
     },
