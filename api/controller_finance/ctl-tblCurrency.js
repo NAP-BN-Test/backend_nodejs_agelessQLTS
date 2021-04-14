@@ -43,7 +43,7 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                date: element.Date ? element.Date : '',
+                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : '',
                                 exchangeRate: element.ExchangeRate ? element.ExchangeRate : '',
                                 fullNameCurrency: element.currency.FullName ? element.currency.FullName : '',
                                 shortNameCurrency: element.currency.ShortName ? element.currency.ShortName : '',

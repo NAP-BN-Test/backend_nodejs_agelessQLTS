@@ -12,7 +12,7 @@ var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMLoaiTaiKhoanKeT
 async function deleteRelationshiptblVayTamUng(db, listID) {
     await mtblVayTamUng(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: listID
         }
     })
 }
@@ -394,7 +394,6 @@ module.exports = {
     // delete_tbl_vaytamung
     deletetblVayTamUng: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -506,7 +505,7 @@ module.exports = {
                                 nameNhanVienAdvance: await getDetailStaff(data[i].IDNhanVienAdvance),
                                 idBoPhanNVAdvance: data[i].IDBoPhanNVAdvance ? data[i].IDBoPhanNVAdvance : null,
                                 nameBoPhanNVAdvance: 'chưa có dữ liệu',
-                                date: data[i].Date ? data[i].Date : null,
+                                date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 contents: data[i].Contents ? data[i].Contents : '',
                                 cost: data[i].Cost ? data[i].Cost : null,
                                 idTaiKhoanKeToanCost: data[i].IDTaiKhoanKeToanCost ? data[i].IDTaiKhoanKeToanCost : null,
@@ -626,7 +625,7 @@ module.exports = {
                                 nameNhanVienAdvance: await getDetailStaff(data[i].IDNhanVienAdvance),
                                 idBoPhanNVAdvance: data[i].IDBoPhanNVAdvance ? data[i].IDBoPhanNVAdvance : null,
                                 nameBoPhanNVAdvance: await getDepartmentFromStaff(data.IDNhanVienAdvance),
-                                date: data[i].Date ? data[i].Date : null,
+                                date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 contents: data[i].Contents ? data[i].Contents : '',
                                 cost: data[i].Cost ? data[i].Cost : null,
                                 idTaiKhoanKeToanCost: data[i].IDTaiKhoanKeToanCost ? data[i].IDTaiKhoanKeToanCost : null,
@@ -841,7 +840,7 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
-                                date: element.Date ? element.Date : '',
+                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : '',
                                 cost: element.Cost ? element.Cost : '',
                                 contents: element.Contents ? element.Contents : '',
                                 reason: element.Reason ? element.Reason : '',
@@ -910,7 +909,7 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
-                                date: element.Date ? element.Date : '',
+                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : '',
                                 cost: element.Cost ? element.Cost : '',
                                 contents: element.Contents ? element.Contents : '',
                                 reason: element.Reason ? element.Reason : '',
@@ -936,7 +935,7 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
-                                date: element.Date ? element.Date : '',
+                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : '',
                                 cost: element.Cost ? element.Cost : '',
                                 contents: element.Contents ? element.Contents : '',
                                 reason: element.Reason ? element.Reason : '',

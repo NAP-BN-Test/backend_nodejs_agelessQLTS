@@ -619,7 +619,7 @@ module.exports = {
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
                                 fullNameCurrency: data[i].currency ? data[i].currency.FullName : null,
                                 shortNameCurrency: data[i].currency ? data[i].currency.ShortName : null,
-                                date: data[i].Date ? data[i].Date : null,
+                                date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
                                 customerName: dataCus ? dataCus.name : '',
