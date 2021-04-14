@@ -803,45 +803,169 @@ module.exports = {
             }
         })
     },
+    // let body = req.body
+    //     // console.log(body);
+    //     database.connectDatabase().then(async db => {
+    //         if (db) {
+    //             try {
+    //                 fs.readFile(path.join('D:/images_services/ageless_sendmail/', 'template1.xlsx'), async function (err, data) {
+
+    //                     // Create a template
+    //                     var template = new XlsxTemplate(data);
+
+    //                     // Replacements take place on first sheet
+    //                     var sheetNumber = 1;
+
+    //                     var obj = await getDetailYCMS(db, body.id)
+    //                     // console.log(obj);
+    //                     // Set up some placeholder values matching the placeholders in the template
+    //                     var arrayTaiSan = obj.arrayTaiSan.concat(obj.arrayVPP)
+    //                     var values = {
+    //                         requireDate: obj.requireDate,
+    //                         namePhongBan: obj.namePhongBan ? obj.namePhongBan : '',
+    //                         nameNhanVien: obj.nameNhanVien ? obj.nameNhanVien : '',
+    //                         namePheDuyet1: obj.namePheDuyet1 ? obj.namePheDuyet1 : '',
+    //                         namePheDuyet2: obj.namePheDuyet2 ? obj.namePheDuyet2 : '',
+    //                         arrayTaiSan: arrayTaiSan,
+    //                         price: obj.price ? obj.price : 0,
+    //                         reason: obj.reason ? obj.reason : '',
+    //                         arrayFile: obj.arrayFile,
+    //                     };
+    //                     // Perform substitution
+    //                     template.substitute(sheetNumber, values);
+
+    //                     // Get binary data
+    //                     var data = template.generate();
+    //                     fs.writeFileSync('D:/images_services/ageless_sendmail/test.xlsx', data, 'binary');
+    //                     res.json(Result.SYS_ERROR_RESULT)
+
+    //                 });
+    //             } catch (error) {
+    //                 console.log(error);
+    //                 res.json(Result.SYS_ERROR_RESULT)
+    //             }
+    //         } else {
+    //             res.json(Constant.MESSAGE.USER_FAIL)
+    //         }
+    //     })
+    // },
     // export_excel_Detail_YCMS
     exportExcelInDetailYCMS: (req, res) => {
-        let body = req.body
-        // console.log(body);
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        let body = req.body;
+        let arrayHeader = [
+            'Ngày đề xuất',
+            'Bộ phận đề xuất',
+            'Nhân viên',
+            'Người duyệt trước',
+            'Người duyệt sau',
+            'Mã TS/TB/LK',
+            'Tên TS/TB/LK',
+            'Số lượng',
+            'Đơn giá',
+            'Số tồn',
+            'Tổng tiền',
+            'Lý do mua',
+            'Chứng từ đính kèm',
+        ]
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    fs.readFile(path.join('D:/images_services/ageless_sendmail/', 'template1.xlsx'), async function (err, data) {
+                    // Add Worksheets to the workbook
+                    var ws = wb.addWorksheet('Sheet 1');
+                    var row = 1
+                    ws.column(row).setWidth(5);
 
-                        // Create a template
-                        var template = new XlsxTemplate(data);
-
-                        // Replacements take place on first sheet
-                        var sheetNumber = 1;
-
-                        var obj = await getDetailYCMS(db, body.id)
-                        // console.log(obj);
-                        // Set up some placeholder values matching the placeholders in the template
-                        var arrayTaiSan = obj.arrayTaiSan.concat(obj.arrayVPP)
-                        var values = {
-                            requireDate: obj.requireDate,
-                            namePhongBan: obj.namePhongBan ? obj.namePhongBan : '',
-                            nameNhanVien: obj.nameNhanVien ? obj.nameNhanVien : '',
-                            namePheDuyet1: obj.namePheDuyet1 ? obj.namePheDuyet1 : '',
-                            namePheDuyet2: obj.namePheDuyet2 ? obj.namePheDuyet2 : '',
-                            arrayTaiSan: arrayTaiSan,
-                            price: obj.price ? obj.price : 0,
-                            reason: obj.reason ? obj.reason : '',
-                            arrayFile: obj.arrayFile,
-                        };
-                        // Perform substitution
-                        template.substitute(sheetNumber, values);
-
-                        // Get binary data
-                        var data = template.generate();
-                        fs.writeFileSync('D:/images_services/ageless_sendmail/test.xlsx', data, 'binary');
-                        res.json(Result.SYS_ERROR_RESULT)
-
-                    });
+                    for (var i = 0; i < arrayHeader.length; i++) {
+                        ws.cell(1, row)
+                            .string(arrayHeader[i])
+                            .style(styleHearder);
+                        ws.column(row).setWidth(20);
+                        row += 1
+                    }
+                    var obj = await getDetailYCMS(db, body.id)
+                    console.log(obj.arrayTaiSan.length);
+                    ws.cell(2, 1, obj.arrayTaiSan.length + 1, 1, true)
+                        .string(obj.requireDate)
+                        .style(stylecell);
+                    ws.cell(2, 2, obj.arrayTaiSan.length + 1, 2, true)
+                        .string(obj.namePhongBan)
+                        .style(stylecell);
+                    ws.cell(2, 3, obj.arrayTaiSan.length + 1, 3, true)
+                        .string(obj.nameNhanVien)
+                        .style(stylecell);
+                    ws.cell(2, 4, obj.arrayTaiSan.length + 1, 4, true)
+                        .string(obj.namePheDuyet1)
+                        .style(stylecell);
+                    ws.cell(2, 5, obj.arrayTaiSan.length + 1, 5, true)
+                        .string(obj.namePheDuyet2)
+                        .style(stylecell);
+                    for (var i = 0; i < obj.arrayTaiSan.length; i++) {
+                        ws.cell(2 + i, 6)
+                            .string(obj.arrayTaiSan[i].name)
+                            .style(stylecell);
+                        ws.cell(2 + i, 7)
+                            .string(obj.arrayTaiSan[i].code)
+                            .style(stylecell);
+                        ws.cell(2 + i, 8)
+                            .number(obj.arrayTaiSan[i].amount)
+                            .style(stylecell);
+                        ws.cell(2 + i, 9)
+                            .number(obj.arrayTaiSan[i].unitPrice)
+                            .style(stylecell);
+                        ws.cell(2 + i, 10)
+                            .number(obj.arrayTaiSan[i].remainingAmount)
+                            .style(stylecell);
+                    }
+                    ws.cell(2, 11, obj.arrayTaiSan.length + 1, 11, true)
+                        .number(obj.price)
+                        .style(stylecell);
+                    ws.cell(2, 12, obj.arrayTaiSan.length + 1, 12, true)
+                        .string(obj.reason)
+                        .style(stylecell);
+                    for (var i = 0; i < obj.arrayFile.length; i++) {
+                        ws.cell(2 + i, 13)
+                            .link(obj.arrayFile[i].link, obj.arrayFile[i].name)
+                            .style(stylecell);
+                    }
+                    wb.write('D:/images_services/ageless_sendmail/test.xlsx');
+                    // var result = {
+                    //     link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
+                    //     status: Constant.STATUS.SUCCESS,
+                    //     message: Constant.MESSAGE.ACTION_SUCCESS,
+                    // }
+                    res.json(1);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -850,5 +974,5 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    },
+    }
 }

@@ -13,6 +13,7 @@ var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
 var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
+var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     await mtblFileAttach(db).destroy({
