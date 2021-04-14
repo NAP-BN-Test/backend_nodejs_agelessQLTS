@@ -1,9 +1,17 @@
 var docxConverter = require('docx-pdf');
 const Constant = require('../constants/constant');
 const Result = require('../constants/result');
+var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
+var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
+var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 // Require library
 var xl = require('excel4node');
+var XlsxTemplate = require('xlsx-template');
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
 // Create a new instance of a Workbook class
 var database = require('../database');
@@ -31,7 +39,7 @@ var fs = require("fs")
 const path = require('path');
 const unoconv = require('awesome-unoconv');
 const libre = require('libreoffice-convert-win');
-
+var moment = require('moment');
 function transform(amount, decimalCount = 2, decimal = '.', thousands = ',') {
     if (amount >= 100) {
         decimalCount = Math.abs(decimalCount);
@@ -52,6 +60,139 @@ function transform(amount, decimalCount = 2, decimal = '.', thousands = ',') {
     } else {
         return amount.toString();
     }
+}
+
+async function getDetailYCMS(db, id) {
+    let obj = {}
+    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
+    tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+    let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
+    tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+    await tblYeuCauMuaSam.findOne({
+        order: [
+            ['ID', 'DESC']
+        ],
+        include: [
+            {
+                model: mtblDMBoPhan(db),
+                required: false,
+                as: 'phongban'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'NhanVien'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet1',
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet2',
+            },
+            {
+                model: tblYeuCauMuaSamDetail,
+                required: false,
+                as: 'line'
+            },
+        ],
+        where: { ID: id }
+    }).then(async data => {
+        obj = {
+            id: Number(data.ID),
+            idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+            nameNhanVien: data.NhanVien ? data.NhanVien.StaffName : null,
+            idPhongBan: data.IDPhongBan ? data.IDPhongBan : null,
+            codePhongBan: data.phongban ? data.phongban.DepartmentCode : null,
+            namePhongBan: data.phongban ? data.phongban.DepartmentName : null,
+            requireDate: data.RequireDate ? moment(data.RequireDate).format('DD/MM/YYYY') : null,
+            reason: data.Reason ? data.Reason : '',
+            status: data.Status ? data.Status : '',
+            idPheDuyet1: data.IDPheDuyet1 ? data.IDPheDuyet1 : null,
+            namePheDuyet1: data.PheDuyet1 ? data.PheDuyet1.StaffName : null,
+            idPheDuyet2: data.IDPheDuyet2 ? data.IDPheDuyet2 : null,
+            namePheDuyet2: data.PheDuyet2 ? data.PheDuyet2.StaffName : null,
+            type: data.Type ? data.Type : '',
+            line: data.line
+        }
+        var arrayTaiSan = []
+        var arrayVPP = []
+        var arrayFile = []
+        var total = 0;
+        for (var j = 0; j < obj.line.length; j++) {
+            if (data.Type == 'Tài sản') {
+                var price = obj.line[j].Price ? obj.line[j].Price : 0
+                var amount = obj.line[j].Amount ? obj.line[j].Amount : 0
+                total += amount * price
+                let tblDMHangHoa = mtblDMHangHoa(db);
+                tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaiTaiSan' })
+                await tblDMHangHoa.findOne({
+                    where: {
+                        ID: obj.line[j].IDDMHangHoa,
+                    },
+                    include: [
+                        {
+                            model: mtblDMLoaiTaiSan(db),
+                            required: false,
+                            as: 'loaiTaiSan'
+                        },
+                    ],
+                }).then(data => {
+                    if (data)
+                        arrayTaiSan.push({
+                            id: Number(data.ID),
+                            name: data.Name,
+                            code: data.Code,
+                            amount: obj.line[j] ? obj.line[j].Amount : 0,
+                            nameLoaiTaiSan: data.loaiTaiSan ? data.loaiTaiSan.Name : '',
+                            idLine: obj.line[j].ID,
+                            amount: amount,
+                            unitPrice: price,
+                            remainingAmount: 0,
+                        })
+                })
+            } else {
+                await mtblVanPhongPham(db).findOne({ where: { ID: obj.line[j].IDVanPhongPham } }).then(data => {
+                    var price = obj.line[j].Price ? obj.line[j].Price : 0
+                    var amount = obj.line[j].Amount ? obj.line[j].Amount : 0
+
+                    if (data) {
+                        total += amount * price
+                        arrayVPP.push({
+                            name: data.VPPName ? data.VPPName : '',
+                            code: data.VPPCode ? data.VPPCode : '',
+                            amount: amount,
+                            unitPrice: price,
+                            remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
+                            id: Number(obj.line[j].IDVanPhongPham),
+                        })
+                    }
+                })
+            }
+        }
+        obj['price'] = total;
+        await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: obj.id } }).then(file => {
+            if (file.length > 0) {
+                for (var e = 0; e < file.length; e++) {
+                    arrayFile.push({
+                        name: file[e].Name ? file[e].Name : '',
+                        link: file[e].Link ? file[e].Link : '',
+                        id: file[e].ID
+                    })
+                }
+            }
+        })
+        obj['arrayTaiSan'] = arrayTaiSan;
+        obj['arrayVPP'] = arrayVPP;
+        obj['arrayFile'] = arrayFile;
+    })
+    return obj
 }
 module.exports = {
     // convert_docx_to_pdf
@@ -653,6 +794,54 @@ module.exports = {
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
                     res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // export_excel_Detail_YCMS
+    exportExcelInDetailYCMS: (req, res) => {
+        let body = req.body
+        // console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    fs.readFile(path.join('D:/images_services/ageless_sendmail/', 'template1.xlsx'), async function (err, data) {
+
+                        // Create a template
+                        var template = new XlsxTemplate(data);
+
+                        // Replacements take place on first sheet
+                        var sheetNumber = 1;
+
+                        var obj = await getDetailYCMS(db, body.id)
+                        // console.log(obj);
+                        // Set up some placeholder values matching the placeholders in the template
+                        var arrayTaiSan = obj.arrayTaiSan.concat(obj.arrayVPP)
+                        var values = {
+                            requireDate: obj.requireDate,
+                            namePhongBan: obj.namePhongBan ? obj.namePhongBan : '',
+                            nameNhanVien: obj.nameNhanVien ? obj.nameNhanVien : '',
+                            namePheDuyet1: obj.namePheDuyet1 ? obj.namePheDuyet1 : '',
+                            namePheDuyet2: obj.namePheDuyet2 ? obj.namePheDuyet2 : '',
+                            arrayTaiSan: arrayTaiSan,
+                            price: obj.price ? obj.price : 0,
+                            reason: obj.reason ? obj.reason : '',
+                            arrayFile: obj.arrayFile,
+                        };
+                        // Perform substitution
+                        template.substitute(sheetNumber, values);
+
+                        // Get binary data
+                        var data = template.generate();
+                        fs.writeFileSync('D:/images_services/ageless_sendmail/test.xlsx', data, 'binary');
+                        res.json(Result.SYS_ERROR_RESULT)
+
+                    });
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

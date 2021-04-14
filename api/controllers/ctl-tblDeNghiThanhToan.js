@@ -10,6 +10,9 @@ var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
+var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
+var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
+var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     await mtblFileAttach(db).destroy({
@@ -22,6 +25,147 @@ async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
             ID: { [Op.in]: listID }
         }
     })
+}
+async function getDetailYCMS(db, id) {
+    var array = [];
+    let stt = 1;
+    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
+    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
+    tblYeuCauMuaSam.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+    let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
+    tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+    await tblYeuCauMuaSam.findAll({
+        order: [
+            ['ID', 'DESC']
+        ],
+        include: [
+            {
+                model: mtblDMBoPhan(db),
+                required: false,
+                as: 'phongban'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'NhanVien'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet1',
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet2',
+            },
+            {
+                model: tblYeuCauMuaSamDetail,
+                required: false,
+                as: 'line'
+            },
+        ],
+        // offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+        // limit: Number(body.itemPerPage),
+        where: { IDPaymentOrder: id }
+    }).then(async data => {
+        for (var i = 0; i < data.length; i++) {
+            var obj = {
+                stt: stt,
+                id: Number(data[i].ID),
+                idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                requestCode: data[i].RequestCode ? data[i].RequestCode : null,
+                nameNhanVien: data[i].NhanVien ? data[i].NhanVien.StaffName : null,
+                idPhongBan: data[i].IDPhongBan ? data[i].IDPhongBan : null,
+                codePhongBan: data[i].phongban ? data[i].phongban.DepartmentCode : null,
+                namePhongBan: data[i].phongban ? data[i].phongban.DepartmentName : null,
+                requireDate: data[i].RequireDate ? moment(data[i].RequireDate).format('DD/MM/YYYY') : null,
+                reason: data[i].Reason ? data[i].Reason : '',
+                status: data[i].Status ? data[i].Status : '',
+                idPheDuyet1: data[i].IDPheDuyet1 ? data[i].IDPheDuyet1 : null,
+                namePheDuyet1: data[i].PheDuyet1 ? data[i].PheDuyet1.StaffName : null,
+                idPheDuyet2: data[i].IDPheDuyet2 ? data[i].IDPheDuyet2 : null,
+                namePheDuyet2: data[i].PheDuyet2 ? data[i].PheDuyet2.StaffName : null,
+                type: data[i].Type ? data[i].Type : '',
+                line: data[i].line
+            }
+            var arrayTaiSan = []
+            var arrayVPP = []
+            var arrayFile = []
+            var total = 0;
+            for (var j = 0; j < obj.line.length; j++) {
+                if (data[i].Type == 'Tài sản') {
+                    var price = obj.line[j].Price ? obj.line[j].Price : 0
+                    var amount = obj.line[j].Amount ? obj.line[j].Amount : 0
+                    total += amount * price
+                    let tblDMHangHoa = mtblDMHangHoa(db);
+                    tblDMHangHoa.belongsTo(mtblDMLoaiTaiSan(db), { foreignKey: 'IDDMLoaiTaiSan', sourceKey: 'IDDMLoaiTaiSan', as: 'loaiTaiSan' })
+                    await tblDMHangHoa.findOne({
+                        where: {
+                            ID: obj.line[j].IDDMHangHoa,
+                        },
+                        include: [
+                            {
+                                model: mtblDMLoaiTaiSan(db),
+                                required: false,
+                                as: 'loaiTaiSan'
+                            },
+                        ],
+                    }).then(data => {
+                        if (data)
+                            arrayTaiSan.push({
+                                id: Number(data.ID),
+                                name: data.Name,
+                                code: data.Code,
+                                amount: obj.line[j] ? obj.line[j].Amount : 0,
+                                nameLoaiTaiSan: data.loaiTaiSan ? data.loaiTaiSan.Name : '',
+                                idLine: obj.line[j].ID,
+                                amount: amount,
+                                unitPrice: price,
+                            })
+                    })
+                } else {
+                    await mtblVanPhongPham(db).findOne({ where: { ID: obj.line[j].IDVanPhongPham } }).then(data => {
+                        var price = obj.line[j].Price ? obj.line[j].Price : 0
+                        var amount = obj.line[j].Amount ? obj.line[j].Amount : 0
+
+                        if (data) {
+                            total += amount * price
+                            arrayVPP.push({
+                                name: data.VPPName ? data.VPPName : '',
+                                code: data.VPPCode ? data.VPPCode : '',
+                                amount: amount,
+                                unitPrice: price,
+                                remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
+                                id: Number(obj.line[j].IDVanPhongPham),
+                            })
+                        }
+                    })
+                }
+            }
+            obj['price'] = total;
+            await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: obj.id } }).then(file => {
+                if (file.length > 0) {
+                    for (var e = 0; e < file.length; e++) {
+                        arrayFile.push({
+                            name: file[e].Name ? file[e].Name : '',
+                            link: file[e].Link ? file[e].Link : '',
+                            id: file[e].ID
+                        })
+                    }
+                }
+            })
+            obj['arrayTaiSan'] = arrayTaiSan;
+            obj['arrayVPP'] = arrayVPP;
+            obj['arrayFile'] = arrayFile;
+            array.push(obj)
+        }
+    })
+    return array
+
+
 }
 module.exports = {
     deleteRelationshiptblDeNghiThanhToan,
@@ -446,10 +590,11 @@ module.exports = {
                                 }
                             }
                         })
-
+                        var arrayObj = await getDetailYCMS(db, data.ID)
                         obj['arrayFile'] = arrayFile;
                         var result = {
                             obj: obj,
+                            arrayRequest: await getDetailYCMS(db, data.ID),
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

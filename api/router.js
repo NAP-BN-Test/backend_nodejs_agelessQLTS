@@ -30,6 +30,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/export_tofile_excel_insurance_premiums').post(exportPDF.exportToFileExcelInsutancePremiums);
 
+    app.route('/qlnb/export_excel_Detail_YCMS').post(exportPDF.exportExcelInDetailYCMS);
+
     app.route('/qlnb/export_to_file_excel_timekeeping').post(exportPDF.exportToFileExcelTimekeeping);
 
 
@@ -202,7 +204,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.updatetblDeNghiThanhToan);
     app.route('/qlnb/delete_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.deletetblDeNghiThanhToan);
     app.route('/qlnb/get_list_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.getListtblDeNghiThanhToan);
-    app.route('/qlnb/detail_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.detailtblDeNghiThanhToan);
+    app.route('/qlnb/detail_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.detailtblDeNghiThanhToan);
 
     app.route('/qlnb/get_list_name_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.getListNametblDeNghiThanhToan);
 
@@ -525,4 +527,5 @@ module.exports = function (app) {
 
     var tblStateAgencies = require('./controller_finance/ctl-tblCoQuanNhaNuoc')
     app.route('/qlnb/get_list_tbl_state_agencies').post(tblStateAgencies.getListtblCoQuanNhaNuoc);
+    app.route('/qlnb/track_receipts').post(tblStateAgencies.trackReceipts);
 }

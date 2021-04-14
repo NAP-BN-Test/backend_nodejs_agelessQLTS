@@ -606,6 +606,18 @@ module.exports = {
                             }
                         }
                     }
+                    if (body.type == 'end')
+                        whereObj[Op.or] = [
+                            { Status: 'Từ chối' },
+                            { Status: 'Hoàn thành' },
+                            { Status: 'Đã thêm mới tài sản' },
+                        ]
+                    else
+                        whereObj[Op.and] = [
+                            { Status: { [Op.ne]: 'Từ chối' } },
+                            { Status: { [Op.ne]: 'Hoàn thành' } },
+                            { Status: { [Op.ne]: 'Đã thêm mới tài sản' } },
+                        ]
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     let tblDMBoPhan = mtblDMBoPhan(db); // bắt buộc
