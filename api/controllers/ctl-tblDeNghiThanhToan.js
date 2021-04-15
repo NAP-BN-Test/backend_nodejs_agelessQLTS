@@ -15,8 +15,14 @@ var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mModules = require('../constants/modules');
+var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
+    await mtblReceiptsPayment(db).destroy({
+        where: {
+            IDPaymentOrder: { [Op.in]: listID }
+        }
+    })
     await mtblFileAttach(db).destroy({
         where: {
             IDDeNghiThanhToan: { [Op.in]: listID }

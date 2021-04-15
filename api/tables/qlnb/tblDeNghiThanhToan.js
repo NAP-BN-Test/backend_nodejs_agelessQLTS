@@ -19,6 +19,7 @@ module.exports = function (db) {
         ReasonRejectKTPD: Sequelize.STRING,
         ReasonRejectLDPD: Sequelize.STRING,
         PaymentOrderCode: Sequelize.STRING,
+        IDReceiptsPayment: Sequelize.BIGINT,
     });
 
     return table;

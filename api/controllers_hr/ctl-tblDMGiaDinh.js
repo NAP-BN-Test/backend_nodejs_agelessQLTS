@@ -306,5 +306,5 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
 }

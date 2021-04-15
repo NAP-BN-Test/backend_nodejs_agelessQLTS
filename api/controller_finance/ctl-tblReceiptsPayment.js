@@ -15,6 +15,8 @@ var mtblRate = require('../tables/financemanage/tblRate')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
 var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
+var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
+var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     // Trả lại tiền
@@ -716,8 +718,13 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
-        var listUndefinedID = JSON.parse(body.listUndefinedID)
-        var listInvoiceID = JSON.parse(body.listInvoiceID)
+        console.log(body);
+        var listUndefinedID = []
+        var listInvoiceID = []
+        if (body.listUndefinedID)
+            listUndefinedID = JSON.parse(body.listUndefinedID)
+        if (body.listInvoiceID)
+            listInvoiceID = JSON.parse(body.listInvoiceID)
         var listCredit = JSON.parse(body.listCredit)
         var listDebit = JSON.parse(body.listDebit)
         database.connectDatabase().then(async db => {
@@ -779,6 +786,27 @@ module.exports = {
                         Unknown: body.isUndefined ? body.isUndefined : null,
                         ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
                     }).then(async data => {
+                        if (body.assetLiquidationIDs) {
+                            console.log(123);
+                            body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)
+                            console.log(body.assetLiquidationIDs);
+                            for (var i = 0; i < body.assetLiquidationIDs.length; i++) {
+                                await mtblTaiSan(db).update({
+                                    IDReceiptsPayment: data.ID
+                                }, {
+                                    where: { ID: body.assetLiquidationIDs[i] }
+                                })
+
+                            }
+                        }
+                        if (body.paymentOrderID) {
+                            await mtblDeNghiThanhToan(db).update({
+                                IDReceiptsPayment: data.ID
+                            }, {
+                                where: { ID: body.paymentOrderID }
+                            })
+
+                        }
                         await createAccountingBooks(db, listCredit, listDebit, data.ID, body.reason ? body.reason : '', automaticCode)
                         if (body.loanAdvanceIDs) {
                             body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)

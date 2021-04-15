@@ -20,8 +20,16 @@ const mtblThanhLyTaiSan = require('../tables/qlnb/tblThanhLyTaiSan');
 const tblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 
 async function deleteRelationshiptblTaiSanADD(db, listID) {
+    await mtblReceiptsPayment(db).destroy({
+        where: {
+            [Op.or]: {
+                IDAsset: { [Op.in]: listID },
+            }
+        }
+    })
     await mtblThanhLyTaiSan(db).destroy({
         where: {
             [Op.or]: {
@@ -185,7 +193,6 @@ async function getDetailTaiSan(db, idTaiSan) {
         let staffName = await getStaffFromTaiSan(db, idTaiSan);
         let departmentName = await getDepartFromTaiSan(db, idTaiSan);
         let thanhLy = await mtblThanhLyTaiSan(db).findOne({ where: { IDTaiSan: data.ID } })
-        console.log(data.DepreciationDate);
         obj = {
             id: data.ID,
             code: data.TSNBCode ? data.TSNBCode : '',
@@ -205,6 +212,8 @@ async function getDetailTaiSan(db, idTaiSan) {
             staffName: staffName,
             departmentName: departmentName,
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
+            liquidationReason: data.LiquidationReason ? data.LiquidationReason : '',
+            lLiquidationDate: data.LiquidationDate ? data.LiquidationDate : '',
             condition: data.Condition ? data.Condition : '',
             describe: data.Describe ? data.Describe : '',
             liquidationDate: thanhLy ? thanhLy.LiquidationDate : null,
@@ -849,6 +858,16 @@ module.exports = {
                         }
                         whereOjb[Op.and] = userFind
                     }
+                    console.log(body);
+                    if (body.type == 'liquidation') {
+                        whereOjb[Op.and] = [{
+                            status: 'Đã thanh lý'
+                        }]
+                    } else {
+                        whereOjb[Op.and] = [{
+                            status: { [Op.ne]: 'Đã thanh lý' }
+                        }]
+                    }
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
@@ -893,6 +912,8 @@ module.exports = {
                                 idDMHangHoa: element.IDDMHangHoa ? element.IDDMHangHoa : null,
                                 nameDMHangHoa: element.hanghoa ? element.hanghoa.Name : '',
                                 codeDMHangHoa: element.TSNBCode ? element.TSNBCode : '',
+                                liquidationReason: element.LiquidationReason ? element.LiquidationReason : '',
+                                liquidationDate: element.LiquidationDate ? element.LiquidationDate : null,
                                 status: element.Status ? element.Status : '',
                                 statusUsed: element.StatusUsed ? element.StatusUsed : '',
                                 idLoaiTaiSan: element.hanghoa ? element.hanghoa.loaitaisan ? element.hanghoa.loaitaisan.ID : '' : null,
@@ -1468,6 +1489,36 @@ module.exports = {
                         res.json(result);
                     })
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // asset_liquidation
+    assetLiquidation: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblTaiSan(db).update({
+                        LiquidationDate: body.liquidationDate ? body.liquidationDate : null,
+                        LiquidationReason: body.liquidationReason ? body.liquidationReason : '',
+                        Status: 'Đã thanh lý'
+                    }, {
+                        where: {
+                            ID: body.id
+                        }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: 'Đã thanh lý !'
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

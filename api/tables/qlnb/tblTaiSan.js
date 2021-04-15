@@ -24,6 +24,9 @@ module.exports = function (db) {
         Status: Sequelize.STRING,
         TSNBNumber: Sequelize.INTEGER,
         StatusUsed: Sequelize.STRING,
+        LiquidationDate: Sequelize.DATE,
+        LiquidationReason: Sequelize.STRING,
+        IDReceiptsPayment: Sequelize.BIGINT,
     });
 
     return table;
