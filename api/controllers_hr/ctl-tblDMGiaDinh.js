@@ -49,6 +49,7 @@ module.exports = {
                                 address: data.Address ? data.Address : '',
                                 workplace: data.Workplace ? data.Workplace : '',
                                 reduce: data.Reduce ? data.Reduce : '',
+                                phone: data.Phone ? data.Phone : '',
                             }
                             var result = {
                                 obj: obj,
@@ -86,6 +87,7 @@ module.exports = {
                         Address: body.address ? body.address : '',
                         Workplace: body.workplace ? body.workplace : '',
                         Reduce: body.reduce ? body.reduce : '',
+                        Phone: body.phone ? body.phone : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -127,6 +129,8 @@ module.exports = {
                     }
                     if (body.gender || body.gender === '')
                         update.push({ key: 'Gender', value: body.gender });
+                    if (body.phone || body.phone === '')
+                        update.push({ key: 'Phone', value: body.phone });
                     if (body.cmndNumber || body.cmndNumber === '')
                         update.push({ key: 'CMNDNumber', value: body.cmndNumber });
                     if (body.address || body.address === '')
@@ -247,6 +251,7 @@ module.exports = {
                                 address: element.Address ? element.Address : '',
                                 workplace: element.Workplace ? element.Workplace : '',
                                 reduce: element.Reduce ? element.Reduce : '',
+                                phone: element.Phone ? element.Phone : '',
                             }
                             array.push(obj);
                             stt += 1;

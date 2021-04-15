@@ -19,6 +19,9 @@ module.exports = function (db) {
         ExpirationDate: Sequelize.DATE,
         RangeDate: Sequelize.DATE,
         FormTraining: Sequelize.STRING,
+        Classification: Sequelize.STRING,
+        Note: Sequelize.STRING,
+        IDFileAttach: Sequelize.BIGINT,
     });
 
     return table;

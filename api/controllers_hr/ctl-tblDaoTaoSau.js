@@ -4,6 +4,7 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblDaoTaoSau = require('../tables/hrmanage/tblDaoTaoSau')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 var database = require('../database');
 async function deleteRelationshiptblDaoTaoSaus(db, listID) {
@@ -35,7 +36,7 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                    }).then(data => {
+                    }).then(async data => {
                         if (data) {
                             var obj = {
                                 id: data.ID,
@@ -50,7 +51,22 @@ module.exports = {
                                 majors: data.Majors ? data.Majors : '',
                                 rangeDate: data.RangeDate ? data.RangeDate : '',
                                 expirationDate: data.ExpirationDate ? data.ExpirationDate : '',
+                                classification: data.Classification ? data.Classification : '',
+                                note: data.Note ? data.Note : '',
                             }
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDDaoTaoSau: obj.id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].ID,
+                                        })
+                                    }
+                                }
+                            })
+                            obj['arrayFile'] = arrayFile;
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -90,7 +106,19 @@ module.exports = {
                         ExpirationDate: body.expirationDate ? body.expirationDate : null,
                         RangeDate: body.rangeDate ? body.rangeDate : null,
                         FormTraining: body.formTraining ? body.formTraining : '',
-                    }).then(data => {
+                        Classification: body.classification ? body.classification : '',
+                        Note: body.note ? body.note : '',
+                    }).then(async data => {
+                        body.fileAttach = JSON.parse(body.fileAttach)
+                        if (body.fileAttach.length > 0)
+                            for (var j = 0; j < body.fileAttach.length; j++)
+                                await mtblFileAttach(db).update({
+                                    IDDaoTaoSau: data.ID,
+                                }, {
+                                    where: {
+                                        ID: body.fileAttach[j].id
+                                    }
+                                })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -113,6 +141,16 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    body.fileAttach = JSON.parse(body.fileAttach)
+                    if (body.fileAttach.length > 0)
+                        for (var j = 0; j < body.fileAttach.length; j++)
+                            await mtblFileAttach(db).update({
+                                IDDaoTaoSau: body.id,
+                            }, {
+                                where: {
+                                    ID: body.fileAttach[j].id
+                                }
+                            })
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });
@@ -152,6 +190,10 @@ module.exports = {
 
                     if (body.trainingCourse || body.trainingCourse === '')
                         update.push({ key: 'TrainingCourse', value: body.trainingCourse });
+                    if (body.note || body.note === '')
+                        update.push({ key: 'Note', value: body.note });
+                    if (body.classification || body.classification === '')
+                        update.push({ key: 'Classification', value: body.classification });
                     if (body.companyCost || body.companyCost === '')
                         update.push({ key: 'CompanyCost', value: body.companyCost });
                     if (body.staffCost || body.staffCost === '')
@@ -258,27 +300,43 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (var i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                dateStart: element.DateStart ? moment(element.DateStart).format('DD/MM/YYYY') : '',
-                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : '',
-                                nameNhanVien: element.employee ? element.employee.StaffName : '',
-                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD/MM/YYYY') : '',
-                                trainingCourse: element.TrainingCourse ? element.TrainingCourse : '',
-                                companyCost: element.CompanyCost ? element.CompanyCost : '',
-                                result: element.Result ? element.Result : '',
-                                staffCost: element.StaffCost ? element.StaffCost : '',
-                                majors: element.Majors ? element.Majors : '',
-                                formTraining: element.FormTraining ? element.FormTraining : '',
-                                numberCertificates: element.NumberCertificates ? element.NumberCertificates : '',
-                                rangeDate: element.RangeDate ? moment(element.RangeDate).format('DD/MM/YYYY') : '',
-                                expirationDate: element.ExpirationDate ? moment(element.ExpirationDate).format('DD/MM/YYYY') : '',
+                                id: Number(data[i].ID),
+                                dateStart: data[i].DateStart ? moment(data[i].DateStart).format('DD/MM/YYYY') : '',
+                                idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : '',
+                                nameNhanVien: data[i].employee ? data[i].employee.StaffName : '',
+                                dateEnd: data[i].DateEnd ? moment(data[i].DateEnd).format('DD/MM/YYYY') : '',
+                                trainingCourse: data[i].TrainingCourse ? data[i].TrainingCourse : '',
+                                companyCost: data[i].CompanyCost ? data[i].CompanyCost : '',
+                                result: data[i].Result ? data[i].Result : '',
+                                staffCost: data[i].StaffCost ? data[i].StaffCost : '',
+                                majors: data[i].Majors ? data[i].Majors : '',
+                                formTraining: data[i].FormTraining ? data[i].FormTraining : '',
+                                numberCertificates: data[i].NumberCertificates ? data[i].NumberCertificates : '',
+                                rangeDate: data[i].RangeDate ? moment(data[i].RangeDate).format('DD/MM/YYYY') : '',
+                                expirationDate: data[i].ExpirationDate ? moment(data[i].ExpirationDate).format('DD/MM/YYYY') : '',
+                                note: data[i].Note ? data[i].Note : '',
+                                classification: data[i].Classification ? data[i].Classification : '',
                             }
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDDaoTaoSau: obj.id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].ID,
+                                        })
+                                    }
+                                }
+                            })
+                            obj['arrayFile'] = arrayFile;
                             array.push(obj);
                             stt += 1;
-                        });
+
+                        }
                         var count = await mtblDaoTaoSau(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

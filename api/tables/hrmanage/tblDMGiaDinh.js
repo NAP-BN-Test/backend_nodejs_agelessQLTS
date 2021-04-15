@@ -16,6 +16,7 @@ module.exports = function (db) {
         Address: Sequelize.STRING,
         Workplace: Sequelize.STRING,
         Reduce: Sequelize.STRING,
+        Phone: Sequelize.STRING,
     });
 
     return table;

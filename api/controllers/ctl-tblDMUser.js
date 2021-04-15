@@ -401,6 +401,7 @@ module.exports = {
                 let tblDMNhanvien = mtblDMNhanvien(db);
                 let tblDMBoPhan = mtblDMBoPhan(db);
                 tblDMUser.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien', as: 'nv' })
+                tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission', as: 'pms' })
                 tblDMNhanvien.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
                 tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
 
@@ -423,9 +424,14 @@ module.exports = {
                                             as: 'chinhanh'
                                         },
                                     ],
-                                },
+                                }
                             ],
                         },
+                        {
+                            model: mtblDMPermission(db),
+                            required: false,
+                            as: 'pms',
+                        }
                     ],
                 })
                 if (data) {
@@ -442,6 +448,7 @@ module.exports = {
                         staffName: data.nv ? data.nv.StaffName : '',
                         staffCode: data.nv ? data.nv.StaffCode : '',
                         departmentCode: data.nv ? data.nv.bp ? data.nv.bp.DepartmentCode : '' : '',
+                        permissionName: data.pms ? data.pms.PermissionName : '',
                         departmentName: data.nv ? data.nv.bp ? data.nv.bp.DepartmentName : '' : '',
                         departmentID: data.nv ? data.nv.bp ? data.nv.bp.ID : null : null,
                         branchCode: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.BranchCode : '' : '' : '',

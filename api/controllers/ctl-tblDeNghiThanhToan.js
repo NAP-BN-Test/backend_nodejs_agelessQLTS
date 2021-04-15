@@ -14,6 +14,7 @@ var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
 var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
+var mModules = require('../constants/modules');
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     await mtblFileAttach(db).destroy({
@@ -173,13 +174,16 @@ module.exports = {
     // add_tbl_denghi_thanhtoan
     addtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblDeNghiThanhToan(db).create({
+                        PaymentOrderCode: await mModules.automaticCode(mtblDeNghiThanhToan(db), 'PaymentOrderCode', 'DNTT'),
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         Contents: body.contents ? body.contents : '',
                         Cost: body.cost ? body.cost : null,
+                        CostText: body.costText ? body.costText : null,
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                         IDNhanVienLDPD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
@@ -247,6 +251,8 @@ module.exports = {
                         update.push({ key: 'Contents', value: body.contents });
                     if (body.description || body.description === '')
                         update.push({ key: 'Description', value: body.description });
+                    if (body.costText || body.costText === '')
+                        update.push({ key: 'CostText', value: body.costText });
                     if (body.cost || body.cost === '') {
                         if (body.cost === '')
                             update.push({ key: 'Cost', value: null });
@@ -448,6 +454,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
                                 nameNhanVien: element.NhanVien ? element.NhanVien.StaffName : '',
+                                costText: element.CostText ? element.CostText : '',
                                 departmentName: element.NhanVien ? element.NhanVien.bp ? element.NhanVien.bp.DepartmentName : '' : '',
                                 contents: element.Contents ? element.Contents : '',
                                 cost: element.Cost ? element.Cost : null,
@@ -456,6 +463,7 @@ module.exports = {
                                 trangThaiPheDuyetKT: statusKT,
                                 idNhanVienLDPD: element.IDNhanVienLDPD ? element.IDNhanVienLDPD : null,
                                 nameNhanVienLDPD: element.LDPD ? element.LDPD.StaffName : '',
+                                paymentOrderCode: element.PaymentOrderCode ? element.PaymentOrderCode : '',
                                 trangThaiPheDuyetLD: statusLD,
                             }
                             array.push(obj);
@@ -561,12 +569,14 @@ module.exports = {
                             idNhanVien: data.IDNhanVien ? Number(data.IDNhanVien) : null,
                             nameNhanVien: data.NhanVien ? data.NhanVien.StaffName : '',
                             contents: data.Contents ? data.Contents : '',
-                            cost: data.Cost ? data.Cost : null,
+                            cost: data.Cost ? data.Cost : '',
+                            costText: data.CostText ? data.CostText : '',
                             idNhanVienKTPD: data.IDNhanVienKTPD ? Number(data.IDNhanVienKTPD) : null,
                             nameNhanVienKTPD: data.KTPD ? data.KTPD.StaffName : '',
                             trangThaiPheDuyetKT: data.trangThaiPheDuyetKT ? data.trangThaiPheDuyetKT : '',
                             idNhanVienLDPD: data.IDNhanVienLDPD ? Number(data.IDNhanVienLDPD) : null,
                             description: data.Description ? data.Description : '',
+                            paymentOrderCode: data.PaymentOrderCode ? data.PaymentOrderCode : '',
                             nameNhanVienLDPD: data.LDPD ? data.LDPD.StaffName : '',
                             trangThaiPheDuyetLD: data.trangThaiPheDuyetLD ? data.trangThaiPheDuyetLD : '',
                             idPhongBan: {

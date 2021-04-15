@@ -959,13 +959,13 @@ module.exports = {
                             .link(obj.arrayFile[i].link, obj.arrayFile[i].name)
                             .style(stylecell);
                     }
-                    wb.write('D:/images_services/ageless_sendmail/test.xlsx');
-                    // var result = {
-                    //     link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
-                    //     status: Constant.STATUS.SUCCESS,
-                    //     message: Constant.MESSAGE.ACTION_SUCCESS,
-                    // }
-                    res.json(1);
+                    wb.write('D:/images_services/ageless_sendmail/export_excel_ycms.xlsx');
+                    var result = {
+                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_ycms.xlsx',
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

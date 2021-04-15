@@ -5,6 +5,7 @@ var moment = require('moment');
 var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoTruoc')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblDaoTaoTruoc(db, listID) {
     await mtblDaoTaoTruoc(db).destroy({
@@ -35,7 +36,7 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                    }).then(data => {
+                    }).then(async data => {
                         if (data) {
                             var obj = {
                                 id: data.ID,
@@ -46,7 +47,22 @@ module.exports = {
                                 trainingPlace: data.TrainingPlace ? data.TrainingPlace : '',
                                 major: data.Major ? data.Major : '',
                                 degree: data.Degree ? data.Degree : '',
+                                note: data.Note ? data.Note : '',
+                                classification: data.Classification ? data.Classification : '',
                             }
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDDaoTaoTruoc: obj.id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].ID,
+                                        })
+                                    }
+                                }
+                            })
+                            obj['arrayFile'] = arrayFile;
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -80,7 +96,19 @@ module.exports = {
                         TrainingPlace: body.trainingPlace ? body.trainingPlace : '',
                         Major: body.major ? body.major : '',
                         Degree: body.degree ? body.degree : '',
-                    }).then(data => {
+                        Note: body.note ? body.note : '',
+                        Classification: body.classification ? body.classification : '',
+                    }).then(async data => {
+                        body.fileAttach = JSON.parse(body.fileAttach)
+                        if (body.fileAttach.length > 0)
+                            for (var j = 0; j < body.fileAttach.length; j++)
+                                await mtblFileAttach(db).update({
+                                    IDDaoTaoTruoc: data.ID,
+                                }, {
+                                    where: {
+                                        ID: body.fileAttach[j].id
+                                    }
+                                })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -103,6 +131,16 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    body.fileAttach = JSON.parse(body.fileAttach)
+                    if (body.fileAttach.length > 0)
+                        for (var j = 0; j < body.fileAttach.length; j++)
+                            await mtblFileAttach(db).update({
+                                IDDaoTaoTruoc: body.id,
+                            }, {
+                                where: {
+                                    ID: body.fileAttach[j].id
+                                }
+                            })
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });
@@ -123,6 +161,10 @@ module.exports = {
                     }
                     if (body.trainingPlace || body.trainingPlace === '')
                         update.push({ key: 'TrainingPlace', value: body.trainingPlace });
+                    if (body.note || body.note === '')
+                        update.push({ key: 'Note', value: body.note });
+                    if (body.classification || body.classification === '')
+                        update.push({ key: 'Classification', value: body.classification });
                     if (body.major || body.major === '')
                         update.push({ key: 'Major', value: body.major });
                     if (body.degree || body.degree === '')
@@ -225,21 +267,36 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (var i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : '',
-                                nameNhanVien: element.employee ? element.employee.StaffName : '',
-                                dateStart: element.DateStart ? moment(element.DateStart).format('DD/MM/YYYY') : '',
-                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD/MM/YYYY') : '',
-                                trainingPlace: element.TrainingPlace ? element.TrainingPlace : '',
-                                major: element.Major ? element.Major : '',
-                                degree: element.Degree ? element.Degree : '',
+                                id: Number(data[i].ID),
+                                idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : '',
+                                nameNhanVien: data[i].employee ? data[i].employee.StaffName : '',
+                                dateStart: data[i].DateStart ? moment(data[i].DateStart).format('DD/MM/YYYY') : '',
+                                dateEnd: data[i].DateEnd ? moment(data[i].DateEnd).format('DD/MM/YYYY') : '',
+                                trainingPlace: data[i].TrainingPlace ? data[i].TrainingPlace : '',
+                                major: data[i].Major ? data[i].Major : '',
+                                degree: data[i].Degree ? data[i].Degree : '',
+                                note: data[i].Note ? data[i].Note : '',
+                                classification: data[i].Classification ? data[i].Classification : '',
                             }
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDDaoTaoTruoc: obj.id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].ID,
+                                        })
+                                    }
+                                }
+                            })
+                            obj['arrayFile'] = arrayFile;
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         var count = await mtblDaoTaoTruoc(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

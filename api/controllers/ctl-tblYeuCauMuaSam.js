@@ -39,6 +39,7 @@ module.exports = {
     // add_tbl_yeucaumuasam
     addtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -75,6 +76,7 @@ module.exports = {
                                         IDDMHangHoa: body.line[i].idDMHangHoa.id,
                                         Amount: body.line[i].amount,
                                         Price: body.line[i].unitPrice,
+                                        AssetName: body.line[i].assetName,
                                     })
                                 }
                             else
@@ -84,6 +86,7 @@ module.exports = {
                                         IDVanPhongPham: body.line[i].id.id,
                                         Amount: body.line[i].amount,
                                         Price: body.line[i].unit,
+                                        AssetName: body.line[i].assetName,
                                     })
                                 }
                         var result = {
@@ -153,14 +156,18 @@ module.exports = {
                                     IDYeuCauMuaSam: body.id,
                                     IDDMHangHoa: body.line[i].idDMHangHoa.id,
                                     Amount: body.line[i].amount,
-                                    Price: body.line[i].unitPrice ? body.line[i].unitPrice : 0
+                                    Price: body.line[i].unitPrice ? body.line[i].unitPrice : 0,
+                                    AssetName: body.line[i].assetName,
+
                                 })
                             } else {
                                 await mtblYeuCauMuaSamDetail(db).create({
                                     IDYeuCauMuaSam: body.id,
                                     IDVanPhongPham: body.line[i].id.id,
                                     Amount: body.line[i].amount,
-                                    Price: body.line[i].unit ? body.line[i].unit : 0
+                                    Price: body.line[i].unit ? body.line[i].unit : 0,
+                                    AssetName: body.line[i].assetName,
+
                                 })
                             }
                         }
@@ -696,6 +703,7 @@ module.exports = {
                                 requireDate: element.RequireDate ? moment(element.RequireDate).format('DD/MM/YYYY') : null,
                                 reason: element.Reason ? element.Reason : '',
                                 status: element.Status ? element.Status : '',
+                                assetName: element.AssetName ? element.AssetName : '',
                                 idPheDuyet1: element.IDPheDuyet1 ? element.IDPheDuyet1 : null,
                                 namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
                                 idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
@@ -725,6 +733,7 @@ module.exports = {
                                                 amount: amount,
                                                 unitPrice: price,
                                                 id: array[i].line[j].ID,
+                                                assetName: array[i].line[j].AssetName ? array[i].line[j].AssetName : '',
                                             })
                                         }
                                     })
@@ -742,6 +751,7 @@ module.exports = {
                                                 amount: amount,
                                                 unitPrice: price,
                                                 id: array[i].line[j].ID,
+                                                assetName: array[i].line[j].AssetName ? array[i].line[j].AssetName : '',
                                             })
                                         }
                                     })
@@ -843,6 +853,7 @@ module.exports = {
                             requireDate: data.RequireDate ? moment(data.RequireDate).format('DD/MM/YYYY') : null,
                             reason: data.Reason ? data.Reason : '',
                             status: data.Status ? data.Status : '',
+                            assetName: data.AssetName ? data.AssetName : '',
                             idPheDuyet1: data.IDPheDuyet1 ? data.IDPheDuyet1 : null,
                             namePheDuyet1: data.PheDuyet1 ? data.PheDuyet1.StaffName : null,
                             idPheDuyet2: data.IDPheDuyet2 ? data.IDPheDuyet2 : null,
@@ -879,6 +890,7 @@ module.exports = {
                                             name: data.Name,
                                             code: data.Code,
                                             amount: obj.line[j] ? obj.line[j].Amount : 0,
+                                            assetName: obj.line[j] ? obj.line[j].AssetName : '',
                                             nameLoaiTaiSan: data.loaiTaiSan ? data.loaiTaiSan.Name : '',
                                             idLine: obj.line[j].ID,
                                             amount: amount,
@@ -897,6 +909,7 @@ module.exports = {
                                             code: data.VPPCode ? data.VPPCode : '',
                                             amount: amount,
                                             unitPrice: price,
+                                            assetName: obj.line[j] ? obj.line[j].AssetName : '',
                                             remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
                                             id: Number(obj.line[j].IDVanPhongPham),
                                         })

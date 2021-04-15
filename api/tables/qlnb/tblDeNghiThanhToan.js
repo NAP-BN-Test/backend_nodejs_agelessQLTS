@@ -9,7 +9,8 @@ module.exports = function (db) {
         },
         IDNhanVien: Sequelize.BIGINT,
         Contents: Sequelize.BIGINT,
-        Cost: Sequelize.BIGINT,
+        Cost: Sequelize.FLOAT,
+        CostText: Sequelize.STRING,
         IDNhanVienKTPD: Sequelize.BIGINT,
         TrangThaiPheDuyetKT: Sequelize.BIGINT,
         IDNhanVienLDPD: Sequelize.BIGINT,
@@ -17,6 +18,7 @@ module.exports = function (db) {
         Description: Sequelize.STRING,
         ReasonRejectKTPD: Sequelize.STRING,
         ReasonRejectLDPD: Sequelize.STRING,
+        PaymentOrderCode: Sequelize.STRING,
     });
 
     return table;

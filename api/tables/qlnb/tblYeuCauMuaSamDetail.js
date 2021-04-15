@@ -12,6 +12,7 @@ module.exports = function (db) {
         Amount: Sequelize.FLOAT,
         Price: Sequelize.FLOAT,
         IDVanPhongPham: Sequelize.BIGINT,
+        AssetName: Sequelize.BIGINT,
     });
 
     return table;

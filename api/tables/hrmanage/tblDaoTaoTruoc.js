@@ -13,6 +13,8 @@ module.exports = function (db) {
         TrainingPlace: Sequelize.STRING,
         Major: Sequelize.STRING,
         Degree: Sequelize.STRING,
+        Note: Sequelize.STRING,
+        Classification: Sequelize.STRING,
     });
 
     return table;

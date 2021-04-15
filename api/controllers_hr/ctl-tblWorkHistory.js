@@ -32,6 +32,7 @@ module.exports = {
                                 dateEnd: data.DateEnd ? data.DateEnd : '',
                                 status: data.Status ? data.Status : '',
                                 describe: data.Describe ? data.Describe : '',
+                                workPlace: data.WorkPlace ? data.WorkPlace : '',
                             }
                             var result = {
                                 obj: obj,
@@ -65,6 +66,7 @@ module.exports = {
                         Status: body.status ? body.status : null,
                         Describe: body.describe ? body.describe : null,
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
+                        WorkPlace: body.workPlace ? body.workPlace : '',
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -106,6 +108,8 @@ module.exports = {
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
                     }
+                    if (body.workPlace || body.workPlace === '')
+                        update.push({ key: 'WorkPlace', value: body.workPlace });
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
                     if (body.describe || body.describe === '')
@@ -208,6 +212,7 @@ module.exports = {
                                     dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD/MM/YYYY') : '',
                                     status: element.Status ? element.Status : '',
                                     describe: element.Describe ? element.Describe : '',
+                                    workPlace: element.WorkPlace ? element.WorkPlace : '',
                                 }
                                 array.push(obj);
                                 stt += 1;

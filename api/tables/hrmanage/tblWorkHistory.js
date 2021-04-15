@@ -12,6 +12,7 @@ module.exports = function (db) {
         Status: Sequelize.STRING,
         Describe: Sequelize.STRING,
         IDNhanVien: Sequelize.BIGINT,
+        WorkPlace: Sequelize.STRING,
     });
 
     return table;
