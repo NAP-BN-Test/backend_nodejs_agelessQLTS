@@ -832,7 +832,7 @@ module.exports = {
                     var arrayUpdate = [];
                     await mtblVayTamUng(db).findAll({
                         where: {
-                            Status: { [Op.ne]: 'Tạo phiếu chi' },
+                            Status: 'Tạo phiếu chi',
                             IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
@@ -850,7 +850,7 @@ module.exports = {
                     })
                     await mtblVayTamUng(db).findAll({
                         where: {
-                            [Op.or]: [
+                            [Op.and]: [
                                 {
                                     Status: { [Op.ne]: 'Tạo phiếu chi' },
                                     IDNhanVienAdvance: body.staffID,
