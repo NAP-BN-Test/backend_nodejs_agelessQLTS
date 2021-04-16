@@ -1008,21 +1008,74 @@ module.exports = {
         })
     },
     // get_list_history_vpp_staff
-    // getListHistoryVPPStaff: (req, res) => {
-    //     let body = req.body;
-    //     database.connectDatabase().then(async db => {
-    //         if (db) {
-    //             try {
+    getListHistoryVPPStaff: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
+                    let stt = 1;
+                    await tblTaiSanBanGiao.findAll({ where: { IDNhanVienSoHuu: body.idNhanVien }, }).then(async data => {
+                        var array = [];
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        if (data) {
+                            for (var i = 0; i < data.length; i++) {
+                                let tblTaiSan = mtblTaiSan(db);
+                                tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
+                                let tblTaiSanHistory = mtblTaiSanHistory(db);
+                                tblTaiSanHistory.belongsTo(tblTaiSan, { foreignKey: 'IDTaiSan', sourceKey: 'IDTaiSan', as: 'taisan' })
+                                var date = data[i].Date
+                                var id = data[i].ID
+                                await tblTaiSanHistory.findAll({
+                                    where: {
+                                        IDTaiSanBanGiao: data[i].ID,
+                                    },
+                                    include: [
+                                        {
+                                            model: tblTaiSan,
+                                            required: false,
+                                            as: 'taisan',
+                                            include: [
+                                                {
+                                                    model: mtblDMHangHoa(db),
+                                                    required: false,
+                                                    as: 'hanghoa'
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                }).then(tsht => {
+                                    if (tsht)
+                                        for (var j = 0; j < tsht.length; j++) {
+                                            array.push({
+                                                stt: stt,
+                                                id: id,
+                                                codeDevice: tsht[j].taisan ? tsht[j].taisan.TSNBCode : '',
+                                                nameDevice: tsht[j].taisan ? tsht[j].taisan.hanghoa ? tsht[j].taisan.hanghoa.Name : '' : '',
+                                                dateFrom: moment(date).format('DD/MM/YYYY'),
+                                                dateTo: moment(tsht[j].DateThuHoi).format('DD/MM/YYYY'),
+                                            })
+                                            stt += 1;
+                                        }
+                                })
+                            }
+                        }
 
-    //             } catch (error) {
-    //                 console.log(error);
-    //                 res.json(Result.SYS_ERROR_RESULT)
-    //             }
-    //         } else {
-    //             res.json(Constant.MESSAGE.USER_FAIL)
-    //         }
-    //     })
-    // },
+                        res.json(result);
+                    })
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     //get_employee_from_department
     getEmployeeFromDepartment: (req, res) => {
         let body = req.body;

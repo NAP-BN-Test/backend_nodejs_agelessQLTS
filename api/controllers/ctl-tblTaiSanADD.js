@@ -192,10 +192,10 @@ async function getDetailTaiSan(db, idTaiSan) {
     }).then(async data => {
         let staffName = await getStaffFromTaiSan(db, idTaiSan);
         let departmentName = await getDepartFromTaiSan(db, idTaiSan);
-        let thanhLy = await mtblThanhLyTaiSan(db).findOne({ where: { IDTaiSan: data.ID } })
         obj = {
             id: data.ID,
             code: data.TSNBCode ? data.TSNBCode : '',
+            idDMHangHoa: data.hanghoa ? data.hanghoa.ID : null,
             name: data.hanghoa ? data.hanghoa.Name : '',
             unit: data.hanghoa ? data.hanghoa.Unit : '',
             nameLoaiTaiSan: data.hanghoa ? data.hanghoa.loaitaisan ? data.hanghoa.loaitaisan.Name : '' : '',
@@ -213,13 +213,11 @@ async function getDetailTaiSan(db, idTaiSan) {
             departmentName: departmentName,
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
             liquidationReason: data.LiquidationReason ? data.LiquidationReason : '',
-            lLiquidationDate: data.LiquidationDate ? data.LiquidationDate : '',
+            liquidationDate: data.LiquidationDate ? data.LiquidationDate : '',
             condition: data.Condition ? data.Condition : '',
             describe: data.Describe ? data.Describe : '',
-            liquidationDate: thanhLy ? thanhLy.LiquidationDate : null,
             status: data.Status ? data.Status : '',
             statusUsed: data.StatusUsed ? data.StatusUsed : '',
-            liquidationReason: thanhLy ? thanhLy.LiquidationReason : '',
         }
     })
     return obj;
@@ -904,8 +902,12 @@ module.exports = {
                         var stt = 1;
                         data.forEach(element => {
                             var guaranteDate;
-                            if (element.taisan)
+                            var warrantyRemaining = 0;
+                            let month = Number(moment().format('MM')) + Number(moment().format('YY') * 12);
+                            if (element.taisan) {
                                 guaranteDate = element.taisan.Date ? moment(element.taisan.Date).add(Number(element.GuaranteeMonth), 'M').format('DD/MM/YYYY') : ''
+                                warrantyRemaining = Number(element.GuaranteeMonth) - (Number(month) - (Number(moment(element.taisan.Date).format('MM')) + Number(moment(element.taisan.Date).format('YY')) * 12))
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -927,6 +929,7 @@ module.exports = {
                                 status: element.Status ? element.Status : 0,
                                 date: element.taisan ? element.taisan.Date ? moment(element.taisan.Date).format('DD/MM/YYYY') : '' : '',
                                 guaranteDate: guaranteDate,
+                                warrantyRemaining: warrantyRemaining,
                             }
                             array.push(obj);
                             stt += 1;

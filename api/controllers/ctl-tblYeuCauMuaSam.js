@@ -1058,6 +1058,7 @@ module.exports = {
                                                 amount: amount,
                                                 unitPrice: price,
                                                 id: array[i].line[j].id,
+                                                remainingAmount: 0,
                                             })
                                         }
                                     })
@@ -1071,6 +1072,7 @@ module.exports = {
                                             arrayTaiSan.push({
                                                 name: data.VPPName ? data.VPPName : '',
                                                 code: data.VPPCode ? data.VPPCode : '',
+                                                remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
                                                 amount: amount,
                                                 unitPrice: price,
                                                 id: array[i].line[j].id,

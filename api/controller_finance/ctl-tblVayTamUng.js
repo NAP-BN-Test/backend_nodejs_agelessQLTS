@@ -849,17 +849,10 @@ module.exports = {
                         });
                     })
                     await mtblVayTamUng(db).findAll({
-                        where: {
-                            [Op.and]: [
-                                {
-                                    Status: { [Op.ne]: 'Tạo phiếu chi' },
-                                    IDNhanVienAdvance: body.staffID,
-                                },
-                                {
-                                    Status: { [Op.ne]: 'Chờ hoàn ứng' },
-                                    IDNhanVienAdvance: body.staffID,
-                                }
-                            ]
+                        where:
+                        {
+                            Status: { [Op.ne]: 'Đã hoàn ứng' },
+                            IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
                         data.forEach(element => {

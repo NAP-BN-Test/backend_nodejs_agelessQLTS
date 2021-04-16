@@ -53,9 +53,30 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
         }
     })
     await mtblAccountingBooks(db).destroy({ where: { IDPayment: { [Op.in]: listID } } })
-    await mtblVayTamUng(db).destroy({
+    await mtblReceiptsPayment(db).findAll({
         where: {
-            IDReceiptsPayment: { [Op.in]: listID }
+            ID: { [Op.in]: listID }
+        }
+    }).then(async data => {
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Type == 'payment')
+                await mtblVayTamUng(db).update({
+                    IDReceiptsPayment: null,
+                    Status: 'Tạo phiếu chi'
+                }, {
+                    where: {
+                        IDReceiptsPayment: data[i].ID
+                    }
+                })
+            else
+                await mtblVayTamUng(db).update({
+                    IDReceiptsPayment: null,
+                    Status: 'Chờ hoàn ứng'
+                }, {
+                    where: {
+                        IDReceiptsPayment: data[i].ID
+                    }
+                })
         }
     })
     await mtblPaymentRInvoice(db).destroy({
@@ -245,6 +266,34 @@ async function createLoanAdvances(db, IDpayment, loanAdvanceIDs, type) {
             })
         }
     } else if (loanAdvanceIDs.length > 0 && type == 'receipt') {
+        for (var i = 0; i < loanAdvanceIDs.length; i++) {
+            await mtblVayTamUng(db).update({
+                Status: 'Đã hoàn ứng',
+                IDReceiptsPayment: IDpayment,
+            }, {
+                where: { ID: loanAdvanceIDs[i] }
+            })
+        }
+    }
+}
+async function updateLoanAdvances(db, IDpayment, loanAdvanceIDs) {
+    let payment = await mtblReceiptsPayment(db).findOne({ where: { ID: IDpayment } })
+    await mtblVayTamUng(db).update({
+        Status: 'Tạo phiếu chi',
+        IDReceiptsPayment: null,
+    }, {
+        where: { IDReceiptsPayment: IDpayment }
+    })
+    if (loanAdvanceIDs.length > 0 && payment.Type == 'payment') {
+        for (var i = 0; i < loanAdvanceIDs.length; i++) {
+            await mtblVayTamUng(db).update({
+                Status: 'Chờ hoàn ứng',
+                IDReceiptsPayment: IDpayment,
+            }, {
+                where: { ID: loanAdvanceIDs[i] }
+            })
+        }
+    } else if (loanAdvanceIDs.length > 0 && payment.Type == 'receipt') {
         for (var i = 0; i < loanAdvanceIDs.length; i++) {
             await mtblVayTamUng(db).update({
                 Status: 'Đã hoàn ứng',
@@ -787,9 +836,7 @@ module.exports = {
                         ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
                     }).then(async data => {
                         if (body.assetLiquidationIDs) {
-                            console.log(123);
                             body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)
-                            console.log(body.assetLiquidationIDs);
                             for (var i = 0; i < body.assetLiquidationIDs.length; i++) {
                                 await mtblTaiSan(db).update({
                                     IDReceiptsPayment: data.ID
@@ -952,6 +999,10 @@ module.exports = {
                                 Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
                             })
                         }
+                    }
+                    if (body.loanAdvanceIDs) {
+                        body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
+                        await updateLoanAdvances(db, body.id, body.loanAdvanceIDs)
                     }
                     await createAccountingBooks(db, listCredit, listDebit, body.id, body.reason ? body.reason : '', null)
                     if (body.type || body.type === '')

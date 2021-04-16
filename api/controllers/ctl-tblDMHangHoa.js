@@ -351,14 +351,16 @@ module.exports = {
                             },
                         ],
                     }).then(async data => {
-                        if (data.taisan) {
-                            var array = [];
-                            for (var i = 0; i < data.taisan.length; i++) {
-                                array.push({
-                                    id: Number(data.taisan[i].ID),
-                                    tsnbCode: data.taisan[i].TSNBCode,
-                                    guaranteeMonth: data.taisan[i].GuaranteeMonth ? data.taisan[i].GuaranteeMonth : '',
-                                })
+                        var array = [];
+                        if (data) {
+                            if (data.taisan) {
+                                for (var i = 0; i < data.taisan.length; i++) {
+                                    array.push({
+                                        id: Number(data.taisan[i].ID),
+                                        tsnbCode: data.taisan[i].TSNBCode,
+                                        guaranteeMonth: data.taisan[i].GuaranteeMonth ? data.taisan[i].GuaranteeMonth : '',
+                                    })
+                                }
                             }
                         }
                         var result = {

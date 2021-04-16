@@ -7,6 +7,7 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 // Require library
 var xl = require('excel4node');
@@ -188,10 +189,11 @@ async function getDetailYCMS(db, id) {
                 }
             }
         })
-        obj['arrayTaiSan'] = arrayTaiSan;
-        obj['arrayVPP'] = arrayVPP;
+        obj['arrayTaiSan'] = arrayTaiSan.length > 0 ? arrayTaiSan : arrayVPP;
+        // obj['arrayVPP'] = arrayVPP;
         obj['arrayFile'] = arrayFile;
     })
+    console.log(obj);
     return obj
 }
 module.exports = {
@@ -883,6 +885,36 @@ module.exports = {
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecellText = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'left',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
         let body = req.body;
         let arrayHeader = [
             'Ngày đề xuất',
@@ -915,7 +947,7 @@ module.exports = {
                         row += 1
                     }
                     var obj = await getDetailYCMS(db, body.id)
-                    console.log(obj.arrayTaiSan.length);
+                    console.log(obj.arrayTaiSan);
                     ws.cell(2, 1, obj.arrayTaiSan.length + 1, 1, true)
                         .string(obj.requireDate)
                         .style(stylecell);
@@ -934,32 +966,32 @@ module.exports = {
                     for (var i = 0; i < obj.arrayTaiSan.length; i++) {
                         ws.cell(2 + i, 6)
                             .string(obj.arrayTaiSan[i].name)
-                            .style(stylecell);
+                            .style(stylecellText);
                         ws.cell(2 + i, 7)
                             .string(obj.arrayTaiSan[i].code)
-                            .style(stylecell);
+                            .style(stylecellText);
                         ws.cell(2 + i, 8)
                             .number(obj.arrayTaiSan[i].amount)
-                            .style(stylecell);
+                            .style(stylecellNumber);
                         ws.cell(2 + i, 9)
                             .number(obj.arrayTaiSan[i].unitPrice)
-                            .style(stylecell);
+                            .style(stylecellNumber);
                         ws.cell(2 + i, 10)
                             .number(obj.arrayTaiSan[i].remainingAmount)
-                            .style(stylecell);
+                            .style(stylecellNumber);
                     }
                     ws.cell(2, 11, obj.arrayTaiSan.length + 1, 11, true)
                         .number(obj.price)
-                        .style(stylecell);
+                        .style(stylecellNumber);
                     ws.cell(2, 12, obj.arrayTaiSan.length + 1, 12, true)
                         .string(obj.reason)
-                        .style(stylecell);
+                        .style(stylecellText);
                     for (var i = 0; i < obj.arrayFile.length; i++) {
                         ws.cell(2 + i, 13)
                             .link(obj.arrayFile[i].link, obj.arrayFile[i].name)
                             .style(stylecell);
                     }
-                    wb.write('D:/images_services/ageless_sendmail/export_excel_ycms.xlsx');
+                    wb.write('C:/images_services/ageless_sendmail/export_excel_ycms.xlsx');
                     var result = {
                         link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_ycms.xlsx',
                         status: Constant.STATUS.SUCCESS,
