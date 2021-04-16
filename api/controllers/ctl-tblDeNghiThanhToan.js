@@ -326,10 +326,11 @@ module.exports = {
     // get_list_tbl_denghi_thanhtoan
     getListtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereObj = [];
+                    var whereObj = {};
                     let arraySearchAnd = [];
                     let arraySearchOr = [];
                     let arraySearchNot = [];
@@ -361,32 +362,33 @@ module.exports = {
                                 { Contents: { [Op.ne]: '%%' } },
                             ];
                         }
-                        let whereO = { [Op.or]: where };
+                        arraySearchOr.push(where);
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGƯỜI ĐỀ NGHỊ') {
-                                    userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
+                                    userFind['IDNhanVien'] = data.items[i]['searchFields']
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereO[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereO[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereO[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
+                                console.log(arraySearchAnd);
                                 if (data.items[i].fields['name'] === 'MÃ ĐNTT') {
                                     userFind['PaymentOrderCode'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereO[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereO[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereO[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                             }
@@ -404,17 +406,15 @@ module.exports = {
 
                         }
                         if (userObj.length > 0)
-
-                            whereObj = {
-                                // [Op.or]: where,
-                                [Op.and]: [{ [Op.or]: userObj }, { [Op.and]: whereO }],
-                            }
-                        else
-                            whereObj = {
-                                // [Op.or]: where,
-                                [Op.and]: [{ [Op.or]: whereO }],
-                            }
+                            arraySearchOr.push(userObj)
+                        if (arraySearchOr.length > 0)
+                            whereObj[Op.or] = arraySearchOr
+                        if (arraySearchAnd.length > 0)
+                            whereObj[Op.and] = arraySearchAnd
+                        if (arraySearchNot.length > 0)
+                            whereObj[Op.not] = arraySearchNot
                     }
+                    console.log(whereObj, arraySearchAnd);
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     let tblDMNhanvien = mtblDMNhanvien(db);

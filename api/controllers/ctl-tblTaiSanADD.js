@@ -708,7 +708,7 @@ module.exports = {
                     let arraySearchAnd = [];
                     let arraySearchOr = [];
                     let arraySearchNot = [];
-                    let whereObj = []
+                    let whereObj = {}
                     if (body.type == 'liquidation') {
                         arraySearchAnd.push({
                             Status: 'Đã thanh lý'
@@ -856,11 +856,11 @@ module.exports = {
                         }
                         arraySearchAnd.push(userFind)
                     }
-                    if (arraySearchOr.length > 1)
+                    if (arraySearchOr.length > 0)
                         whereObj[Op.or] = arraySearchOr
-                    if (arraySearchAnd.length > 1)
+                    if (arraySearchAnd.length > 0)
                         whereObj[Op.and] = arraySearchAnd
-                    if (arraySearchNot.length > 1)
+                    if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
                     console.log(whereObj, arraySearchAnd);
                     let tblTaiSan = mtblTaiSan(db);

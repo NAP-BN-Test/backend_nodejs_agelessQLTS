@@ -640,11 +640,11 @@ module.exports = {
                             }
                         }
                     }
-                    if (arraySearchOr.length > 1)
+                    if (arraySearchOr.length > 0)
                         whereObj[Op.or] = arraySearchOr
-                    if (arraySearchAnd.length > 1)
+                    if (arraySearchAnd.length > 0)
                         whereObj[Op.and] = arraySearchAnd
-                    if (arraySearchNot.length > 1)
+                    if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
