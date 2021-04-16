@@ -10,7 +10,7 @@ module.exports = function (db) {
         IDDMHangHoa: Sequelize.BIGINT,
         Unit: Sequelize.STRING,
         IDTaiSanADD: Sequelize.BIGINT,
-        TSNBCode: Sequelize.BIGINT,
+        TSNBCode: Sequelize.STRING,
         OriginalPrice: Sequelize.FLOAT,
         DepreciationPrice: Sequelize.FLOAT,
         DepreciationDate: Sequelize.DATE,

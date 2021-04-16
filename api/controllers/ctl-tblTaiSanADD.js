@@ -711,7 +711,7 @@ module.exports = {
                     let whereObj = []
                     if (body.type == 'liquidation') {
                         arraySearchAnd.push({
-                            status: 'Đã thanh lý'
+                            Status: 'Đã thanh lý'
                         })
                     } else if (body.type == 'depreciation') {
                         arraySearchAnd.push({
@@ -719,7 +719,7 @@ module.exports = {
                         })
                     } else {
                         arraySearchAnd.push({
-                            status: { [Op.ne]: 'Đã thanh lý' }
+                            Status: { [Op.ne]: 'Đã thanh lý' }
                         })
                     }
                     if (body.dataSearch) {
@@ -750,9 +750,7 @@ module.exports = {
                             ];
 
                         }
-                        whereOjb = { [Op.or]: where };
-                        let userFind = {};
-                        arraySearchAnd.push(userFind)
+                        whereObj = { [Op.or]: where };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -864,7 +862,7 @@ module.exports = {
                         whereObj[Op.and] = arraySearchAnd
                     if (arraySearchNot.length > 1)
                         whereObj[Op.not] = arraySearchNot
-                    console.log(whereObj);
+                    console.log(whereObj, arraySearchAnd);
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
@@ -876,7 +874,7 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: whereObj,
                         include: [
                             {
                                 model: mtblTaiSanADD(db),
@@ -933,7 +931,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblTaiSan(db).count({ where: whereOjb })
+                        var count = await mtblTaiSan(db).count({ where: whereObj })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
