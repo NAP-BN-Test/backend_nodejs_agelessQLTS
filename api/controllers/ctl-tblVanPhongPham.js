@@ -207,7 +207,7 @@ module.exports = {
                                 vppName: element.VPPName ? element.VPPName : '',
                                 unit: element.Unit ? element.Unit : null,
                                 specifications: element.Specifications ? element.Specifications : '',
-                                amount: element.RemainingAmount ? element.RemainingAmount : null,
+                                amount: element.RemainingAmount ? element.RemainingAmount : 0,
                             }
                             array.push(obj);
                             stt += 1;

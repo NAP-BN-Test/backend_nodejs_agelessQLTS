@@ -87,6 +87,7 @@ module.exports = function (app) {
 
     // Lịch sử sử dụng của nhân viên 
     app.route('/qlnb/get_list_history_nhanvien').post(checkToken.checkToken, tblDMNhanvien.getListHistoryNhanVien);
+    app.route('/qlnb/get_list_history_vpp_staff').post(checkToken.checkToken, tblDMNhanvien.getListHistoryVPPStaff);
 
 
     //  Quản lý loại tài sản

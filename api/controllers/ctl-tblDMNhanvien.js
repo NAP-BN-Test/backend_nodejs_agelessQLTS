@@ -986,7 +986,7 @@ module.exports = {
                                                 codeDevice: tsht[j].taisan ? tsht[j].taisan.TSNBCode : '',
                                                 nameDevice: tsht[j].taisan ? tsht[j].taisan.hanghoa ? tsht[j].taisan.hanghoa.Name : '' : '',
                                                 dateFrom: moment(date).format('DD/MM/YYYY'),
-                                                dateTo: moment(tsht[j].DateThuHoi).format('DD/MM/YYYY'),
+                                                dateTo: '',
                                             })
                                             stt += 1;
                                         }
@@ -1013,58 +1013,45 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let tblTaiSanBanGiao = mtblTaiSanBanGiao(db);
+                    let tblPhanPhoiVPP = mtblPhanPhoiVPP(db);
                     let stt = 1;
-                    await tblTaiSanBanGiao.findAll({ where: { IDNhanVienSoHuu: body.idNhanVien }, }).then(async data => {
+                    await tblPhanPhoiVPP.findAll({ where: { IDNhanVienSoHuu: body.idNhanVien }, }).then(async data => {
                         var array = [];
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
-                        if (data) {
+                        if (data.length > 0) {
                             for (var i = 0; i < data.length; i++) {
-                                let tblTaiSan = mtblTaiSan(db);
-                                tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
-                                let tblTaiSanHistory = mtblTaiSanHistory(db);
-                                tblTaiSanHistory.belongsTo(tblTaiSan, { foreignKey: 'IDTaiSan', sourceKey: 'IDTaiSan', as: 'taisan' })
-                                var date = data[i].Date
-                                var id = data[i].ID
-                                await tblTaiSanHistory.findAll({
-                                    where: {
-                                        IDTaiSanBanGiao: data[i].ID,
-                                    },
+                                let tblPhanPhoiVPPChiTiet = mtblPhanPhoiVPPChiTiet(db);
+                                tblPhanPhoiVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
+
+                                await tblPhanPhoiVPPChiTiet.findAll({
+                                    where: { IDPhanPhoiVPP: data[i].ID },
                                     include: [
                                         {
-                                            model: tblTaiSan,
+                                            model: mtblVanPhongPham(db),
                                             required: false,
-                                            as: 'taisan',
-                                            include: [
-                                                {
-                                                    model: mtblDMHangHoa(db),
-                                                    required: false,
-                                                    as: 'hanghoa'
-                                                },
-                                            ],
+                                            as: 'vpp'
                                         },
                                     ],
-                                }).then(tsht => {
-                                    if (tsht)
-                                        for (var j = 0; j < tsht.length; j++) {
-                                            array.push({
-                                                stt: stt,
-                                                id: id,
-                                                codeDevice: tsht[j].taisan ? tsht[j].taisan.TSNBCode : '',
-                                                nameDevice: tsht[j].taisan ? tsht[j].taisan.hanghoa ? tsht[j].taisan.hanghoa.Name : '' : '',
-                                                dateFrom: moment(date).format('DD/MM/YYYY'),
-                                                dateTo: moment(tsht[j].DateThuHoi).format('DD/MM/YYYY'),
-                                            })
-                                            stt += 1;
-                                        }
+                                }).then(detail => {
+                                    detail.forEach(element => {
+                                        array.push({
+                                            stt: stt,
+                                            id: element.vpp ? element.vpp.ID : null,
+                                            codeDevice: element.vpp ? element.vpp.VPPCode : '',
+                                            nameDevice: element.vpp ? element.vpp.VPPName : '',
+                                            dateFrom: moment(data[i].Date).format('DD/MM/YYYY'),
+                                            dateTo: moment().format('DD/MM/YYYY'),
+                                        })
+                                        stt += 1;
+                                    })
                                 })
                             }
                         }
-
+                        stt += 1;
                         res.json(result);
                     })
                 } catch (error) {
