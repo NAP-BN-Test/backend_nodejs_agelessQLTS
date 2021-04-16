@@ -1,6 +1,8 @@
 const cryptoJS = require('crypto-js');
 var moment = require('moment');
-
+var fs = require('fs');
+const JSZip = require('pizzip');
+const Docxtemplater = require('docxtemplater');
 
 var arrCallStatus = [
     { id: 1, name: 'Không trả lời' },
@@ -35,7 +37,7 @@ module.exports = {
         }
         var check = await database.findOne({
             order: [
-                [fieldCode, 'DESC']
+                ['ID', 'DESC']
             ],
             where: where,
         })
@@ -183,5 +185,21 @@ module.exports = {
             obj[field.key] = field.value
         }
         return obj;
+    },
+    convertDataAndRenderWordFile: async function (objKey, readName, writeName) {
+        var pathTo = 'C:/images_services/ageless_sendmail/'
+        fs.readFile(pathTo + readName, 'binary', function (err, data) {
+            try {
+                var zip = new JSZip(data);
+                var doc = new Docxtemplater().loadZip(zip)
+                doc.setData(objKey);
+                doc.render()
+                var buf = doc.getZip().generate({ type: 'nodebuffer' });
+                fs.writeFileSync(path.resolve(pathTo, writeName), buf);
+                return true
+            } catch (error) {
+                return false
+            }
+        });
     },
 }

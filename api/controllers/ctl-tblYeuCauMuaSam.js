@@ -424,6 +424,20 @@ module.exports = {
                     let whereObj = []
                     let where = []
                     let whereSecond = []
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
+                    if (body.type == 'end') {
+                        arraySearchOr.push({ Status: 'Từ chối' })
+                        arraySearchOr.push({ Status: 'Hoàn thành' })
+                        arraySearchOr.push({ Status: 'Đã thêm mới tài sản' })
+                    }
+                    else {
+                        arraySearchAnd.push({ Status: { [Op.ne]: 'Từ chối' } })
+                        arraySearchAnd.push({ Status: { [Op.ne]: 'Hoàn thành' } })
+                        arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thêm mới tài sản' } })
+
+                    }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
                         if (data.search) {
@@ -510,38 +524,51 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
                                     userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereObj[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereObj[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereObj[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ YCMS') {
+                                    userFind['RequestCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY ĐỀ XUẤT') {
                                     var date = data.items[i]['searchFields'].slice(6, 10) + "-" + data.items[i]['searchFields'].slice(3, 5) + "-" + data.items[i]['searchFields'].slice(0, 2);
                                     userFind['RequireDate'] = { [Op.substring]: '%' + date + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereObj[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereObj[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereObj[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
+                                    console.log(arraySearchAnd);
                                 }
                                 if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
                                     userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereObj[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereObj[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereObj[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ TS/TB/LK') {
@@ -568,13 +595,13 @@ module.exports = {
                                     })
                                     userFind['ID'] = { [Op.in]: listYCMS }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereObj[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereObj[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereObj[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TÊN TS/TB/LK') {
@@ -601,30 +628,24 @@ module.exports = {
                                     })
                                     userFind['ID'] = { [Op.in]: listYCMS }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereObj[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereObj[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereObj[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                             }
                         }
                     }
-                    if (body.type == 'end')
-                        whereObj[Op.or] = [
-                            { Status: 'Từ chối' },
-                            { Status: 'Hoàn thành' },
-                            { Status: 'Đã thêm mới tài sản' },
-                        ]
-                    else
-                        whereObj[Op.and] = [
-                            { Status: { [Op.ne]: 'Từ chối' } },
-                            { Status: { [Op.ne]: 'Hoàn thành' } },
-                            { Status: { [Op.ne]: 'Đã thêm mới tài sản' } },
-                        ]
+                    if (arraySearchOr.length > 1)
+                        whereObj[Op.or] = arraySearchOr
+                    if (arraySearchAnd.length > 1)
+                        whereObj[Op.and] = arraySearchAnd
+                    if (arraySearchNot.length > 1)
+                        whereObj[Op.not] = arraySearchNot
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     let tblDMBoPhan = mtblDMBoPhan(db); // bắt buộc

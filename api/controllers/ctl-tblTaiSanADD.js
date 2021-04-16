@@ -705,21 +705,23 @@ module.exports = {
             if (db) {
                 try {
                     let listIDTaiSan = [];
-                    // await mtblTaiSanHistory(db).findAll({
-                    //     where: [
-                    //         {
-                    //             DateThuHoi: null
-                    //         }
-                    //     ]
-                    // }).then(data => {
-                    //     data.forEach(item => {
-                    //         if (item.IDTaiSan) {
-                    //             if (!checkDuplicate(listIDTaiSan, item.IDTaiSan))
-                    //                 listIDTaiSan.push(Number(item.IDTaiSan))
-                    //         }
-                    //     })
-                    // })
-                    var whereOjb = {};
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
+                    let whereObj = []
+                    if (body.type == 'liquidation') {
+                        arraySearchAnd.push({
+                            status: 'Đã thanh lý'
+                        })
+                    } else if (body.type == 'depreciation') {
+                        arraySearchAnd.push({
+                            DepreciationDate: { [Op.ne]: null }
+                        })
+                    } else {
+                        arraySearchAnd.push({
+                            status: { [Op.ne]: 'Đã thanh lý' }
+                        })
+                    }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
@@ -750,32 +752,32 @@ module.exports = {
                         }
                         whereOjb = { [Op.or]: where };
                         let userFind = {};
-                        whereOjb[Op.and] = userFind
+                        arraySearchAnd.push(userFind)
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÌNH TRẠNG') {
                                     userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ NỘI BỘ') {
                                     userFind['TSNBCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ TÀI SẢN') {
@@ -783,13 +785,13 @@ module.exports = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%',
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TÊN TÀI SẢN') {
@@ -810,13 +812,13 @@ module.exports = {
                                         [Op.in]: list,
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'LOẠI TÀI SẢN') {
@@ -834,13 +836,13 @@ module.exports = {
                                         [Op.in]: list,
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and] = userFind
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or] = userFind
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                             }
@@ -854,18 +856,15 @@ module.exports = {
                         userFind['IDTaiSanDiKem'] = {
                             [Op.is]: null
                         }
-                        whereOjb[Op.and] = userFind
+                        arraySearchAnd.push(userFind)
                     }
-                    console.log(body);
-                    if (body.type == 'liquidation') {
-                        whereOjb[Op.and] = [{
-                            status: 'Đã thanh lý'
-                        }]
-                    } else {
-                        whereOjb[Op.and] = [{
-                            status: { [Op.ne]: 'Đã thanh lý' }
-                        }]
-                    }
+                    if (arraySearchOr.length > 1)
+                        whereObj[Op.or] = arraySearchOr
+                    if (arraySearchAnd.length > 1)
+                        whereObj[Op.and] = arraySearchAnd
+                    if (arraySearchNot.length > 1)
+                        whereObj[Op.not] = arraySearchNot
+                    console.log(whereObj);
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })

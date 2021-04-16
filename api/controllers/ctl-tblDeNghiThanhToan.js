@@ -330,6 +330,9 @@ module.exports = {
             if (db) {
                 try {
                     var whereObj = [];
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
@@ -364,6 +367,18 @@ module.exports = {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGƯỜI ĐỀ NGHỊ') {
                                     userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereO[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereO[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereO[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ ĐNTT') {
+                                    userFind['PaymentOrderCode'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereO[Op.and] = userFind
                                     }
