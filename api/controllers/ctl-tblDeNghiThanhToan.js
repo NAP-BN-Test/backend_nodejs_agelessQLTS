@@ -132,6 +132,7 @@ async function getDetailYCMS(db, id) {
                                 idLine: obj.line[j].ID,
                                 amount: amount,
                                 unitPrice: price,
+                                assetName: obj.line[j] ? obj.line[j].AssetName : '',
                             })
                     })
                 } else {
@@ -146,6 +147,7 @@ async function getDetailYCMS(db, id) {
                                 code: data.VPPCode ? data.VPPCode : '',
                                 amount: amount,
                                 unitPrice: price,
+                                assetName: obj.line[j] ? obj.line[j].AssetName : '',
                                 remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
                                 id: Number(obj.line[j].IDVanPhongPham),
                             })
@@ -165,8 +167,7 @@ async function getDetailYCMS(db, id) {
                     }
                 }
             })
-            obj['arrayTaiSan'] = arrayTaiSan;
-            obj['arrayVPP'] = arrayVPP;
+            obj['arrayTaiSan'] = arrayTaiSan.length > 0 ? arrayTaiSan : arrayVPP;
             obj['arrayFile'] = arrayFile;
             array.push(obj)
         }
@@ -326,7 +327,6 @@ module.exports = {
     // get_list_tbl_denghi_thanhtoan
     getListtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -398,9 +398,9 @@ module.exports = {
                                 where: { ID: body.userID }
                             })
                             if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                userObj.push({ IDNhanVien: staff.IDNhanvien })
-                                userObj.push({ IDNhanVienKTPD: staff.IDNhanvien })
-                                userObj.push({ IDNhanVienLDPD: staff.IDNhanvien })
+                                arraySearchOr.push({ IDNhanVien: staff.IDNhanvien })
+                                arraySearchOr.push({ IDNhanVienKTPD: staff.IDNhanvien })
+                                arraySearchOr.push({ IDNhanVienLDPD: staff.IDNhanvien })
                             }
 
                         }

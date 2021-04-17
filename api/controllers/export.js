@@ -372,13 +372,15 @@ module.exports = {
                             ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
-                    wb.write('C:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
-                    var result = {
-                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    await wb.write('C:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -437,12 +439,6 @@ module.exports = {
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
-        var options = {
-            margins: {
-                left: 1.5,
-                right: 1.5,
-            },
-        };
         let body = req.body;
         let data = JSON.parse(body.data);
         let arrayHeader = [
@@ -512,13 +508,15 @@ module.exports = {
                             ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
                         }
                     }
-                    wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
-                    var result = {
-                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payment_request.xlsx',
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    await wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payment_request.xlsx',
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -650,13 +648,16 @@ module.exports = {
                         ws.cell(5 + i, 14).number(data[i].tamUng ? data[i].tamUng : 0).style(stylecell)
                         ws.cell(5 + i, 15).number(data[i].thucLinh ? data[i].thucLinh : 0).style(stylecell)
                     }
-                    wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
-                    var result = {
-                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payroll.xlsx',
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    await wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payroll.xlsx',
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -789,13 +790,16 @@ module.exports = {
                         ws.cell(5 + i, 11).number(wages * objInsurance.staffBHTNLD / 100).style(stylecell)
                         ws.cell(5 + i, 12).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecell)
                     }
-                    wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
-                    var result = {
-                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    await wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -991,13 +995,16 @@ module.exports = {
                             .link(obj.arrayFile[i].link, obj.arrayFile[i].name)
                             .style(stylecell);
                     }
-                    wb.write('C:/images_services/ageless_sendmail/export_excel_ycms.xlsx');
-                    var result = {
-                        link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_ycms.xlsx',
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    await wb.write('C:/images_services/ageless_sendmail/export_excel_ycms.xlsx');
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_ycms.xlsx',
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

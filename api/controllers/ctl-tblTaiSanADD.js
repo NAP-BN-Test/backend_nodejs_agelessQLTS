@@ -218,6 +218,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             describe: data.Describe ? data.Describe : '',
             status: data.Status ? data.Status : '',
             statusUsed: data.StatusUsed ? data.StatusUsed : '',
+            isCreateReceipt: data.IDReceiptsPayment ? true : false
         }
     })
     return obj;
@@ -340,6 +341,7 @@ module.exports = {
     updateDetailAsset: (req, res) => {
         let body = req.body;
         body.obj = JSON.parse(body.obj)
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -360,7 +362,7 @@ module.exports = {
                             SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
                             Describe: body.obj.describe ? body.obj.describe : '',
                             TSNBCode: body.obj.code ? body.obj.code : '',
-                            DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
+                            // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     } else {
                         obj = {
@@ -374,7 +376,7 @@ module.exports = {
                             Describe: body.obj.describe ? body.obj.describe : '',
                             TSNBCode: body.obj.code ? body.obj.code : '',
                             Status: status,
-                            DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
+                            // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     }
                     await mtblTaiSan(db).update(obj, {
@@ -927,6 +929,7 @@ module.exports = {
                                 date: element.taisan ? element.taisan.Date ? moment(element.taisan.Date).format('DD/MM/YYYY') : '' : '',
                                 guaranteDate: guaranteDate,
                                 warrantyRemaining: warrantyRemaining,
+                                isReceiptsPayment: element.IDReceiptsPayment ? true : false
                             }
                             array.push(obj);
                             stt += 1;
