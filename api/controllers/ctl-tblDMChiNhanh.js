@@ -199,7 +199,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'FAX') {
-                                    userFind['Fax'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['FaxNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }

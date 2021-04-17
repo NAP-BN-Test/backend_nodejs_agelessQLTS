@@ -362,7 +362,6 @@ module.exports = {
                                 { Contents: { [Op.ne]: '%%' } },
                             ];
                         }
-                        arraySearchOr.push(where);
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -414,7 +413,6 @@ module.exports = {
                         if (arraySearchNot.length > 0)
                             whereObj[Op.not] = arraySearchNot
                     }
-                    console.log(whereObj, arraySearchAnd);
                     let stt = 1;
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     let tblDMNhanvien = mtblDMNhanvien(db);
@@ -486,6 +484,7 @@ module.exports = {
                                 nameNhanVienLDPD: element.LDPD ? element.LDPD.StaffName : '',
                                 paymentOrderCode: element.PaymentOrderCode ? element.PaymentOrderCode : '',
                                 trangThaiPheDuyetLD: statusLD,
+                                isCreatePayment: element.IDReceiptsPayment ? true : false
                             }
                             array.push(obj);
                             stt += 1;

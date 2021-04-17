@@ -722,7 +722,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY SINH') {
-                                    let date = moment(data.items[i].fields['searchFields']).format('YYYY-MM-DD')
+                                    let date = moment(data.items[i].fields['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
                                     userFind['Birthday'] = { [Op.substring]: '%' + date + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)

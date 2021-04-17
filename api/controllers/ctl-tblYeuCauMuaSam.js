@@ -546,7 +546,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY ĐỀ XUẤT') {
-                                    let date = moment(data.items[i].fields['searchFields']).format('YYYY-MM-DD')
+                                    let date = moment(data.items[i].fields['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
                                     userFind['RequireDate'] = { [Op.substring]: '%' + date + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
@@ -646,6 +646,7 @@ module.exports = {
                         whereObj[Op.and] = arraySearchAnd
                     if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
+                    console.log(whereObj);
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     let tblDMBoPhan = mtblDMBoPhan(db); // bắt buộc

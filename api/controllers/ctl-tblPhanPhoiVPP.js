@@ -209,7 +209,7 @@ module.exports = {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGÀY TIẾP NHẬN') {
-                                    let date = moment(data.items[i].fields['searchFields']).format('YYYY-MM-DD')
+                                    let date = moment(data.items[i].fields['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
                                     userFind['Date'] = { [Op.substring]: date }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
