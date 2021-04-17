@@ -546,7 +546,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY ĐỀ XUẤT') {
-                                    let date = moment(data.items[i].fields['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
+                                    let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
                                     userFind['RequireDate'] = { [Op.substring]: '%' + date + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)

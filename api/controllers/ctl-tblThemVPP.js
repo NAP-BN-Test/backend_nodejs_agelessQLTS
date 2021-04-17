@@ -358,7 +358,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY CUNG CẤP') {
-                                    let date = moment(data.items[i].fields['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
+                                    let date = moment(data.items[i]['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
                                     userFind['Date'] = { [Op.substring]: '%' + date + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
