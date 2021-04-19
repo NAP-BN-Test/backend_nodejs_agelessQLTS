@@ -23,13 +23,13 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 
 async function deleteRelationshiptblTaiSanADD(db, listID) {
-    await mtblReceiptsPayment(db).destroy({
-        where: {
-            [Op.or]: {
-                IDAsset: { [Op.in]: listID },
-            }
-        }
-    })
+    // await mtblReceiptsPayment(db).destroy({
+    //     where: {
+    //         [Op.or]: {
+    //             IDAsset: { [Op.in]: listID },
+    //         }
+    //     }
+    // })
     await mtblThanhLyTaiSan(db).destroy({
         where: {
             [Op.or]: {
@@ -929,7 +929,7 @@ module.exports = {
                                 date: element.taisan ? element.taisan.Date ? moment(element.taisan.Date).format('DD/MM/YYYY') : '' : '',
                                 guaranteDate: guaranteDate,
                                 warrantyRemaining: warrantyRemaining,
-                                isReceiptsPayment: element.IDReceiptsPayment ? true : false
+                                isCreateReceipt: element.IDReceiptsPayment ? true : false
                             }
                             array.push(obj);
                             stt += 1;

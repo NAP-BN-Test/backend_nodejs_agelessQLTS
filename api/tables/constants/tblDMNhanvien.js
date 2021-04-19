@@ -34,6 +34,8 @@ module.exports = function (db) {
         ProductivityWages: Sequelize.FLOAT,
         CoefficientsSalary: Sequelize.FLOAT,
         IDSpecializedSoftware: Sequelize.INTEGER,
+        CMNDPlace: Sequelize.STRING,
+        CMNDDate: Sequelize.DATE,
     });
 
     return table;

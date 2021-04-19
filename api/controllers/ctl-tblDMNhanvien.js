@@ -246,6 +246,8 @@ module.exports = {
                             staffCode: data.StaffCode ? data.StaffCode : '',
                             staffName: data.StaffName ? data.StaffName : '',
                             cmndNumber: data.CMNDNumber ? data.CMNDNumber : '',
+                            cmndPlace: data.CMNDPlace ? data.CMNDPlace : '',
+                            cmndDate: data.CMNDDate ? data.CMNDDate : '',
                             address: data.Address ? data.Address : '',
                             idNation: data.IDNation ? data.IDNation : null,
                             phoneNumber: data.PhoneNumber ? data.PhoneNumber : '',
@@ -338,6 +340,8 @@ module.exports = {
                             StaffCode: body.staffCode ? body.staffCode : '',
                             StaffName: body.staffName ? body.staffName : '',
                             CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
+                            CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
+                            CMNDDate: body.cmndDate ? body.cmndDate : '',
                             Address: body.address ? body.address : '',
                             IDNation: body.idNation ? body.idNation : null,
                             PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
@@ -434,6 +438,10 @@ module.exports = {
                         update.push({ key: 'StaffName', value: body.staffName });
                     if (body.cmndumber || body.cmndumber === '')
                         update.push({ key: 'CMNDumber', value: body.cmndumber });
+                    if (body.cmndPlace || body.cmndPlace === '')
+                        update.push({ key: 'CMNDPlace', value: body.cmndPlace });
+                    if (body.cmndDate || body.cmndDate === '')
+                        update.push({ key: 'CMNDDate', value: body.cmndDate });
                     if (body.address || body.address === '')
                         update.push({ key: 'Address', value: body.address });
                     if (body.statusEmployee || body.statusEmployee === '')

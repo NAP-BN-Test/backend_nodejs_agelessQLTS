@@ -9,7 +9,7 @@ var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 const Sequelize = require('sequelize');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
-
+var mModules = require('../constants/modules');
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblHopDongNhanSu(db).destroy({
         where: {
@@ -82,6 +82,9 @@ module.exports = {
                         UnitSalary: 'VND',
                         WorkingPlace: '',
                         Status: body.status ? body.status : '',
+                        CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
+                        CMNDate: body.cmndate ? body.cmndate : null,
+                        CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
                     }).then(async data => {
                         // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
                         //     order: [
@@ -455,5 +458,77 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    // in_word_contract
+    inWordContract: (req, res) => {
+        let body = req.body;
+        // ngày 20 tháng 10 năm 2020
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let contactNumber = ''
+                    let obj = {
+                        'SỐ HỢP ĐỒNG': contactNumber,
+                        'NGÀY KÍ': '',
+                        'NHÂN VIÊN': '',
+                        'NGÀY SINH': '',
+                        'TÊN THÀNH PHỐ': '',
+                        'ĐỊA CHỈ': '',
+                        'CMT': '',
+                        'NGÀY CẤP': '',
+                        'NƠI CẤP': '',
+                    }
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+                    tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
+                    tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    await tblHopDongNhanSu.findOne({
+                        where: { ID: body.id },
+                        include: [
+                            {
+                                model: mtblLoaiHopDong(db),
+                                required: false,
+                                as: 'lhd'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async data => {
+                        if (data) {
+                            contactNumber = data.ContractCode
+                            console.log(data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '');
+                            obj = {
+                                'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
+                                'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
+                                'NHÂN VIÊN': data.nv ? data.nv.StaffName ? data.nv.StaffName : '' : '',
+                                'NGÀY SINH': data.nv ? moment(data.nv.Birthday).format('DD/MM/YYYY') ? moment(data.nv.Birthday).format('DD/MM/YYYY') : '' : '',
+                                'TÊN THÀNH PHỐ': data.nv ? data.nv.Address ? data.nv.Address : '' : '',
+                                'ĐỊA CHỈ': data.nv ? data.nv.Address ? data.nv.Address : '' : '',
+                                'CMT': data.nv ? data.nv.CMNDNumber ? data.nv.CMNDNumber : '' : '',
+                                'NGÀY CẤP': data.nv ? data.nv.CMNDDate ? data.nv.CMNDDate : '' : '',
+                                'NƠI CẤP': data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '',
+                            }
+                        }
+                    })
+                    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', contactNumber ? contactNumber : 'HD' + '-HĐLĐ-TX2021.docx')
+                    var result = {
+                        // array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

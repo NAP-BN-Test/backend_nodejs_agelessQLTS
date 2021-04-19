@@ -234,6 +234,7 @@ async function handlePaymentOrder(db, iddntt) {
         'NGƯỜI PHÊ DUYỆT TRƯỚC': '',
         'NGƯỜI PHÊ DUYỆT SAU': '',
         'BỘ PHẬN': '',
+        'SỐ TIỀN BẰNG CHỮ': '',
     };
     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
     let tblDMNhanvien = mtblDMNhanvien(db);
@@ -289,6 +290,7 @@ async function handlePaymentOrder(db, iddntt) {
             'NGƯỜI PHÊ DUYỆT TRƯỚC': data.KTPD ? data.KTPD.StaffName : '',
             'NGƯỜI PHÊ DUYỆT SAU': data.LDPD ? data.LDPD.StaffName : '',
             'BỘ PHẬN': data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.DepartmentName : '' : '',
+            'SỐ TIỀN BẰNG CHỮ': data.CostText ? data.CostText : '',
         };
     })
     return objKey

@@ -3,6 +3,7 @@ var moment = require('moment');
 var fs = require('fs');
 const JSZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
+const path = require('path');
 
 var arrCallStatus = [
     { id: 1, name: 'Không trả lời' },
@@ -188,18 +189,27 @@ module.exports = {
     },
     convertDataAndRenderWordFile: async function (objKey, readName, writeName) {
         var pathTo = 'C:/images_services/ageless_sendmail/'
-        fs.readFile(pathTo + readName, 'binary', function (err, data) {
-            try {
+        try {
+            console.log(pathTo + readName);
+            fs.readFile(pathTo + readName, 'binary', function (err, data) {
+                if (err) {
+                    console.log(err, 1);
+                    return false
+                }
                 var zip = new JSZip(data);
                 var doc = new Docxtemplater().loadZip(zip)
                 doc.setData(objKey);
                 doc.render()
                 var buf = doc.getZip().generate({ type: 'nodebuffer' });
+                console.log(buf);
                 fs.writeFileSync(path.resolve(pathTo, writeName), buf);
                 return true
-            } catch (error) {
-                return false
-            }
-        });
+            });
+        } catch (error) {
+            console.log(error);
+            return false
+
+        }
+
     },
 }
