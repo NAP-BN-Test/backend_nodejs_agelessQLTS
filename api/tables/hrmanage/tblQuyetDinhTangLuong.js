@@ -18,6 +18,7 @@ module.exports = function (db) {
         StatusDecision: Sequelize.STRING,
         IDEmployeeApproval: Sequelize.BIGINT,
         Reason: Sequelize.STRING,
+        Increase: Sequelize.FLOAT,
     });
 
     return table;

@@ -65,6 +65,7 @@ module.exports = {
                                 reason: element.Reason ? element.Reason : '',
                                 statusDecision: element.StatusDecision ? element.StatusDecision : '',
                                 idStaffApproval: element.IDEmployeeApproval ? element.IDEmployeeApproval : null,
+                                increase: element.Increase ? element.Increase : null,
                                 nameStaffApproval: element.employeeApproval ? element.employeeApproval.StaffName : null,
                             }
                             array.push(obj);
@@ -92,7 +93,6 @@ module.exports = {
     // add_tbl_quyetdinh_tangluong
     addtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -106,6 +106,7 @@ module.exports = {
                         IDEmployeeApproval: body.idStaffApproval ? body.idStaffApproval : null,
                         SalaryIncrease: body.salaryIncrease ? body.salaryIncrease : '',
                         StatusDecision: body.statusDecision ? body.statusDecision : '',
+                        Increase: body.increase ? body.increase : '',
                         Status: 'Chờ phê duyệt',
                     }).then(async data => {
                         // var hd = await mtblHopDongNhanSu(db).findOne({
@@ -196,6 +197,12 @@ module.exports = {
                             update.push({ key: 'IDEmployeeApproval', value: null });
                         else
                             update.push({ key: 'IDEmployeeApproval', value: body.idEmployeeApproval });
+                    }
+                    if (body.increase || body.increase === '') {
+                        if (body.increase === '')
+                            update.push({ key: 'Increase', value: null });
+                        else
+                            update.push({ key: 'Increase', value: body.increase });
                     }
                     if (body.decisionCode || body.decisionCode === '')
                         update.push({ key: 'DecisionCode', value: body.decisionCode });
@@ -382,6 +389,7 @@ module.exports = {
                                 reason: element.Reason ? element.Reason : '',
                                 salaryIncrease: element.SalaryIncrease ? element.SalaryIncrease : '',
                                 status: element.Status ? element.Status : '',
+                                increase: element.Increase ? element.Increase : '',
                             }
                             array.push(obj);
                             stt += 1;

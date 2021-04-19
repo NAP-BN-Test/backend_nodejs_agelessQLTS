@@ -19,6 +19,7 @@ module.exports = function (db) {
         IDTemplate: Sequelize.BIGINT,
         IDDaoTaoSau: Sequelize.BIGINT,
         IDDaoTaoTruoc: Sequelize.BIGINT,
+        IDContract: Sequelize.BIGINT,
     });
 
     return table;

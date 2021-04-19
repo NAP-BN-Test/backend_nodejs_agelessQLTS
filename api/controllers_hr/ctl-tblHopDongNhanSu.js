@@ -10,12 +10,59 @@ var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 const Sequelize = require('sequelize');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mModules = require('../constants/modules');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
+
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
+    await mtblFileAttach(db).destroy({
+        where: {
+            IDContract: { [Op.in]: listID }
+        }
+    })
     await mtblHopDongNhanSu(db).destroy({
         where: {
             ID: { [Op.in]: listID }
         }
     })
+}
+async function detailContract(db, id) {
+    var obj = {}
+    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+    tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
+    tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+    await tblHopDongNhanSu.findOne({
+        where: { ID: id },
+        include: [
+            {
+                model: mtblLoaiHopDong(db),
+                required: false,
+                as: 'lhd'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'nv'
+            },
+        ],
+        order: [
+            ['ID', 'DESC']
+        ],
+    }).then(async data => {
+        if (data) {
+            contactNumber = data.ContractCode
+            obj = {
+                'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
+                'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
+                'NHÂN VIÊN': data.nv ? data.nv.StaffName ? data.nv.StaffName : '' : '',
+                'NGÀY SINH': data.nv ? moment(data.nv.Birthday).format('DD/MM/YYYY') ? moment(data.nv.Birthday).format('DD/MM/YYYY') : '' : '',
+                'TÊN THÀNH PHỐ': data.nv ? data.nv.Address ? data.nv.Address : '' : '',
+                'ĐỊA CHỈ': data.nv ? data.nv.Address ? data.nv.Address : '' : '',
+                'CMT': data.nv ? data.nv.CMNDNumber ? data.nv.CMNDNumber : '' : '',
+                'NGÀY CẤP': data.nv ? data.nv.CMNDDate ? data.nv.CMNDDate : '' : '',
+                'NƠI CẤP': data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '',
+            }
+        }
+    })
+    return obj
 }
 module.exports = {
     deleteRelationshiptblHopDongNhanSu,
@@ -25,7 +72,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblHopDongNhanSu(db).findOne({ where: { ID: body.id } }).then(data => {
+                    mtblHopDongNhanSu(db).findOne({ where: { ID: body.id } }).then(async data => {
                         if (data) {
                             var obj = {
                                 id: data.ID,
@@ -39,6 +86,19 @@ module.exports = {
                                 unitSalary: 'VND',
                                 status: data.Status ? data.Status : '',
                             }
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].ID,
+                                        })
+                                    }
+                                }
+                            })
+                            obj['fileAttach'] = arrayFile;
                             var result = {
                                 obj: obj,
                                 status: Constant.STATUS.SUCCESS,
@@ -62,7 +122,6 @@ module.exports = {
     // add_tbl_hopdong_nhansu
     addtblHopDongNhanSu: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -86,6 +145,25 @@ module.exports = {
                         CMNDate: body.cmndate ? body.cmndate : null,
                         CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
                     }).then(async data => {
+                        let obj = {}
+                        var contract = await detailContract(db, data.ID)
+                        obj = {
+                            'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
+                            'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
+                            'NHÂN VIÊN': contract.nv ? contract.nv.StaffName ? contract.nv.StaffName : '' : '',
+                            'NGÀY SINH': contract.nv ? moment(contract.nv.Birthday).format('DD/MM/YYYY') ? moment(contract.nv.Birthday).format('DD/MM/YYYY') : '' : '',
+                            'TÊN THÀNH PHỐ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
+                            'ĐỊA CHỈ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
+                            'CMT': contract.nv ? contract.nv.CMNDNumber ? contract.nv.CMNDNumber : '' : '',
+                            'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
+                            'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
+                        }
+                        let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
+                        await mtblFileAttach(db).create({
+                            Link: link,
+                            Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
+                            IDContract: data.ID
+                        })
                         // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
                         //     order: [
                         //         Sequelize.literal('max(DecisionDate) DESC'),
@@ -161,8 +239,26 @@ module.exports = {
                         update.push({ key: 'ContractDateStart', value: body.contractDateStart });
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
+                    // let obj = {}
+                    // var contract = await detailContract(db, data.ID)
+                    // obj = {
+                    //     'SỐ HỢP ĐỒNG': body.contractCode ? body.contractCode : contract.ContractCode ? contract.ContractCode : '',
+                    //     'NGÀY KÍ': body.Date ? moment(body.Date).format('DD/MM/YYYY') : contract.Date ? contract.Date : '',
+                    //     'NHÂN VIÊN': contract.nv ? contract.nv.StaffName ? contract.nv.StaffName : '' : '',
+                    //     'NGÀY SINH': contract.nv ? moment(contract.nv.Birthday).format('DD/MM/YYYY') ? moment(contract.nv.Birthday).format('DD/MM/YYYY') : '' : '',
+                    //     'TÊN THÀNH PHỐ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
+                    //     'ĐỊA CHỈ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
+                    //     'CMT': contract.nv ? contract.nv.CMNDNumber ? contract.nv.CMNDNumber : '' : '',
+                    //     'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
+                    //     'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
+                    // }
+                    // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
+                    // await mtblFileAttach(db).update({
+                    //     Link: link,
+                    // }, { where: { IDContract: body.id } })
                     database.updateTable(update, mtblHopDongNhanSu(db), body.id).then(response => {
                         if (response == 1) {
+                            // Result.ACTION_SUCCESS['link'] = link
                             res.json(Result.ACTION_SUCCESS);
                         } else {
                             res.json(Result.SYS_ERROR_RESULT);
@@ -322,26 +418,39 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (var i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                contractCode: element.ContractCode ? element.ContractCode : '',
-                                signDate: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : '',
-                                loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
-                                salaryNumber: element.SalaryNumber ? element.SalaryNumber : '',
-                                salaryText: element.SalaryText ? element.SalaryText : '',
-                                contractDateEnd: element.ContractDateEnd ? moment(element.ContractDateEnd).format('DD/MM/YYYY') : '',
-                                contractDateStart: element.ContractDateStart ? moment(element.ContractDateStart).format('DD/MM/YYYY') : null,
+                                id: Number(data[i].ID),
+                                contractCode: data[i].ContractCode ? data[i].ContractCode : '',
+                                signDate: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
+                                idLoaiHopDong: data[i].IDLoaiHopDong ? data[i].IDLoaiHopDong : '',
+                                loaiHopDong: data[i].lhd ? data[i].lhd.TenLoaiHD : '',
+                                salaryNumber: data[i].SalaryNumber ? data[i].SalaryNumber : '',
+                                salaryText: data[i].SalaryText ? data[i].SalaryText : '',
+                                contractDateEnd: data[i].ContractDateEnd ? moment(data[i].ContractDateEnd).format('DD/MM/YYYY') : '',
+                                contractDateStart: data[i].ContractDateStart ? moment(data[i].ContractDateStart).format('DD/MM/YYYY') : null,
                                 unitSalary: 'VND',
-                                status: element.Status ? element.Status : '',
-                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
-                                staffName: element.nv ? element.nv.StaffName : '',
+                                status: data[i].Status ? data[i].Status : '',
+                                idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                                staffName: data[i].nv ? data[i].nv.StaffName : '',
                             }
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].ID,
+                                        })
+                                    }
+                                }
+                            })
+                            obj['fileAttach'] = arrayFile;
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         var count = await mtblHopDongNhanSu(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
@@ -367,7 +476,6 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
                     if (body.dataSearch) {
                     }
                     let stt = 1;
@@ -390,24 +498,39 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (var i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                contractCode: element.ContractCode ? element.ContractCode : '',
-                                signDate: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                idLoaiHopDong: element.IDLoaiHopDong ? element.IDLoaiHopDong : null,
-                                loaiHopDong: element.lhd ? element.lhd.TenLoaiHD : '',
-                                salaryNumber: element.SalaryNumber ? element.SalaryNumber : 1234,
-                                salaryText: element.SalaryText ? element.SalaryText : 123,
-                                contractDateEnd: element.ContractDateEnd ? moment(element.ContractDateEnd).format('DD/MM/YYYY') : null,
-                                contractDateStart: element.ContractDateStart ? moment(element.ContractDateStart).format('DD/MM/YYYY') : null,
+                                id: Number(data[i].ID),
+                                contractCode: data[i].ContractCode ? data[i].ContractCode : '',
+                                signDate: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
+                                idLoaiHopDong: data[i].IDLoaiHopDong ? data[i].IDLoaiHopDong : '',
+                                loaiHopDong: data[i].lhd ? data[i].lhd.TenLoaiHD : '',
+                                salaryNumber: data[i].SalaryNumber ? data[i].SalaryNumber : '',
+                                salaryText: data[i].SalaryText ? data[i].SalaryText : '',
+                                contractDateEnd: data[i].ContractDateEnd ? moment(data[i].ContractDateEnd).format('DD/MM/YYYY') : '',
+                                contractDateStart: data[i].ContractDateStart ? moment(data[i].ContractDateStart).format('DD/MM/YYYY') : null,
                                 unitSalary: 'VND',
-                                status: element.Status ? element.Status : '',
+                                status: data[i].Status ? data[i].Status : '',
+                                idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                                staffName: data[i].nv ? data[i].nv.StaffName : '',
                             }
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].ID,
+                                        })
+                                    }
+                                }
+                            })
+                            obj['fileAttach'] = arrayFile;
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         var count = await mtblHopDongNhanSu(db).count({ where: { IDNhanVien: body.idNhanVien } })
                         var result = {
                             array: array,

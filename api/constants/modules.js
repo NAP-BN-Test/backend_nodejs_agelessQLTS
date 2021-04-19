@@ -201,14 +201,12 @@ module.exports = {
                 doc.setData(objKey);
                 doc.render()
                 var buf = doc.getZip().generate({ type: 'nodebuffer' });
-                console.log(buf);
                 fs.writeFileSync(path.resolve(pathTo, writeName), buf);
-                return true
+                return 'C:/images_services/ageless_sendmail/' + writeName
             });
         } catch (error) {
             console.log(error);
-            return false
-
+            return ''
         }
 
     },
