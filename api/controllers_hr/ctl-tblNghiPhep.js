@@ -7,6 +7,8 @@ var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan');
+var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblNghiPhep(db, listID) {
     await mtblNghiPhep(db).destroy({
@@ -27,6 +29,90 @@ var enumerateDaysBetweenDates = function (startDate, endDate) {
 
     return dates;
 };
+async function monthDiff(d1, d2) {
+    var months = 0;
+    months = (Number(moment(d1).format('MM')) + (Number(moment(d1).format('YY')) * 12)) - (Number(moment(d2).format('MM')) + (12 * Number(moment(d2).format('YY'))))
+    return months;
+}
+async function handleCalculateAdvancePayment(db, idStaff) {
+    let staffData = await mtblHopDongNhanSu(db).findOne({
+        where: { IDNhanVien: idStaff },
+        order: [
+            ['ID', 'ASC']
+        ],
+    })
+    let now = new Date()
+    let dateSign = new Date(staffData.Date)
+    var diff = await monthDiff(now, dateSign)
+    return diff ? diff : 0
+}
+async function handleCalculateUsedLeave(db, idStaff) {
+    var result = 0;
+    await mtblNghiPhep(db).findAll({
+        where: { IDNhanVien: idStaff }
+    }).then(data => {
+        if (data) {
+            data.forEach(item => {
+                result += item.NumberHoliday
+            })
+        }
+    })
+    return result;
+}
+async function handleCalculateDayOff(dateStart, dateEnd) {
+    let result = 0;
+    let subtractHalfDay = 0;
+    let days = await enumerateDaysBetweenDates(dateStart, dateEnd)
+    let array7th = [];
+    for (var i = 0; i < days.length; i++) {
+        var datetConvert = mModules.toDatetimeDay(moment(days[i]).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+            array7th.push(days[i])
+        }
+        if (datetConvert.slice(0, 5) == 'Thứ 7') {
+            array7th.push(days[i])
+        }
+    }
+    let checkDateStart = Number(dateStart.slice(11, 13))
+    let checkDateEnd = Number(dateEnd.slice(11, 13))
+    if (checkDateStart < 12) {
+        if (checkDateEnd <= 12)
+            subtractHalfDay = 0.5
+    } else {
+        subtractHalfDay = 0.5
+    }
+    if (days.length < 1)
+        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
+            if (checkDateEnd < 17)
+                result = 1.5
+            else
+                result = 2
+        else
+            if (checkDateEnd < 17)
+                result = 0.5
+            else
+                result = 1
+    else
+        result = days.length + 2 - array7th.length - subtractHalfDay
+    return result
+}
+async function handleCalculatePreviousYear(db, idStaff, currentYear) {
+    var result = 0;
+    await mtblNghiPhep(db).findOne({
+        where: {
+            IDNhanVien: idStaff,
+            DateEnd: { [Op.substring]: currentYear }
+        },
+        order: [
+            ['ID', 'DESC']
+        ],
+    }).then(data => {
+        if (data) {
+            result = data.AdvancePayment - data.UsedLeave - data.NumberHoliday
+        }
+    })
+    return result;
+}
 module.exports = {
     deleteRelationshiptblNghiPhep,
     // add_tbl_nghiphep
@@ -48,6 +134,26 @@ module.exports = {
                             }
                     })
                     code += number
+                    let seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
+                    let advancePayment = 0;
+                    // var quotient = Math.floor(y / x);  // lấy nguyên
+                    // var remainder = y % x; // lấy dư
+                    if (seniority > 12) {
+                        advancePayment = 12 + Math.floor(seniority / 60)
+                    } else {
+                        let staffData = await mtblHopDongNhanSu(db).findOne({
+                            where: { IDNhanVien: body.idNhanVien },
+                            order: [
+                                ['ID', 'ASC']
+                            ],
+                        })
+                        let dateSign = new Date(staffData.Date)
+                        advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                    }
+                    let usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
+                    let numberHoliday = await handleCalculateDayOff(body.dateStart, body.dateEnd)
+                    let currentYear = Number(moment().format('YYYY'))
+                    let remainingPreviousYear = await handleCalculatePreviousYear(db, body.idNhanVien, currentYear - 1)
                     mtblNghiPhep(db).create({
                         DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                         DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
@@ -56,12 +162,21 @@ module.exports = {
                         NumberLeave: code,
                         Type: body.type ? body.type : '',
                         Date: body.date ? body.date : null,
-                        Remaining: body.remaining ? body.remaining : 0,
                         IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
                         IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
                         IDHeads: body.idHeads ? body.idHeads : null,
                         Status: 'Chờ trưởng bộ phận phê duyệt',
-                    }).then(data => {
+                        AdvancePayment: advancePayment,
+                        UsedLeave: usedLeave,
+                        RemainingPreviousYear: remainingPreviousYear,
+                        NumberHoliday: numberHoliday,
+                    }).then(async data => {
+                        // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', code ? code : 'HD' + '-HĐLĐ-TX2021.docx')
+                        // await mtblFileAttach(db).create({
+                        //     Link: link,
+                        //     Name: code ? code : 'HD' + '-HĐLĐ-TX2021.docx',
+                        //     IDTakeLeave: data.ID
+                        // })
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -142,6 +257,10 @@ module.exports = {
                         else
                             update.push({ key: 'IDLoaiChamCong', value: body.idLoaiChamCong });
                     }
+                    // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
+                    // await mtblFileAttach(db).update({
+                    //     Link: link,
+                    // }, { where: { IDContract: body.id } })
                     database.updateTable(update, mtblNghiPhep(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -323,7 +442,7 @@ module.exports = {
                                 status: element.Status ? element.Status : '',
                                 type: element.Type ? element.Type : '',
                                 date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                // remaining: element.Remaining ? month - element.Remaining : 0,
+                                remaining: element.AdvancePayment - element.UsedLeave - element.NumberHoliday,
                                 idHeadDepartment: element.IDHeadDepartment ? element.IDHeadDepartment : '',
                                 headDepartmentCode: element.headDepartment ? element.headDepartment.StaffCode : '',
                                 headDepartmentName: element.headDepartment ? element.headDepartment.StaffName : '',
@@ -338,24 +457,6 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
-                        for (var i = 0; i < array.length; i++) {
-                            let leave = 0;
-                            await mtblNghiPhep(db).findAll({
-                                where: { IDNhanVien: array[i].idNhanVien }
-                            }).then(np => {
-                                if (np) {
-                                    np.forEach(item => {
-                                        leave += item.Remaining
-                                    })
-                                    array[i]["remaining"] = month - leave
-                                }
-                                else {
-                                    array[i]["remaining"] = month
-                                }
-
-                            })
-                            console.log(array[i]);
-                        }
                         var count = await mtblNghiPhep(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
@@ -519,46 +620,10 @@ module.exports = {
     // handle_take_leave_day
     handleTakeLeaveDay: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let result = 0;
-                    let subtractHalfDay = 0;
-                    let dateStart = body.dateStart;
-                    let dateEnd = body.dateEnd;
-                    let days = await enumerateDaysBetweenDates(dateStart, dateEnd)
-                    let array7th = [];
-                    for (var i = 0; i < days.length; i++) {
-                        var datetConvert = mModules.toDatetimeDay(moment(days[i]).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                            array7th.push(days[i])
-                        }
-                        if (datetConvert.slice(0, 5) == 'Thứ 7') {
-                            array7th.push(days[i])
-                        }
-                    }
-                    let checkDateStart = Number(dateStart.slice(11, 13))
-                    let checkDateEnd = Number(dateEnd.slice(11, 13))
-                    if (checkDateStart < 12) {
-                        if (checkDateEnd <= 12)
-                            subtractHalfDay = 0.5
-                    } else {
-                        subtractHalfDay = 0.5
-                    }
-                    if (days.length < 1)
-                        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
-                            if (checkDateEnd < 17)
-                                result = 1.5
-                            else
-                                result = 2
-                        else
-                            if (checkDateEnd < 17)
-                                result = 0.5
-                            else
-                                result = 1
-                    else
-                        result = days.length + 2 - array7th.length - subtractHalfDay
+                    let result = await handleCalculateDayOff(body.dateStart, body.dateEnd)
                     var resultRes = {
                         result: result,
                         status: Constant.STATUS.SUCCESS,
