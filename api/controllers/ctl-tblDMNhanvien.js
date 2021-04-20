@@ -327,7 +327,6 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -667,7 +666,6 @@ module.exports = {
                     let whereOjb = []
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
-
                         if (data.search) {
                             var list = [];
                             await mtblDMBoPhan(db).findAll({

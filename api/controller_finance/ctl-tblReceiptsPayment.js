@@ -1341,12 +1341,30 @@ module.exports = {
             if (db) {
                 try {
                     let stt = 1;
+                    let listUndefinedID = [];
+                    if (body.receiptID)
+                        await mtblPaymentRPayment(db).findAll({ where: { IDPayment: body.receiptID } }).then(data => {
+                            data.forEach(item => {
+                                listUndefinedID.push(Number(item.IDPaymentR))
+                            })
+                        })
                     let tblReceiptsPayment = mtblReceiptsPayment(db);
                     tblReceiptsPayment.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
                     tblReceiptsPayment.findAll({
                         where: {
-                            IDCustomer: body.idCustomer,
-                            // Unknown: true,
+                            [Op.or]: [
+                                {
+                                    [Op.and]: {
+                                        IDCustomer: body.idCustomer,
+                                        Unknown: true,
+                                    }
+                                }, {
+                                    ID: {
+                                        [Op.in]: listUndefinedID
+                                    }
+                                }
+
+                            ]
                         },
                         order: [
                             ['ID', 'DESC']

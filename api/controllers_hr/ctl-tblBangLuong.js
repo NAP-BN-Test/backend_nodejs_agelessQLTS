@@ -13,6 +13,7 @@ var mModules = require('../constants/modules');
 var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
 const axios = require('axios');
 var mtblConfigWorkday = require('../tables/hrmanage/tblConfigWorkday')
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
@@ -302,14 +303,22 @@ module.exports = {
                 try {
                     let stt = 1;
                     let tblBangLuong = mtblBangLuong(db);
-                    // let tblDMNhanvien = mtblDMNhanvien(db)
-                    tblBangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    let tblDMNhanvien = mtblDMNhanvien(db)
+                    tblBangLuong.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
                     tblBangLuong.findAll({
                         include: [
                             {
-                                model: mtblDMNhanvien(db),
+                                model: tblDMNhanvien,
                                 required: false,
-                                as: 'nv'
+                                as: 'nv',
+                                include: [
+                                    {
+                                        model: mtblDMBoPhan(db),
+                                        required: false,
+                                        as: 'bp'
+                                    },
+                                ],
                             },
                         ],
                         order: [
@@ -353,6 +362,8 @@ module.exports = {
                                 id: Number(data[i].ID),
                                 idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
+                                nameDepartment: data[i].IDNhanVien ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
+                                staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
                                 productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
                                 bhxhSalary: coefficientsSalary * minimumWage,

@@ -281,6 +281,13 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.getListtblDMTinhTrangNV);
     app.route('/qlnb/get_list_name_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.getListNametblDMTinhTrangNV);
 
+    //  Danh mục cấu hình mức lương tối thiểu
+    var tblMinWageConfig = require('./controllers_hr/ctl-tblMinWageConfig');
+    app.route('/qlnb/add_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.addtblMinWageConfig);
+    app.route('/qlnb/update_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.updatetblMinWageConfig);
+    app.route('/qlnb/delete_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.deletetblMinWageConfig);
+    app.route('/qlnb/get_list_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.getListtblMinWageConfig);
+
     // Danh mục bộ phận
     // 35-40
 
@@ -369,7 +376,18 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.updatetblQuyetDinhTangLuong);
     app.route('/qlnb/delete_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.deletetblQuyetDinhTangLuong);
     app.route('/qlnb/get_list_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.getListtblQuyetDinhTangLuong);
-
+    //---------------------------------------------------------------- Quyết định thưởng/phạt --------------------------------------------------------------------------------------
+    var tblRewardPunishment = require('./controllers_hr/ctl-tblRewardPunishment');
+    app.route('/qlnb/add_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.addtblRewardPunishment);
+    app.route('/qlnb/update_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.updatetblRewardPunishment);
+    app.route('/qlnb/delete_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.deletetblRewardPunishment);
+    app.route('/qlnb/get_list_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.getListtblRewardPunishment);
+    //---------------------------------------------------------------- Quyết định tăng lương bảo hiểm --------------------------------------------------------------------------------------
+    var tblDecidedInsuranceSalary = require('./controllers_hr/ctl-tblDecidedInSuranceSalary');
+    app.route('/qlnb/add_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.addtblDecidedInsuranceSalary);
+    app.route('/qlnb/update_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.updatetblDecidedInsuranceSalary);
+    app.route('/qlnb/delete_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.deletetblDecidedInsuranceSalary);
+    app.route('/qlnb/get_list_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.getListtblDecidedInsuranceSalary);
     // Quản lý loại hợp đồng 
     var tblTypeContract = require('./controllers_hr/ctl-tblLoaiHopDong');
     app.route('/qlnb/add_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.addtblLoaiHopDong);

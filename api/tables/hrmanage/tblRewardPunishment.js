@@ -14,8 +14,8 @@ module.exports = function (db) {
         Code: Sequelize.STRING,
         Status: Sequelize.STRING,
         ReasonReject: Sequelize.STRING,
-        IDEmployeeApproval: Sequelize.BIGINT
-
+        IDEmployeeApproval: Sequelize.BIGINT,
+        Type: Sequelize.STRING,
     });
 
     return table;
