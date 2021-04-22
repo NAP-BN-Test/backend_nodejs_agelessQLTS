@@ -7,6 +7,7 @@ var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
+var mModules = require('../constants/modules');
 
 async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
     await mtblQuyetDinhTangLuong(db).destroy({
@@ -97,7 +98,7 @@ module.exports = {
             if (db) {
                 try {
                     mtblQuyetDinhTangLuong(db).create({
-                        DecisionCode: body.decisionCode ? body.decisionCode : '',
+                        DecisionCode: await mModules.automaticCode(mtblQuyetDinhTangLuong(db), 'DecisionCode', 'QDTL'),
                         DecisionDate: body.decisionDate ? body.decisionDate : null,
                         IncreaseDate: body.increaseDate ? body.increaseDate : null,
                         StopDate: body.stopDate ? body.stopDate : null,
@@ -163,7 +164,6 @@ module.exports = {
     // update_tbl_quyetdinh_tangluong
     updatetblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

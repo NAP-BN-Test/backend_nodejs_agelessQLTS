@@ -123,10 +123,17 @@ module.exports = {
                 try {
                     var number = 1;
                     var code = 'DXN'
+                    if (body.type == 'TakeLeave')
+                        code = 'DXN'
+                    else
+                        code = 'LTG'
                     await mtblNghiPhep(db).findOne({
                         order: [
                             ['ID', 'DESC']
                         ],
+                        where: {
+                            Type: body.type
+                        }
                     }).then(data => {
                         if (data)
                             if (data.NumberLeave) {
@@ -134,26 +141,36 @@ module.exports = {
                             }
                     })
                     code += number
-                    let seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
+                    let seniority = 0;
                     let advancePayment = 0;
-                    // var quotient = Math.floor(y / x);  // lấy nguyên
-                    // var remainder = y % x; // lấy dư
-                    if (seniority > 12) {
-                        advancePayment = 12 + Math.floor(seniority / 60)
-                    } else {
-                        let staffData = await mtblHopDongNhanSu(db).findOne({
-                            where: { IDNhanVien: body.idNhanVien },
-                            order: [
-                                ['ID', 'ASC']
-                            ],
-                        })
-                        let dateSign = new Date(staffData.Date)
-                        advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                    let usedLeave = 0;
+                    let numberHoliday = 0;
+                    let remainingPreviousYear = 0;
+                    if (body.type == 'TakeLeave') {
+                        seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
+                        // var quotient = Math.floor(y / x);  // lấy nguyên
+                        // var remainder = y % x; // lấy dư
+                        if (seniority > 12) {
+                            advancePayment = 12 + Math.floor(seniority / 60)
+                        } else {
+                            let staffData = await mtblHopDongNhanSu(db).findOne({
+                                where: { IDNhanVien: body.idNhanVien },
+                                order: [
+                                    ['ID', 'ASC']
+                                ],
+                            })
+                            let dateSign = new Date(staffData.Date)
+                            advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                        }
+                        usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
+                        numberHoliday = await handleCalculateDayOff(body.dateStart, body.dateEnd)
+                        let currentYear = Number(moment().format('YYYY'))
+                        let currentMonth = Number(moment().format('MM'))
+                        if (currentMonth < 4)
+                            remainingPreviousYear = await handleCalculatePreviousYear(db, body.idNhanVien, currentYear - 1)
+                        else
+                            remainingPreviousYear = 0
                     }
-                    let usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
-                    let numberHoliday = await handleCalculateDayOff(body.dateStart, body.dateEnd)
-                    let currentYear = Number(moment().format('YYYY'))
-                    let remainingPreviousYear = await handleCalculatePreviousYear(db, body.idNhanVien, currentYear - 1)
                     mtblNghiPhep(db).create({
                         DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                         DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
@@ -161,6 +178,7 @@ module.exports = {
                         IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
                         NumberLeave: code,
                         Type: body.type ? body.type : '',
+                        ContentLeave: body.content ? body.content : '',
                         Date: body.date ? body.date : null,
                         IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
                         IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
@@ -170,13 +188,21 @@ module.exports = {
                         UsedLeave: usedLeave,
                         RemainingPreviousYear: remainingPreviousYear,
                         NumberHoliday: numberHoliday,
+                        Time: body.time ? body.time : '',
+                        Note: body.note ? body.note : ''
                     }).then(async data => {
-                        // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', code ? code : 'HD' + '-HĐLĐ-TX2021.docx')
-                        // await mtblFileAttach(db).create({
-                        //     Link: link,
-                        //     Name: code ? code : 'HD' + '-HĐLĐ-TX2021.docx',
-                        //     IDTakeLeave: data.ID
-                        // })
+                        if (body.type == 'TakeLeave') {
+                            body.fileAttach = JSON.parse(body.fileAttach)
+                            if (body.fileAttach.length > 0)
+                                for (var j = 0; j < body.fileAttach.length; j++)
+                                    await mtblFileAttach(db).update({
+                                        IDTakeLeave: data.ID,
+                                    }, {
+                                        where: {
+                                            ID: body.fileAttach[j].id
+                                        }
+                                    })
+                        }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -199,10 +225,28 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.type == 'TakeLeave') {
+                        body.fileAttach = JSON.parse(body.fileAttach)
+                        if (body.fileAttach.length > 0)
+                            for (var j = 0; j < body.fileAttach.length; j++)
+                                await mtblFileAttach(db).update({
+                                    IDTakeLeave: body.id,
+                                }, {
+                                    where: {
+                                        ID: body.fileAttach[j].id
+                                    }
+                                })
+                    }
                     if (body.numberLeave || body.numberLeave === '')
                         update.push({ key: 'NumberLeave', value: body.numberLeave });
+                    if (body.time || body.time === '')
+                        update.push({ key: 'Time', value: body.time });
+                    if (body.note || body.note === '')
+                        update.push({ key: 'Note', value: body.note });
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
+                    if (body.content || body.content === '')
+                        update.push({ key: 'ContentLeave', value: body.content });
                     if (body.date || body.date === '') {
                         if (body.date === '')
                             update.push({ key: 'Date', value: null });
@@ -302,10 +346,19 @@ module.exports = {
     // get_list_tbl_nghiphep
     getListtblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
+                    var whereObj = {};
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
+                    if (body.type == 'TakeLeave') {
+                        arraySearchAnd.push({ Type: 'TakeLeave' })
+                    } else {
+                        arraySearchAnd.push({ Type: 'SignUp' })
+                    }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
@@ -335,10 +388,8 @@ module.exports = {
                                 { NumberLeave: { [Op.ne]: '%%' } },
                             ];
                         }
-                        whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
-                        };
+                        arraySearchAnd.push({ [Op.or]: where })
+                        arraySearchOr.push({ ID: { [Op.ne]: null } })
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -346,30 +397,36 @@ module.exports = {
                                     var list = [];
                                     userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and].push(userFind)
+                                        whereObj[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or].push(userFind)
+                                        whereObj[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        whereObj[Op.not] = userFind
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'LOẠI NGHỈ PHÉP') {
                                     var list = [];
                                     userFind['IDLoaiChamCong'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and].push(userFind)
+                                        whereObj[Op.and].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or].push(userFind)
+                                        whereObj[Op.or].push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        whereObj[Op.not] = userFind
                                     }
                                 }
                             }
                         }
+                        if (arraySearchOr.length > 0)
+                            whereObj[Op.or] = arraySearchOr
+                        if (arraySearchAnd.length > 0)
+                            whereObj[Op.and] = arraySearchAnd
+                        if (arraySearchNot.length > 0)
+                            whereObj[Op.not] = arraySearchNot
                     }
                     let stt = 1;
                     let tblNghiPhep = mtblNghiPhep(db);
@@ -383,7 +440,7 @@ module.exports = {
                     tblNghiPhep.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: whereObj,
                         include: [
                             {
                                 model: mtblLoaiChamCong(db),
@@ -423,7 +480,6 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        let month = Number(moment().format('MM'));
                         data.forEach(element => {
                             var obj = {
                                 stt: stt,
@@ -439,6 +495,7 @@ module.exports = {
                                 departmentName: element.nv ? element.nv.bp ? element.nv.bp.DepartmentName : '' : '',
                                 departmentID: element.nv ? element.nv.bp ? element.nv.bp.ID : '' : '',
                                 numberLeave: element.NumberLeave ? element.NumberLeave : '',
+                                content: element.ContentLeave ? element.ContentLeave : '',
                                 status: element.Status ? element.Status : '',
                                 type: element.Type ? element.Type : '',
                                 date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
@@ -453,11 +510,27 @@ module.exports = {
                                 headsCode: element.heads ? element.heads.StaffCode : '',
                                 headsName: element.heads ? element.heads.StaffName : '',
                                 reason: element.Reason ? element.Reason : '',
+                                time: element.Time ? element.Time : '',
+                                note: element.Note ? element.Note : '',
                             }
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblNghiPhep(db).count({ where: whereOjb, })
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDTakeLeave: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['fileAttach'] = arrayFile;
+                        }
+                        var count = await mtblNghiPhep(db).count({ where: whereObj, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

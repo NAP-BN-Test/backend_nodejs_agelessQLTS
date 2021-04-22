@@ -533,37 +533,19 @@ module.exports = {
                             update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
                     }
                     if (body.idContract != '') {
-                        var hdns = await mtblHopDongNhanSu(db).findOne({
-                            where: {
-                                ContractCode: body.contractCode
-                            }
+                        await mtblHopDongNhanSu(db).create({
+                            ContractCode: body.contractCode ? body.contractCode : '',
+                            Date: body.signDate ? body.signDate : null,
+                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                            SalaryNumber: body.workingSalary ? body.workingSalary : '',
+                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                            // ContractDateStart: now,
+                            UnitSalary: 'VND',
+                            Status: body.status ? body.status : '',
+                            IDNhanVien: body.id ? body.id : null,
+                            WorkingPlace: ''
                         })
-                        if (hdns) {
-                            await mtblHopDongNhanSu(db).update({
-                                ContractCode: body.contractCode ? body.contractCode : '',
-                                Date: body.signDate ? body.signDate : null,
-                                IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                                SalaryNumber: body.workingSalary ? body.workingSalary : '',
-                                SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                                ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                                UnitSalary: 'VND',
-                                Status: body.status ? body.status : '',
-                            }, { where: { ID: body.idContract } })
-                        } else {
-                            await mtblHopDongNhanSu(db).create({
-                                ContractCode: body.contractCode ? body.contractCode : '',
-                                Date: body.signDate ? body.signDate : null,
-                                IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                                SalaryNumber: body.workingSalary ? body.workingSalary : '',
-                                SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                                ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                                // ContractDateStart: now,
-                                UnitSalary: 'VND',
-                                Status: body.status ? body.status : '',
-                                IDNhanVien: body.id ? body.id : null,
-                                WorkingPlace: ''
-                            })
-                        }
                         salary = body.workingSalary ? body.workingSalary : 0
                         let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
                         if (bl)

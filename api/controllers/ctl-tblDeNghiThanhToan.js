@@ -377,7 +377,6 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
-                                console.log(arraySearchAnd);
                                 if (data.items[i].fields['name'] === 'MÃ ĐNTT') {
                                     userFind['PaymentOrderCode'] = { [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {

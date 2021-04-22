@@ -361,6 +361,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/delete_all_timekeeping').post(tblBangLuong.deleteAllTimekeeping);
 
+    app.route('/qlnb/synthetic_information_monthly').post(tblBangLuong.syntheticInformationMonthly);
+
     //---------------------------------------------------------------- Mức đóng bảo hiểm --------------------------------------------------------------------------------------
     var tblMucDongBaoHiem = require('./controllers_hr/ctl-tblMucDongBaoHiem');
     app.route('/qlnb/add_tbl_mucdong_baohiem').post(checkToken.checkToken, tblMucDongBaoHiem.addtblMucDongBaoHiem);
@@ -402,6 +404,10 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_config_workday').post(checkToken.checkToken, tblConfigWorkday.updatetblConfigWorkday);
     app.route('/qlnb/delete_tbl_config_workday').post(checkToken.checkToken, tblConfigWorkday.deletetblConfigWorkday);
     app.route('/qlnb/get_list_tbl_config_workday').post(checkToken.checkToken, tblConfigWorkday.getListtblConfigWorkday);
+
+    var importFile = require('./controllers_hr/import-file')
+
+    app.route('/qlnb/import_decided_increase_salary').post(importFile.importDecidedIncreaseSalary);
 
     // // Quản lý nghỉ lễ / tết
     // var tblQuanLyNghiLe = require('./controllers_hr/ctl-tblNghiLe');

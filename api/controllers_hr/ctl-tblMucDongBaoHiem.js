@@ -4,6 +4,8 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblMucDongBaoHiem = require('../tables/hrmanage/tblMucDongBaoHiem')
 var database = require('../database');
+var mtblMinWageConfig = require('../tables/hrmanage/tblMinWageConfig')
+
 async function deleteRelationshiptblMucDongBaoHiem(db, listID) {
     await mtblMucDongBaoHiem(db).destroy({
         where: {
@@ -295,7 +297,11 @@ module.exports = {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
-                var minimumWage = await mtblMucDongBaoHiem(db).findOne()
+                var minimumWage = await mtblMinWageConfig(db).findOne({
+                    order: [
+                        ['ID', 'DESC']
+                    ]
+                })
                 var result = {
                     minimumWage: minimumWage ? minimumWage.MinimumWage ? minimumWage.MinimumWage : 0 : 0,
                     status: Constant.STATUS.SUCCESS,
