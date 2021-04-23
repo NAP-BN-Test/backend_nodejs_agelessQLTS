@@ -169,7 +169,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    // var whereOjb = [];
+                    var whereOjb = [];
                     // if (body.dataSearch) {
                     //     var data = JSON.parse(body.dataSearch)
 
@@ -230,20 +230,20 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                date: data.Date ? data.Date : null,
-                                idStaff: data.IDStaff ? data.IDStaff : null,
-                                staffName: data.IDStaff ? data.staff.StaffName : '',
-                                amountMoney: data.SalaryIncrease ? data.SalaryIncrease : null,
-                                reason: data.Reason ? data.Reason : null,
-                                code: data.Code ? data.Code : null,
-                                status: data.Status ? data.Status : null,
-                                idEmployeeApproval: data.IDEmployeeApproval ? data.IDEmployeeApproval : null,
-                                reasonReject: data.ReasonReject ? data.ReasonReject : null,
+                                date: element.Date ? element.Date : null,
+                                idStaff: element.IDStaff ? element.IDStaff : null,
+                                staffName: element.IDStaff ? element.staff.StaffName : '',
+                                amountMoney: element.SalaryIncrease ? element.SalaryIncrease : null,
+                                reason: element.Reason ? element.Reason : null,
+                                code: element.Code ? element.Code : null,
+                                status: element.Status ? element.Status : null,
+                                idEmployeeApproval: element.IDEmployeeApproval ? element.IDEmployeeApproval : null,
+                                reasonReject: element.ReasonReject ? element.ReasonReject : null,
+                                type: element.Type ? element.Type : null,
                             }
                             array.push(obj);
                             stt += 1;
                         });
-                        console.log(array);
                         var count = await mtblRewardPunishment(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

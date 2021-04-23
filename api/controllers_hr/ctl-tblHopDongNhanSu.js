@@ -245,6 +245,7 @@ module.exports = {
                             }, { where: { IDNhanVien: body.idNhanVien } })
                         }
                         var result = {
+                            contractID: data.ID,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

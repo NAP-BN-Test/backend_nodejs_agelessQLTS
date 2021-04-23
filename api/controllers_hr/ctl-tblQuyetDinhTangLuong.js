@@ -8,7 +8,15 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mModules = require('../constants/modules');
-
+// wsEngine cho phép gọi vào hàm
+// var io = require("socket.io")(server, {
+//     cors: {
+//         wsEngine: 'eiows',
+//         origin: ["http://103.154.100.26:8692", "http://localhost:4200"],
+//         methods: ["GET", "POST"],
+//         credentials: true,
+//     }
+// })
 async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
     await mtblQuyetDinhTangLuong(db).destroy({
         where: {
@@ -109,6 +117,9 @@ module.exports = {
                         Increase: body.increase ? body.increase : '',
                         Status: 'Chờ phê duyệt',
                     }).then(async data => {
+                        if (data) {
+
+                        }
                         // var hd = await mtblHopDongNhanSu(db).findOne({
                         //     where: {
                         //         IDNhanVien: body.idNhanVien

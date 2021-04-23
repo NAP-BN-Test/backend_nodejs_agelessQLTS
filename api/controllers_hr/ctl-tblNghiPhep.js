@@ -221,6 +221,7 @@ module.exports = {
     // update_tbl_nghiphep
     updatetblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -281,13 +282,13 @@ module.exports = {
                         if (body.dateEnd === '')
                             update.push({ key: 'DateEnd', value: null });
                         else
-                            update.push({ key: 'DateEnd', value: moment(body.dateEnd).format('DD-MM-YYYY HH:mm:ss.SSS') });
+                            update.push({ key: 'DateEnd', value: moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') });
                     }
                     if (body.dateStart || body.dateStart === '') {
                         if (body.dateStart === '')
                             update.push({ key: 'DateStart', value: null });
                         else
-                            update.push({ key: 'DateStart', value: moment(body.dateStart).format('DD-MM-YYYY HH:mm:ss.SSS') });
+                            update.push({ key: 'DateStart', value: moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') });
                     }
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
