@@ -341,7 +341,6 @@ module.exports = {
     updateDetailAsset: (req, res) => {
         let body = req.body;
         body.obj = JSON.parse(body.obj)
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -349,7 +348,6 @@ module.exports = {
                     if (body.liquidationDate) {
                         status = 'Thanh lý'
                     }
-                    console.log(status);
                     var obj = {}
                     if (status == '') {
                         obj = {
@@ -864,7 +862,6 @@ module.exports = {
                         whereObj[Op.and] = arraySearchAnd
                     if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
-                    console.log(whereObj, arraySearchAnd);
                     let tblTaiSan = mtblTaiSan(db);
                     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisan' })
                     tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })

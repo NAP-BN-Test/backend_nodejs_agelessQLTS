@@ -309,7 +309,6 @@ module.exports = {
                             }).then(accounting => {
                                 if (accounting) {
                                     accounting.forEach(item => {
-                                        console.log(item.ID);
                                         var obj = {
                                             stt: stt,
                                             id: Number(item.ID),

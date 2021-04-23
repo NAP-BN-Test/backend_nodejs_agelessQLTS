@@ -610,7 +610,6 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
-                            console.log(data[i].IDCustomer);
                             let dataCus = await getDetailCustomer(data[i].IDCustomer)
                             var obj = {
                                 stt: stt,

@@ -346,7 +346,6 @@ module.exports = {
     // get_list_tbl_nghiphep
     getListtblNghiPhep: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

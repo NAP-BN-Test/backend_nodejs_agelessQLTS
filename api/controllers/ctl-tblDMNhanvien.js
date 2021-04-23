@@ -366,16 +366,16 @@ module.exports = {
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                         }).then(async data => {
-                            var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
-                                order: [
-                                    Sequelize.literal('max(DecisionDate) DESC'),
-                                ],
-                                group: ['Status', 'StatusDecision', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
-                                where: {
-                                    IDNhanVien: data.ID,
-                                }
-                            })
-                            salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
+                            // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
+                            //     order: [
+                            //         Sequelize.literal('max(DecisionDate) DESC'),
+                            //     ],
+                            //     group: ['Status', 'StatusDecision', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                            //     where: {
+                            //         IDNhanVien: data.ID,
+                            //     }
+                            // })
+                            // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
                             await mtblBangLuong(db).create({
                                 Date: body.signDate ? body.signDate : null,
                                 WorkingSalary: body.workingSalary ? body.workingSalary : 0,

@@ -208,7 +208,6 @@ module.exports = {
                             }
                         }
                     }
-                    console.log(whereOjb);
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 

@@ -237,7 +237,6 @@ module.exports = {
                             ]
                         },
                     }).then(async data => {
-                        console.log(data.ID);
                         var array = [];
                         var minimumWage = 0;
                         var objInsurance = {};
@@ -534,7 +533,6 @@ module.exports = {
                                     for (var j = 1; j <= dateFinal; j++) {
                                         var summaryEndDateS = 0;
                                         var summaryEndDateC = 0;
-                                        console.log(arrayHoliday);
                                         if (!checkDuplicate(arrayHoliday, j)) {
                                             let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData, month, year)
                                             let maxTime = await maxTimeArray(arrayTimeOfDate);
@@ -722,7 +720,6 @@ module.exports = {
                             var freeBreak = 0;
                             var workingDay = 0;
                             var obj = {}
-                            console.log(arraySearchAnd);
                             var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
                             var timeKeeping = await mtblChamCong(db).findOne({
                                 where: objWhere,

@@ -114,7 +114,7 @@ async function inWordContact(db, id) {
             }
         }
     })
-    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', contactNumber ? contactNumber : 'HD' + '-HĐLĐ-TX2021.docx')
+    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx')
     return (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx'
 }
 module.exports = {
@@ -262,7 +262,6 @@ module.exports = {
     // update_tbl_hopdong_nhansu
     updatetblHopDongNhanSu: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

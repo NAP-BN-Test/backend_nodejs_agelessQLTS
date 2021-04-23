@@ -193,7 +193,6 @@ async function getDetailYCMS(db, id) {
         // obj['arrayVPP'] = arrayVPP;
         obj['arrayFile'] = arrayFile;
     })
-    console.log(obj);
     return obj
 }
 module.exports = {
@@ -951,7 +950,6 @@ module.exports = {
                         row += 1
                     }
                     var obj = await getDetailYCMS(db, body.id)
-                    console.log(obj.arrayTaiSan);
                     ws.cell(2, 1, obj.arrayTaiSan.length + 1, 1, true)
                         .string(obj.requireDate)
                         .style(stylecell);

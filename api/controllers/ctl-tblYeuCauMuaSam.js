@@ -39,7 +39,6 @@ module.exports = {
     // add_tbl_yeucaumuasam
     addtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -557,7 +556,6 @@ module.exports = {
                                     if (data.items[i].conditionFields['name'] == 'Not') {
                                         arraySearchNot.push(userFind)
                                     }
-                                    console.log(arraySearchAnd);
                                 }
                                 if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
                                     userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
@@ -646,7 +644,6 @@ module.exports = {
                         whereObj[Op.and] = arraySearchAnd
                     if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
-                    console.log(whereObj);
                     let stt = 1;
                     let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
                     let tblDMBoPhan = mtblDMBoPhan(db); // bắt buộc

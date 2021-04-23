@@ -24,7 +24,6 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    console.log(body.idNhanVien, body);
                     let stt = 1;
                     let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
                     tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
@@ -94,7 +93,6 @@ module.exports = {
     // add_tbl_quyetdinh_tangluong
     addtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

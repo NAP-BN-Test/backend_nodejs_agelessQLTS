@@ -34,7 +34,6 @@ module.exports = {
                                 Date: moment(body.array[i]).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
                             }
                         })
-                        console.log(check, body.array[i]);
                         if (!check)
                             await mtblConfigWorkday(db).create({
                                 Date: body.array[i] ? body.array[i] : null,
