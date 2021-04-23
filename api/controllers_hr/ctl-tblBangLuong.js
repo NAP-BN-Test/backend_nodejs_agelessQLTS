@@ -992,12 +992,15 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let overtime = 0; // số ngày lm thêm giờ
-                    let remainingPreviousYear = 0; // số ngày được ứng của năm trước
-                    let numberHoliday = 0; // số ngày nghỉ trong tháng
-                    let remaining = 0; // số phép còn lại
+                    let array = [];
                     await mtblDMNhanvien(db).findAll().then(async data => {
                         for (var i = 0; i < data.length; i++) {
+                            let overtime = 0; // số ngày lm thêm giờ
+                            let remainingPreviousYear = 0; // số ngày được ứng của năm trước
+                            let numberHoliday = 0; // số ngày nghỉ trong tháng
+                            let remaining = 0; // số phép còn lại
+                            let freeBreak = 0;
+                            let lateDay = 0;
                             // Tính ngày thời gian thêm giờ
                             await mtblNghiPhep(db).findAll({
                                 where: {
@@ -1027,7 +1030,7 @@ module.exports = {
                                 }
                             })
                             // tính số ngày nghỉ trong tháng
-                            await mtblNghiPhep(db).findOne({
+                            await mtblNghiPhep(db).findAll({
                                 order: [
                                     ['ID', 'DESC']
                                 ],
@@ -1041,10 +1044,36 @@ module.exports = {
                                         numberHoliday += item.NumberHoliday
                                     })
                             })
+                            // tính số ngày đi muộn, nghỉ tự do
+                            await mtblChamCong(db).findAll({
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
+                                where: {
+                                    IDNhanVien: data[i].ID,
+                                }
+                            }).then(data => {
+                                if (data)
+                                    data.forEach(item => {
+                                        if (item.status == '1') {
+                                            freeBreak += 1
+                                        } else if (item.status != null) {
+                                            lateDay += 1
+                                        }
+                                    })
+                            })
+                            array.push({
+                                overtime: overtime,
+                                remaining: remaining,
+                                remainingPreviousYear: remainingPreviousYear,
+                                numberHoliday: numberHoliday,
+                                freeBreak: freeBreak,
+                                lateDay: lateDay,
+                            })
                         }
                     })
                     var result = {
-                        // array: array,
+                        array: array,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
