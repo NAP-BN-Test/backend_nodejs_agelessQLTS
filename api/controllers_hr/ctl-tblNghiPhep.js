@@ -521,6 +521,7 @@ module.exports = {
                                 if (file.length > 0) {
                                     for (var e = 0; e < file.length; e++) {
                                         arrayFile.push({
+                                            id: file[e].ID ? file[e].ID : '',
                                             name: file[e].Name ? file[e].Name : '',
                                             link: file[e].Link ? file[e].Link : '',
                                         })

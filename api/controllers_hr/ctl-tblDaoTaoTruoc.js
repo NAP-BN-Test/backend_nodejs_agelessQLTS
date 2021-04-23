@@ -297,6 +297,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
+                        console.log(array);
                         var count = await mtblDaoTaoTruoc(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
