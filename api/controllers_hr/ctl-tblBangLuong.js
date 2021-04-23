@@ -752,7 +752,7 @@ module.exports = {
                                                     let objDay = {};
                                                     objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
                                                     objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
-                                                    objDay['C'] = timeKeepingA ? timeKeepingA.Status ? timeKeepingA.Status : '' : ' ';
+                                                    objDay['C'] = ' ';
                                                     objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
                                                     objDay['status'] = 'H';
                                                     obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
@@ -764,7 +764,7 @@ module.exports = {
                                                     let objDay = {};
                                                     objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
                                                     objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
-                                                    objDay['C'] = timeKeepingA ? timeKeepingA.Status ? timeKeepingA.Status : '' : ' ';
+                                                    objDay['C'] = ' ';
                                                     objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
                                                     objDay['status'] = 'F';
                                                     obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
@@ -993,7 +993,18 @@ module.exports = {
             if (db) {
                 try {
                     let array = [];
-                    await mtblDMNhanvien(db).findAll().then(async data => {
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
+
+                    await tblDMNhanvien.findAll({
+                        include: [
+                            {
+                                model: mtblDMBoPhan(db),
+                                required: false,
+                                as: 'department'
+                            },
+                        ],
+                    }).then(async data => {
                         for (var i = 0; i < data.length; i++) {
                             let overtime = 0; // số ngày lm thêm giờ
                             let remainingPreviousYear = 0; // số ngày được ứng của năm trước
@@ -1063,6 +1074,9 @@ module.exports = {
                                     })
                             })
                             array.push({
+                                staffName: data[i].StaffName ? data[i].StaffName : '',
+                                staffCode: data[i].StaffCode ? data[i].StaffCode : '',
+                                departmentName: data[i].department ? data[i].department.DepartmentName : '',
                                 overtime: overtime,
                                 remaining: remaining,
                                 remainingPreviousYear: remainingPreviousYear,

@@ -94,6 +94,7 @@ module.exports = {
     // add_tbl_quyetdinh_tangluong
     addtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

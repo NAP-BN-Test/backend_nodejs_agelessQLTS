@@ -64,6 +64,59 @@ async function detailContract(db, id) {
     })
     return obj
 }
+
+async function inWordContact(db, id) {
+    let contactNumber = ''
+    let obj = {
+        'SỐ HỢP ĐỒNG': contactNumber,
+        'NGÀY KÍ': '',
+        'NHÂN VIÊN': '',
+        'NGÀY SINH': '',
+        'TÊN THÀNH PHỐ': '',
+        'ĐỊA CHỈ': '',
+        'CMT': '',
+        'NGÀY CẤP': '',
+        'NƠI CẤP': '',
+    }
+    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+    tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
+    tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+    await tblHopDongNhanSu.findOne({
+        where: { ID: id },
+        include: [
+            {
+                model: mtblLoaiHopDong(db),
+                required: false,
+                as: 'lhd'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'nv'
+            },
+        ],
+        order: [
+            ['ID', 'DESC']
+        ],
+    }).then(async data => {
+        if (data) {
+            contactNumber = data.ContractCode
+            obj = {
+                'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
+                'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
+                'NHÂN VIÊN': data.nv ? data.nv.StaffName ? data.nv.StaffName : '' : '',
+                'NGÀY SINH': data.nv ? moment(data.nv.Birthday).format('DD/MM/YYYY') ? moment(data.nv.Birthday).format('DD/MM/YYYY') : '' : '',
+                'TÊN THÀNH PHỐ': data.nv ? data.nv.Address ? data.nv.Address : '' : '',
+                'ĐỊA CHỈ': data.nv ? data.nv.Address ? data.nv.Address : '' : '',
+                'CMT': data.nv ? data.nv.CMNDNumber ? data.nv.CMNDNumber : '' : '',
+                'NGÀY CẤP': data.nv ? data.nv.CMNDDate ? data.nv.CMNDDate : '' : '',
+                'NƠI CẤP': data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '',
+            }
+        }
+    })
+    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', contactNumber ? contactNumber : 'HD' + '-HĐLĐ-TX2021.docx')
+    return (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx'
+}
 module.exports = {
     deleteRelationshiptblHopDongNhanSu,
     //  get_detail_tbl_hopdong_nhansu
@@ -209,6 +262,7 @@ module.exports = {
     // update_tbl_hopdong_nhansu
     updatetblHopDongNhanSu: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -239,26 +293,10 @@ module.exports = {
                         update.push({ key: 'ContractDateStart', value: body.contractDateStart });
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
-                    // let obj = {}
-                    // var contract = await detailContract(db, data.ID)
-                    // obj = {
-                    //     'SỐ HỢP ĐỒNG': body.contractCode ? body.contractCode : contract.ContractCode ? contract.ContractCode : '',
-                    //     'NGÀY KÍ': body.Date ? moment(body.Date).format('DD/MM/YYYY') : contract.Date ? contract.Date : '',
-                    //     'NHÂN VIÊN': contract.nv ? contract.nv.StaffName ? contract.nv.StaffName : '' : '',
-                    //     'NGÀY SINH': contract.nv ? moment(contract.nv.Birthday).format('DD/MM/YYYY') ? moment(contract.nv.Birthday).format('DD/MM/YYYY') : '' : '',
-                    //     'TÊN THÀNH PHỐ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
-                    //     'ĐỊA CHỈ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
-                    //     'CMT': contract.nv ? contract.nv.CMNDNumber ? contract.nv.CMNDNumber : '' : '',
-                    //     'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
-                    //     'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
-                    // }
-                    // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
-                    // await mtblFileAttach(db).update({
-                    //     Link: link,
-                    // }, { where: { IDContract: body.id } })
-                    database.updateTable(update, mtblHopDongNhanSu(db), body.id).then(response => {
+                    database.updateTable(update, mtblHopDongNhanSu(db), body.id).then(async response => {
                         if (response == 1) {
-                            // Result.ACTION_SUCCESS['link'] = link
+                            let link = await inWordContact(db, body.id)
+                            Result.ACTION_SUCCESS['link'] = 'http://103.154.100.26:1357/ageless_sendmail/' + link
                             res.json(Result.ACTION_SUCCESS);
                         } else {
                             res.json(Result.SYS_ERROR_RESULT);
@@ -586,6 +624,7 @@ module.exports = {
     inWordContract: (req, res) => {
         let body = req.body;
         // ngày 20 tháng 10 năm 2020
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -624,7 +663,6 @@ module.exports = {
                     }).then(async data => {
                         if (data) {
                             contactNumber = data.ContractCode
-                            console.log(data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '');
                             obj = {
                                 'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
                                 'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
