@@ -9,6 +9,8 @@ var mtblDMNhanvien = require("./tables/constants/tblDMNhanvien");
 var mtblYeuCauMuaSam = require("./tables/qlnb/tblYeuCauMuaSam");
 var mtblDeNghiThanhToan = require("./tables/qlnb/tblDeNghiThanhToan");
 var mtblHopDongNhanSu = require('./tables/hrmanage/tblHopDongNhanSu')
+var mtblDMPermission = require('./tables/constants/tblDMPermission');
+
 async function getPaymentAndREquest() {
     var array = [];
     await database.connectDatabase().then(async db => {
@@ -111,13 +113,14 @@ async function getStaffContractExpirationData() {
     var array = [];
     await database.connectDatabase().then(async db => {
         if (db) {
-            await mtblDMNhanvien(db).findAll().then(async staff => {
+            let now = moment().format('YYYY-MM-DD');
+            await mtblDMNhanvien(db).findAll({}).then(async staff => {
                 for (var i = 0; i < staff.length; i++) {
                     let contract = await mtblHopDongNhanSu(db).findOne({
                         where: {
                             IDNhanVien: staff[i].ID,
                             Status: 'Có hiệu lực',
-                            // Announced: false,
+                            // NoticeTime: { [Op.substring]: now }
                         },
                         order: [
                             ['ID', 'DESC']
@@ -125,16 +128,11 @@ async function getStaffContractExpirationData() {
                     })
                     if (contract) {
                         array.push({
+                            contractID: contract.ID,
                             staffName: staff[i].StaffName,
                             staffCode: staff[i].StaffCode,
                             contractDateEnd: contract.ContractDateEnd ? contract.ContractDateEnd : null,
-                        })
-                        await mtblHopDongNhanSu(db).update({
-                            Announced: true,
-                        }, {
-                            where: {
-                                ID: contract.ID,
-                            },
+                            noticeTime: contract.NoticeTime ? contract.NoticeTime : null,
                         })
                     }
                 }
@@ -268,6 +266,11 @@ module.exports = {
                     }
                 })
                 io.sockets.emit("Server-send-data", array);
+            });
+            socket.on("Client-send-contract-notification-schedule", async function (data) {
+                var arrayContractClient = await getStaffContractExpirationData();
+
+                io.sockets.emit("Server-send-contract-notification-schedule", arrayContractClient);
             });
         })
     },

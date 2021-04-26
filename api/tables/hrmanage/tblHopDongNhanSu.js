@@ -31,7 +31,7 @@ module.exports = function (db) {
         UnitSalary: Sequelize.STRING,
         Status: Sequelize.STRING,
         Announced: Sequelize.BOOLEAN,
-        NoticeTime: Sequelize.DATE,
+        NoticeTime: Sequelize.NOW,
     });
 
     return table;

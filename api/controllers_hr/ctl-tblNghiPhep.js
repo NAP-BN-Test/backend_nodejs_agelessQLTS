@@ -41,9 +41,12 @@ async function handleCalculateAdvancePayment(db, idStaff) {
             ['ID', 'ASC']
         ],
     })
-    let now = new Date()
-    let dateSign = new Date(staffData.Date)
-    var diff = await monthDiff(now, dateSign)
+    var diff;
+    if (staffData) {
+        let now = new Date()
+        let dateSign = new Date(staffData.Date)
+        diff = await monthDiff(now, dateSign)
+    }
     return diff ? diff : 0
 }
 async function handleCalculateUsedLeave(db, idStaff) {
@@ -118,6 +121,7 @@ module.exports = {
     // add_tbl_nghiphep
     addtblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -159,8 +163,10 @@ module.exports = {
                                     ['ID', 'ASC']
                                 ],
                             })
-                            let dateSign = new Date(staffData.Date)
-                            advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                            if (staffData) {
+                                let dateSign = new Date(staffData.Date)
+                                advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                            }
                         }
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
                         numberHoliday = await handleCalculateDayOff(body.dateStart, body.dateEnd)

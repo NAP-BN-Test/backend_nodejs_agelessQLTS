@@ -336,6 +336,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_hopdong_nhansu_detail').post(tblHopDongNhanSu.getListtblHopDongNhanSuDetail);
 
     app.route('/qlnb/in_word_contract').post(tblHopDongNhanSu.inWordContract);
+    app.route('/qlnb/setup_time_repeat').post(tblHopDongNhanSu.setupTimeRepeat);
 
     // Quyết định tăng lương
     var tblQuyetDinhTangLuong = require('./controllers_hr/ctl-tblQuyetDinhTangLuong');

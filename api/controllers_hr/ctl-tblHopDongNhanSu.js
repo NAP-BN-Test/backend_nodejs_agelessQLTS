@@ -224,9 +224,9 @@ module.exports = {
                             'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
                             'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
                         }
-                        let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
+                        await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                         await mtblFileAttach(db).create({
-                            Link: link,
+                            Link: 'http://103.154.100.26:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
                             Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
                             IDContract: data.ID
                         })
@@ -276,6 +276,7 @@ module.exports = {
     // update_tbl_hopdong_nhansu
     updatetblHopDongNhanSu: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -704,6 +705,28 @@ module.exports = {
                     }
                     console.log(result);
                     res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // setup_time_repeat
+    setupTimeRepeat: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblHopDongNhanSu(db).update({
+                        NoticeTime: moment(body.time).subtract(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                    }, {
+                        where: {
+                            ID: body.id
+                        }
+                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
