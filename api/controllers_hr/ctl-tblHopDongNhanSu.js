@@ -182,6 +182,17 @@ module.exports = {
                         mtblQuyetDinhTangLuong(db).update({
                             Status: "Đã tạo hợp đồng"
                         }, { where: { ID: body.idSalaryIncrease } })
+                    if (body.idNhanVien)
+                        await mtblHopDongNhanSu(db).update({
+                            Status: 'Hết hiệu lực'
+                        }, {
+                            where: { IDNhanVien: body.idNhanVien }
+                        })
+                    let noticeTime;
+                    if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
+                        noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
+                    else
+                        noticeTime = moment(body.contractDateEnd).format('YYYY-MM-DD HH:mm:ss.SSS')
                     mtblHopDongNhanSu(db).create({
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         ContractCode: body.contractCode ? body.contractCode : '',
@@ -197,6 +208,8 @@ module.exports = {
                         CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
                         CMNDate: body.cmndate ? body.cmndate : null,
                         CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
+                        Announced: false,
+                        NoticeTime: noticeTime,
                     }).then(async data => {
                         let obj = {}
                         var contract = await detailContract(db, data.ID)
@@ -211,7 +224,7 @@ module.exports = {
                             'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
                             'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
                         }
-                        let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
+                        let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                         await mtblFileAttach(db).create({
                             Link: link,
                             Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
@@ -287,10 +300,17 @@ module.exports = {
                         else
                             update.push({ key: 'SalaryNumber', value: body.salaryNumber });
                     }
-                    if (body.contractDateEnd || body.contractDateEnd === '')
+                    if (body.contractDateEnd || body.contractDateEnd === '') {
+                        if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
+                            update.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') });
+                        else
+                            update.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') });
+
                         update.push({ key: 'ContractDateEnd', value: body.contractDateEnd });
-                    if (body.contractDateStart || body.contractDateStart === '')
+                    }
+                    if (body.contractDateStart || body.contractDateStart === '') {
                         update.push({ key: 'ContractDateStart', value: body.contractDateStart });
+                    }
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
                     database.updateTable(update, mtblHopDongNhanSu(db), body.id).then(async response => {
@@ -676,12 +696,13 @@ module.exports = {
                             }
                         }
                     })
-                    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', contactNumber ? contactNumber : 'HD' + '-HĐLĐ-TX2021.docx')
+                    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx')
                     var result = {
-                        // array: array,
+                        link: 'http://103.154.100.26:1357/ageless_sendmail/' + (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
+                    console.log(result);
                     res.json(result);
                 } catch (error) {
                     console.log(error);

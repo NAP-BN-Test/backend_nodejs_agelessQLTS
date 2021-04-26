@@ -30,6 +30,8 @@ module.exports = function (db) {
         SalaryText: Sequelize.STRING,
         UnitSalary: Sequelize.STRING,
         Status: Sequelize.STRING,
+        Announced: Sequelize.BOOLEAN,
+        NoticeTime: Sequelize.DATE,
     });
 
     return table;

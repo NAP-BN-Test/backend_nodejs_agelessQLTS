@@ -383,6 +383,12 @@ module.exports = {
                                 DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
                                 IDNhanVien: data.ID,
                             })
+                            if (data)
+                                await mtblHopDongNhanSu(db).update({
+                                    Status: 'Hết hiệu lực'
+                                }, {
+                                    where: { IDNhanVien: data.ID }
+                                })
                             await mtblHopDongNhanSu(db).create({
                                 IDNhanVien: data.ID,
                                 ContractCode: body.contractCode ? body.contractCode : '',
@@ -532,7 +538,18 @@ module.exports = {
                         else
                             update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
                     }
+                    let noticeTime;
+                    if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
+                        noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
+                    else
+                        noticeTime = moment(body.contractDateEnd).format('YYYY-MM-DD HH:mm:ss.SSS')
                     if (body.idContract != '') {
+                        if (body.id)
+                            await mtblHopDongNhanSu(db).update({
+                                Status: 'Hết hiệu lực'
+                            }, {
+                                where: { IDNhanVien: body.id }
+                            })
                         await mtblHopDongNhanSu(db).create({
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
@@ -544,7 +561,9 @@ module.exports = {
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
                             IDNhanVien: body.id ? body.id : null,
-                            WorkingPlace: ''
+                            WorkingPlace: '',
+                            Announced: false,
+                            NoticeTime: noticeTime,
                         })
                         salary = body.workingSalary ? body.workingSalary : 0
                         let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
@@ -567,6 +586,12 @@ module.exports = {
                             })
                     }
                     else {
+                        if (body.id)
+                            await mtblHopDongNhanSu(db).update({
+                                Status: 'Hết hiệu lực'
+                            }, {
+                                where: { IDNhanVien: body.id }
+                            })
                         await mtblHopDongNhanSu(db).create({
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
@@ -578,7 +603,9 @@ module.exports = {
                             UnitSalary: 'VND',
                             Status: body.status ? body.status : '',
                             IDNhanVien: body.id ? body.id : null,
-                            WorkingPlace: ''
+                            WorkingPlace: '',
+                            Announced: false,
+                            NoticeTime: noticeTime,
                         })
                         salary = body.workingSalary ? body.workingSalary : 0
                         let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })

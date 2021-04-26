@@ -375,5 +375,7 @@ var io = require("socket.io")(server, {
 server.listen(port, function () {
     console.log('http://localhost:' + port);
 });
+let scheduleJob = require('./api/scheduleJob')
+scheduleJob.editStatus24HourEveryday()
 // connect socket
 socket.sockketIO(io)

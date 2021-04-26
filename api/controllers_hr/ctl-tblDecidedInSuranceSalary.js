@@ -140,7 +140,7 @@ module.exports = {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblDecidedInSuranceSalary(db, listID);
+                    await deleteRelationshiptblDecidedInsuranceSalary(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,

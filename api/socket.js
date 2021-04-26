@@ -9,107 +9,150 @@ var mtblDMNhanvien = require("./tables/constants/tblDMNhanvien");
 var mtblYeuCauMuaSam = require("./tables/qlnb/tblYeuCauMuaSam");
 var mtblDeNghiThanhToan = require("./tables/qlnb/tblDeNghiThanhToan");
 var mtblHopDongNhanSu = require('./tables/hrmanage/tblHopDongNhanSu')
-
+async function getPaymentAndREquest() {
+    var array = [];
+    await database.connectDatabase().then(async db => {
+        if (db) {
+            var user = await mtblDMUser(db).findAll();
+            let count = 0;
+            for (var i = 0; i < user.length; i++) {
+                if (user[i]) {
+                    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db);
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    await tblYeuCauMuaSam.findAll({
+                        where: [
+                            { IDPheDuyet1: user[i].IDNhanvien },
+                            { Status: 'Chờ phê duyệt' }
+                        ],
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'shopping_cart',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                    await tblYeuCauMuaSam.findAll({
+                        where: [
+                            { IDPheDuyet2: user[i].IDNhanvien },
+                            { Status: 'Đang phê duyệt' }
+                        ],
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'shopping_cart',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                    let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    await tblDeNghiThanhToan.findAll({
+                        where: {
+                            [Op.or]: [
+                                {
+                                    [Op.and]: {
+                                        IDNhanVienKTPD: user[i].IDNhanvien,
+                                        TrangThaiPheDuyetKT: 'Chờ phê duyệt',
+                                    },
+                                }, {
+                                    [Op.and]: {
+                                        TrangThaiPheDuyetKT: { [Op.ne]: 'Chờ phê duyệt' },
+                                        IDNhanVienLDPD: user[i].IDNhanvien,
+                                        TrangThaiPheDuyetLD: 'Chờ phê duyệt',
+                                    }
+                                }
+                            ],
+                        },
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            },
+                        ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'payment',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                }
+            }
+        } else {
+            res.json(Constant.MESSAGE.USER_FAIL)
+        }
+    })
+    return array
+}
+async function getStaffContractExpirationData() {
+    var array = [];
+    await database.connectDatabase().then(async db => {
+        if (db) {
+            await mtblDMNhanvien(db).findAll().then(async staff => {
+                for (var i = 0; i < staff.length; i++) {
+                    let contract = await mtblHopDongNhanSu(db).findOne({
+                        where: {
+                            IDNhanVien: staff[i].ID,
+                            Status: 'Có hiệu lực',
+                            // Announced: false,
+                        },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    })
+                    if (contract) {
+                        array.push({
+                            staffName: staff[i].StaffName,
+                            staffCode: staff[i].StaffCode,
+                            contractDateEnd: contract.ContractDateEnd ? contract.ContractDateEnd : null,
+                        })
+                        await mtblHopDongNhanSu(db).update({
+                            Announced: true,
+                        }, {
+                            where: {
+                                ID: contract.ID,
+                            },
+                        })
+                    }
+                }
+            })
+        } else {
+            res.json(Constant.MESSAGE.USER_FAIL)
+        }
+    })
+    return array
+}
 module.exports = {
     sockketIO: async (io) => {
         io.on("connection", async function (socket) {
             console.log('The user is connecting : ' + socket.id);
-            var array = [];
-            await database.connectDatabase().then(async db => {
-                if (db) {
-                    var user = await mtblDMUser(db).findAll();
-                    let count = 0;
-                    for (var i = 0; i < user.length; i++) {
-                        if (user[i]) {
-                            let tblYeuCauMuaSam = mtblYeuCauMuaSam(db);
-                            tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
-                            await tblYeuCauMuaSam.findAll({
-                                where: [
-                                    { IDPheDuyet1: user[i].IDNhanvien },
-                                    { Status: 'Chờ phê duyệt' }
-                                ],
-                                include: [
-                                    {
-                                        model: mtblDMNhanvien(db),
-                                        required: false,
-                                        as: 'nv'
-                                    },
-                                ],
-                            }).then(data => {
-                                data.forEach(item => {
-                                    array.push({
-                                        name: item.nv ? item.nv.StaffName : 'admin',
-                                        type: 'shopping_cart',
-                                        userID: user[i].ID,
-                                    })
-                                    count += 1;
-                                })
-                            })
-                            await tblYeuCauMuaSam.findAll({
-                                where: [
-                                    { IDPheDuyet2: user[i].IDNhanvien },
-                                    { Status: 'Đang phê duyệt' }
-                                ],
-                                include: [
-                                    {
-                                        model: mtblDMNhanvien(db),
-                                        required: false,
-                                        as: 'nv'
-                                    },
-                                ],
-                            }).then(data => {
-                                data.forEach(item => {
-                                    array.push({
-                                        name: item.nv ? item.nv.StaffName : 'admin',
-                                        type: 'shopping_cart',
-                                        userID: user[i].ID,
-                                    })
-                                    count += 1;
-                                })
-                            })
-                            let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
-                            tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
-                            await tblDeNghiThanhToan.findAll({
-                                where: {
-                                    [Op.or]: [
-                                        {
-                                            [Op.and]: {
-                                                IDNhanVienKTPD: user[i].IDNhanvien,
-                                                TrangThaiPheDuyetKT: 'Chờ phê duyệt',
-                                            },
-                                        }, {
-                                            [Op.and]: {
-                                                TrangThaiPheDuyetKT: { [Op.ne]: 'Chờ phê duyệt' },
-                                                IDNhanVienLDPD: user[i].IDNhanvien,
-                                                TrangThaiPheDuyetLD: 'Chờ phê duyệt',
-                                            }
-                                        }
-                                    ],
-                                },
-                                include: [
-                                    {
-                                        model: mtblDMNhanvien(db),
-                                        required: false,
-                                        as: 'nv'
-                                    },
-                                ],
-                            }).then(data => {
-                                data.forEach(item => {
-                                    array.push({
-                                        name: item.nv ? item.nv.StaffName : 'admin',
-                                        type: 'payment',
-                                        userID: user[i].ID,
-                                    })
-                                    count += 1;
-                                })
-                            })
-                        }
-                    }
-                } else {
-                    res.json(Constant.MESSAGE.USER_FAIL)
-                }
-            })
+            var array = await getPaymentAndREquest()
+            var arrayContract = await getStaffContractExpirationData();
             io.sockets.emit("Server-send-data", array);
+            socket.emit("Server-send-contract-notification-schedule", arrayContract);
             await database.connectDatabase().then(async db => {
                 if (db) {
                     var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
@@ -225,15 +268,6 @@ module.exports = {
                     }
                 })
                 io.sockets.emit("Server-send-data", array);
-            });
-            socket.on("Client-send-contract-notification-schedule", async function (resultData) {
-                console.log(socket.id + "just sent: " + resultData);
-                var schedule = require('node-schedule');
-                var timeSend = moment(resultData.contractID).subtract(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS');
-                var job = schedule.scheduleJob(timeSend, async function () {
-                    io.sockets.emit("Server-send-contract-notification-schedule", 1);
-                });
-                console.log(job);
             });
         })
     },
