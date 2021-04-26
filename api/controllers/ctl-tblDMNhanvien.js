@@ -542,7 +542,7 @@ module.exports = {
                     if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
                         noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
                     else
-                        noticeTime = moment(body.contractDateEnd).format('YYYY-MM-DD HH:mm:ss.SSS')
+                        noticeTime = moment(body.contractDateEnd).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
                     if (body.idContract != '') {
                         if (body.id)
                             await mtblHopDongNhanSu(db).update({

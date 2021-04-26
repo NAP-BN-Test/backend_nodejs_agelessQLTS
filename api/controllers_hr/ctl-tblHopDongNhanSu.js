@@ -192,7 +192,7 @@ module.exports = {
                     if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
                         noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
                     else
-                        noticeTime = moment(body.contractDateEnd).format('YYYY-MM-DD HH:mm:ss.SSS')
+                        noticeTime = moment(body.contractDateEnd).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
                     mtblHopDongNhanSu(db).create({
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         ContractCode: body.contractCode ? body.contractCode : '',
@@ -276,7 +276,6 @@ module.exports = {
     // update_tbl_hopdong_nhansu
     updatetblHopDongNhanSu: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -305,7 +304,7 @@ module.exports = {
                         if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
                             update.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') });
                         else
-                            update.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') });
+                            update.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') });
 
                         update.push({ key: 'ContractDateEnd', value: body.contractDateEnd });
                     }
@@ -703,7 +702,6 @@ module.exports = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
-                    console.log(result);
                     res.json(result);
                 } catch (error) {
                     console.log(error);
@@ -721,12 +719,18 @@ module.exports = {
             if (db) {
                 try {
                     await mtblHopDongNhanSu(db).update({
-                        NoticeTime: moment(body.time).subtract(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                        NoticeTime: moment(body.time).format('YYYY-MM-DD'),
+                        Time: moment(body.time).format('YYYY-MM-DD  HH:mm:ss.SSS'),
                     }, {
                         where: {
                             ID: body.id
                         }
                     })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

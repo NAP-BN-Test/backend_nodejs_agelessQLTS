@@ -114,13 +114,25 @@ async function getStaffContractExpirationData() {
     await database.connectDatabase().then(async db => {
         if (db) {
             let now = moment().format('YYYY-MM-DD');
+            let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
             await mtblDMNhanvien(db).findAll({}).then(async staff => {
                 for (var i = 0; i < staff.length; i++) {
                     let contract = await mtblHopDongNhanSu(db).findOne({
                         where: {
-                            IDNhanVien: staff[i].ID,
-                            Status: 'Có hiệu lực',
-                            // NoticeTime: { [Op.substring]: now }
+                            [Op.or]: [
+                                {
+                                    IDNhanVien: staff[i].ID,
+                                    Status: 'Có hiệu lực',
+                                    Time: { [Op.eq]: null },
+                                    NoticeTime: { [Op.substring]: now }
+                                },
+                                {
+                                    IDNhanVien: staff[i].ID,
+                                    Status: 'Có hiệu lực',
+                                    NoticeTime: { [Op.substring]: now },
+                                    Time: { [Op.lte]: nowTime },
+                                }
+                            ]
                         },
                         order: [
                             ['ID', 'DESC']

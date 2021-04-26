@@ -990,6 +990,12 @@ module.exports = {
             if (db) {
                 try {
                     let array = [];
+                    let obj = {}
+                    if (body.departmentID) {
+                        obj = {
+                            IDBoPhan: body.departmentID,
+                        }
+                    }
                     let tblDMNhanvien = mtblDMNhanvien(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
 
@@ -1001,6 +1007,7 @@ module.exports = {
                                 as: 'department'
                             },
                         ],
+                        where: obj,
                     }).then(async data => {
                         for (var i = 0; i < data.length; i++) {
                             let overtime = 0; // số ngày lm thêm giờ
