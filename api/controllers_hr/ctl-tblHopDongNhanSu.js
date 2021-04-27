@@ -11,6 +11,7 @@ const Sequelize = require('sequelize');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mModules = require('../constants/modules');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
 
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblFileAttach(db).destroy({
@@ -101,6 +102,19 @@ async function inWordContact(db, id) {
     }).then(async data => {
         if (data) {
             contactNumber = data.ContractCode
+            let tblDMNhanvien = mtblDMNhanvien(db);
+            tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'position' })
+
+            let staff = await tblDMNhanvien.findOne({
+                where: { ID: data.IDNhanVien },
+                include: [
+                    {
+                        model: mtblDMChucVu(db),
+                        required: false,
+                        as: 'position'
+                    },
+                ],
+            })
             obj = {
                 'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
                 'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
@@ -114,6 +128,8 @@ async function inWordContact(db, id) {
                 'LOẠI HỢP ĐỒNG': data.lhd ? data.lhd.TenLoaiHD ? data.lhd.TenLoaiHD : '' : '',
                 'TỪ NGÀY': data.ContractDateStart ? moment(data.ContractDateStart).format('DD/MM/YYYY') : '',
                 'ĐẾN NGÀY': data.ContractDateEnd ? moment(data.ContractDateEnd).format('DD/MM/YYYY') : '',
+                'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
+                'CHỨC VỤ': staff.position ? staff.position.PositionName ? staff.position.PositionName : '' : '',
             }
         }
     })
@@ -195,7 +211,7 @@ module.exports = {
                     if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
                         noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
                     else
-                        noticeTime = moment(body.contractDateEnd).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                        noticeTime = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
                     mtblHopDongNhanSu(db).create({
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         ContractCode: body.contractCode ? body.contractCode : '',
@@ -216,6 +232,19 @@ module.exports = {
                     }).then(async data => {
                         let obj = {}
                         var contract = await detailContract(db, data.ID)
+                        let tblDMNhanvien = mtblDMNhanvien(db);
+                        tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'position' })
+
+                        let staff = await tblDMNhanvien.findOne({
+                            where: { ID: body.idNhanVien },
+                            include: [
+                                {
+                                    model: mtblDMChucVu(db),
+                                    required: false,
+                                    as: 'position'
+                                },
+                            ],
+                        })
                         obj = {
                             'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
                             'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
@@ -229,6 +258,8 @@ module.exports = {
                             'LOẠI HỢP ĐỒNG': contract.lhd ? contract.lhd.TenLoaiHD ? contract.lhd.TenLoaiHD : '' : '',
                             'TỪ NGÀY': contract.ContractDateStart ? moment(contract.ContractDateStart).format('DD/MM/YYYY') : '',
                             'ĐẾN NGÀY': contract.ContractDateEnd ? moment(contract.ContractDateEnd).format('DD/MM/YYYY') : '',
+                            'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
+                            'CHỨC VỤ': staff.position ? staff.position ? staff.position.PositionName : '' : '',
                         }
                         await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                         await mtblFileAttach(db).create({
@@ -311,7 +342,7 @@ module.exports = {
                         if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
                             update.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') });
                         else
-                            update.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') });
+                            update.push({ key: 'NoticeTime', value: moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') });
 
                         update.push({ key: 'ContractDateEnd', value: body.contractDateEnd });
                     }

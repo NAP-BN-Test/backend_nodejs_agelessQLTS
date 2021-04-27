@@ -560,7 +560,6 @@ module.exports = {
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         let body = req.body;
-        console.log(body);
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
         let arrayHeader = [
@@ -577,7 +576,6 @@ module.exports = {
             'LƯƠNG TÍNH THUẾ TNCN',
             'THUẾ TNCN',
             'TỔNG CÁC KHOẢN TRỪ',
-            'TẠM ỨNG',
             'THỰC NHẬN',
         ]
         var month = Number(body.date.slice(5, 7)); // January
@@ -632,21 +630,21 @@ module.exports = {
                         ws.column(row).setWidth(20);
                     }
                     for (var i = 0; i < data.length; i++) {
-                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
-                        ws.cell(5 + i, 2).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
+                        ws.cell(5 + i, 1).string(data[i].stt).style(stylecell)
+                        ws.cell(5 + i, 2).string(data[i].staffName ? data[i].staffName : 0).style(stylecell)
                         ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecell)
                         ws.cell(5 + i, 4).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecell)
                         ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecell)
-                        ws.cell(5 + i, 6).number(objInsurance.staffBHXH * data[i].bhxhSalary / 100).style(stylecell)
-                        ws.cell(5 + i, 7).number(objInsurance.staffBHYT * data[i].bhxhSalary / 100).style(stylecell)
-                        ws.cell(5 + i, 8).number(objInsurance.staffBHTN * data[i].bhxhSalary / 100).style(stylecell)
-                        ws.cell(5 + i, 9).number(objInsurance.union * data[i].bhxhSalary / 100).style(stylecell)
+                        ws.cell(5 + i, 6).number(data[i].bhxhSalary).style(stylecell)
+                        ws.cell(5 + i, 7).number(data[i].bhxhSalary).style(stylecell)
+                        ws.cell(5 + i, 8).number(data[i].bhxhSalary).style(stylecell)
+                        ws.cell(5 + i, 9).number(data[i].bhxhSalary).style(stylecell)
                         ws.cell(5 + i, 10).number(0).style(stylecell)
-                        ws.cell(5 + i, 11).number(data[i].thueTNCN ? data[i].thueTNCN : 0).style(stylecell)
-                        ws.cell(5 + i, 12).number(data[i].thueTNCN ? data[i].thueTNCN : 0).style(stylecell)
+                        ws.cell(5 + i, 11).number(data[i].personalTax ? data[i].personalTax : 0).style(stylecell)
+                        ws.cell(5 + i, 12).number(data[i].personalTaxSalary ? data[i].personalTaxSalary : 0).style(stylecell)
                         ws.cell(5 + i, 13).number(data[i].tongKhoanTru ? data[i].tongKhoanTru : 0).style(stylecell)
-                        ws.cell(5 + i, 14).number(data[i].tamUng ? data[i].tamUng : 0).style(stylecell)
-                        ws.cell(5 + i, 15).number(data[i].thucLinh ? data[i].thucLinh : 0).style(stylecell)
+                        // ws.cell(5 + i, 14).number(data[i].tamUng ? data[i].tamUng : 0).style(stylecell)
+                        ws.cell(5 + i, 15).number(data[i].realField ? data[i].realField : 0).style(stylecell)
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     setTimeout(() => {

@@ -274,7 +274,7 @@ module.exports = {
                             })
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
-                            let totalReduce = minimumWage * coefficientsSalary * objInsurance['staffBHXH'] - minimumWage * coefficientsSalary * objInsurance['staffBHYT'] - minimumWage * coefficientsSalary * objInsurance['staffBHTN'] - minimumWage * coefficientsSalary * objInsurance['union'] - reduce
+                            let totalReduce = (minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100) - (minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100) - (minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100) - (minimumWage * coefficientsSalary * objInsurance['union'] / 100) - reduce
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -284,12 +284,12 @@ module.exports = {
                                 departmentName: data[i].IDNhanVien ? data[i].nv.department ? data[i].nv.department.DepartmentName : '' : '',
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
                                 bhxhSalary: minimumWage * coefficientsSalary,
-                                staffBHXH: minimumWage * coefficientsSalary * objInsurance['staffBHXH'],
-                                staffBHYT: minimumWage * coefficientsSalary * objInsurance['staffBHYT'],
-                                staffBHTN: minimumWage * coefficientsSalary * objInsurance['staffBHTN'],
-                                union: minimumWage * coefficientsSalary * objInsurance['union'],
-                                personalTax: (data[i].nv.productivityWages ? data[i].nv.productivityWages : 0) - totalReduce,
-                                personalTaxSalary: (data[i].nv.productivityWages ? data[i].nv.productivityWages : 0) - totalReduce,
+                                staffBHXH: minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100,
+                                staffBHYT: minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100,
+                                staffBHTN: minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100,
+                                union: minimumWage * coefficientsSalary * objInsurance['union'] / 100,
+                                personalTax: (data[i].nv ? data[i].nv.ProductivityWages : 0) - totalReduce,
+                                personalTaxSalary: (data[i].nv ? data[i].nv.ProductivityWages : 0) - totalReduce,
                                 reduce: reduce,
                                 totalReduce: totalReduce,
                                 realField: minimumWage * coefficientsSalary - totalReduce,
