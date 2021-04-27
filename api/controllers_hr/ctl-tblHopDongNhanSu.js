@@ -111,6 +111,9 @@ async function inWordContact(db, id) {
                 'CMT': data.nv ? data.nv.CMNDNumber ? data.nv.CMNDNumber : '' : '',
                 'NGÀY CẤP': data.nv ? data.nv.CMNDDate ? data.nv.CMNDDate : '' : '',
                 'NƠI CẤP': data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '',
+                'LOẠI HỢP ĐỒNG': data.lhd ? data.lhd.TenLoaiHD ? data.lhd.TenLoaiHD : '' : '',
+                'TỪ NGÀY': data.ContractDateStart ? moment(data.ContractDateStart).format('DD/MM/YYYY') : '',
+                'ĐẾN NGÀY': data.ContractDateEnd ? moment(data.ContractDateEnd).format('DD/MM/YYYY') : '',
             }
         }
     })
@@ -223,6 +226,9 @@ module.exports = {
                             'CMT': contract.nv ? contract.nv.CMNDNumber ? contract.nv.CMNDNumber : '' : '',
                             'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
                             'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
+                            'LOẠI HỢP ĐỒNG': contract.lhd ? contract.lhd.TenLoaiHD ? contract.lhd.TenLoaiHD : '' : '',
+                            'TỪ NGÀY': contract.ContractDateStart ? moment(contract.ContractDateStart).format('DD/MM/YYYY') : '',
+                            'ĐẾN NGÀY': contract.ContractDateEnd ? moment(contract.ContractDateEnd).format('DD/MM/YYYY') : '',
                         }
                         await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                         await mtblFileAttach(db).create({
@@ -258,6 +264,7 @@ module.exports = {
                             }, { where: { IDNhanVien: body.idNhanVien } })
                         }
                         var result = {
+                            link: 'http://103.154.100.26:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
                             contractID: data.ID,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -644,7 +651,6 @@ module.exports = {
     inWordContract: (req, res) => {
         let body = req.body;
         // ngày 20 tháng 10 năm 2020
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -693,6 +699,9 @@ module.exports = {
                                 'CMT': data.nv ? data.nv.CMNDNumber ? data.nv.CMNDNumber : '' : '',
                                 'NGÀY CẤP': data.nv ? data.nv.CMNDDate ? data.nv.CMNDDate : '' : '',
                                 'NƠI CẤP': data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '',
+                                'LOẠI HỢP ĐỒNG': data.lhd ? data.lhd.TenLoaiHD ? data.lhd.TenLoaiHD : '' : '',
+                                'TỪ NGÀY': data.ContractDateStart ? moment(data.ContractDateStart).format('DD/MM/YYYY') : '',
+                                'ĐẾN NGÀY': data.ContractDateEnd ? moment(data.ContractDateEnd).format('DD/MM/YYYY') : '',
                             }
                         }
                     })

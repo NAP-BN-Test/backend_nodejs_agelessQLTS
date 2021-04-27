@@ -560,6 +560,7 @@ module.exports = {
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         let body = req.body;
+        console.log(body);
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
         let arrayHeader = [

@@ -18,9 +18,20 @@ var mModules = require('../constants/modules');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
+    let arrayReceiptsPayment = []
+    await mtblDeNghiThanhToan(db).findAll({
+        where: {
+            ID: { [Op.in]: listID }
+        }
+    }).then(data => {
+        data.forEach(item => {
+            arrayReceiptsPayment.push(item.IDReceiptsPayment)
+
+        })
+    })
     await mtblReceiptsPayment(db).destroy({
         where: {
-            IDPaymentOrder: { [Op.in]: listID }
+            ID: { [Op.in]: arrayReceiptsPayment }
         }
     })
     await mtblFileAttach(db).destroy({
