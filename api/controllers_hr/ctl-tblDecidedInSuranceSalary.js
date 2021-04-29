@@ -54,6 +54,10 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (body.idStaff && body.coefficient)
+                        await mtblDMNhanvien(db).update({
+                            CoefficientsSalary: body.coefficient
+                        }, { where: { ID: body.idStaff } })
                     mtblDecidedInsuranceSalary(db).create({
                         IDStaff: body.idStaff ? body.idStaff : null,
                         Name: body.name ? body.name : '',
@@ -85,6 +89,10 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.idStaff && body.coefficient)
+                        await mtblDMNhanvien(db).update({
+                            CoefficientsSalary: body.coefficient
+                        }, { where: { ID: body.idStaff } })
                     if (body.name || body.name === '')
                         update.push({ key: 'Name', value: body.name });
                     if (body.idStaff || body.idStaff === '') {

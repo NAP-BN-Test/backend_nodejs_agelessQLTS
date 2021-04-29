@@ -445,8 +445,6 @@ module.exports = {
                         update.push({ key: 'CMNDumber', value: body.cmndumber });
                     if (body.cmndPlace || body.cmndPlace === '')
                         update.push({ key: 'CMNDPlace', value: body.cmndPlace });
-                    if (body.cmndDate || body.cmndDate === '')
-                        update.push({ key: 'CMNDDate', value: body.cmndDate });
                     if (body.address || body.address === '')
                         update.push({ key: 'Address', value: body.address });
                     if (body.statusEmployee || body.statusEmployee === '')
@@ -464,6 +462,12 @@ module.exports = {
                             update.push({ key: 'ProductivityWages', value: null });
                         else
                             update.push({ key: 'ProductivityWages', value: body.productivityWages });
+                    }
+                    if (body.cmndDate || body.cmndDate === '') {
+                        if (body.cmndDate === '')
+                            update.push({ key: 'CMNDDate', value: null });
+                        else
+                            update.push({ key: 'CMNDDate', value: body.cmndDate });
                     }
                     if (body.phoneNumber || body.phoneNumber === '')
                         update.push({ key: 'PhoneNumber', value: body.phoneNumber });

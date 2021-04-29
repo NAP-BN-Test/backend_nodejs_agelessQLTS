@@ -197,6 +197,7 @@ async function getDateholiday(db, month, year) {
 
 }
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
+var mtblDecidedInsuranceSalary = require('../tables/hrmanage/tblDecidedInsuranceSalary')
 
 module.exports = {
     deleteRelationshiptblBangLuong,
@@ -283,7 +284,7 @@ module.exports = {
                                 staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
                                 departmentName: data[i].IDNhanVien ? data[i].nv.department ? data[i].nv.department.DepartmentName : '' : '',
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                bhxhSalary: minimumWage * coefficientsSalary,
+                                bhxhSalary: minimumWage * coefficientsSalary + (insuranceSalaryIncrease.Increase ? insuranceSalaryIncrease.Increase : 0),
                                 staffBHXH: minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100,
                                 staffBHYT: minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100,
                                 staffBHTN: minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100,
@@ -323,6 +324,7 @@ module.exports = {
     // track_insurance_premiums
     trackInsurancePremiums: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -387,6 +389,12 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
+                            let insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findOne({
+                                where: { IDStaff: data[i].IDNhanVien },
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
+                            })
                             var coefficientsSalary = data[i].IDNhanVien ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0;
                             var obj = {
                                 stt: stt,
@@ -397,13 +405,15 @@ module.exports = {
                                 staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
                                 productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                bhxhSalary: coefficientsSalary * minimumWage,
+                                bhxhSalary: coefficientsSalary * minimumWage + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary),
                                 reduce: Number(reduce),
+                                insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
                                 coefficientsSalary: coefficientsSalary
                             }
                             array.push(obj);
                             stt += 1;
                         }
+                        console.log(array);
                         var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var result = {
                             objInsurance: objInsurance,
@@ -825,7 +835,8 @@ module.exports = {
                                     ID: staff[i].IDBoPhan
                                 }
                             }).then(data => {
-                                departmentName = data.DepartmentName
+                                if (data)
+                                    departmentName = data.DepartmentName
                             })
                             obj['departmentName'] = departmentName;
                             array.push(obj)

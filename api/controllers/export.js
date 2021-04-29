@@ -559,6 +559,21 @@ module.exports = {
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
         let body = req.body;
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
@@ -632,19 +647,19 @@ module.exports = {
                     for (var i = 0; i < data.length; i++) {
                         ws.cell(5 + i, 1).string(data[i].stt).style(stylecell)
                         ws.cell(5 + i, 2).string(data[i].staffName ? data[i].staffName : 0).style(stylecell)
-                        ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecell)
-                        ws.cell(5 + i, 4).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecell)
-                        ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecell)
-                        ws.cell(5 + i, 6).number(data[i].bhxhSalary).style(stylecell)
-                        ws.cell(5 + i, 7).number(data[i].bhxhSalary).style(stylecell)
-                        ws.cell(5 + i, 8).number(data[i].bhxhSalary).style(stylecell)
-                        ws.cell(5 + i, 9).number(data[i].bhxhSalary).style(stylecell)
-                        ws.cell(5 + i, 10).number(0).style(stylecell)
-                        ws.cell(5 + i, 11).number(data[i].personalTax ? data[i].personalTax : 0).style(stylecell)
-                        ws.cell(5 + i, 12).number(data[i].personalTaxSalary ? data[i].personalTaxSalary : 0).style(stylecell)
-                        ws.cell(5 + i, 13).number(data[i].tongKhoanTru ? data[i].tongKhoanTru : 0).style(stylecell)
+                        ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 4).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 6).number(data[i].bhxhSalary).style(stylecellNumber)
+                        ws.cell(5 + i, 7).number(data[i].bhxhSalary).style(stylecellNumber)
+                        ws.cell(5 + i, 8).number(data[i].bhxhSalary).style(stylecellNumber)
+                        ws.cell(5 + i, 9).number(data[i].bhxhSalary).style(stylecellNumber)
+                        ws.cell(5 + i, 10).number(0).style(stylecellNumber)
+                        ws.cell(5 + i, 11).number(data[i].personalTax ? data[i].personalTax : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 12).number(data[i].personalTaxSalary ? data[i].personalTaxSalary : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 13).number(data[i].tongKhoanTru ? data[i].tongKhoanTru : 0).style(stylecellNumber)
                         // ws.cell(5 + i, 14).number(data[i].tamUng ? data[i].tamUng : 0).style(stylecell)
-                        ws.cell(5 + i, 15).number(data[i].realField ? data[i].realField : 0).style(stylecell)
+                        ws.cell(5 + i, 15).number(data[i].realField ? data[i].realField : 0).style(stylecellNumber)
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     setTimeout(() => {
@@ -697,6 +712,21 @@ module.exports = {
                 wrapText: true,
                 // ngang
                 horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
                 // Dọc
                 vertical: 'center',
             },
@@ -775,18 +805,18 @@ module.exports = {
                     }
                     for (var i = 0; i < data.length; i++) {
                         let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
-                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
+                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecellNumber)
                         ws.cell(5 + i, 2).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
-                        ws.cell(5 + i, 3).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecell)
-                        ws.cell(5 + i, 4).number(wages).style(stylecell)
-                        ws.cell(5 + i, 5).number(wages * objInsurance.companyBHXH / 100).style(stylecell)
-                        ws.cell(5 + i, 6).number(wages * objInsurance.staffBHXH / 100).style(stylecell)
-                        ws.cell(5 + i, 7).number(wages * objInsurance.companyBHYT / 100).style(stylecell)
-                        ws.cell(5 + i, 8).number(wages * objInsurance.staffBHYT / 100).style(stylecell)
-                        ws.cell(5 + i, 9).number(wages * objInsurance.companyBHTN / 100).style(stylecell)
-                        ws.cell(5 + i, 10).number(wages * objInsurance.staffBHTN / 100).style(stylecell)
-                        ws.cell(5 + i, 11).number(wages * objInsurance.staffBHTNLD / 100).style(stylecell)
-                        ws.cell(5 + i, 12).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecell)
+                        ws.cell(5 + i, 3).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 4).number(wages).style(stylecellNumber)
+                        ws.cell(5 + i, 5).number(wages * objInsurance.companyBHXH / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 6).number(wages * objInsurance.staffBHXH / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 7).number(wages * objInsurance.companyBHYT / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 8).number(wages * objInsurance.staffBHYT / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 9).number(wages * objInsurance.companyBHTN / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 10).number(wages * objInsurance.staffBHTN / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 11).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 12).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
                     setTimeout(() => {
