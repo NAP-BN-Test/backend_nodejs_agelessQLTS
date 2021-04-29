@@ -115,36 +115,42 @@ async function getStaffContractExpirationData() {
         if (db) {
             let now = moment().format('YYYY-MM-DD');
             let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-            await mtblDMNhanvien(db).findAll({}).then(async staff => {
-                for (var i = 0; i < staff.length; i++) {
-                    let contract = await mtblHopDongNhanSu(db).findOne({
-                        where: {
-                            [Op.or]: [
-                                {
-                                    IDNhanVien: staff[i].ID,
-                                    Status: 'Có hiệu lực',
-                                    Time: { [Op.eq]: null },
-                                    NoticeTime: { [Op.substring]: now }
-                                },
-                                {
-                                    IDNhanVien: staff[i].ID,
-                                    Status: 'Có hiệu lực',
-                                    NoticeTime: { [Op.substring]: now },
-                                    Time: { [Op.lte]: nowTime },
-                                }
-                            ]
+            let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+            tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
+            await tblHopDongNhanSu.findAll({
+                where: {
+                    [Op.or]: [
+                        {
+                            Status: 'Có hiệu lực',
+                            Time: { [Op.eq]: null },
+                            NoticeTime: { [Op.substring]: now }
                         },
-                        order: [
-                            ['ID', 'ASC']
-                        ],
-                    })
-                    if (contract) {
+                        {
+                            Status: 'Có hiệu lực',
+                            NoticeTime: { [Op.substring]: now },
+                            Time: { [Op.lte]: nowTime },
+                        }
+                    ]
+                },
+                order: [
+                    ['ID', 'DESC']
+                ],
+                include: [
+                    {
+                        model: mtblDMNhanvien(db),
+                        required: false,
+                        as: 'staff'
+                    },
+                ],
+            }).then(contract => {
+                if (contract.length > 0) {
+                    for (var i = 0; i < contract.length; i++) {
                         array.push({
-                            contractID: contract.ID,
-                            staffName: staff[i].StaffName,
-                            staffCode: staff[i].StaffCode,
-                            contractDateEnd: contract.ContractDateEnd ? contract.ContractDateEnd : null,
-                            noticeTime: contract.NoticeTime ? contract.NoticeTime : null,
+                            contractID: contract[i].ID,
+                            staffName: contract[i].staff.StaffName,
+                            staffCode: contract[i].staff.StaffCode,
+                            contractDateEnd: contract[i].ContractDateEnd ? contract[i].ContractDateEnd : null,
+                            noticeTime: contract[i].NoticeTime ? contract[i].NoticeTime : null,
                         })
                     }
                 }
