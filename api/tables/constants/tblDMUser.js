@@ -14,6 +14,7 @@ module.exports = function (db) {
         IDPermission: Sequelize.BIGINT,
         IDSpecializedSoftware: Sequelize.INTEGER,
         NameSpecializedSoftware: Sequelize.STRING,
+        ListIP: Sequelize.STRING,
 
     });
 

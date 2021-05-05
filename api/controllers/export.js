@@ -644,22 +644,22 @@ module.exports = {
                         row += 1
                         ws.column(row).setWidth(20);
                     }
+                    console.log(data);
                     for (var i = 0; i < data.length; i++) {
                         ws.cell(5 + i, 1).string(data[i].stt).style(stylecell)
                         ws.cell(5 + i, 2).string(data[i].staffName ? data[i].staffName : 0).style(stylecell)
                         ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 4).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 6).number(data[i].bhxhSalary).style(stylecellNumber)
-                        ws.cell(5 + i, 7).number(data[i].bhxhSalary).style(stylecellNumber)
-                        ws.cell(5 + i, 8).number(data[i].bhxhSalary).style(stylecellNumber)
-                        ws.cell(5 + i, 9).number(data[i].bhxhSalary).style(stylecellNumber)
+                        ws.cell(5 + i, 6).number(data[i].staffBHXH).style(stylecellNumber)
+                        ws.cell(5 + i, 7).number(data[i].staffBHYT).style(stylecellNumber)
+                        ws.cell(5 + i, 8).number(data[i].staffBHTN).style(stylecellNumber)
+                        ws.cell(5 + i, 9).number(data[i].union).style(stylecellNumber)
                         ws.cell(5 + i, 10).number(0).style(stylecellNumber)
                         ws.cell(5 + i, 11).number(data[i].personalTax ? data[i].personalTax : 0).style(stylecellNumber)
                         ws.cell(5 + i, 12).number(data[i].personalTaxSalary ? data[i].personalTaxSalary : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 13).number(data[i].tongKhoanTru ? data[i].tongKhoanTru : 0).style(stylecellNumber)
-                        // ws.cell(5 + i, 14).number(data[i].tamUng ? data[i].tamUng : 0).style(stylecell)
-                        ws.cell(5 + i, 15).number(data[i].realField ? data[i].realField : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 13).number(data[i].totalReduce ? data[i].totalReduce : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 14).number(data[i].realField ? data[i].realField : 0).style(stylecellNumber)
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     setTimeout(() => {

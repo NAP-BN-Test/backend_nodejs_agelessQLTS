@@ -204,6 +204,7 @@ module.exports = {
     // get_list_tbl_bangluong
     getListtblBangLuong: (req, res) => {
         let body = req.body;
+        console.log(12);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -284,7 +285,7 @@ module.exports = {
                                 staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
                                 departmentName: data[i].IDNhanVien ? data[i].nv.department ? data[i].nv.department.DepartmentName : '' : '',
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                bhxhSalary: minimumWage * coefficientsSalary + (insuranceSalaryIncrease.Increase ? insuranceSalaryIncrease.Increase : 0),
+                                bhxhSalary: minimumWage * coefficientsSalary,
                                 staffBHXH: minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100,
                                 staffBHYT: minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100,
                                 staffBHTN: minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100,
@@ -297,8 +298,10 @@ module.exports = {
                                 productivityWages: data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0,
                             }
                             totalRealField += minimumWage * coefficientsSalary - totalReduce;
-                            array.push(obj);
-                            stt += 1;
+                            if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Hưởng lương') {
+                                array.push(obj);
+                                stt += 1;
+                            }
                         }
                         var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var result = {
@@ -324,7 +327,6 @@ module.exports = {
     // track_insurance_premiums
     trackInsurancePremiums: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -353,7 +355,7 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { Date: { [Op.substring]: body.date } },
+                        where: { Date: { [Op.substring]: body.date.slice(0, 4) } },
                     }).then(async data => {
                         var array = [];
                         var objInsurance = {};
@@ -410,10 +412,12 @@ module.exports = {
                                 insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
                                 coefficientsSalary: coefficientsSalary
                             }
-                            array.push(obj);
-                            stt += 1;
+                            if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
+                                array.push(obj);
+                                stt += 1;
+                            }
+
                         }
-                        console.log(array);
                         var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var result = {
                             objInsurance: objInsurance,
@@ -974,19 +978,6 @@ module.exports = {
                                 }
                             }
                         }
-                        // push sáng
-                        objMorning['Ngày làm việc'] = workingDay;
-                        objMorning['Ngày nghỉ'] = holiday + freeBreak + takeLeave;
-
-                        objMorning['Ngày nghỉ phép'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                        objMorning['Ngày nghỉ tự do'] = freeBreak;
-
-                        // push chiều
-                        objAfternoon['Ngày làm việc'] = workingDay;
-                        objAfternoon['Ngày nghỉ'] = holiday + freeBreak + takeLeave;
-
-                        objAfternoon['Ngày nghỉ phép'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                        objAfternoon['Ngày nghỉ tự do'] = freeBreak;
                         array.push(objMorning)
                         array.push(objAfternoon)
                     }

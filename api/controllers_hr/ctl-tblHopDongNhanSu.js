@@ -401,6 +401,7 @@ module.exports = {
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
                         var list = [];
+                        var listStaff = [];
                         await mtblLoaiHopDong(db).findAll({
                             order: [
                                 ['ID', 'DESC']
@@ -416,11 +417,27 @@ module.exports = {
                                 list.push(item.ID);
                             })
                         })
+                        await mtblDMNhanvien(db).findAll({
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                            where: {
+                                [Op.or]: [
+                                    { StaffCode: { [Op.like]: '%' + data.search + '%' } },
+                                    { StaffName: { [Op.like]: '%' + data.search + '%' } }
+                                ]
+                            }
+                        }).then(data => {
+                            data.forEach(item => {
+                                listStaff.push(item.ID);
+                            })
+                        })
                         if (data.search) {
                             where = [
                                 { ContractCode: { [Op.like]: '%' + data.search + '%' } },
                                 { Status: { [Op.like]: '%' + data.search + '%' } },
                                 { IDLoaiHopDong: { [Op.in]: list } },
+                                { IDNhanVien: { [Op.in]: listStaff } },
                             ];
                         } else {
                             where = [
@@ -681,6 +698,7 @@ module.exports = {
     // in_word_contract
     inWordContract: (req, res) => {
         let body = req.body;
+        console.log(123);
         // ngày 20 tháng 10 năm 2020
         database.connectDatabase().then(async db => {
             if (db) {
@@ -719,6 +737,18 @@ module.exports = {
                         ],
                     }).then(async data => {
                         if (data) {
+                            let tblDMNhanvien = mtblDMNhanvien(db);
+                            tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'position' })
+                            let staff = await tblDMNhanvien.findOne({
+                                where: { ID: data.IDNhanVien },
+                                include: [
+                                    {
+                                        model: mtblDMChucVu(db),
+                                        required: false,
+                                        as: 'position'
+                                    },
+                                ],
+                            })
                             contactNumber = data.ContractCode
                             obj = {
                                 'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
@@ -733,6 +763,8 @@ module.exports = {
                                 'LOẠI HỢP ĐỒNG': data.lhd ? data.lhd.TenLoaiHD ? data.lhd.TenLoaiHD : '' : '',
                                 'TỪ NGÀY': data.ContractDateStart ? moment(data.ContractDateStart).format('DD/MM/YYYY') : '',
                                 'ĐẾN NGÀY': data.ContractDateEnd ? moment(data.ContractDateEnd).format('DD/MM/YYYY') : '',
+                                'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
+                                'CHỨC VỤ': staff.position ? staff.position.PositionName ? staff.position.PositionName : '' : '',
                             }
                         }
                     })

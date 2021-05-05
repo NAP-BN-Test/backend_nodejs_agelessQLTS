@@ -464,7 +464,6 @@ module.exports = {
                         if (arraySearchNot.length > 0)
                             whereObj[Op.not] = arraySearchNot
                     }
-                    console.log(whereObj);
                     let stt = 1;
                     let tblNghiPhep = mtblNghiPhep(db);
                     let tblDMNhanvien = mtblDMNhanvien(db);

@@ -484,4 +484,117 @@ module.exports = {
             res.json(error)
         })
     },
+    // saveIPClientLogin: (req, res) => {
+    //     let body = req.body;
+    //     database.connectDatabase().then(async db => {
+    //         try {
+    //             let listIP = await mtblDMUser(db).findOne({ where: { ID: body.userID } })
+    //             let stringListIP = listIP ? listIP + body.ip : body.ip
+    //             await mtblDMUser(db).update({
+    //                 ListIP: stringListIP
+    //             }, {
+    //                 where: { ID: body.userID }
+    //             })
+    //             var result = {
+    //                 status: Constant.STATUS.SUCCESS,
+    //                 message: Constant.MESSAGE.ACTION_SUCCESS,
+    //             }
+    //             res.json(result);
+    //         } catch (error) {
+    //             console.log(error);
+    //             res.json(Result.SYS_ERROR_RESULT)
+    //         }
+    //     })
+    // },
+    // loginWithIP: (req, res) => {
+    //     let body = req.body;
+    //     database.connectDatabase().then(async db => {
+    //         try {
+    //             let tblDMUser = mtblDMUser(db);
+    //             let tblDMNhanvien = mtblDMNhanvien(db);
+    //             let tblDMBoPhan = mtblDMBoPhan(db);
+    //             tblDMUser.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien', as: 'nv' })
+    //             tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission', as: 'pms' })
+    //             tblDMNhanvien.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+    //             tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
+
+    //             var data = await tblDMUser.findOne({
+    //                 where: { ListIP: body.userName, Password: body.password },
+    //                 include: [
+    //                     {
+    //                         model: tblDMNhanvien,
+    //                         required: false,
+    //                         as: 'nv',
+    //                         include: [
+    //                             {
+    //                                 model: tblDMBoPhan,
+    //                                 required: false,
+    //                                 as: 'bp',
+    //                                 include: [
+    //                                     {
+    //                                         model: mtblDMChiNhanh(db),
+    //                                         required: false,
+    //                                         as: 'chinhanh'
+    //                                     },
+    //                                 ],
+    //                             }
+    //                         ],
+    //                     },
+    //                     {
+    //                         model: mtblDMPermission(db),
+    //                         required: false,
+    //                         as: 'pms',
+    //                     }
+    //                 ],
+    //             })
+    //             if (data) {
+    //                 if (!data.Active) {
+    //                     return res.json(Result.LOGIN_FAIL)
+    //                 }
+    //                 var obj = {
+    //                     id: data.ID,
+    //                     userName: data.Username,
+    //                     password: data.Password,
+    //                     idNhanVien: data.IDNhanvien,
+    //                     idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : null,
+    //                     specializedSoftwareName: data.NameSpecializedSoftware ? data.NameSpecializedSoftware : '',
+    //                     staffName: data.nv ? data.nv.StaffName : '',
+    //                     staffCode: data.nv ? data.nv.StaffCode : '',
+    //                     departmentCode: data.nv ? data.nv.bp ? data.nv.bp.DepartmentCode : '' : '',
+    //                     permissionName: data.pms ? data.pms.PermissionName : '',
+    //                     departmentName: data.nv ? data.nv.bp ? data.nv.bp.DepartmentName : '' : '',
+    //                     departmentID: data.nv ? data.nv.bp ? data.nv.bp.ID : null : null,
+    //                     branchCode: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.BranchCode : '' : '' : '',
+    //                     branchName: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.BranchName : '' : '' : '',
+    //                     branchID: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.ID : null : null : null,
+    //                 }
+    //                 payload = {
+    //                     "Username": req.body.userName,
+    //                     // standard fields
+    //                     // - Xác thực người tạo
+    //                     "iss": "Tungnn",
+    //                 }
+    //                 let token = jwt.sign(payload,
+    //                     'abcdxys',
+    //                     {}
+    //                 );
+    //                 var result = {
+    //                     status: Constant.STATUS.SUCCESS,
+    //                     message: '',
+    //                     obj: obj,
+    //                     token: token
+    //                 }
+    //                 res.json(result);
+    //             } else {
+    //                 res.json(Result.LOGIN_FAIL)
+
+    //             }
+    //         } catch (error) {
+    //             console.log(error);
+    //             res.json(Result.SYS_ERROR_RESULT)
+    //         }
+    //     }, error => {
+    //         res.json(error)
+    //     })
+    // },
 }
