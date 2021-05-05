@@ -448,11 +448,24 @@ module.exports = {
                             [Op.and]: [{ [Op.or]: where }],
                             [Op.or]: [{ ID: { [Op.ne]: null } }],
                         };
+                        console.log(data.items);
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'SỐ HỢP ĐỒNG') {
                                     userFind['ContractCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
+                                    userFind['IDNhanVien'] = data.items[i]['searchFields']
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -586,6 +599,7 @@ module.exports = {
     // get_list_tbl_hopdong_nhansu_detail
     getListtblHopDongNhanSuDetail: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

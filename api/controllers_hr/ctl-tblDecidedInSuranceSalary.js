@@ -170,43 +170,81 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
-                    // if (body.dataSearch) {
-                    //     var data = JSON.parse(body.dataSearch)
-
-                    //     if (data.search) {
-                    //         where = [
-                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
-                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
-                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
-                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                    //         ];
-                    //     } else {
-                    //         where = [
-                    //             { FullName: { [Op.ne]: '%%' } },
-                    //         ];
-                    //     }
-                    //     whereOjb = {
-                    //         [Op.and]: [{ [Op.or]: where }],
-                    //         [Op.or]: [{ ID: { [Op.ne]: null } }],
-                    //     };
-                    //     if (data.items) {
-                    //         for (var i = 0; i < data.items.length; i++) {
-                    //             let userFind = {};
-                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                    //                 if (data.items[i].conditionFields['name'] == 'And') {
-                    //                     whereOjb[Op.and].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
-                    //                     whereOjb[Op.or].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
-                    //                     whereOjb[Op.not] = userFind
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
+                        var listStaff = [];
+                        await mtblDMNhanvien(db).findAll({
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                            where: {
+                                [Op.or]: [
+                                    { StaffCode: { [Op.like]: '%' + data.search + '%' } },
+                                    { StaffName: { [Op.like]: '%' + data.search + '%' } }
+                                ]
+                            }
+                        }).then(data => {
+                            data.forEach(item => {
+                                listStaff.push(item.ID);
+                            })
+                        })
+                        if (data.search) {
+                            where = [
+                                { Name: { [Op.like]: '%' + data.search + '%' } },
+                                { IDStaff: { [Op.in]: listStaff } },
+                            ];
+                        } else {
+                            where = [
+                                { Name: { [Op.ne]: '%%' } },
+                            ];
+                        }
+                        whereOjb = {
+                            [Op.and]: [{ [Op.or]: where }],
+                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                        };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'TÊN') {
+                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TỪ NGÀY') {
+                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
+                                    userFind['StartDate'] = { [Op.substring]: date }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
+                                    userFind['IDStaff'] = data.items[i]['searchFields']
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
+                    }
                     let stt = 1;
                     let tblDecidedInsuranceSalary = mtblDecidedInsuranceSalary(db);
                     tblDecidedInsuranceSalary.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })

@@ -395,6 +395,7 @@ module.exports = {
     },
     login: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             try {
                 let tblDMUser = mtblDMUser(db);
