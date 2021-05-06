@@ -12,7 +12,7 @@ var mModules = require('../constants/modules');
 // var io = require("socket.io")(server, {
 //     cors: {
 //         wsEngine: 'eiows',
-//         origin: ["http://103.154.100.26:8692", "http://localhost:4200"],
+//         origin: ["http://dbdev.namanphu.vn:8692", "http://localhost:4200"],
 //         methods: ["GET", "POST"],
 //         credentials: true,
 //     }

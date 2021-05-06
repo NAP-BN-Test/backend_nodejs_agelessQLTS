@@ -52,24 +52,24 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dmuser').post(checkToken.checkToken, tblDMUser.updatetblDMUser);
     app.route('/qlnb/delete_tbl_dmuser').post(checkToken.checkToken, tblDMUser.deletetblDMUser);
     app.route('/qlnb/get_list_tbl_dmuser').post(checkToken.checkToken, tblDMUser.getListtblDMUser);
-    app.route('/qlnb/get_list_name_tbl_dmuser').post(checkToken.checkToken, tblDMUser.getListNametblDMUser);
+    app.route('/qlnb/get_list_name_tbl_dmuser').post(tblDMUser.getListNametblDMUser);
 
-    app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListNametblDMNhanvien);
+    app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(tblDMNhanvien.getListNametblDMNhanvien);
 
-    app.route('/qlnb/get_list_name_tbl_dmpermission').post(checkToken.checkToken, tblDMPermission.getListNametblDMPermission);
+    app.route('/qlnb/get_list_name_tbl_dmpermission').post(tblDMPermission.getListNametblDMPermission);
     // Quản lý bộ phận
     app.route('/qlnb/add_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.addtblDMBoPhan);
     app.route('/qlnb/update_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.updatetblDMBoPhan);
     app.route('/qlnb/get_list_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.getListtblDMBoPhan);
-    app.route('/qlnb/get_list_name_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.getListNametblDMBoPhan);
+    app.route('/qlnb/get_list_name_tbl_dm_bophan').post(tblDMBoPhan.getListNametblDMBoPhan);
     app.route('/qlnb/delete_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.deletetblDMBoPhan);
 
-    app.route('/qlnb/get_list_name_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListNametblDMChiNhanh);
+    app.route('/qlnb/get_list_name_tbl_dm_chinhanh').post(tblDMChiNhanh.getListNametblDMChiNhanh);
     // Quản lý chi nhánh
     app.route('/qlnb/add_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.addtblDMChiNhanh);
     app.route('/qlnb/update_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.updatetblDMChiNhanh);
-    app.route('/qlnb/get_list_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListtblDMChiNhanh);
-    app.route('/qlnb/get_list_name_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.getListNametblDMChiNhanh);
+    app.route('/qlnb/get_list_tbl_dm_chinhanh').post(tblDMChiNhanh.getListtblDMChiNhanh);
+    app.route('/qlnb/get_list_name_tbl_dm_chinhanh').post(tblDMChiNhanh.getListNametblDMChiNhanh);
     app.route('/qlnb/delete_tbl_dm_chinhanh').post(checkToken.checkToken, tblDMChiNhanh.deletetblDMChiNhanh);
 
     //  Quản lý nhân viên
@@ -83,7 +83,7 @@ module.exports = function (app) {
     app.route('/qlnb/notify_users').post(tblDMNhanvien.notifyUsers);
 
     app.route('/qlnb/update_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.updatetblDMNhanvien);
-    app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(checkToken.checkToken, tblDMNhanvien.getListNametblDMNhanvien);
+    app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(tblDMNhanvien.getListNametblDMNhanvien);
     app.route('/qlnb/get_employee_from_department').post(checkToken.checkToken, tblDMNhanvien.getEmployeeFromDepartment);
     app.route('/qlnb/get_number_leave_day').post(checkToken.checkToken, tblDMNhanvien.getNumberLeaveDay);
 
@@ -97,14 +97,14 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dmloaitaisan').post(checkToken.checkToken, tblDMLoaiTaiSan.updatetblDMLoaiTaiSan);
     app.route('/qlnb/get_list_tbl_dmloaitaisan').post(checkToken.checkToken, tblDMLoaiTaiSan.getListtblDMLoaiTaiSan);
     app.route('/qlnb/delete_tbl_dmloaitaisan').post(checkToken.checkToken, tblDMLoaiTaiSan.deletetblDMLoaiTaiSan);
-    app.route('/qlnb/get_list_name_tbl_dmloaitaisan').post(checkToken.checkToken, tblDMLoaiTaiSan.getListNametblDMLoaiTaiSan);
+    app.route('/qlnb/get_list_name_tbl_dmloaitaisan').post(tblDMLoaiTaiSan.getListNametblDMLoaiTaiSan);
 
     // Danh mục tài sản
     app.route('/qlnb/add_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.addtblDMHangHoa);
     app.route('/qlnb/update_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.updatetblDMHangHoa);
     app.route('/qlnb/delete_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.deletetblDMHangHoa);
     app.route('/qlnb/get_list_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListtblDMHangHoa);
-    app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListNametblDMHangHoa);
+    app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(tblDMHanghoa.getListNametblDMHangHoa);
     app.route('/qlnb/get_list_all_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListAlltblDMHangHoa);
 
     //  Danh mục nhà cung cấp
@@ -112,14 +112,14 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.updatetblDMNhaCungCap);
     app.route('/qlnb/delete_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.deletetblDMNhaCungCap);
     app.route('/qlnb/get_list_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.getListtblDMNhaCungCap);
-    app.route('/qlnb/get_list_name_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.getListNametblDMNhaCungCap);
+    app.route('/qlnb/get_list_name_tbl_dmnhacungcap').post(tblDMNhaCungCap.getListNametblDMNhaCungCap);
 
     //  Danh mục văn phòng phẩm
     app.route('/qlnb/add_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.addtblVanPhongPham);
     app.route('/qlnb/update_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.updatetblVanPhongPham);
     app.route('/qlnb/delete_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.deletetblVanPhongPham);
     app.route('/qlnb/get_list_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.getListtblVanPhongPham);
-    app.route('/qlnb/get_list_name_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.getListNametblVanPhongPham);
+    app.route('/qlnb/get_list_name_tbl_vanphongpham').post(tblVanPhongPham.getListNametblVanPhongPham);
 
 
     //---------------------------------------------------------------- Menu yêu cầu mua sắm --------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ module.exports = function (app) {
     // app.route('/qlnb/get_list_name_tbl_yeucaumuasam').post(checkToken.checkToken ,tblYeuCauMuaSam.getListNametblYeuCauMuaSam);
 
     // lấy name hang hoa
-    app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(checkToken.checkToken, tblDMHanghoa.getListNametblDMHangHoa);
+    app.route('/qlnb/get_list_name_tbl_dmhanghoa').post(tblDMHanghoa.getListNametblDMHangHoa);
     app.route('/qlnb/get_list_asset_from_goods').post(checkToken.checkToken, tblDMHanghoa.getListAssetFromGoods);
     app.route('/qlnb/get_list_asset_from_goods_additional').post(checkToken.checkToken, tblDMHanghoa.getListAssetFromGoodsAdditional);
 
@@ -193,7 +193,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_them_vpp').post(checkToken.checkToken, tblThemVPP.updateTBLThemVPP);
     app.route('/qlnb/delete_tbl_them_vpp').post(checkToken.checkToken, tblThemVPP.deleteRelationshipTBLThemVPP);
     app.route('/qlnb/get_list_tbl_them_vpp').post(tblThemVPP.getListTBLThemVPP);
-    app.route('/qlnb/get_list_name_tbl_them_vpp').post(checkToken.checkToken, tblThemVPP.getListNameTBLThemVPP);
+    app.route('/qlnb/get_list_name_tbl_them_vpp').post(tblThemVPP.getListNameTBLThemVPP);
     app.route('/qlnb/get_detail_tbl_them_vpp').post(tblThemVPP.getDetailTBLThemVPP);
 
 
@@ -211,7 +211,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.getListtblDeNghiThanhToan);
     app.route('/qlnb/detail_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.detailtblDeNghiThanhToan);
 
-    app.route('/qlnb/get_list_name_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.getListNametblDeNghiThanhToan);
+    app.route('/qlnb/get_list_name_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.getListNametblDeNghiThanhToan);
 
 
     app.route('/qlnb/approval_employee_accountant').post(checkToken.checkToken, tblDeNghiThanhToan.approvalNhanVienKTPD);
@@ -243,24 +243,24 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.updatetblLoaiHopDong);
     app.route('/qlnb/delete_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.deletetblLoaiHopDong);
     app.route('/qlnb/get_list_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.getListtblLoaiHopDong);
-    app.route('/qlnb/get_list_name_tbl_loaihopdong').post(checkToken.checkToken, tblDMLoaiHopDong.getListNametblLoaiHopDong);
+    app.route('/qlnb/get_list_name_tbl_loaihopdong').post(tblDMLoaiHopDong.getListNametblLoaiHopDong);
 
     // Danh mục loại chấm công
     app.route('/qlnb/add_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.addtblLoaiChamCong);
     app.route('/qlnb/update_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.updatetblLoaiChamCong);
     app.route('/qlnb/delete_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.deletetblLoaiChamCong);
     app.route('/qlnb/get_list_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListtblLoaiChamCong);
-    app.route('/qlnb/get_list_name_tbl_loaichamcong').post(checkToken.checkToken, tblLoaiChamCong.getListNametblLoaiChamCong);
+    app.route('/qlnb/get_list_name_tbl_loaichamcong').post(tblLoaiChamCong.getListNametblLoaiChamCong);
 
 
-    app.route('/qlnb/get_list_name_tbl_dmchucvu').post(checkToken.checkToken, tblDMChucVu.getListNametblDMChucVu);
+    app.route('/qlnb/get_list_name_tbl_dmchucvu').post(tblDMChucVu.getListNametblDMChucVu);
 
     // Danh mục nghỉ lễ
     app.route('/qlnb/add_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.addtblNghiLe);
     app.route('/qlnb/update_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.updatetblNghiLe);
     app.route('/qlnb/delete_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.deletetblNghiLe);
     app.route('/qlnb/get_list_tbl_nghiLe').post(tblNghiLe.getListtblNghiLe);
-    app.route('/qlnb/get_list_name_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.getListNametblNghiLe);
+    app.route('/qlnb/get_list_name_tbl_nghiLe').post(tblNghiLe.getListNametblNghiLe);
 
     // Danh mục nghỉ lễ
     app.route('/qlnb/add_tbl_nghiphep').post(checkToken.checkToken, tblNghiPhep.addtblNghiPhep);
@@ -281,7 +281,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.updatetblDMTinhTrangNV);
     app.route('/qlnb/delete_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.deletetblDMTinhTrangNV);
     app.route('/qlnb/get_list_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.getListtblDMTinhTrangNV);
-    app.route('/qlnb/get_list_name_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.getListNametblDMTinhTrangNV);
+    app.route('/qlnb/get_list_name_tbl_dm_tinhtrangnv').post(tblDMTinhTrangNV.getListNametblDMTinhTrangNV);
 
     //  Danh mục cấu hình mức lương tối thiểu
     var tblMinWageConfig = require('./controllers_hr/ctl-tblMinWageConfig');
@@ -305,7 +305,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.updatetblDMGiaDinh);
     app.route('/qlnb/delete_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.deletetblDMGiaDinh);
     app.route('/qlnb/get_list_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.getListtblDMGiaDinh);
-    app.route('/qlnb/get_list_name_tbl_dmgiadinh').post(checkToken.checkToken, tblDMGiaDinh.getListNametblDMGiaDinh);
+    app.route('/qlnb/get_list_name_tbl_dmgiadinh').post(tblDMGiaDinh.getListNametblDMGiaDinh);
 
     // Tabs quản lý đào tạo sau khi đến công ty
     var tblDaoTaoSau = require('./controllers_hr/ctl-tblDaoTaoSau');
@@ -399,7 +399,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.updatetblLoaiHopDong);
     app.route('/qlnb/delete_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.deletetblLoaiHopDong);
     app.route('/qlnb/get_list_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListtblLoaiHopDong);
-    app.route('/qlnb/get_list_name_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.getListNametblLoaiHopDong);
+    app.route('/qlnb/get_list_name_tbl_loaihopdong').post(tblTypeContract.getListNametblLoaiHopDong);
 
     // Quản lý ngày làm việc
     var tblConfigWorkday = require('./controllers_hr/ctl-tblConfigWorkday')
@@ -435,7 +435,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_loan_advance_from_staff').post(tblVayTamUng.getListLoanAdvanceFromStaff);
     app.route('/qlnb/get_list_reimbursement_from_staff').post(checkToken.checkToken, tblVayTamUng.getListReimbursementFromStaff);
     app.route('/qlnb/get_list_reimbursement').post(checkToken.checkToken, tblVayTamUng.getListReimbursement);
-    app.route('/qlnb/get_list_name_tbl_vaytamung').post(checkToken.checkToken, tblVayTamUng.getListNametblVayTamUng);
+    app.route('/qlnb/get_list_name_tbl_vaytamung').post(tblVayTamUng.getListNametblVayTamUng);
     app.route('/qlnb/approval_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienKTPD);
     // Điều khoản thanh toán
     var tblDMDieuKhoanThanhToan = require('./controller_finance/ctl-tblDMDieuKhoanThanhToan')
@@ -443,7 +443,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dm_dieukhoan_thanhtoan').post(checkToken.checkToken, tblDMDieuKhoanThanhToan.updatetblDMDieuKhoanThanhToan);
     app.route('/qlnb/delete_tbl_dm_dieukhoan_thanhtoan').post(checkToken.checkToken, tblDMDieuKhoanThanhToan.deletetblDMDieuKhoanThanhToan);
     app.route('/qlnb/get_list_tbl_dm_dieukhoan_thanhtoan').post(checkToken.checkToken, tblDMDieuKhoanThanhToan.getListtblDMDieuKhoanThanhToan);
-    app.route('/qlnb/get_list_name_tbl_dm_dieukhoan_thanhtoan').post(checkToken.checkToken, tblDMDieuKhoanThanhToan.getListNametblDMDieuKhoanThanhToan);
+    app.route('/qlnb/get_list_name_tbl_dm_dieukhoan_thanhtoan').post(tblDMDieuKhoanThanhToan.getListNametblDMDieuKhoanThanhToan);
 
     // Quản lý tài khoản ngân hàng
     var tblBankAccountManagement = require('./controller_finance/ctl-tblBankAccountManagement')
@@ -451,7 +451,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_bank_account_management').post(checkToken.checkToken, tblBankAccountManagement.updatetblBankAccountManagement);
     app.route('/qlnb/delete_tbl_bank_account_management').post(checkToken.checkToken, tblBankAccountManagement.deletetblBankAccountManagement);
     app.route('/qlnb/get_list_tbl_bank_account_management').post(checkToken.checkToken, tblBankAccountManagement.getListtblBankAccountManagement);
-    app.route('/qlnb/get_list_name_tbl_bank_account_management').post(checkToken.checkToken, tblBankAccountManagement.getListNametblBankAccountManagement);
+    app.route('/qlnb/get_list_name_tbl_bank_account_management').post(tblBankAccountManagement.getListNametblBankAccountManagement);
 
     // Quản lý hệ thống tài khoản kế toán / Loại tài khoản
     var tblDMLoaiTaiKhoanKeToan = require('./controller_finance/ctl-tblDMLoaiTaiKhoanKeToan')
@@ -459,7 +459,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dm_loaitaikhoan_ketoan').post(checkToken.checkToken, tblDMLoaiTaiKhoanKeToan.updatetblDMLoaiTaiKhoanKeToan);
     app.route('/qlnb/delete_tbl_dm_loaitaikhoan_ketoan').post(checkToken.checkToken, tblDMLoaiTaiKhoanKeToan.deletetblDMLoaiTaiKhoanKeToan);
     app.route('/qlnb/get_list_tbl_dm_loaitaikhoan_ketoan').post(checkToken.checkToken, tblDMLoaiTaiKhoanKeToan.getListtblDMLoaiTaiKhoanKeToan);
-    app.route('/qlnb/get_list_name_tbl_dm_loaitaikhoan_ketoan').post(checkToken.checkToken, tblDMLoaiTaiKhoanKeToan.getListNametblDMLoaiTaiKhoanKeToan);
+    app.route('/qlnb/get_list_name_tbl_dm_loaitaikhoan_ketoan').post(tblDMLoaiTaiKhoanKeToan.getListNametblDMLoaiTaiKhoanKeToan);
 
     // Quản lý hệ thống tài khoản kế toán / Hệ thống tài khoản
     var tblDMTaiKhoanKeToan = require('./controller_finance/ctl-dmTaiKhoanKeToan')
@@ -467,7 +467,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.updatetblDMTaiKhoanKeToan);
     app.route('/qlnb/delete_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.deletetblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_tbl_dm_taikhoanketoan').post(tblDMTaiKhoanKeToan.getListtblDMTaiKhoanKeToan);
-    app.route('/qlnb/get_list_name_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListNametblDMTaiKhoanKeToan);
+    app.route('/qlnb/get_list_name_tbl_dm_taikhoanketoan').post(tblDMTaiKhoanKeToan.getListNametblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_loan_advance_accounting').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListAdvanceLoanAccouting);
     app.route('/qlnb/get_list_reimbursement_accounting').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getListReimbursementAccouting);
 
@@ -477,7 +477,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_currency').post(checkToken.checkToken, tblCurrency.updatetblCurrency);
     app.route('/qlnb/get_list_tbl_currency').post(tblCurrency.getListtblCurrency);
     app.route('/qlnb/delete_tbl_currency').post(checkToken.checkToken, tblCurrency.deletetblCurrency);
-    app.route('/qlnb/get_list_name_tbl_currency').post(checkToken.checkToken, tblCurrency.getListNametblCurrency);
+    app.route('/qlnb/get_list_name_tbl_currency').post(tblCurrency.getListNametblCurrency);
 
     var tblRate = require('./controller_finance/ctl-tblRate')
     app.route('/qlnb/add_tbl_rate').post(tblRate.addtblRate);

@@ -263,7 +263,7 @@ module.exports = {
                         }
                         await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                         await mtblFileAttach(db).create({
-                            Link: 'http://103.154.100.26:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
+                            Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
                             Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
                             IDContract: data.ID
                         })
@@ -295,7 +295,7 @@ module.exports = {
                             }, { where: { IDNhanVien: body.idNhanVien } })
                         }
                         var result = {
-                            link: 'http://103.154.100.26:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
                             contractID: data.ID,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -354,7 +354,7 @@ module.exports = {
                     database.updateTable(update, mtblHopDongNhanSu(db), body.id).then(async response => {
                         if (response == 1) {
                             let link = await inWordContact(db, body.id)
-                            Result.ACTION_SUCCESS['link'] = 'http://103.154.100.26:1357/ageless_sendmail/' + link
+                            Result.ACTION_SUCCESS['link'] = 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + link
                             res.json(Result.ACTION_SUCCESS);
                         } else {
                             res.json(Result.SYS_ERROR_RESULT);
@@ -784,7 +784,7 @@ module.exports = {
                     })
                     await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx')
                     var result = {
-                        link: 'http://103.154.100.26:1357/ageless_sendmail/' + (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx',
+                        link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }

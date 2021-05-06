@@ -213,7 +213,7 @@ module.exports = {
                 // Here in done you have pdf file which you can save or transfer in another stream
                 fs.writeFileSync(pathEx, done);
                 var result = {
-                    link: 'http://103.154.100.26:1357/ageless_sendmail/export_pdf_file.pdf',
+                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_pdf_file.pdf',
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                 }
@@ -374,7 +374,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -510,7 +510,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payment_request.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_payment_request.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -664,7 +664,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_payroll.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_payroll.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -821,7 +821,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1025,7 +1025,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_ycms.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://103.154.100.26:1357/ageless_sendmail/export_excel_ycms.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_ycms.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1051,11 +1051,11 @@ module.exports = {
                 var numberRandom = Math.floor(Math.random() * 1000000);
                 nameMiddle = numberRandom.toString();
                 var dir = 'photo-' + nameMiddle + '.jpg';
-                require("fs").writeFile('C:/images_services/ageless_sendmail/' + dir, buf, function (err) {
+                require("fs").writeFile('C:/images_services/struck_web/' + dir, buf, function (err) {
                     if (err) console.log(err + '');
                 });
                 var result = {
-                    link: 'http://103.154.100.26:1357/ageless_sendmail/' + dir,
+                    link: 'http://dbdev.namanphu.vn:1357/struck_web/' + dir,
                     name: body.data.name,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
