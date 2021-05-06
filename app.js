@@ -307,6 +307,9 @@ async function getPathFromtblTmplate(db, code, idycms) {
             },
         ],
     }).then(data => {
+
+
+
         //  data.tem[0].Link.slice(44, 100)
         pathFirst = data.tem[0].Link.slice(44, 100);
         if (!data.tem[0].ID) {
