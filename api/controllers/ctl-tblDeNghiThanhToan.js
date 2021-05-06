@@ -373,6 +373,7 @@ module.exports = {
                                 { Contents: { [Op.ne]: '%%' } },
                             ];
                         }
+                        whereObj[Op.and] = where
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};

@@ -201,7 +201,7 @@ module.exports = {
         let body = req.body;
         try {
             // var pathlink = 'C:/images_services/ageless_sendmail/002.docx'
-            var pathlink = 'C:/images_services/ageless_sendmail/' + body.link.slice(44, 100);
+            var pathlink = 'C:/images_services/ageless_sendmail/' + body.link.slice(47, 100);
             const extend = '.pdf'
             var pathEx = 'C:/images_services/ageless_sendmail/export_pdf_file.pdf'
             const file = fs.readFileSync(pathlink);

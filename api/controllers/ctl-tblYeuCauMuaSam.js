@@ -489,19 +489,24 @@ module.exports = {
                                     listYCMS.push(item.IDYeuCauMuaSam);
                                 })
                             })
+                            if (data.search) {
+                                where = [
+                                    { Status: { [Op.like]: '%' + data.search + '%' } },
+                                    { RequestCode: { [Op.like]: '%' + data.search + '%' } },
+                                    { IDNhanVien: { [Op.in]: listStaff } },
+                                    { IDPhongBan: { [Op.in]: listDepartment } },
+                                    { ID: { [Op.in]: listYCMS } },
+                                ];
+                            } else {
+                                where = [
+                                    { RequestCode: { [Op.ne]: '%%' } },
 
-                            whereSecond.push(
-                                { Status: { [Op.like]: '%' + data.search + '%' } }
-                            )
-                            whereSecond.push(
-                                { IDNhanVien: { [Op.in]: listStaff } },
-                            )
-                            whereSecond.push(
-                                { IDPhongBan: { [Op.in]: listDepartment } },
-                            )
-                            whereSecond.push(
-                                { ID: { [Op.in]: listYCMS } }
-                            )
+                                ];
+                            }
+                            whereOjb = {
+                                [Op.and]: [{ [Op.or]: where }],
+                                [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            };
                         } else {
                             whereSecond.push({
                                 Status: { [Op.like]: '%%' },

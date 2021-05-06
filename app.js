@@ -307,11 +307,8 @@ async function getPathFromtblTmplate(db, code, idycms) {
             },
         ],
     }).then(data => {
-
-
-
         //  data.tem[0].Link.slice(44, 100)
-        pathFirst = data.tem[0].Link.slice(44, 100);
+        pathFirst = data.tem[0].Link.slice(47, 100);
         if (!data.tem[0].ID) {
             return res.json('Không tìm thấy code. Vui lòng cấu hình lại mẫu !')
         }
@@ -334,23 +331,33 @@ app.post('/qlnb/render_automatic_work', async function (req, res) {
         }
     })
     var pathTo = 'C:/images_services/ageless_sendmail/'
+    console.log(pathTo + pathFirst);
     fs.readFile(pathTo + pathFirst, 'binary', function (err, data) {
         try {
-            var zip = new JSZip(data);
-            var doc = new Docxtemplater().loadZip(zip)
-            //set the templateVariables
-            doc.setData(objKey);
-            doc.render()
-            var buf = doc.getZip().generate({ type: 'nodebuffer' });
-            // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
-            // var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
-            fs.writeFileSync(path.resolve(pathTo, 'export-file-word.docx'), buf);
-            var result = {
-                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export-file-word.docx',
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
+            if (err) {
+                console.log(err);
+                var result = {
+                    status: Constant.STATUS.FAIL,
+                    message: 'File không tồn tại. Vui lòng cầu hình lại!',
+                }
+                res.json(result);
+            } else {
+                var zip = new JSZip(data);
+                var doc = new Docxtemplater().loadZip(zip)
+                //set the templateVariables
+                doc.setData(objKey);
+                doc.render()
+                var buf = doc.getZip().generate({ type: 'nodebuffer' });
+                // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
+                // var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
+                fs.writeFileSync(path.resolve(pathTo, 'export-file-word.docx'), buf);
+                var result = {
+                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export-file-word.docx',
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
             }
-            res.json(result);
         } catch (error) {
             console.log(error);
             res.json('Lỗi file export. Vui lòng cầu hình lại!')
