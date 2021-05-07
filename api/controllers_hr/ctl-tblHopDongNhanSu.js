@@ -560,6 +560,7 @@ module.exports = {
                                 status: data[i].Status ? data[i].Status : '',
                                 idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 staffName: data[i].nv ? data[i].nv.StaffName : '',
+                                editDate: data[i].EditDate ? moment(data[i].EditDate).format('DD/MM/YYYY') : '',
                             }
                             var arrayFile = []
                             await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {
@@ -641,6 +642,7 @@ module.exports = {
                                 status: data[i].Status ? data[i].Status : '',
                                 idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 staffName: data[i].nv ? data[i].nv.StaffName : '',
+                                editDate: data[i].EditDate ? moment(data[i].EditDate).format('DD/MM/YYYY') : '',
                             }
                             var arrayFile = []
                             await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {

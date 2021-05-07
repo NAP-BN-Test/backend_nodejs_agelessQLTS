@@ -555,6 +555,7 @@ module.exports = {
                                 where: { IDNhanVien: body.id }
                             })
                         await mtblHopDongNhanSu(db).create({
+                            EditDate: now,
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
                             IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
@@ -597,6 +598,7 @@ module.exports = {
                                 where: { IDNhanVien: body.id }
                             })
                         await mtblHopDongNhanSu(db).create({
+                            EditDate: now,
                             ContractCode: body.contractCode ? body.contractCode : '',
                             Date: body.signDate ? body.signDate : null,
                             IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,

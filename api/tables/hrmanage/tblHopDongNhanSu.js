@@ -32,6 +32,7 @@ module.exports = function (db) {
         Status: Sequelize.STRING,
         Announced: Sequelize.BOOLEAN,
         NoticeTime: Sequelize.DATE,
+        EditDate: Sequelize.DATE,
         Time: Sequelize.NOW,
     });
 
