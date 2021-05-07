@@ -276,7 +276,9 @@ module.exports = {
                             })
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
-                            let totalReduce = (minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100) - (minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100) - (minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100) - (minimumWage * coefficientsSalary * objInsurance['union'] / 100) - reduce
+                            let totalReduce = minimumWage * coefficientsSalary * (objInsurance['union'] / 100 + objInsurance['staffBHXH'] / 100 + objInsurance['staffBHYT'] / 100 + objInsurance['staffBHTN'] / 100)
+                            let bhxhSalary = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary)
+                            let workingSalary = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : (data[i].WorkingSalary ? data[i].WorkingSalary : 0)
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -284,8 +286,8 @@ module.exports = {
                                 staffName: data[i].IDNhanVien ? data[i].nv.StaffName : null,
                                 staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
                                 departmentName: data[i].IDNhanVien ? data[i].nv.department ? data[i].nv.department.DepartmentName : '' : '',
-                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                bhxhSalary: minimumWage * coefficientsSalary,
+                                workingSalary: workingSalary,
+                                bhxhSalary: bhxhSalary,
                                 staffBHXH: minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100,
                                 staffBHYT: minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100,
                                 staffBHTN: minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100,
@@ -736,6 +738,7 @@ module.exports = {
                             }
                         })
                         yearMonth = year + '-' + await convertNumber(month);
+                        var stt = 1;
                         for (var i = 0; i < staff.length; i++) {
                             let objWhere = {};
                             let arraySearchAnd = [];
@@ -843,7 +846,9 @@ module.exports = {
                                     departmentName = data.DepartmentName
                             })
                             obj['departmentName'] = departmentName;
+                            obj['stt'] = stt;
                             array.push(obj)
+                            stt += 1;
                         }
                     })
                     var result = {
@@ -852,6 +857,7 @@ module.exports = {
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                         arrayDays
                     }
+                    console.log(result);
                     res.json(result);
                 } catch (error) {
                     console.log(error);
