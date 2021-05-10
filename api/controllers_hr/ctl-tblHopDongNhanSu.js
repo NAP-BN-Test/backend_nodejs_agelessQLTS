@@ -157,6 +157,8 @@ module.exports = {
                                 contractDateStart: data.ContractDateStart ? data.ContractDateStart : null,
                                 unitSalary: 'VND',
                                 status: data.Status ? data.Status : '',
+                                coefficientsSalary: data.CoefficientsSalary ? data.CoefficientsSalary : null,
+                                productivityWages: data.ProductivityWages ? data.ProductivityWages : null,
                             }
                             var arrayFile = []
                             await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {
@@ -197,13 +199,15 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let now = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
                     if (body.idSalaryIncrease)
                         mtblQuyetDinhTangLuong(db).update({
                             Status: "Đã tạo hợp đồng"
                         }, { where: { ID: body.idSalaryIncrease } })
                     if (body.idNhanVien)
                         await mtblHopDongNhanSu(db).update({
-                            Status: 'Hết hiệu lực'
+                            Status: 'Hết hiệu lực',
+                            EditDate: now,
                         }, {
                             where: { IDNhanVien: body.idNhanVien }
                         })
@@ -229,6 +233,8 @@ module.exports = {
                         CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
                         Announced: false,
                         NoticeTime: noticeTime,
+                        CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
+                        ProductivityWages: body.productivityWages ? body.productivityWages : null,
                     }).then(async data => {
                         let obj = {}
                         var contract = await detailContract(db, data.ID)
@@ -294,13 +300,16 @@ module.exports = {
                                 DateEnd: body.contractDateEnd,
                             }, { where: { IDNhanVien: body.idNhanVien } })
                         }
+
                         var result = {
                             link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
                             contractID: data.ID,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
-                        res.json(result);
+                        setTimeout(() => {
+                            res.json(result);
+                        }, 500);
                     })
                 } catch (error) {
                     console.log(error);
@@ -351,11 +360,44 @@ module.exports = {
                     }
                     if (body.status || body.status === '')
                         update.push({ key: 'Status', value: body.status });
+                    if (body.coefficientsSalary || body.coefficientsSalary === '') {
+                        if (body.coefficientsSalary === '')
+                            update.push({ key: 'CoefficientsSalary', value: null });
+                        else
+                            update.push({ key: 'CoefficientsSalary', value: body.coefficientsSalary });
+                    }
+                    if (body.productivityWages || body.productivityWages === '') {
+                        if (body.productivityWages === '')
+                            update.push({ key: 'ProductivityWages', value: null });
+                        else
+                            update.push({ key: 'ProductivityWages', value: body.productivityWages });
+                    }
+                    let contract = await mtblHopDongNhanSu(db).findOne({ ID: body.id })
+                    let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: contract.IDNhanVien } })
+                    if (!bl)
+                        await mtblBangLuong(db).create({
+                            Date: body.signDate ? body.signDate : contract.Date,
+                            IDNhanVien: contract.IDNhanVien,
+                            WorkingSalary: body.salaryNumber ? body.salaryNumber : contract.SalaryNumber,
+                            BHXHSalary: body.salaryNumber ? body.salaryNumber : contract.SalaryNumber,
+                            DateEnd: body.contractDateEnd ? body.contractDateEnd : contract.ContractDateEnd,
+                        })
+                    else {
+                        await mtblBangLuong(db).update({
+                            Date: body.signDate ? body.signDate : contract.Date,
+                            // IDNhanVien: contract.IDNhanVien,
+                            WorkingSalary: body.salaryNumber ? body.salaryNumber : contract.SalaryNumber,
+                            BHXHSalary: body.salaryNumber ? body.salaryNumber : contract.SalaryNumber,
+                            DateEnd: body.contractDateEnd ? body.contractDateEnd : contract.ContractDateEnd,
+                        }, { where: { IDNhanVien: contract.IDNhanVien } })
+                    }
                     database.updateTable(update, mtblHopDongNhanSu(db), body.id).then(async response => {
                         if (response == 1) {
                             let link = await inWordContact(db, body.id)
                             Result.ACTION_SUCCESS['link'] = 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + link
-                            res.json(Result.ACTION_SUCCESS);
+                            setTimeout(() => {
+                                res.json(Result.ACTION_SUCCESS);
+                            }, 500);
                         } else {
                             res.json(Result.SYS_ERROR_RESULT);
                         }
@@ -448,7 +490,6 @@ module.exports = {
                             [Op.and]: [{ [Op.or]: where }],
                             [Op.or]: [{ ID: { [Op.ne]: null } }],
                         };
-                        console.log(data.items);
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -561,6 +602,9 @@ module.exports = {
                                 idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 staffName: data[i].nv ? data[i].nv.StaffName : '',
                                 editDate: data[i].EditDate ? moment(data[i].EditDate).format('DD/MM/YYYY') : '',
+                                coefficientsSalary: data[i].CoefficientsSalary ? data[i].CoefficientsSalary : 0,
+                                productivityWages: data[i].ProductivityWages ? data[i].ProductivityWages : 0,
+
                             }
                             var arrayFile = []
                             await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {
@@ -643,6 +687,8 @@ module.exports = {
                                 idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                                 staffName: data[i].nv ? data[i].nv.StaffName : '',
                                 editDate: data[i].EditDate ? moment(data[i].EditDate).format('DD/MM/YYYY') : '',
+                                coefficientsSalary: data[i].CoefficientsSalary ? data[i].CoefficientsSalary : 0,
+                                productivityWages: data[i].ProductivityWages ? data[i].ProductivityWages : 0,
                             }
                             var arrayFile = []
                             await mtblFileAttach(db).findAll({ where: { IDContract: obj.id } }).then(file => {

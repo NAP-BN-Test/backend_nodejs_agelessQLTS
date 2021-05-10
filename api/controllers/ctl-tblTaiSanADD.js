@@ -20,7 +20,6 @@ const mtblThanhLyTaiSan = require('../tables/qlnb/tblThanhLyTaiSan');
 const tblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 const tblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
-var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 
 async function deleteRelationshiptblTaiSanADD(db, listID) {
     // await mtblReceiptsPayment(db).destroy({
@@ -1508,12 +1507,47 @@ module.exports = {
                     mtblTaiSan(db).update({
                         LiquidationDate: body.liquidationDate ? body.liquidationDate : null,
                         LiquidationReason: body.liquidationReason ? body.liquidationReason : '',
+                        LiquidationMoney: body.liquidationMoney ? body.liquidationMoney : null,
                         Status: 'Đã thanh lý'
                     }, {
                         where: {
                             ID: body.id
                         }
                     })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: 'Đã thanh lý !'
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // liquidation_of_many_assets
+    liquidationOfManyAssets: (req, res) => {
+        let body = req.body;
+        body.listID == JSON.parse(listID)
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    for (var i = 0; i < body.listID; i++) {
+                        mtblTaiSan(db).update({
+                            LiquidationDate: body.liquidationDate ? body.liquidationDate : null,
+                            LiquidationReason: body.liquidationReason ? body.liquidationReason : '',
+                            Status: 'Đã thanh lý'
+                        }, {
+                            where: {
+                                ID: body.listID[i]
+                            }
+                        })
+                    }
+
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: 'Đã thanh lý !'

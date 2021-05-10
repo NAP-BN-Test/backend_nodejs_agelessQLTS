@@ -194,7 +194,7 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 minimumWage: element.MinimumWage ? element.MinimumWage : null,
-                                startDate: element.StartDate ? element.StartDate : null,
+                                startDate: element.StartDate ? moment(element.StartDate).format('DD/MM/YYYY') : null,
                                 endDate: element.EndDate ? element.EndDate : null,
                             }
                             array.push(obj);
@@ -250,5 +250,36 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    //  calculate_salary_increase
+    calculateSalaryIncrease: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let minwage = mtblMinWageConfig(db).findOne({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    })
+                    if (minwage) {
+                        var result = {
+                            wage: (minwage.MinimumWage ? minwage.MinimumWage : 0) + body.increase,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    } else {
+                        res.json(Result.NO_DATA_RESULT)
+
+                    }
+                } catch (error) {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

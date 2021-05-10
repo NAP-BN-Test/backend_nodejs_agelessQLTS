@@ -428,12 +428,12 @@ module.exports = {
                     let arraySearchNot = [];
                     if (body.type == 'end') {
                         arraySearchOr.push({ Status: 'Từ chối' })
-                        arraySearchOr.push({ Status: 'Hoàn thành' })
+                        // arraySearchOr.push({ Status: 'Đã thanh toán' })
                         arraySearchOr.push({ Status: 'Đã thêm mới tài sản' })
                     }
                     else {
                         arraySearchAnd.push({ Status: { [Op.ne]: 'Từ chối' } })
-                        arraySearchAnd.push({ Status: { [Op.ne]: 'Hoàn thành' } })
+                        // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
                         arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thêm mới tài sản' } })
 
                     }

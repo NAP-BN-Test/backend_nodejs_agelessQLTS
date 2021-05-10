@@ -186,6 +186,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/asset_liquidation').post(checkToken.checkToken, tblTaiSan.assetLiquidation);
 
+    app.route('/qlnb/liquidation_of_many_assets').post(checkToken.checkToken, tblTaiSan.liquidationOfManyAssets);
+
 
 
     //---------------------------------------------------------------- Menu quản lý văn phòng phẩm --------------------------------------------------------------------------------------

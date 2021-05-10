@@ -34,6 +34,8 @@ module.exports = function (db) {
         NoticeTime: Sequelize.DATE,
         EditDate: Sequelize.DATE,
         Time: Sequelize.NOW,
+        ProductivityWages: Sequelize.FLOAT,
+        CoefficientsSalary: Sequelize.FLOAT,
     });
 
     return table;

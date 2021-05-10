@@ -366,16 +366,6 @@ module.exports = {
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                         }).then(async data => {
-                            // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
-                            //     order: [
-                            //         Sequelize.literal('max(DecisionDate) DESC'),
-                            //     ],
-                            //     group: ['Status', 'StatusDecision', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
-                            //     where: {
-                            //         IDNhanVien: data.ID,
-                            //     }
-                            // })
-                            // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
                             await mtblBangLuong(db).create({
                                 Date: body.signDate ? body.signDate : null,
                                 WorkingSalary: body.workingSalary ? body.workingSalary : 0,
@@ -401,6 +391,8 @@ module.exports = {
                                 UnitSalary: 'VND',
                                 WorkingPlace: '',
                                 Status: body.status ? body.status : '',
+                                ProductivityWages: body.productivityWages ? body.productivityWages : null,
+                                CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
                             })
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -542,97 +534,97 @@ module.exports = {
                         else
                             update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
                     }
-                    let noticeTime;
-                    if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
-                        noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
-                    else
-                        noticeTime = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
-                    if (body.idContract != '') {
-                        if (body.id)
-                            await mtblHopDongNhanSu(db).update({
-                                Status: 'Hết hiệu lực'
-                            }, {
-                                where: { IDNhanVien: body.id }
-                            })
-                        await mtblHopDongNhanSu(db).create({
-                            EditDate: now,
-                            ContractCode: body.contractCode ? body.contractCode : '',
-                            Date: body.signDate ? body.signDate : null,
-                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                            SalaryNumber: body.workingSalary ? body.workingSalary : '',
-                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                            // ContractDateStart: now,
-                            UnitSalary: 'VND',
-                            Status: body.status ? body.status : '',
-                            IDNhanVien: body.id ? body.id : null,
-                            WorkingPlace: '',
-                            Announced: false,
-                            NoticeTime: noticeTime,
-                        })
-                        salary = body.workingSalary ? body.workingSalary : 0
-                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
-                        if (bl)
-                            await mtblBangLuong(db).update({
-                                Date: body.signDate ? body.signDate : null,
-                                WorkingSalary: body.workingSalary ? body.workingSalary : 0,
-                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                            }, {
-                                where: { IDNhanVien: body.id, }
-                            })
-                        else
-                            await mtblBangLuong(db).create({
-                                Date: body.signDate ? body.signDate : null,
-                                WorkingSalary: body.workingSalary ? body.workingSalary : 0,
-                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                                IDNhanVien: body.id,
-                            })
-                    }
-                    else {
-                        if (body.id)
-                            await mtblHopDongNhanSu(db).update({
-                                Status: 'Hết hiệu lực'
-                            }, {
-                                where: { IDNhanVien: body.id }
-                            })
-                        await mtblHopDongNhanSu(db).create({
-                            EditDate: now,
-                            ContractCode: body.contractCode ? body.contractCode : '',
-                            Date: body.signDate ? body.signDate : null,
-                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                            SalaryNumber: body.workingSalary ? body.workingSalary : '',
-                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                            // ContractDateStart: now,
-                            UnitSalary: 'VND',
-                            Status: body.status ? body.status : '',
-                            IDNhanVien: body.id ? body.id : null,
-                            WorkingPlace: '',
-                            Announced: false,
-                            NoticeTime: noticeTime,
-                        })
-                        salary = body.workingSalary ? body.workingSalary : 0
-                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
-                        if (bl)
-                            await mtblBangLuong(db).update({
-                                Date: body.signDate ? body.signDate : null,
-                                WorkingSalary: salary,
-                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                            }, {
-                                where: { IDNhanVien: body.id, }
-                            })
-                        else
-                            await mtblBangLuong(db).create({
-                                Date: body.signDate ? body.signDate : null,
-                                WorkingSalary: salary,
-                                BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                                DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                                IDNhanVien: body.id
-                            })
-                    }
+                    // let noticeTime;
+                    // if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
+                    //     noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
+                    // else
+                    //     noticeTime = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                    // if (body.idContract != '') {
+                    //     if (body.id)
+                    //         await mtblHopDongNhanSu(db).update({
+                    //             Status: 'Hết hiệu lực'
+                    //         }, {
+                    //             where: { IDNhanVien: body.id }
+                    //         })
+                    //     await mtblHopDongNhanSu(db).create({
+                    //         EditDate: now,
+                    //         ContractCode: body.contractCode ? body.contractCode : '',
+                    //         Date: body.signDate ? body.signDate : null,
+                    //         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                    //         SalaryNumber: body.workingSalary ? body.workingSalary : '',
+                    //         SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                    //         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                    //         // ContractDateStart: now,
+                    //         UnitSalary: 'VND',
+                    //         Status: body.status ? body.status : '',
+                    //         IDNhanVien: body.id ? body.id : null,
+                    //         WorkingPlace: '',
+                    //         Announced: false,
+                    //         NoticeTime: noticeTime,
+                    //     })
+                    //     salary = body.workingSalary ? body.workingSalary : 0
+                    //     let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
+                    //     if (bl)
+                    //         await mtblBangLuong(db).update({
+                    //             Date: body.signDate ? body.signDate : null,
+                    //             WorkingSalary: body.workingSalary ? body.workingSalary : 0,
+                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                    //         }, {
+                    //             where: { IDNhanVien: body.id, }
+                    //         })
+                    //     else
+                    //         await mtblBangLuong(db).create({
+                    //             Date: body.signDate ? body.signDate : null,
+                    //             WorkingSalary: body.workingSalary ? body.workingSalary : 0,
+                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                    //             IDNhanVien: body.id,
+                    //         })
+                    // }
+                    // else {
+                    //     if (body.id)
+                    //         await mtblHopDongNhanSu(db).update({
+                    //             Status: 'Hết hiệu lực'
+                    //         }, {
+                    //             where: { IDNhanVien: body.id }
+                    //         })
+                    //     await mtblHopDongNhanSu(db).create({
+                    //         EditDate: now,
+                    //         ContractCode: body.contractCode ? body.contractCode : '',
+                    //         Date: body.signDate ? body.signDate : null,
+                    //         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                    //         SalaryNumber: body.workingSalary ? body.workingSalary : '',
+                    //         SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                    //         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                    //         // ContractDateStart: now,
+                    //         UnitSalary: 'VND',
+                    //         Status: body.status ? body.status : '',
+                    //         IDNhanVien: body.id ? body.id : null,
+                    //         WorkingPlace: '',
+                    //         Announced: false,
+                    //         NoticeTime: noticeTime,
+                    //     })
+                    //     salary = body.workingSalary ? body.workingSalary : 0
+                    //     let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
+                    //     if (bl)
+                    //         await mtblBangLuong(db).update({
+                    //             Date: body.signDate ? body.signDate : null,
+                    //             WorkingSalary: salary,
+                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                    //         }, {
+                    //             where: { IDNhanVien: body.id, }
+                    //         })
+                    //     else
+                    //         await mtblBangLuong(db).create({
+                    //             Date: body.signDate ? body.signDate : null,
+                    //             WorkingSalary: salary,
+                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                    //             IDNhanVien: body.id
+                    //         })
+                    // }
                     database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);

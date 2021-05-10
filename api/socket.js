@@ -169,6 +169,10 @@ module.exports = {
             var arrayContract = await getStaffContractExpirationData();
             io.sockets.emit("Server-send-data", array);
             socket.emit("Server-send-contract-notification-schedule", arrayContract);
+            io.sockets.emit("Server-send-all-the-messages", {
+                'qltsArray': array,
+                'qlnsArray': arrayContract,
+            });
             await database.connectDatabase().then(async db => {
                 if (db) {
                     var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({

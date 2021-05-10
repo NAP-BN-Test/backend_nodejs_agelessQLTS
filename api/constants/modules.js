@@ -42,17 +42,17 @@ module.exports = {
             ],
             where: where,
         })
-        var automaticCode = codeBefore + month + year + '1';
+        var automaticCode = codeBefore + '_1_' + month + year;
         if (!check) {
-            codeNumber = codeBefore + month + year + '1'
+            codeNumber = codeBefore + '_1_' + month + year
         } else {
             if (check[fieldCode]) {
                 if (Number(check[fieldCode].slice(codeBefore.length + 2, codeBefore.length + 6)) == year)
-                    automaticCode = codeBefore + month + year + (Number(check[fieldCode].slice((codeBefore + month + year).length, 1000)) + 1)
+                    automaticCode = codeBefore + '_' + (Number(check[fieldCode].slice((codeBefore + month + year).length, 1000)) + 1) + '_' + month + year
                 else
-                    automaticCode = codeBefore + month + year + 1
+                    automaticCode = codeBefore + '_' + 1 + '_' + month + year
             } else {
-                automaticCode = codeBefore + month + year + 1
+                automaticCode = codeBefore + '_' + 1 + '_' + month + year
 
             }
         }

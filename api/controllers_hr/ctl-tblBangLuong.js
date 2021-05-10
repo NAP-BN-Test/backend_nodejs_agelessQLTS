@@ -15,6 +15,8 @@ const axios = require('axios');
 var mtblConfigWorkday = require('../tables/hrmanage/tblConfigWorkday')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblMinWageConfig = require('../tables/hrmanage/tblMinWageConfig')
+var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
@@ -198,13 +200,75 @@ async function getDateholiday(db, month, year) {
 }
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var mtblDecidedInsuranceSalary = require('../tables/hrmanage/tblDecidedInsuranceSalary')
+async function calculationPersonalUncomeTaxWay2(salary) {
+    let result = 0;
+    if (salary <= 5000000) {
+        result = 0.05 * salary
+    } else if (salary > 5000000 && salary <= 10000000) {
+        result = 0.1 * salary - 250000
+    } else if (salary > 10000000 && salary <= 18000000) {
+        result = 0.15 * salary - 750000
+    } else if (salary > 18000000 && salary <= 32000000) {
+        result = 0.2 * salary - 1650000
+    } else if (salary > 32000000 && salary <= 52000000) {
+        result = 0.25 * salary - 3250000
+    } else if (salary > 52000000 && salary <= 80000000) {
+        result = 0.3 * salary - 5850000
+    } else {
+        result = 0.35 * salary - 9850000
+    }
+    return result
+}
+async function calculationPersonalUncomeTaxWay1(salary) {
+    let result = 0;
+    if (salary <= 5000000) {
+        result = 0.05 * salary
+    } else if (salary > 5000000 && salary <= 10000000) {
+        result = 0.1 * salary + 250000
+    } else if (salary > 10000000 && salary <= 18000000) {
+        result = 0.15 * salary + 750000
+    } else if (salary > 18000000 && salary <= 32000000) {
+        result = 0.2 * salary + 1950000
+    } else if (salary > 32000000 && salary <= 52000000) {
+        result = 0.25 * salary + 4750000
+    } else if (salary > 52000000 && salary <= 80000000) {
+        result = 0.3 * salary + 9750000
+    } else {
+        result = 0.35 * salary + 18150000
+    }
+    return result
 
+}
+async function checkTypeContract(db, staffID, personalTax) {
+    let result = 0;
+    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+    tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'typeContract' })
+    let contract = await tblHopDongNhanSu.findOne({
+        where: { IDNhanVien: staffID },
+        order: [
+            ['ID', 'DESC']
+        ],
+        include: [
+            {
+                model: mtblLoaiHopDong(db),
+                required: false,
+                as: 'typeContract'
+            },
+        ],
+    })
+    console.log(staffID);
+    if (contract)
+        if (contract.typeContract.TenLoaiHD == 'Hợp đồng thử việc')
+            result = await calculationPersonalUncomeTaxWay2(personalTax)
+        else
+            result = await calculationPersonalUncomeTaxWay1(personalTax)
+    return result
+}
 module.exports = {
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
     getListtblBangLuong: (req, res) => {
         let body = req.body;
-        console.log(12);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -226,8 +290,8 @@ module.exports = {
                                         model: mtblDMBoPhan(db),
                                         required: false,
                                         as: 'department'
-                                    },
-                                ],
+                                    }
+                                ]
                             },
                         ],
                         order: [
@@ -265,6 +329,16 @@ module.exports = {
                             }
                         })
                         let totalRealField = 0;
+                        let totalBHXHSalary = 0;
+                        let totalProductivityWages = 0;
+                        let totalStaffBHXH = 0;
+                        let totalStaffBHYT = 0;
+                        let totalStaffBHTN = 0;
+                        let totalUnion = 0;
+                        let totalPersonalTax = 0;
+                        let totalPersonalTaxSalary = 0;
+                        let totalAllReduce = 0;
+                        let totelReduce = 0;
                         for (var i = 0; i < data.length; i++) {
                             var reduce = 0;
                             await mtblDMGiaDinh(db).findAll({
@@ -276,9 +350,20 @@ module.exports = {
                             })
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
-                            let totalReduce = minimumWage * coefficientsSalary * (objInsurance['union'] / 100 + objInsurance['staffBHXH'] / 100 + objInsurance['staffBHYT'] / 100 + objInsurance['staffBHTN'] / 100)
+                            let union = data[i].nv.Status == "Hưởng lương" ? 0 : ((data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) * objInsurance['union'] / 100)
+                            let totalReduceBHXH = minimumWage * coefficientsSalary * (objInsurance['staffBHXH'] / 100 + objInsurance['staffBHYT'] / 100 + objInsurance['staffBHTN'] / 100) + union
                             let bhxhSalary = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary)
+                            let staffBHXH = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100)
+                            let staffBHYT = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100)
+                            let staffBHTN = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100)
                             let workingSalary = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : (data[i].WorkingSalary ? data[i].WorkingSalary : 0)
+                            let personalTaxSalary = (data[i].nv ? data[i].nv.ProductivityWages : 0) - totalReduceBHXH - reduce - 11000000
+                            personalTaxSalary = personalTaxSalary > 0 ? personalTaxSalary : 0
+                            let personalTax = personalTaxSalary > 0 ? await checkTypeContract(db, data[i].IDNhanVien, Number(personalTaxSalary)) : 0;
+                            let totalReduce = totalReduceBHXH + personalTax
+                            totalReduce = totalReduce > 0 ? totalReduce : 0
+                            totalReduce = Math.round(totalReduce)
+                            let realField = (data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) - totalReduce
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -288,18 +373,28 @@ module.exports = {
                                 departmentName: data[i].IDNhanVien ? data[i].nv.department ? data[i].nv.department.DepartmentName : '' : '',
                                 workingSalary: workingSalary,
                                 bhxhSalary: bhxhSalary,
-                                staffBHXH: minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100,
-                                staffBHYT: minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100,
-                                staffBHTN: minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100,
-                                union: minimumWage * coefficientsSalary * objInsurance['union'] / 100,
-                                personalTax: (data[i].nv ? data[i].nv.ProductivityWages : 0) - totalReduce,
-                                personalTaxSalary: (data[i].nv ? data[i].nv.ProductivityWages : 0) - totalReduce,
-                                reduce: reduce,
+                                staffBHXH: staffBHXH,
+                                staffBHYT: staffBHYT,
+                                staffBHTN: staffBHTN,
+                                union: union,
+                                personalTax: Math.round(personalTax),
+                                personalTaxSalary: Math.round(personalTaxSalary),
+                                reduce: reduce + 11000000,
                                 totalReduce: totalReduce,
-                                realField: minimumWage * coefficientsSalary - totalReduce,
+                                realField: realField,
                                 productivityWages: data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0,
                             }
-                            totalRealField += minimumWage * coefficientsSalary - totalReduce;
+                            totalRealField += realField;
+                            totalBHXHSalary += realField;
+                            totalProductivityWages += realField;
+                            totalStaffBHXH += realField;
+                            totalStaffBHYT += realField;
+                            totalStaffBHTN += realField;
+                            totalUnion += realField;
+                            totalPersonalTax += realField;
+                            totalPersonalTaxSalary += realField;
+                            totalAllReduce += realField;
+                            totelReduce += (reduce + 11000000)
                             if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Hưởng lương') {
                                 array.push(obj);
                                 stt += 1;
@@ -309,6 +404,16 @@ module.exports = {
                         var result = {
                             objInsurance: objInsurance,
                             totalRealField: totalRealField,
+                            totalBHXHSalary: totalBHXHSalary,
+                            totalProductivityWages: totalProductivityWages,
+                            totalStaffBHXH: totalStaffBHXH,
+                            totalStaffBHYT: totalStaffBHYT,
+                            totalStaffBHTN: totalStaffBHTN,
+                            totalUnion: totalUnion,
+                            totalPersonalTax: totalPersonalTax,
+                            totalPersonalTaxSalary: totalPersonalTaxSalary,
+                            totalAllReduce: totalAllReduce,
+                            totelReduce: totelReduce,
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -857,7 +962,6 @@ module.exports = {
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                         arrayDays
                     }
-                    console.log(result);
                     res.json(result);
                 } catch (error) {
                     console.log(error);

@@ -305,7 +305,7 @@ module.exports = {
             'TỔNG TIỀN',
             'IMPORT BÁO GIÁ',
             'LÝ DO MUA',
-            'TRẠNG THÁI'
+            // 'TRẠNG THÁI'
         ]
         database.connectDatabase().then(async db => {
             if (db) {
@@ -359,7 +359,7 @@ module.exports = {
                             ws.cell(row, 4, row + max - 1, 4, true).string(data[i].requireDate).style(stylecell);
                             ws.cell(row, 9, row + max - 1, 9, true).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
                             ws.cell(row, 11, row + max - 1, 11, true).string(data[i].reason).style(stylecell);
-                            ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
+                            // ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
                         }
                         else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell);
@@ -368,7 +368,7 @@ module.exports = {
                             ws.cell(row, 4).string(data[i].requireDate).style(stylecell);
                             ws.cell(row, 9).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
                             ws.cell(row, 11,).string(data[i].reason).style(stylecell);
-                            ws.cell(row, 12,).string(data[i].status).style(stylecell);
+                            // ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
@@ -442,13 +442,13 @@ module.exports = {
         let data = JSON.parse(body.data);
         let arrayHeader = [
             'STT',
-            'CHỨNG TỪ',
             'BỘ PHẬN',
             'NGƯỜI ĐỀ NGHỊ',
             'NỘI DUNG THANH TOÁN',
             'SỐ TIỀN THANH TOÁN',
-            'NGƯỜI PHÊ DUYỆT TRƯỚC',
-            'NGƯỜI PHÊ DUYỆT SAU',
+            'CHỨNG TỪ',
+            // 'NGƯỜI PHÊ DUYỆT TRƯỚC',
+            // 'NGƯỜI PHÊ DUYỆT SAU',
         ]
         database.connectDatabase().then(async db => {
             if (db) {
@@ -485,7 +485,7 @@ module.exports = {
                         }
                         if (data[i].arrayFileExport.length > 0) {
                             for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 2).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
+                                ws.cell(file + row, 6).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0) {
@@ -493,18 +493,18 @@ module.exports = {
                             ws.cell(row, 3, row + max - 1, 3, true).string(data[i].departmentName).style(stylecell);
                             ws.cell(row, 4, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
                             ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
-                            ws.cell(row, 6, row + max - 1, 6, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
-                            ws.cell(row, 7, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
-                            ws.cell(row, 8, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
+                            ws.cell(row, 2, row + max - 1, 2, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
+                            // ws.cell(row, 7, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
+                            // ws.cell(row, 8, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
                         }
                         else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell)
                             ws.cell(row, 3).string(data[i].departmentName).style(stylecell)
                             ws.cell(row, 4).string(data[i].nameNhanVien).style(stylecell)
                             ws.cell(row, 5).string(data[i].contents).style(stylecell)
-                            ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber)
-                            ws.cell(row, 7).string(data[i].nameNhanVienKTPD).style(stylecell)
-                            ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
+                            ws.cell(row, 2).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber)
+                            // ws.cell(row, 7).string(data[i].nameNhanVienKTPD).style(stylecell)
+                            // ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
                         }
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
