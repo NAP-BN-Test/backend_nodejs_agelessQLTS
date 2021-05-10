@@ -8,6 +8,7 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mModules = require('../constants/modules');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 // wsEngine cho phép gọi vào hàm
 // var io = require("socket.io")(server, {
 //     cors: {
@@ -118,6 +119,18 @@ module.exports = {
                         Status: 'Chờ phê duyệt',
                     }).then(async data => {
                         if (data) {
+                            if (body.fileAttach) {
+                                body.fileAttach = JSON.parse(body.fileAttach)
+                                if (body.fileAttach.length > 0)
+                                    for (var j = 0; j < body.fileAttach.length; j++)
+                                        await mtblFileAttach(db).update({
+                                            IDIncreaseSlary: data.ID,
+                                        }, {
+                                            where: {
+                                                ID: body.fileAttach[j].id
+                                            }
+                                        })
+                            }
 
                         }
                         // var hd = await mtblHopDongNhanSu(db).findOne({
@@ -178,6 +191,18 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.fileAttach) {
+                        body.fileAttach = JSON.parse(body.fileAttach)
+                        if (body.fileAttach.length > 0)
+                            for (var j = 0; j < body.fileAttach.length; j++)
+                                await mtblFileAttach(db).update({
+                                    IDIncreaseSlary: body.id,
+                                }, {
+                                    where: {
+                                        ID: body.fileAttach[j].id
+                                    }
+                                })
+                    }
                     if (body.decisionDate || body.decisionDate === '') {
                         if (body.decisionDate === '')
                             update.push({ key: 'DecisionDate', value: null });

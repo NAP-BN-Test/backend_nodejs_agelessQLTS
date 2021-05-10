@@ -46,9 +46,21 @@ module.exports = {
         if (!check) {
             codeNumber = codeBefore + '_1_' + month + year
         } else {
+            let codeBetween = 1;
+            if (Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 6)))
+                codeBetween = Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 6)) + 1
+            else if (Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 5)))
+                codeBetween = Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 5)) + 1
+            else if (Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 4)))
+                codeBetween = Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 4)) + 1
+            else if (Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 3)))
+                codeBetween = Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 3)) + 1
+            else if (Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 2)))
+                codeBetween = Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 2)) + 1
+            console.log(codeBetween);
             if (check[fieldCode]) {
-                if (Number(check[fieldCode].slice(codeBefore.length + 2, codeBefore.length + 6)) == year)
-                    automaticCode = codeBefore + '_' + (Number(check[fieldCode].slice((codeBefore + month + year).length, 1000)) + 1) + '_' + month + year
+                if (Number(check[fieldCode].slice(check[fieldCode].length - 4, check[fieldCode].length + 6)) == year)
+                    automaticCode = codeBefore + '_' + codeBetween + '_' + month + year
                 else
                     automaticCode = codeBefore + '_' + 1 + '_' + month + year
             } else {
