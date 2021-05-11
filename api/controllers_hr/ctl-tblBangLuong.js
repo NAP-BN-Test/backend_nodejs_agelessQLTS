@@ -321,12 +321,12 @@ module.exports = {
                             })
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
-                            let union = data[i].nv.Status == "Hưởng lương" ? 0 : ((data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) * objInsurance['union'] / 100)
-                            let totalReduceBHXH = minimumWage * coefficientsSalary * (objInsurance['staffBHXH'] / 100 + objInsurance['staffBHYT'] / 100 + objInsurance['staffBHTN'] / 100) + union
+                            let union = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : ((data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) * objInsurance['union'] / 100)
                             let bhxhSalary = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary)
                             let staffBHXH = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100)
                             let staffBHYT = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100)
                             let staffBHTN = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100)
+                            let totalReduceBHXH = staffBHYT + staffBHXH + union + staffBHTN
                             let workingSalary = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : (data[i].WorkingSalary ? data[i].WorkingSalary : 0)
                             let personalTaxSalary = (data[i].nv ? data[i].nv.ProductivityWages : 0) - totalReduceBHXH - reduce - 11000000
                             personalTaxSalary = personalTaxSalary > 0 ? personalTaxSalary : 0

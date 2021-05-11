@@ -327,6 +327,7 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
+        console.log(body);
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -340,7 +341,7 @@ module.exports = {
                             StaffName: body.staffName ? body.staffName : '',
                             CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
                             CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
-                            CMNDDate: body.cmndDate ? body.cmndDate : '',
+                            CMNDDate: body.cmndDate ? body.cmndDate : null,
                             Address: body.address ? body.address : '',
                             IDNation: body.idNation ? body.idNation : null,
                             PhoneNumber: body.phoneNumber ? body.phoneNumber : '',
