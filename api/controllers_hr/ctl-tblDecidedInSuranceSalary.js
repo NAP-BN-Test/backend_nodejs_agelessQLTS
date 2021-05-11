@@ -20,15 +20,36 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDecidedInsuranceSalary(db).findOne({ where: { ID: body.id } }).then(data => {
+                    let tblDecidedInsuranceSalary = mtblDecidedInsuranceSalary(db);
+                    tblDecidedInsuranceSalary.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })
+                    tblDecidedInsuranceSalary.findAll({
+                        where: { IDStaff: body.staffID },
+                        include: [
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'staff'
+                            },
+                        ],
+                    }).then(data => {
                         if (data) {
-                            var obj = {
-                                id: data.ID,
-                                name: data.Name,
-                                code: data.Code,
-                            }
+                            var array = [];
+                            data.forEach(element => {
+                                var obj = {
+                                    // stt: stt,
+                                    id: Number(element.ID),
+                                    name: element.Name ? element.Name : '',
+                                    idStaff: element.IDStaff ? element.IDStaff : null,
+                                    staffName: element.IDStaff ? element.staff.StaffName : null,
+                                    startDate: element.StartDate ? moment(element.StartDate).format('DD/MM/YYYY') : null,
+                                    endDate: element.EndDate ? moment(element.EndDate).format('DD/MM/YYYY') : null,
+                                    increase: element.Increase ? element.Increase : null,
+                                    coefficient: element.Coefficient ? element.Coefficient : null,
+                                }
+                                array.push(obj);
+                            });
                             var result = {
-                                obj: obj,
+                                array: array,
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
                             }

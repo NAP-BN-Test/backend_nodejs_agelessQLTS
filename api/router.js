@@ -288,6 +288,7 @@ module.exports = function (app) {
     //  Danh mục cấu hình mức lương tối thiểu
     var tblMinWageConfig = require('./controllers_hr/ctl-tblMinWageConfig');
     app.route('/qlnb/add_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.addtblMinWageConfig);
+    app.route('/qlnb/calculate_salary_increase').post(checkToken.checkToken, tblMinWageConfig.calculateSalaryIncrease);
     app.route('/qlnb/update_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.updatetblMinWageConfig);
     app.route('/qlnb/delete_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.deletetblMinWageConfig);
     app.route('/qlnb/get_list_tbl_min_wage_config').post(checkToken.checkToken, tblMinWageConfig.getListtblMinWageConfig);
@@ -395,6 +396,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.updatetblDecidedInsuranceSalary);
     app.route('/qlnb/delete_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.deletetblDecidedInsuranceSalary);
     app.route('/qlnb/get_list_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.getListtblDecidedInsuranceSalary);
+    app.route('/qlnb/get_detail_tbl_decided_insurance_salary').post(checkToken.checkToken, tblDecidedInsuranceSalary.detailtblDecidedInsuranceSalary);
     // Quản lý loại hợp đồng 
     var tblTypeContract = require('./controllers_hr/ctl-tblLoaiHopDong');
     app.route('/qlnb/add_tbl_loaihopdong').post(checkToken.checkToken, tblTypeContract.addtblLoaiHopDong);

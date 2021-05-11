@@ -7,7 +7,10 @@ var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
 var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
-
+var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
+var mtblTaiSanADD = require('../tables/qlnb/tblTaiSanADD')
+var mtblDMHangHoa = require('../tables/qlnb/tblDMHangHoa');
+var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var database = require('../database');
 
 async function getOpeningBalance(db, idVPP, dateFrom) {
@@ -109,6 +112,40 @@ async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
     return result;
 }
 
+async function getInfoAssetFromIDTypeAsset(db, typeAssetID) {
+    let arrayResult = []
+    await mtblDMHangHoa(db).findAll({
+        where: { IDDMLoaiTaiSan: typeAssetID }
+    }).then(async goods => {
+        let stt = 1;
+        for (var g = 0; g < goods.length; g++) {
+            let tblTaiSan = mtblTaiSan(db);
+            tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'asset' })
+            await tblTaiSan.findAll({
+                where: { IDDMHangHoa: goods[g].ID },
+                include: [
+                    {
+                        model: mtblTaiSanADD(db),
+                        required: false,
+                        as: 'asset'
+                    },
+                ],
+            }).then(async asset => {
+                let objGoods = {}
+                for (let s = 0; s < asset.length; s++) {
+                    objGoods['stt'] = stt
+                    objGoods['assetName'] = goods[g].Name ? goods[g].Name : ''
+                    objGoods['assetCode'] = asset[s].TSNBCode ? asset[s].TSNBCode : ''
+                    objGoods['date'] = asset[s].asset ? moment(asset[s].asset.Date).format('DD/MM/YYYY') : ''
+                }
+            })
+
+            arrayResult.push(objGoods)
+            stt += 1
+        }
+    })
+}
+
 module.exports = {
     // report
     report: (req, res) => {
@@ -159,6 +196,39 @@ module.exports = {
                         }
                         res.json(result);
                     })
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // depreciation table
+    depreciationTable: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let array = [];
+                    await mtblDMLoaiTaiSan(db).findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async typeAsset => {
+                        let stt = 1;
+                        for (var detailAcsset = 0; detailAcsset < typeAsset.length; detailAcsset++) {
+                            let obj = {}
+                            obj['stt'] = stt
+                            stt += 1
+                        }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

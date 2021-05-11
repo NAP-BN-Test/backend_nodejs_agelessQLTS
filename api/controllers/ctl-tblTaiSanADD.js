@@ -1531,19 +1531,19 @@ module.exports = {
     // liquidation_of_many_assets
     liquidationOfManyAssets: (req, res) => {
         let body = req.body;
-        body.listID == JSON.parse(listID)
-        console.log(body);
+        body.taisan = JSON.parse(body.taisan)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    for (var i = 0; i < body.listID; i++) {
-                        mtblTaiSan(db).update({
+                    for (var i = 0; i < body.taisan.length; i++) {
+                        await mtblTaiSan(db).update({
                             LiquidationDate: body.liquidationDate ? body.liquidationDate : null,
                             LiquidationReason: body.liquidationReason ? body.liquidationReason : '',
+                            LiquidationMoney: body.taisan[i].liquidationMoney ? body.taisan[i].liquidationMoney : '',
                             Status: 'Đã thanh lý'
                         }, {
                             where: {
-                                ID: body.listID[i]
+                                ID: body.taisan[i].assetID
                             }
                         })
                     }

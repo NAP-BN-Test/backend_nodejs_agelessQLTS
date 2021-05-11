@@ -5,6 +5,7 @@ var moment = require('moment');
 var mtblRewardPunishment = require('../tables/hrmanage/tblRewardPunishment')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblRewardPunishment(db, listID) {
     await mtblRewardPunishment(db).destroy({
@@ -70,7 +71,22 @@ module.exports = {
                         IDEmployeeApproval: body.idEmployeeApproval ? body.idEmployeeApproval : '',
                         ReasonReject: body.reasonReject ? body.reasonReject : '',
                         Type: body.type ? body.type : '',
-                    }).then(data => {
+                    }).then(async data => {
+                        if (data) {
+                            if (body.fileAttach) {
+                                body.fileAttach = JSON.parse(body.fileAttach)
+                                if (body.fileAttach.length > 0)
+                                    for (var j = 0; j < body.fileAttach.length; j++)
+                                        await mtblFileAttach(db).update({
+                                            IDRewardPunishment: data.ID,
+                                        }, {
+                                            where: {
+                                                ID: body.fileAttach[j].id
+                                            }
+                                        })
+                            }
+
+                        }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -93,6 +109,18 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.fileAttach) {
+                        body.fileAttach = JSON.parse(body.fileAttach)
+                        if (body.fileAttach.length > 0)
+                            for (var j = 0; j < body.fileAttach.length; j++)
+                                await mtblFileAttach(db).update({
+                                    IDRewardPunishment: body.id,
+                                }, {
+                                    where: {
+                                        ID: body.fileAttach[j].id
+                                    }
+                                })
+                    }
                     if (body.idStaff || body.idStaff === '') {
                         if (body.idStaff === '')
                             update.push({ key: 'IDStaff', value: null });
@@ -230,7 +258,7 @@ module.exports = {
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
-                                date: element.Date ? element.Date : null,
+                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
                                 idStaff: element.IDStaff ? element.IDStaff : null,
                                 staffName: element.IDStaff ? element.staff.StaffName : '',
                                 amountMoney: element.SalaryIncrease ? element.SalaryIncrease : null,

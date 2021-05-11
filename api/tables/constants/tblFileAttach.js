@@ -22,6 +22,7 @@ module.exports = function (db) {
         IDContract: Sequelize.BIGINT,
         IDTakeLeave: Sequelize.BIGINT,
         IDIncreaseSlary: Sequelize.BIGINT,
+        IDRewardPunishment: Sequelize.BIGINT,
     });
 
     return table;

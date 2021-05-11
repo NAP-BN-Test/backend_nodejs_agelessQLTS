@@ -580,7 +580,7 @@ module.exports = {
         let arrayHeader = [
             'STT',
             'HỌ VÀ TÊN',
-            'TỔNG THU NHẬP',
+            // 'TỔNG THU NHẬP',
             'LƯƠNG BHXH',
             'LƯƠNG NĂNG SUẤT',
             'GIẢM TRỪ BHXH',
@@ -644,11 +644,11 @@ module.exports = {
                         row += 1
                         ws.column(row).setWidth(20);
                     }
-                    console.log(data);
+                    // console.log(data);
                     for (var i = 0; i < data.length; i++) {
                         ws.cell(5 + i, 1).string(data[i].stt).style(stylecell)
                         ws.cell(5 + i, 2).string(data[i].staffName ? data[i].staffName : 0).style(stylecell)
-                        ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
+                        // ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 4).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecellNumber)
                         ws.cell(5 + i, 6).number(data[i].staffBHXH).style(stylecellNumber)
