@@ -296,12 +296,14 @@ module.exports = {
         let arrayHeader = [
             'STT',
             'LOẠI YÊU CẦU',
+            'Mã YCMS',
             'NHÂN VIÊN',
             'NGÀY ĐỀ XUẤT',
             'MÃ TS/TB/LK',
             'TÊN TS/TB/LK',
             'ĐƠN GIÁ',
             'SỐ LƯỢNG',
+            'SỐ TỒN',
             'TỔNG TIỀN',
             'IMPORT BÁO GIÁ',
             'LÝ DO MUA',
@@ -324,6 +326,7 @@ module.exports = {
                     var row = 0;
                     var checkMaxRow = 1;
                     for (let i = 0; i < data.length; i++) {
+                        console.log(data[i]);
                         data[i].arrayTaiSanExport = JSON.parse(data[i].arrayTaiSanExport)
                         data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
                         var max = 0;
@@ -341,33 +344,36 @@ module.exports = {
                         }
                         if (data[i].arrayTaiSanExport.length > 0) {
                             for (var taisan = 0; taisan < data[i].arrayTaiSanExport.length; taisan++) {
-                                ws.cell(taisan + row, 5).string(data[i].arrayTaiSanExport[taisan].code).style(stylecell)
-                                ws.cell(taisan + row, 6).string(data[i].arrayTaiSanExport[taisan].name).style(stylecell)
-                                ws.cell(taisan + row, 8).string(transform(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0) + '').style(stylecellNumber)
-                                ws.cell(taisan + row, 7).string(transform(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0) + '').style(stylecellNumber)
+                                ws.cell(taisan + row, 6).string(data[i].arrayTaiSanExport[taisan].code).style(stylecell)
+                                ws.cell(taisan + row, 7).string(data[i].arrayTaiSanExport[taisan].name).style(stylecell)
+                                ws.cell(taisan + row, 9).string(transform(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0) + '').style(stylecellNumber)
+                                ws.cell(taisan + row, 8).string(transform(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0) + '').style(stylecellNumber)
+                                ws.cell(taisan + row, 10).string(transform(data[i].arrayTaiSanExport[taisan].remainingAmount ? data[i].arrayTaiSanExport[taisan].remainingAmount : 0) + '').style(stylecellNumber)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0) {
                             for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 10).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
+                                ws.cell(file + row, 12).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0 && data[i].arrayTaiSanExport.length > 0) {
                             ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
                             ws.cell(row, 2, row + max - 1, 2, true).string(data[i].type).style(stylecell);
-                            ws.cell(row, 3, row + max - 1, 3, true).string(data[i].nameIDNhanVien).style(stylecell);
-                            ws.cell(row, 4, row + max - 1, 4, true).string(data[i].requireDate).style(stylecell);
-                            ws.cell(row, 9, row + max - 1, 9, true).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
-                            ws.cell(row, 11, row + max - 1, 11, true).string(data[i].reason).style(stylecell);
+                            ws.cell(row, 3, row + max - 1, 3, true).string(data[i].requestCode).style(stylecell);
+                            ws.cell(row, 4, row + max - 1, 4, true).string(data[i].nameIDNhanVien).style(stylecell);
+                            ws.cell(row, 5, row + max - 1, 5, true).string(data[i].requireDate).style(stylecell);
+                            ws.cell(row, 11, row + max - 1, 11, true).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
+                            ws.cell(row, 13, row + max - 1, 13, true).string(data[i].reason).style(stylecell);
                             // ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
                         }
                         else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell);
                             ws.cell(row, 2).string(data[i].type).style(stylecell);
-                            ws.cell(row, 3).string(data[i].nameIDNhanVien).style(stylecell);
-                            ws.cell(row, 4).string(data[i].requireDate).style(stylecell);
-                            ws.cell(row, 9).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
-                            ws.cell(row, 11,).string(data[i].reason).style(stylecell);
+                            ws.cell(row, 3).string(data[i].requestCode).style(stylecell);
+                            ws.cell(row, 4).string(data[i].nameIDNhanVien).style(stylecell);
+                            ws.cell(row, 5).string(data[i].requireDate).style(stylecell);
+                            ws.cell(row, 11).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
+                            ws.cell(row, 13,).string(data[i].reason).style(stylecell);
                             // ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
@@ -442,6 +448,7 @@ module.exports = {
         let data = JSON.parse(body.data);
         let arrayHeader = [
             'STT',
+            'MÃ DNTT',
             'BỘ PHẬN',
             'NGƯỜI ĐỀ NGHỊ',
             'NỘI DUNG THANH TOÁN',
@@ -493,7 +500,8 @@ module.exports = {
                             ws.cell(row, 3, row + max - 1, 3, true).string(data[i].departmentName).style(stylecell);
                             ws.cell(row, 4, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
                             ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
-                            ws.cell(row, 2, row + max - 1, 2, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
+                            ws.cell(row, 2, row + max - 1, 2, true).string(transform(data[i].paymentOrderCode ? data[i].paymentOrderCode : 0)).style(stylecell);
+                            ws.cell(row, 6, row + max - 1, 6, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
                             // ws.cell(row, 7, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
                             // ws.cell(row, 8, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
                         }
@@ -502,7 +510,9 @@ module.exports = {
                             ws.cell(row, 3).string(data[i].departmentName).style(stylecell)
                             ws.cell(row, 4).string(data[i].nameNhanVien).style(stylecell)
                             ws.cell(row, 5).string(data[i].contents).style(stylecell)
-                            ws.cell(row, 2).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber)
+                            ws.cell(row, 2).string(data[i].paymentOrderCode).style(stylecell)
+                            ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
+                            // ws.cell(row, 2).string(transform(data[i].paymentOrderCode ? data[i].paymentOrderCode)).style(stylecell)
                             // ws.cell(row, 7).string(data[i].nameNhanVienKTPD).style(stylecell)
                             // ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
                         }

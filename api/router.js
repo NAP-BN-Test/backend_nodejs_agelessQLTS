@@ -227,6 +227,7 @@ module.exports = function (app) {
 
     var report = require('./controllers/report');
     app.route('/qlnb/report').post(report.report);
+    app.route('/qlnb/depreciation_table').post(report.depreciationTable);
 
 
     // ************************************************************** QUẢN LÝ NHÂN SỰ **********************************************************************************************

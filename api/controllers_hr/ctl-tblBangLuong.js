@@ -356,15 +356,15 @@ module.exports = {
                                 productivityWages: data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0,
                             }
                             totalRealField += realField;
-                            totalBHXHSalary += realField;
-                            totalProductivityWages += realField;
-                            totalStaffBHXH += realField;
-                            totalStaffBHYT += realField;
-                            totalStaffBHTN += realField;
-                            totalUnion += realField;
-                            totalPersonalTax += realField;
-                            totalPersonalTaxSalary += realField;
-                            totalAllReduce += realField;
+                            totalBHXHSalary += bhxhSalary;
+                            totalProductivityWages += (data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0);
+                            totalStaffBHXH += staffBHXH;
+                            totalStaffBHYT += staffBHYT;
+                            totalStaffBHTN += staffBHTN;
+                            totalUnion += union;
+                            totalPersonalTax += Math.round(personalTax);
+                            totalPersonalTaxSalary += Math.round(personalTaxSalary);
+                            totalAllReduce += totalReduce;
                             totelReduce += (reduce + 11000000)
                             if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Hưởng lương') {
                                 array.push(obj);
@@ -374,17 +374,19 @@ module.exports = {
                         var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
                         var result = {
                             objInsurance: objInsurance,
-                            totalRealField: totalRealField,
-                            totalBHXHSalary: totalBHXHSalary,
-                            totalProductivityWages: totalProductivityWages,
-                            totalStaffBHXH: totalStaffBHXH,
-                            totalStaffBHYT: totalStaffBHYT,
-                            totalStaffBHTN: totalStaffBHTN,
-                            totalUnion: totalUnion,
-                            totalPersonalTax: totalPersonalTax,
-                            totalPersonalTaxSalary: totalPersonalTaxSalary,
-                            totalAllReduce: totalAllReduce,
-                            totelReduce: totelReduce,
+                            totalFooter: {
+                                totalRealField: totalRealField,
+                                totalBHXHSalary: totalBHXHSalary,
+                                totalProductivityWages: totalProductivityWages,
+                                totalStaffBHXH: totalStaffBHXH,
+                                totalStaffBHYT: totalStaffBHYT,
+                                totalStaffBHTN: totalStaffBHTN,
+                                totalUnion: totalUnion,
+                                totalPersonalTax: totalPersonalTax,
+                                totalPersonalTaxSalary: totalPersonalTaxSalary,
+                                totalAllReduce: totalAllReduce,
+                                totelReduce: totelReduce,
+                            },
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
