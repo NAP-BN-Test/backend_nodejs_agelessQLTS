@@ -135,13 +135,22 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
             let accumulatedDepreciationEndYear = 0
             let time = asset[s].GuaranteeMonth ? asset[s].GuaranteeMonth : 0
             let totalAnnualDepreciation = (time == 0 ? 0 : (originalPrice / time)) * 12
+            let valueDiscount = time == 0 ? 0 : (originalPrice / time)
             let yearAsset = asset[s].DepreciationDate ? moment(asset[s].DepreciationDate).format('YYYY') : 0
+            year = 2021
             if (yearAsset < year && yearAsset != 0) {
-                for (let y = (moment(asset[s].DepreciationDate).format('YYYY') + 1); y < year; y++) {
+                for (let y = (yearAsset + 1); y < year; y++) {
+                    if (y == year - 1 && (originalPrice - accumulatedDepreciationEndYear) == 0) {
+                        accumulatedDepreciation = 0
+                        accumulatedDepreciationEndYear = 0
+                        totalAnnualDepreciation = 0
+                        valueDiscount = 0
+                    }
                     accumulatedDepreciationEndYear = accumulatedDepreciation + totalAnnualDepreciation
                     accumulatedDepreciation = accumulatedDepreciationEndYear
                 }
             }
+            console.log(accumulatedDepreciation);
             accumulatedDepreciationEndYear = totalAnnualDepreciation + accumulatedDepreciation
             objGoods['stt'] = stt
             objGoods['assetName'] = goodsName
@@ -151,18 +160,18 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
             objGoods['time'] = time
             objGoods['accumulatedDepreciation'] = accumulatedDepreciation // lũy kế đầu năm,
             objGoods['residualValue'] = originalPrice - accumulatedDepreciation // giá trị còn lại đầu năm,
-            objGoods['discountedValue1'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue2'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue3'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue4'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue5'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue6'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue7'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue8'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue9'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue10'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue11'] = time == 0 ? 0 : (originalPrice / time)
-            objGoods['discountedValue12'] = time == 0 ? 0 : (originalPrice / time)
+            objGoods['discountedValue1'] = valueDiscount
+            objGoods['discountedValue2'] = valueDiscount
+            objGoods['discountedValue3'] = valueDiscount
+            objGoods['discountedValue4'] = valueDiscount
+            objGoods['discountedValue5'] = valueDiscount
+            objGoods['discountedValue6'] = valueDiscount
+            objGoods['discountedValue7'] = valueDiscount
+            objGoods['discountedValue8'] = valueDiscount
+            objGoods['discountedValue9'] = valueDiscount
+            objGoods['discountedValue10'] = valueDiscount
+            objGoods['discountedValue11'] = valueDiscount
+            objGoods['discountedValue12'] = valueDiscount
             objGoods['totalAnnualDepreciation'] = totalAnnualDepreciation
             objGoods['accumulatedDepreciationEndYear'] = accumulatedDepreciationEndYear
             objGoods['yearEndResidualValue'] = originalPrice - accumulatedDepreciationEndYear
@@ -395,7 +404,6 @@ module.exports = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
-                        console.log(result);
                         res.json(result);
                     })
 
