@@ -16,24 +16,11 @@ var mtblDMLoaiTaiSan = require('../tables/qlnb/tblDMLoaiTaiSan');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mModules = require('../constants/modules');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
+var ctlReceiptsPayment = require('../controller_finance/ctl-tblReceiptsPayment')
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     let arrayReceiptsPayment = []
-    await mtblDeNghiThanhToan(db).findAll({
-        where: {
-            ID: { [Op.in]: listID }
-        }
-    }).then(data => {
-        data.forEach(item => {
-            arrayReceiptsPayment.push(item.IDReceiptsPayment)
 
-        })
-    })
-    await mtblReceiptsPayment(db).destroy({
-        where: {
-            ID: { [Op.in]: arrayReceiptsPayment }
-        }
-    })
     await mtblFileAttach(db).destroy({
         where: {
             IDDeNghiThanhToan: { [Op.in]: listID }
@@ -44,6 +31,18 @@ async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
             ID: { [Op.in]: listID }
         }
     })
+    await mtblDeNghiThanhToan(db).findAll({
+        where: {
+            ID: { [Op.in]: listID }
+        }
+    }).then(data => {
+        data.forEach(item => {
+            if (item.IDReceiptsPayment)
+                arrayReceiptsPayment.push(item.IDReceiptsPayment)
+
+        })
+    })
+    await ctlReceiptsPayment.deleteRelationshiptblReceiptsPayment(db, arrayReceiptsPayment)
 }
 async function getDetailYCMS(db, id) {
     var array = [];
@@ -721,7 +720,7 @@ module.exports = {
                         where: { ID: body.id }
                     })
                     await mtblYeuCauMuaSam(db).update({
-                        Status: 'Hoàn thành',
+                        Status: 'Đã thanh toán',
                     }, { where: { IDPaymentOrder: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
