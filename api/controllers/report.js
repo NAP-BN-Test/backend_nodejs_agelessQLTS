@@ -152,10 +152,12 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
                         accumulatedDepreciationEndYear = 0
                         valueDiscount = 0
                         totalAnnualDepreciation = 0
-                        yearEndResidualValue = 0
+                        // yearEndResidualValue = 0
                         break
                     }
                 }
+            } else {
+                yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
             }
             accumulatedDepreciationEndYear = totalAnnualDepreciation + accumulatedDepreciation
             objGoods['stt'] = stt
@@ -408,6 +410,7 @@ module.exports = {
                         objTotal['totalAnnualDepreciationTotal'] = totalAnnualDepreciationTotal
                         objTotal['accumulatedDepreciationEndYearTotal'] = accumulatedDepreciationEndYearTotal
                         objTotal['yearEndResidualValueTotal'] = yearEndResidualValueTotal
+                        console.log(array);
                         var result = {
                             total: objTotal,
                             array: array,
