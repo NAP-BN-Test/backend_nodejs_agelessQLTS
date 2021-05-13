@@ -970,6 +970,7 @@ module.exports = {
                                 tblTaiSan.belongsTo(mtblDMHangHoa(db), { foreignKey: 'IDDMHangHoa', sourceKey: 'IDDMHangHoa', as: 'hanghoa' })
                                 let tblTaiSanHistory = mtblTaiSanHistory(db);
                                 tblTaiSanHistory.belongsTo(tblTaiSan, { foreignKey: 'IDTaiSan', sourceKey: 'IDTaiSan', as: 'taisan' })
+                                tblTaiSanHistory.belongsTo(mtblTaiSanBanGiao(db), { foreignKey: 'IDTaiSanBanGiao', sourceKey: 'IDTaiSanBanGiao', as: 'bg' })
                                 var date = data[i].Date
                                 var id = data[i].ID
                                 await tblTaiSanHistory.findAll({
@@ -989,6 +990,11 @@ module.exports = {
                                                 },
                                             ],
                                         },
+                                        {
+                                            model: mtblTaiSanBanGiao(db),
+                                            required: false,
+                                            as: 'bg',
+                                        },
                                     ],
                                 }).then(tsht => {
                                     if (tsht)
@@ -999,14 +1005,14 @@ module.exports = {
                                                 codeDevice: tsht[j].taisan ? tsht[j].taisan.TSNBCode : '',
                                                 nameDevice: tsht[j].taisan ? tsht[j].taisan.hanghoa ? tsht[j].taisan.hanghoa.Name : '' : '',
                                                 dateFrom: moment(date).format('DD/MM/YYYY'),
-                                                dateTo: '',
+                                                dateTo: tsht[j].bg ? (tsht[j].bg.Date ? moment(tsht[j].bg.Date).format('DD/MM/YYYY') : '') : '',
                                             })
                                             stt += 1;
                                         }
                                 })
                             }
                         }
-
+                        console.log(result);
                         res.json(result);
                     })
 

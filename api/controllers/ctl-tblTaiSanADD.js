@@ -272,6 +272,7 @@ module.exports = {
                                     staffName: data.history[i] ? data.history[i].taisanbangiao ? data.history[i].taisanbangiao.nv ? data.history[i].taisanbangiao.nv.StaffName : '' : '' : '',
                                     fromDate: data.history[i] ? data.history[i].taisanbangiao ? moment(data.history[i].taisanbangiao.Date).format('DD/MM/YYYY') : null : null,
                                     toDate: data.history[i] ? data.history[i].DateThuHoi ? moment(data.history[i].DateThuHoi).add(0, 'hours').format('DD/MM/YYYY') : null : null,
+                                    status: data.StatusUsed,
                                 }
                                 stt += 1;
                                 array.push(obj);
@@ -442,13 +443,15 @@ module.exports = {
                                 }
                             }).then(data => {
                                 if (data) {
-                                    if (!data.TSNBNumber) {
-                                        data.TSNBNumber = 1
-                                    }
                                     if (data) {
-                                        tsnbCode = body.taisan[i].idDMHangHoa.code + (Number(data.TSNBNumber) + 1 ? data.TSNBNumber : 1)
-                                        if (data.TSNBNumber)
+                                        if (data.TSNBNumber) {
                                             tsnbNumber = Number(data.TSNBNumber) + 1;
+                                            tsnbCode = body.taisan[i].idDMHangHoa.code + Number(tsnbNumber)
+                                        }
+                                        else {
+                                            tsnbCode = body.taisan[i].idDMHangHoa.code + 1
+                                            tsnbNumber = 1
+                                        }
                                     }
                                     else {
                                         tsnbCode = body.taisan[i].idDMHangHoa.code + 1
@@ -468,7 +471,7 @@ module.exports = {
                                 // DepreciationDate: moment(body.date).format('YYYY-MM-DD HH:mm:ss.SSS') ? body.date : null,
                                 SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
                                 Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
-                                TSNBCode: tsnbCode,
+                                TSNBCode: tsnbCode ? tsnbCode : (body.taisan[i].idDMHangHoa.code + tsnbNumber),
                                 TSNBNumber: tsnbNumber,
                                 IDTaiSanADD: data.ID,
                                 Status: 'Lưu kho',

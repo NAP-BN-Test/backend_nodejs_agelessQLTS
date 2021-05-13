@@ -117,7 +117,10 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
     let tblTaiSan = mtblTaiSan(db);
     tblTaiSan.belongsTo(mtblTaiSanADD(db), { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'asset' })
     await tblTaiSan.findAll({
-        where: { IDDMHangHoa: idGoods },
+        where: {
+            IDDMHangHoa: idGoods,
+            depreciationDate: { [Op.ne]: null }
+        },
         include: [
             {
                 model: mtblTaiSanADD(db),
@@ -130,27 +133,30 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
         for (let s = 0; s < asset.length; s++) {
             let objGoods = {}
             let originalPrice = asset[s].DepreciationPrice ? asset[s].DepreciationPrice : 0
-            // console.log(moment(asset[s].DepreciationDate).format('YYYY'), 123);
             let accumulatedDepreciation = 0
             let accumulatedDepreciationEndYear = 0
             let time = asset[s].GuaranteeMonth ? asset[s].GuaranteeMonth : 0
             let totalAnnualDepreciation = (time == 0 ? 0 : (originalPrice / time)) * 12
+            totalAnnualDepreciation = Math.round(totalAnnualDepreciation)
             let valueDiscount = time == 0 ? 0 : (originalPrice / time)
+            valueDiscount = Math.round(valueDiscount)
             let yearAsset = asset[s].DepreciationDate ? moment(asset[s].DepreciationDate).format('YYYY') : 0
-            year = 2021
+            let yearEndResidualValue = 0
             if (yearAsset < year && yearAsset != 0) {
-                for (let y = (yearAsset + 1); y < year; y++) {
-                    if (y == year - 1 && (originalPrice - accumulatedDepreciationEndYear) == 0) {
-                        accumulatedDepreciation = 0
-                        accumulatedDepreciationEndYear = 0
-                        totalAnnualDepreciation = 0
-                        valueDiscount = 0
-                    }
+                for (let y = (Number(yearAsset)); y < year; y++) {
                     accumulatedDepreciationEndYear = accumulatedDepreciation + totalAnnualDepreciation
                     accumulatedDepreciation = accumulatedDepreciationEndYear
+                    yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
+                    if ((originalPrice - accumulatedDepreciationEndYear) <= 0) {
+                        accumulatedDepreciation = 0
+                        accumulatedDepreciationEndYear = 0
+                        valueDiscount = 0
+                        totalAnnualDepreciation = 0
+                        yearEndResidualValue = 0
+                        break
+                    }
                 }
             }
-            console.log(accumulatedDepreciation);
             accumulatedDepreciationEndYear = totalAnnualDepreciation + accumulatedDepreciation
             objGoods['stt'] = stt
             objGoods['assetName'] = goodsName
@@ -174,7 +180,7 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
             objGoods['discountedValue12'] = valueDiscount
             objGoods['totalAnnualDepreciation'] = totalAnnualDepreciation
             objGoods['accumulatedDepreciationEndYear'] = accumulatedDepreciationEndYear
-            objGoods['yearEndResidualValue'] = originalPrice - accumulatedDepreciationEndYear
+            objGoods['yearEndResidualValue'] = yearEndResidualValue
             objGoods['isTypeAsset'] = false
             arrayResult.push(objGoods)
             stt += 1
@@ -291,94 +297,98 @@ module.exports = {
                         let yearEndResidualValueTotal = 0
                         for (var detailAcsset = 0; detailAcsset < typeAsset.length; detailAcsset++) {
                             let arrayAsset = await getInfoAssetFromIDTypeAsset(db, typeAsset[detailAcsset].ID, body.year)
-                            let obj = {}
-                            let totalOriginalPrice = 0
-                            let totalTime = 0
-                            let totalAccumulatedDepreciation = 0
-                            let totalResidualValue = 0
-                            let totalDiscountedValue1 = 0
-                            let totalDiscountedValue2 = 0
-                            let totalDiscountedValue3 = 0
-                            let totalDiscountedValue4 = 0
-                            let totalDiscountedValue5 = 0
-                            let totalDiscountedValue6 = 0
-                            let totalDiscountedValue7 = 0
-                            let totalDiscountedValue8 = 0
-                            let totalDiscountedValue9 = 0
-                            let totalDiscountedValue10 = 0
-                            let totalDiscountedValue11 = 0
-                            let totalDiscountedValue12 = 0
-                            let totalAnnualDepreciation = 0
-                            let totalAccumulatedDepreciationEndYear = 0
-                            let totalyearEndResidualValue = 0
+                            if (arrayAsset.length > 0) {
+                                let obj = {}
+                                let totalOriginalPrice = 0
+                                let totalTime = 0
+                                let totalAccumulatedDepreciation = 0
+                                let totalResidualValue = 0
+                                let totalDiscountedValue1 = 0
+                                let totalDiscountedValue2 = 0
+                                let totalDiscountedValue3 = 0
+                                let totalDiscountedValue4 = 0
+                                let totalDiscountedValue5 = 0
+                                let totalDiscountedValue6 = 0
+                                let totalDiscountedValue7 = 0
+                                let totalDiscountedValue8 = 0
+                                let totalDiscountedValue9 = 0
+                                let totalDiscountedValue10 = 0
+                                let totalDiscountedValue11 = 0
+                                let totalDiscountedValue12 = 0
+                                let totalAnnualDepreciation = 0
+                                let totalAccumulatedDepreciationEndYear = 0
+                                let totalyearEndResidualValue = 0
 
-                            for (let asset = 0; asset < arrayAsset.length; asset++) {
-                                totalOriginalPrice += arrayAsset[asset].originalPrice
-                                totalTime += arrayAsset[asset].time
-                                totalAccumulatedDepreciation += arrayAsset[asset].accumulatedDepreciation
-                                totalResidualValue += arrayAsset[asset].residualValue
-                                totalDiscountedValue1 += arrayAsset[asset].discountedValue1
-                                totalDiscountedValue2 += arrayAsset[asset].discountedValue2
-                                totalDiscountedValue3 += arrayAsset[asset].discountedValue3
-                                totalDiscountedValue4 += arrayAsset[asset].discountedValue4
-                                totalDiscountedValue5 += arrayAsset[asset].discountedValue5
-                                totalDiscountedValue6 += arrayAsset[asset].discountedValue6
-                                totalDiscountedValue7 += arrayAsset[asset].discountedValue7
-                                totalDiscountedValue8 += arrayAsset[asset].discountedValue8
-                                totalDiscountedValue9 += arrayAsset[asset].discountedValue9
-                                totalDiscountedValue10 += arrayAsset[asset].discountedValue10
-                                totalDiscountedValue11 += arrayAsset[asset].discountedValue11
-                                totalDiscountedValue12 += arrayAsset[asset].discountedValue12
-                                totalAnnualDepreciation += arrayAsset[asset].totalAnnualDepreciation
-                                totalAccumulatedDepreciationEndYear += arrayAsset[asset].accumulatedDepreciationEndYear
-                                totalyearEndResidualValue += arrayAsset[asset].yearEndResidualValue
+                                for (let asset = 0; asset < arrayAsset.length; asset++) {
+                                    totalOriginalPrice += arrayAsset[asset].originalPrice
+                                    totalTime += arrayAsset[asset].time
+                                    totalAccumulatedDepreciation += arrayAsset[asset].accumulatedDepreciation
+                                    totalResidualValue += arrayAsset[asset].residualValue
+                                    totalDiscountedValue1 += arrayAsset[asset].discountedValue1
+                                    totalDiscountedValue2 += arrayAsset[asset].discountedValue2
+                                    totalDiscountedValue3 += arrayAsset[asset].discountedValue3
+                                    totalDiscountedValue4 += arrayAsset[asset].discountedValue4
+                                    totalDiscountedValue5 += arrayAsset[asset].discountedValue5
+                                    totalDiscountedValue6 += arrayAsset[asset].discountedValue6
+                                    totalDiscountedValue7 += arrayAsset[asset].discountedValue7
+                                    totalDiscountedValue8 += arrayAsset[asset].discountedValue8
+                                    totalDiscountedValue9 += arrayAsset[asset].discountedValue9
+                                    totalDiscountedValue10 += arrayAsset[asset].discountedValue10
+                                    totalDiscountedValue11 += arrayAsset[asset].discountedValue11
+                                    totalDiscountedValue12 += arrayAsset[asset].discountedValue12
+                                    totalAnnualDepreciation += arrayAsset[asset].totalAnnualDepreciation
+                                    totalAccumulatedDepreciationEndYear += arrayAsset[asset].accumulatedDepreciationEndYear
+                                    totalyearEndResidualValue += arrayAsset[asset].yearEndResidualValue
+                                }
+                                obj['assetName'] = typeAsset[detailAcsset].Name
+                                obj['assetCode'] = typeAsset[detailAcsset].Code
+                                obj['originalPrice'] = totalOriginalPrice
+                                obj['time'] = totalTime
+                                obj['accumulatedDepreciation'] = totalAccumulatedDepreciation
+                                obj['residualValue'] = totalResidualValue
+                                obj['discountedValue1'] = totalDiscountedValue1
+                                obj['discountedValue2'] = totalDiscountedValue2
+                                obj['discountedValue3'] = totalDiscountedValue3
+                                obj['discountedValue4'] = totalDiscountedValue4
+                                obj['discountedValue5'] = totalDiscountedValue5
+                                obj['discountedValue6'] = totalDiscountedValue6
+                                obj['discountedValue7'] = totalDiscountedValue7
+                                obj['discountedValue8'] = totalDiscountedValue8
+                                obj['discountedValue9'] = totalDiscountedValue9
+                                obj['discountedValue10'] = totalDiscountedValue10
+                                obj['discountedValue11'] = totalDiscountedValue11
+                                obj['discountedValue12'] = totalDiscountedValue12
+                                obj['totalAnnualDepreciation'] = totalAnnualDepreciation
+                                obj['accumulatedDepreciationEndYear'] = totalAccumulatedDepreciationEndYear
+                                obj['yearEndResidualValue'] = totalyearEndResidualValue
+                                obj['isTypeAsset'] = true
+                                arrayAsset.unshift(obj)
+
+                                // Tình tổng cộng
+                                originalPriceTotal += totalOriginalPrice
+                                timeTotal += totalTime
+                                residualValueTotal += totalResidualValue
+                                accumulatedDepreciationTotal += totalAccumulatedDepreciation
+                                discountedValue1Total += totalDiscountedValue1
+                                discountedValue2Total += totalDiscountedValue2
+                                discountedValue3Total += totalDiscountedValue3
+                                discountedValue4Total += totalDiscountedValue4
+                                discountedValue5Total += totalDiscountedValue5
+                                discountedValue6Total += totalDiscountedValue6
+                                discountedValue7Total += totalDiscountedValue7
+                                discountedValue8Total += totalDiscountedValue8
+                                discountedValue9Total += totalDiscountedValue9
+                                discountedValue10Total += totalDiscountedValue10
+                                discountedValue11Total += totalDiscountedValue11
+                                discountedValue12Total += totalDiscountedValue12
+                                totalAnnualDepreciationTotal += totalAnnualDepreciation
+                                accumulatedDepreciationEndYearTotal += totalAccumulatedDepreciationEndYear
+                                yearEndResidualValueTotal += totalyearEndResidualValue
+                                Array.prototype.push.apply(array, arrayAsset);
                             }
-                            obj['assetName'] = typeAsset[detailAcsset].Name
-                            obj['assetCode'] = typeAsset[detailAcsset].Code
-                            obj['originalPrice'] = totalOriginalPrice
-                            obj['time'] = totalTime
-                            obj['accumulatedDepreciation'] = totalAccumulatedDepreciation
-                            obj['residualValue'] = totalResidualValue
-                            obj['discountedValue1'] = totalDiscountedValue1
-                            obj['discountedValue2'] = totalDiscountedValue2
-                            obj['discountedValue3'] = totalDiscountedValue3
-                            obj['discountedValue4'] = totalDiscountedValue4
-                            obj['discountedValue5'] = totalDiscountedValue5
-                            obj['discountedValue6'] = totalDiscountedValue6
-                            obj['discountedValue7'] = totalDiscountedValue7
-                            obj['discountedValue8'] = totalDiscountedValue8
-                            obj['discountedValue9'] = totalDiscountedValue9
-                            obj['discountedValue10'] = totalDiscountedValue10
-                            obj['discountedValue11'] = totalDiscountedValue11
-                            obj['discountedValue12'] = totalDiscountedValue12
-                            obj['totalAnnualDepreciation'] = totalAnnualDepreciation
-                            obj['accumulatedDepreciationEndYear'] = totalAccumulatedDepreciationEndYear
-                            obj['yearEndResidualValue'] = totalyearEndResidualValue
-                            obj['isTypeAsset'] = true
-                            arrayAsset.unshift(obj)
 
-                            // Tình tổng cộng
-                            originalPriceTotal += totalOriginalPrice
-                            timeTotal += totalTime
-                            residualValueTotal += totalResidualValue
-                            accumulatedDepreciationTotal += totalAccumulatedDepreciation
-                            discountedValue1Total += totalDiscountedValue1
-                            discountedValue2Total += totalDiscountedValue2
-                            discountedValue3Total += totalDiscountedValue3
-                            discountedValue4Total += totalDiscountedValue4
-                            discountedValue5Total += totalDiscountedValue5
-                            discountedValue6Total += totalDiscountedValue6
-                            discountedValue7Total += totalDiscountedValue7
-                            discountedValue8Total += totalDiscountedValue8
-                            discountedValue9Total += totalDiscountedValue9
-                            discountedValue10Total += totalDiscountedValue10
-                            discountedValue11Total += totalDiscountedValue11
-                            discountedValue12Total += totalDiscountedValue12
-                            totalAnnualDepreciationTotal += totalAnnualDepreciation
-                            accumulatedDepreciationEndYearTotal += totalAccumulatedDepreciationEndYear
-                            yearEndResidualValueTotal += totalyearEndResidualValue
-                            Array.prototype.push.apply(array, arrayAsset);
                         }
+                        console.log(accumulatedDepreciationTotal, originalPriceTotal);
                         objTotal['originalPriceTotal'] = originalPriceTotal
                         objTotal['timeTotal'] = timeTotal
                         objTotal['residualValueTotal'] = residualValueTotal

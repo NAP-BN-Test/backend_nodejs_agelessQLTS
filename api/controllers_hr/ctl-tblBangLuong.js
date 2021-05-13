@@ -285,6 +285,13 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         var minimumWage = 0;
+                        await mtblMinWageConfig(db).findOne({
+                            order: [
+                                ['ID', 'DESC']
+                            ]
+                        }).then(data => {
+                            minimumWage = data.MinimumWage
+                        })
                         var objInsurance = {};
                         await mtblMucDongBaoHiem(db).findOne({
                             order: [
@@ -292,7 +299,6 @@ module.exports = {
                             ],
                         }).then(data => {
                             if (data) {
-                                minimumWage = data.MinimumWage ? data.MinimumWage : 0;
                                 objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : 0
                                 objInsurance['staffBHYT'] = data.StaffBHYT
                                 objInsurance['staffBHTN'] = data.StaffBHTN
@@ -355,18 +361,18 @@ module.exports = {
                                 realField: realField,
                                 productivityWages: data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0,
                             }
-                            totalRealField += realField;
-                            totalBHXHSalary += bhxhSalary;
-                            totalProductivityWages += (data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0);
-                            totalStaffBHXH += staffBHXH;
-                            totalStaffBHYT += staffBHYT;
-                            totalStaffBHTN += staffBHTN;
-                            totalUnion += union;
-                            totalPersonalTax += Math.round(personalTax);
-                            totalPersonalTaxSalary += Math.round(personalTaxSalary);
-                            totalAllReduce += totalReduce;
-                            totelReduce += (reduce + 11000000)
                             if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Hưởng lương') {
+                                totalRealField += realField;
+                                totalBHXHSalary += bhxhSalary;
+                                totalProductivityWages += (data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0);
+                                totalStaffBHXH += staffBHXH;
+                                totalStaffBHYT += staffBHYT;
+                                totalStaffBHTN += staffBHTN;
+                                totalUnion += union;
+                                totalPersonalTax += Math.round(personalTax);
+                                totalPersonalTaxSalary += Math.round(personalTaxSalary);
+                                totalAllReduce += totalReduce;
+                                totelReduce += (reduce + 11000000)
                                 array.push(obj);
                                 stt += 1;
                             }
@@ -462,6 +468,7 @@ module.exports = {
                                 objInsurance['staffBHTNLD'] = data.StaffBHTNLD ? data.StaffBHTNLD : 0
                             }
                         })
+                        let bhxhSalaryTotal = 0
                         for (var i = 0; i < data.length; i++) {
                             var reduce = 0;
                             await mtblDMGiaDinh(db).findAll({
@@ -478,6 +485,8 @@ module.exports = {
                                 ],
                             })
                             var coefficientsSalary = data[i].IDNhanVien ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0;
+                            let bhxhSalary = coefficientsSalary * minimumWage + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
+                            bhxhSalaryTotal += bhxhSalary
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -487,7 +496,7 @@ module.exports = {
                                 staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
                                 productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
                                 workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                                bhxhSalary: coefficientsSalary * minimumWage + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary),
+                                bhxhSalary: bhxhSalary,
                                 reduce: Number(reduce),
                                 insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
                                 coefficientsSalary: coefficientsSalary
@@ -502,6 +511,9 @@ module.exports = {
                         var result = {
                             objInsurance: objInsurance,
                             array: array,
+                            totalFooter: {
+                                bhxhSalaryTotal: bhxhSalaryTotal,
+                            },
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: count

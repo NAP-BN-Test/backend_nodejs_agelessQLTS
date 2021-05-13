@@ -545,10 +545,37 @@ module.exports = {
                 size: 14,
                 bold: true,
             },
+            // fill: {
+            //     type: 'pattern', // the only one implemented so far.
+            //     patternType: 'solid', // most common.
+            //     // fgColor: '2172d7', // you can add two extra characters to serve as alpha, i.e. '2172d7aa'.
+            //     // bgColor: 'ffffff' // bgColor only applies on patternTypes other than solid.
+            // },
             alignment: {
                 wrapText: true,
                 // ngang
                 horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var styleHearderNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            // fill: {
+            //     type: 'pattern', // the only one implemented so far.
+            //     patternType: 'solid', // most common.
+            //     // fgColor: '2172d7', // you can add two extra characters to serve as alpha, i.e. '2172d7aa'.
+            //     // bgColor: 'ffffff' // bgColor only applies on patternTypes other than solid.
+            // },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
                 // Dọc
                 vertical: 'center',
             },
@@ -587,12 +614,15 @@ module.exports = {
         let body = req.body;
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
+        let totalFooter = JSON.parse(body.totalFooter)
         let arrayHeader = [
             'STT',
+            'MÃ NHÂN VIÊN',
             'HỌ VÀ TÊN',
+            'PHÒNG BAN',
             // 'TỔNG THU NHẬP',
-            'LƯƠNG BHXH',
             'LƯƠNG NĂNG SUẤT',
+            'LƯƠNG BHXH',
             'GIẢM TRỪ BHXH',
             'GIẢM TRỪ BHYT',
             'GIẢM TRỪ BHTN',
@@ -601,7 +631,7 @@ module.exports = {
             'LƯƠNG TÍNH THUẾ TNCN',
             'THUẾ TNCN',
             'TỔNG CÁC KHOẢN TRỪ',
-            'THỰC NHẬN',
+            'THỰC LĨNH',
         ]
         var month = Number(body.date.slice(5, 7)); // January
         var year = Number(body.date.slice(0, 4));
@@ -612,7 +642,7 @@ module.exports = {
                     var ws = wb.addWorksheet('Sheet 1');
                     var row = 1
                     ws.column(row).setWidth(5);
-                    ws.cell(3, 6, 3, 9, true)
+                    ws.cell(3, 7, 3, 10, true)
                         .string('CÁC KHOẢN GIẢM TRỪ')
                         .style(styleHearder);
                     ws.cell(1, 1, 1, 14, true)
@@ -620,27 +650,34 @@ module.exports = {
                         .style(styleHearder);
 
                     // push vào các khoản trừ %
+                    console.log(objInsurance);
                     var arrayReduct = []
                     arrayReduct.push(1)
                     arrayReduct.push(2)
                     arrayReduct.push(3)
                     arrayReduct.push(4)
                     arrayReduct.push(5)
+                    arrayReduct.push(6)
                     arrayReduct.push(objInsurance.staffBHXH)
                     arrayReduct.push(objInsurance.staffBHYT)
                     arrayReduct.push(objInsurance.staffBHTN)
                     arrayReduct.push(objInsurance.union)
                     for (var i = 0; i < arrayHeader.length; i++) {
-                        if (i < 5) {
+                        if (i <= 5) {
                             ws.cell(3, row, 4, row, true)
                                 .string(arrayHeader[i])
                                 .style(styleHearder);
                         }
-                        else if (i >= 5 && i <= 9) {
-                            if (i < 9)
+                        else if (i > 5 && i <= 10) {
+                            if (i < 10)
                                 ws.cell(4, row)
                                     .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
                                     .style(styleHearder);
+                            else if (i = 10) {
+                                ws.cell(4, row)
+                                    .string(arrayHeader[i])
+                                    .style(styleHearder);
+                            }
                             else
                                 ws.cell(4, row)
                                     .string(arrayHeader[i])
@@ -656,21 +693,39 @@ module.exports = {
                     }
                     // console.log(data);
                     for (var i = 0; i < data.length; i++) {
-                        ws.cell(5 + i, 1).string(data[i].stt).style(stylecell)
-                        ws.cell(5 + i, 2).string(data[i].staffName ? data[i].staffName : 0).style(stylecell)
+                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
+                        ws.cell(5 + i, 2).string(data[i].staffCode ? data[i].staffCode : '').style(stylecell)
+                        ws.cell(5 + i, 3).string(data[i].staffName ? data[i].staffName : '').style(stylecell)
+                        ws.cell(5 + i, 4).string(data[i].departmentName ? data[i].departmentName : '').style(stylecell)
                         // ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 4).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 6).number(data[i].staffBHXH).style(stylecellNumber)
-                        ws.cell(5 + i, 7).number(data[i].staffBHYT).style(stylecellNumber)
-                        ws.cell(5 + i, 8).number(data[i].staffBHTN).style(stylecellNumber)
-                        ws.cell(5 + i, 9).number(data[i].union).style(stylecellNumber)
-                        ws.cell(5 + i, 10).number(0).style(stylecellNumber)
-                        ws.cell(5 + i, 11).number(data[i].personalTax ? data[i].personalTax : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 6).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 7).number(data[i].staffBHXH).style(stylecellNumber)
+                        ws.cell(5 + i, 8).number(data[i].staffBHYT).style(stylecellNumber)
+                        ws.cell(5 + i, 9).number(data[i].staffBHTN).style(stylecellNumber)
+                        ws.cell(5 + i, 10).number(data[i].union).style(stylecellNumber)
                         ws.cell(5 + i, 12).number(data[i].personalTaxSalary ? data[i].personalTaxSalary : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 13).number(data[i].totalReduce ? data[i].totalReduce : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 14).number(data[i].realField ? data[i].realField : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 13).number(data[i].personalTax ? data[i].personalTax : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 11).number(data[i].reduce ? data[i].reduce : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 14).number(data[i].totalReduce ? data[i].totalReduce : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 15).number(data[i].realField ? data[i].realField : 0).style(stylecellNumber)
                     }
+                    // Tổng cộng
+                    ws.cell(5 + data.length, 1, 5 + data.length, 4, true)
+                        .string('TỔNG CỘNG')
+                        .style(styleHearder);
+                    ws.cell(5 + data.length, 5).number(totalFooter.totalProductivityWages).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 6).number(totalFooter.totalBHXHSalary).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 7).number(totalFooter.totalStaffBHXH).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 8).number(totalFooter.totalStaffBHYT).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 9).number(totalFooter.totalStaffBHTN).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 10).number(totalFooter.totalUnion).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 11).number(totalFooter.totelReduce).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 12).number(totalFooter.totalPersonalTaxSalary).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 13).number(totalFooter.totalPersonalTax).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 14).number(totalFooter.totalAllReduce).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 15).number(totalFooter.totalRealField).style(styleHearderNumber)
+
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
                     setTimeout(() => {
                         var result = {
