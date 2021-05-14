@@ -125,24 +125,18 @@ async function calculateTheAverageDepreciationForEachMonthOfTheFirstYear(time, d
     let lastDayOfTheMonth = await getTheLastDayOfTheMonth(yearAsset, monthAsset)
     let monthlyDepreciationRate = Math.round(originalPrice / time) // mức khấu hao tháng = nguyên giá / thời gian khấu hao
     if (dateAsset == 1) {
-        objGoods['discountedValue1'] = monthlyDepreciationRate
-        objGoods['discountedValue2'] = monthlyDepreciationRate
-        objGoods['discountedValue3'] = monthlyDepreciationRate
-        objGoods['discountedValue4'] = monthlyDepreciationRate
-        objGoods['discountedValue5'] = monthlyDepreciationRate
-        objGoods['discountedValue6'] = monthlyDepreciationRate
-        objGoods['discountedValue7'] = monthlyDepreciationRate
-        objGoods['discountedValue8'] = monthlyDepreciationRate
-        objGoods['discountedValue9'] = monthlyDepreciationRate
-        objGoods['discountedValue10'] = monthlyDepreciationRate
-        objGoods['discountedValue11'] = monthlyDepreciationRate
-        objGoods['discountedValue12'] = monthlyDepreciationRate
-        objGoods['totalAnnualDepreciation'] = Math.round(originalPrice / time * 12)
+        for (var onDay = 1; onDay < monthAsset; onDay++) {
+            objGoods['discountedValue' + onDay] = 0
+        }
+        for (var onDay = monthAsset; onDay <= 12; onDay++) {
+            objGoods['discountedValue' + onDay] = monthlyDepreciationRate
+        }
+        objGoods['totalAnnualDepreciation'] = Math.round(originalPrice / time)
         objGoods['note'] = 0
         objGoods['accumulatedDepreciation'] = 0
-        objGoods['residualValue'] = 0
-        objGoods['accumulatedDepreciationEndYear'] = 0
-        objGoods['yearEndResidualValue'] = 0
+        objGoods['residualValue'] = originalPrice
+        objGoods['accumulatedDepreciationEndYear'] = Math.round(originalPrice / time)
+        objGoods['yearEndResidualValue'] = Math.round(originalPrice - (originalPrice / time))
     } else {
         let discountedValueDepreciationStartMonth = 0; // giá trị tháng bắt đầu khấu hao
         discountedValueDepreciationStartMonth = Math.round((monthlyDepreciationRate / lastDayOfTheMonth) * (lastDayOfTheMonth - dateAsset + 1)) // số ngày = số ngày của tháng - ngày khấu hao của tài sản + 1
@@ -176,6 +170,7 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
     let objGoods = {}
     let yearAsset = Number(moment(dateAssetDepreciation).format('YYYY'))
     let monthAsset = Number(moment(dateAssetDepreciation).format('MM'))
+    let dateAsset = Number(moment(dateAssetDepreciation).format('DD'))
     let monthlyDepreciationRate = Math.round(originalPrice / time) // mức khấu hao tháng = nguyên giá / thời gian khấu hao
     let firstYearObj = {}
     firstYearObj = await calculateTheAverageDepreciationForEachMonthOfTheFirstYear(time, dateAssetDepreciation, originalPrice)
@@ -202,9 +197,11 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
             accumulatedDepreciation = accumulatedDepreciationEndYear
         accumulatedDepreciationEndYear = accumulatedDepreciation + totalAnnualDepreciation
         yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
-        if (((y - yearAsset) * 12 - monthAsset + 12) > time) {
+        if (((y - yearAsset) * 12 - monthAsset + 12) >= time) {
             let balance = 0 // số tháng dư
-            balance = 12 - (((y - yearAsset) * 12 - monthAsset + 12) - time)
+            //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
+            balance = (12 - (((y - yearAsset) * 12 - monthAsset + 12) - time)) - 1
+            console.log(balance, 12345, dateAsset);
             for (month = 1; month < balance; month++) {
                 objGoods['discountedValue' + month] = monthlyDepreciationRate
             }
@@ -212,10 +209,19 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
             for (month = balance + 1; month <= 12; month++) {
                 objGoods['discountedValue' + month] = 0
             }
-            let totalAnnualDepreciation = (monthlyDepreciationRate * (balance - 1) + originalPrice - accumulatedDepreciation - monthlyDepreciationRate * (balance - 1))
+            console.log(objGoods);
+            let totalAnnualDepreciation = 0
+            if (objGoods['discountedValue1'] == 0) {
+                totalAnnualDepreciation = 0
+                accumulatedDepreciationEndYear = 0
+                yearEndResidualValue = 0
+            } else {
+                totalAnnualDepreciation = (monthlyDepreciationRate * (balance - 1) + originalPrice - accumulatedDepreciation - monthlyDepreciationRate * (balance - 1))
+                accumulatedDepreciationEndYear = originalPrice
+                yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
+            }
             objGoods['totalAnnualDepreciation'] = Math.round(totalAnnualDepreciation)
-            accumulatedDepreciationEndYear = originalPrice
-            yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
+
         }
     }
     residualValue = originalPrice - accumulatedDepreciation
@@ -276,7 +282,7 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
             objGoods['stt'] = stt
             objGoods['assetName'] = goodsName
             objGoods['assetCode'] = asset[s].TSNBCode ? asset[s].TSNBCode : ''
-            objGoods['date'] = asset[s].asset ? moment(asset[s].asset.Date).format('DD/MM/YYYY') : ''
+            objGoods['date'] = asset[s].asset ? moment(asset[s].DepreciationDate).format('DD/MM/YYYY') : ''
             objGoods['originalPrice'] = originalPrice
             objGoods['time'] = time
             objGoods['isTypeAsset'] = false

@@ -198,7 +198,7 @@ module.exports = {
                         str += data.id[key] + ', ';
                     }
                 }
-                let query = "UPDATE dbo.tblYeuCau SET TrangThai = 'ĐÃ GỬI' where ID in " + str
+                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ GỬI' where ID in " + str
                 db.query(query)
                 io.sockets.emit("sendrequest", data.id);
             });

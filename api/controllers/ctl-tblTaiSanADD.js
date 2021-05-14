@@ -342,6 +342,7 @@ module.exports = {
     updateDetailAsset: (req, res) => {
         let body = req.body;
         body.obj = JSON.parse(body.obj)
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -378,6 +379,7 @@ module.exports = {
                             // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     }
+                    console.log(obj);
                     await mtblTaiSan(db).update(obj, {
                         where: { ID: body.id }
                     })
