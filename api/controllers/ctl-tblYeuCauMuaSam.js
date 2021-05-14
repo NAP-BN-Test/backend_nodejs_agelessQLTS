@@ -413,7 +413,6 @@ module.exports = {
             }
         })
     },
-
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;

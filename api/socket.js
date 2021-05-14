@@ -10,6 +10,7 @@ var mtblYeuCauMuaSam = require("./tables/qlnb/tblYeuCauMuaSam");
 var mtblDeNghiThanhToan = require("./tables/qlnb/tblDeNghiThanhToan");
 var mtblHopDongNhanSu = require('./tables/hrmanage/tblHopDongNhanSu')
 var mtblDMPermission = require('./tables/constants/tblDMPermission');
+const bodyParser = require('body-parser');
 
 async function getPaymentAndREquest() {
     var array = [];
@@ -164,6 +165,43 @@ async function getStaffContractExpirationData() {
 module.exports = {
     sockketIO: async (io) => {
         io.on("connection", async function (socket) {
+            socket.on("sendrequest", async function (data) {
+                const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
+                    host: 'dbdev.namanphu.vn',
+                    dialect: 'mssql',
+                    operatorsAliases: '0',
+                    // Bắt buộc phải có
+                    dialectOptions: {
+                        options: { encrypt: false }
+                    },
+                    pool: {
+                        max: 5,
+                        min: 0,
+                        acquire: 30000,
+                        idle: 10000
+                    },
+                    define: {
+                        timestamps: false,
+                        freezeTableName: true
+                    }
+                });
+
+                db.authenticate()
+                    .then(() => console.log('Ket noi thanh cong'))
+                    .catch(err => console.log(err.message));
+                let str = '(';
+                for (var key = 0; key < data.id.length; key++) {
+                    if (key == (data.id.length - 1)) {
+                        str += data.id[key];
+                        str += ')'
+                    } else {
+                        str += data.id[key] + ', ';
+                    }
+                }
+                let query = "UPDATE dbo.tblYeuCau SET TrangThai = 'ĐÃ GỬI' where ID in " + str
+                db.query(query)
+                io.sockets.emit("sendrequest", data.id);
+            });
             console.log('The user is connecting : ' + socket.id);
             var array = await getPaymentAndREquest()
             var arrayContract = await getStaffContractExpirationData();

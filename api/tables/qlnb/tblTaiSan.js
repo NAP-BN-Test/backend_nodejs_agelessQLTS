@@ -13,7 +13,7 @@ module.exports = function (db) {
         TSNBCode: Sequelize.STRING,
         OriginalPrice: Sequelize.FLOAT,
         DepreciationPrice: Sequelize.FLOAT,
-        DepreciationDate: Sequelize.DATE,
+        DepreciationDate: Sequelize.DATE, // ngày khấu hao
         Condition: Sequelize.STRING,
         GuaranteeMonth: Sequelize.FLOAT,
         IDTaiSanDiKem: Sequelize.BIGINT,

@@ -490,9 +490,10 @@ module.exports = {
                         } else {
                             checkMaxRow += 1;
                         }
+                        console.log(data[i].arrayFileExport);
                         if (data[i].arrayFileExport.length > 0) {
                             for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 6).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
+                                ws.cell(file + row, 7).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
                             }
                         }
                         if (data[i].arrayFileExport.length > 0) {
@@ -502,8 +503,6 @@ module.exports = {
                             ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
                             ws.cell(row, 2, row + max - 1, 2, true).string(transform(data[i].paymentOrderCode ? data[i].paymentOrderCode : 0)).style(stylecell);
                             ws.cell(row, 6, row + max - 1, 6, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
-                            // ws.cell(row, 7, row + max - 1, 7, true).string(data[i].nameNhanVienKTPD).style(stylecell);
-                            // ws.cell(row, 8, row + max - 1, 8, true).string(data[i].trangThaiPheDuyetLD).style(stylecell);
                         }
                         else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell)
@@ -512,9 +511,6 @@ module.exports = {
                             ws.cell(row, 5).string(data[i].contents).style(stylecell)
                             ws.cell(row, 2).string(data[i].paymentOrderCode).style(stylecell)
                             ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
-                            // ws.cell(row, 2).string(transform(data[i].paymentOrderCode ? data[i].paymentOrderCode)).style(stylecell)
-                            // ws.cell(row, 7).string(data[i].nameNhanVienKTPD).style(stylecell)
-                            // ws.cell(row, 8).string(data[i].trangThaiPheDuyetLD).style(stylecell)
                         }
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
@@ -902,52 +898,6 @@ module.exports = {
             }
         })
     },
-    // let body = req.body
-    //     // console.log(body);
-    //     database.connectDatabase().then(async db => {
-    //         if (db) {
-    //             try {
-    //                 fs.readFile(path.join('D:/images_services/ageless_sendmail/', 'template1.xlsx'), async function (err, data) {
-
-    //                     // Create a template
-    //                     var template = new XlsxTemplate(data);
-
-    //                     // Replacements take place on first sheet
-    //                     var sheetNumber = 1;
-
-    //                     var obj = await getDetailYCMS(db, body.id)
-    //                     // console.log(obj);
-    //                     // Set up some placeholder values matching the placeholders in the template
-    //                     var arrayTaiSan = obj.arrayTaiSan.concat(obj.arrayVPP)
-    //                     var values = {
-    //                         requireDate: obj.requireDate,
-    //                         namePhongBan: obj.namePhongBan ? obj.namePhongBan : '',
-    //                         nameNhanVien: obj.nameNhanVien ? obj.nameNhanVien : '',
-    //                         namePheDuyet1: obj.namePheDuyet1 ? obj.namePheDuyet1 : '',
-    //                         namePheDuyet2: obj.namePheDuyet2 ? obj.namePheDuyet2 : '',
-    //                         arrayTaiSan: arrayTaiSan,
-    //                         price: obj.price ? obj.price : 0,
-    //                         reason: obj.reason ? obj.reason : '',
-    //                         arrayFile: obj.arrayFile,
-    //                     };
-    //                     // Perform substitution
-    //                     template.substitute(sheetNumber, values);
-
-    //                     // Get binary data
-    //                     var data = template.generate();
-    //                     fs.writeFileSync('D:/images_services/ageless_sendmail/test.xlsx', data, 'binary');
-    //                     res.json(Result.SYS_ERROR_RESULT)
-
-    //                 });
-    //             } catch (error) {
-    //                 console.log(error);
-    //                 res.json(Result.SYS_ERROR_RESULT)
-    //             }
-    //         } else {
-    //             res.json(Constant.MESSAGE.USER_FAIL)
-    //         }
-    //     })
-    // },
     // export_excel_Detail_YCMS
     exportExcelInDetailYCMS: (req, res) => {
         var wb = new xl.Workbook();

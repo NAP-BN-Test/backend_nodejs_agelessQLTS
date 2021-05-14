@@ -213,6 +213,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
             liquidationReason: data.LiquidationReason ? data.LiquidationReason : '',
             liquidationDate: data.LiquidationDate ? data.LiquidationDate : '',
+            liquidationMoney: data.LiquidationMoney ? data.LiquidationMoney : 0,
             condition: data.Condition ? data.Condition : '',
             describe: data.Describe ? data.Describe : '',
             status: data.Status ? data.Status : '',

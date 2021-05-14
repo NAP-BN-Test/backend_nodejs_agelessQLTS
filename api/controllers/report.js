@@ -111,7 +111,120 @@ async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
     })
     return result;
 }
+async function getTheLastDayOfTheMonth(year, month) {
+    var date = new Date(year, month, 0);
+    var dateFinal = Number(date.toISOString().slice(8, 10))
+    dateFinal += 1
+    return dateFinal
+}
+async function calculateTheAverageDepreciationForEachMonthOfTheFirstYear(time, dateAssetDepreciation, originalPrice) {
+    objGoods = {}
+    let yearAsset = Number(moment(dateAssetDepreciation).format('YYYY'))
+    let monthAsset = Number(moment(dateAssetDepreciation).format('MM'))
+    let dateAsset = Number(moment(dateAssetDepreciation).format('DD'))
+    let lastDayOfTheMonth = await getTheLastDayOfTheMonth(yearAsset, monthAsset)
+    let monthlyDepreciationRate = Math.round(originalPrice / time) // mức khấu hao tháng = nguyên giá / thời gian khấu hao
+    if (dateAsset == 1) {
+        objGoods['discountedValue1'] = monthlyDepreciationRate
+        objGoods['discountedValue2'] = monthlyDepreciationRate
+        objGoods['discountedValue3'] = monthlyDepreciationRate
+        objGoods['discountedValue4'] = monthlyDepreciationRate
+        objGoods['discountedValue5'] = monthlyDepreciationRate
+        objGoods['discountedValue6'] = monthlyDepreciationRate
+        objGoods['discountedValue7'] = monthlyDepreciationRate
+        objGoods['discountedValue8'] = monthlyDepreciationRate
+        objGoods['discountedValue9'] = monthlyDepreciationRate
+        objGoods['discountedValue10'] = monthlyDepreciationRate
+        objGoods['discountedValue11'] = monthlyDepreciationRate
+        objGoods['discountedValue12'] = monthlyDepreciationRate
+        objGoods['totalAnnualDepreciation'] = Math.round(originalPrice / time * 12)
+        objGoods['note'] = 0
+        objGoods['accumulatedDepreciation'] = 0
+        objGoods['residualValue'] = 0
+        objGoods['accumulatedDepreciationEndYear'] = 0
+        objGoods['yearEndResidualValue'] = 0
+    } else {
+        let discountedValueDepreciationStartMonth = 0; // giá trị tháng bắt đầu khấu hao
+        discountedValueDepreciationStartMonth = Math.round((monthlyDepreciationRate / lastDayOfTheMonth) * (lastDayOfTheMonth - dateAsset + 1)) // số ngày = số ngày của tháng - ngày khấu hao của tài sản + 1
+        objGoods['discountedValue' + monthAsset] = discountedValueDepreciationStartMonth
+        for (var underDay = 1; underDay < monthAsset; underDay++) {
+            objGoods['discountedValue' + underDay] = 0
+        }
+        for (var onDay = (monthAsset + 1); onDay <= 12; onDay++) {
+            objGoods['discountedValue' + onDay] = monthlyDepreciationRate
+        }
 
+        let depreciationOfTheRemainingMonths = 0 // Mức khấu hao trung bình của các tháng còn lại
+        depreciationOfTheRemainingMonths = Math.round((12 - monthAsset) * (originalPrice / time))
+        let totalDepreciationOfTheFirstYear = 0 // tổng khấu hao của năm đầu tiên
+        totalDepreciationOfTheFirstYear = Math.round(depreciationOfTheRemainingMonths + discountedValueDepreciationStartMonth)
+        objGoods['totalAnnualDepreciation'] = Math.round(totalDepreciationOfTheFirstYear)
+        objGoods['note'] = discountedValueDepreciationStartMonth
+        let accumulatedDepreciation = 0 // lũy kế đầu năm
+        residualValue = originalPrice - accumulatedDepreciation
+        accumulatedDepreciationEndYear = accumulatedDepreciation + objGoods['totalAnnualDepreciation']
+        yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
+        objGoods['accumulatedDepreciation'] = accumulatedDepreciation
+        objGoods['residualValue'] = residualValue
+        objGoods['accumulatedDepreciationEndYear'] = accumulatedDepreciationEndYear
+        objGoods['yearEndResidualValue'] = yearEndResidualValue
+    }
+    // console.log(objGoods);
+    return objGoods
+}
+async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDepreciation, originalPrice) {
+    let objGoods = {}
+    let yearAsset = Number(moment(dateAssetDepreciation).format('YYYY'))
+    let monthAsset = Number(moment(dateAssetDepreciation).format('MM'))
+    let monthlyDepreciationRate = Math.round(originalPrice / time) // mức khấu hao tháng = nguyên giá / thời gian khấu hao
+    let firstYearObj = {}
+    firstYearObj = await calculateTheAverageDepreciationForEachMonthOfTheFirstYear(time, dateAssetDepreciation, originalPrice)
+    let totalAnnualDepreciation = Math.round(originalPrice / time * 12) // tổng khấu hao hàng tháng
+    objGoods['discountedValue1'] = monthlyDepreciationRate
+    objGoods['discountedValue2'] = monthlyDepreciationRate
+    objGoods['discountedValue3'] = monthlyDepreciationRate
+    objGoods['discountedValue4'] = monthlyDepreciationRate
+    objGoods['discountedValue5'] = monthlyDepreciationRate
+    objGoods['discountedValue6'] = monthlyDepreciationRate
+    objGoods['discountedValue7'] = monthlyDepreciationRate
+    objGoods['discountedValue8'] = monthlyDepreciationRate
+    objGoods['discountedValue9'] = monthlyDepreciationRate
+    objGoods['discountedValue10'] = monthlyDepreciationRate
+    objGoods['discountedValue11'] = monthlyDepreciationRate
+    objGoods['discountedValue12'] = monthlyDepreciationRate
+    objGoods['totalAnnualDepreciation'] = totalAnnualDepreciation
+    let accumulatedDepreciation = firstYearObj['accumulatedDepreciationEndYear']
+    let accumulatedDepreciationEndYear = 0
+    let yearEndResidualValue = 0
+    let residualValue = 0
+    for (y = (yearAsset + 1); y <= year; y++) {
+        if (y > (yearAsset + 1))
+            accumulatedDepreciation = accumulatedDepreciationEndYear
+        accumulatedDepreciationEndYear = accumulatedDepreciation + totalAnnualDepreciation
+        yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
+        if (((y - yearAsset) * 12 - monthAsset + 12) > time) {
+            let balance = 0 // số tháng dư
+            balance = 12 - (((y - yearAsset) * 12 - monthAsset + 12) - time)
+            for (month = 1; month < balance; month++) {
+                objGoods['discountedValue' + month] = monthlyDepreciationRate
+            }
+            objGoods['discountedValue' + balance] = originalPrice - accumulatedDepreciation - monthlyDepreciationRate * (balance - 1)
+            for (month = balance + 1; month <= 12; month++) {
+                objGoods['discountedValue' + month] = 0
+            }
+            let totalAnnualDepreciation = (monthlyDepreciationRate * (balance - 1) + originalPrice - accumulatedDepreciation - monthlyDepreciationRate * (balance - 1))
+            objGoods['totalAnnualDepreciation'] = Math.round(totalAnnualDepreciation)
+            accumulatedDepreciationEndYear = originalPrice
+            yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
+        }
+    }
+    residualValue = originalPrice - accumulatedDepreciation
+    objGoods['accumulatedDepreciation'] = accumulatedDepreciation
+    objGoods['accumulatedDepreciationEndYear'] = accumulatedDepreciationEndYear
+    objGoods['yearEndResidualValue'] = yearEndResidualValue
+    objGoods['residualValue'] = residualValue
+    return objGoods
+}
 async function getDetailAsset(db, idGoods, goodsName, year) {
     let arrayResult = []
     let tblTaiSan = mtblTaiSan(db);
@@ -133,56 +246,39 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
         for (let s = 0; s < asset.length; s++) {
             let objGoods = {}
             let originalPrice = asset[s].DepreciationPrice ? asset[s].DepreciationPrice : 0
-            let accumulatedDepreciation = 0
-            let accumulatedDepreciationEndYear = 0
             let time = asset[s].GuaranteeMonth ? asset[s].GuaranteeMonth : 0
-            let totalAnnualDepreciation = (time == 0 ? 0 : (originalPrice / time)) * 12
-            totalAnnualDepreciation = Math.round(totalAnnualDepreciation)
-            let valueDiscount = time == 0 ? 0 : (originalPrice / time)
-            valueDiscount = Math.round(valueDiscount)
-            let yearAsset = asset[s].DepreciationDate ? moment(asset[s].DepreciationDate).format('YYYY') : 0
-            let yearEndResidualValue = 0
-            if (yearAsset < year && yearAsset != 0) {
-                for (let y = (Number(yearAsset)); y < year; y++) {
-                    accumulatedDepreciationEndYear = accumulatedDepreciation + totalAnnualDepreciation
-                    accumulatedDepreciation = accumulatedDepreciationEndYear
-                    yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
-                    if ((originalPrice - accumulatedDepreciationEndYear) <= 0) {
-                        accumulatedDepreciation = 0
-                        accumulatedDepreciationEndYear = 0
-                        valueDiscount = 0
-                        totalAnnualDepreciation = 0
-                        // yearEndResidualValue = 0
-                        break
-                    }
-                }
-            } else {
-                yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
+            let yearAsset = Number(moment(asset[s].DepreciationDate).format('YYYY'))
+            let monthAsset = Number(moment(asset[s].DepreciationDate).format('MM'))
+            objGoods['discountedValue1'] = 0
+            objGoods['discountedValue2'] = 0
+            objGoods['discountedValue3'] = 0
+            objGoods['discountedValue4'] = 0
+            objGoods['discountedValue5'] = 0
+            objGoods['discountedValue6'] = 0
+            objGoods['discountedValue7'] = 0
+            objGoods['discountedValue8'] = 0
+            objGoods['discountedValue9'] = 0
+            objGoods['discountedValue10'] = 0
+            objGoods['discountedValue11'] = 0
+            objGoods['discountedValue12'] = 0
+            objGoods['totalAnnualDepreciation'] = 0
+            objGoods['accumulatedDepreciation'] = 0
+            objGoods['residualValue'] = 0
+            objGoods['accumulatedDepreciationEndYear'] = 0
+            objGoods['yearEndResidualValue'] = 0
+            if (year == yearAsset) {
+                objGoods = await calculateTheAverageDepreciationForEachMonthOfTheFirstYear(time, asset[s].DepreciationDate, originalPrice)
             }
-            accumulatedDepreciationEndYear = totalAnnualDepreciation + accumulatedDepreciation
+            if (year > yearAsset) {
+                if (((year - 1 - yearAsset) * 12 + (12 - monthAsset) - time) < 0)
+                    objGoods = await calculateDepreciationForTheFollowingYears(year, time, asset[s].DepreciationDate, originalPrice)
+            }
             objGoods['stt'] = stt
             objGoods['assetName'] = goodsName
             objGoods['assetCode'] = asset[s].TSNBCode ? asset[s].TSNBCode : ''
             objGoods['date'] = asset[s].asset ? moment(asset[s].asset.Date).format('DD/MM/YYYY') : ''
             objGoods['originalPrice'] = originalPrice
             objGoods['time'] = time
-            objGoods['accumulatedDepreciation'] = accumulatedDepreciation // lũy kế đầu năm,
-            objGoods['residualValue'] = originalPrice - accumulatedDepreciation // giá trị còn lại đầu năm,
-            objGoods['discountedValue1'] = valueDiscount
-            objGoods['discountedValue2'] = valueDiscount
-            objGoods['discountedValue3'] = valueDiscount
-            objGoods['discountedValue4'] = valueDiscount
-            objGoods['discountedValue5'] = valueDiscount
-            objGoods['discountedValue6'] = valueDiscount
-            objGoods['discountedValue7'] = valueDiscount
-            objGoods['discountedValue8'] = valueDiscount
-            objGoods['discountedValue9'] = valueDiscount
-            objGoods['discountedValue10'] = valueDiscount
-            objGoods['discountedValue11'] = valueDiscount
-            objGoods['discountedValue12'] = valueDiscount
-            objGoods['totalAnnualDepreciation'] = totalAnnualDepreciation
-            objGoods['accumulatedDepreciationEndYear'] = accumulatedDepreciationEndYear
-            objGoods['yearEndResidualValue'] = yearEndResidualValue
             objGoods['isTypeAsset'] = false
             arrayResult.push(objGoods)
             stt += 1
@@ -390,7 +486,6 @@ module.exports = {
                             }
 
                         }
-                        console.log(accumulatedDepreciationTotal, originalPriceTotal);
                         objTotal['originalPriceTotal'] = originalPriceTotal
                         objTotal['timeTotal'] = timeTotal
                         objTotal['residualValueTotal'] = residualValueTotal
@@ -410,7 +505,6 @@ module.exports = {
                         objTotal['totalAnnualDepreciationTotal'] = totalAnnualDepreciationTotal
                         objTotal['accumulatedDepreciationEndYearTotal'] = accumulatedDepreciationEndYearTotal
                         objTotal['yearEndResidualValueTotal'] = yearEndResidualValueTotal
-                        console.log(array);
                         var result = {
                             total: objTotal,
                             array: array,
