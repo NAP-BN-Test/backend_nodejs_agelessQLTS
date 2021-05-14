@@ -197,11 +197,11 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
             accumulatedDepreciation = accumulatedDepreciationEndYear
         accumulatedDepreciationEndYear = accumulatedDepreciation + totalAnnualDepreciation
         yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
-        if (((y - yearAsset) * 12 - monthAsset + 12) >= time) {
+        console.log(((y - yearAsset) * 12 - monthAsset + 12), time);
+        if (((y - yearAsset) * 12 - monthAsset + 12) > time) {
             let balance = 0 // số tháng dư
             //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
             balance = (12 - (((y - yearAsset) * 12 - monthAsset + 12) - time)) - 1
-            console.log(balance, 12345, dateAsset);
             for (month = 1; month < balance; month++) {
                 objGoods['discountedValue' + month] = monthlyDepreciationRate
             }
@@ -209,7 +209,6 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
             for (month = balance + 1; month <= 12; month++) {
                 objGoods['discountedValue' + month] = 0
             }
-            console.log(objGoods);
             let totalAnnualDepreciation = 0
             if (objGoods['discountedValue1'] == 0) {
                 totalAnnualDepreciation = 0
@@ -222,6 +221,11 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
             }
             objGoods['totalAnnualDepreciation'] = Math.round(totalAnnualDepreciation)
 
+        } else if (((y - yearAsset) * 12 - monthAsset + 13) == time) {
+            let balance = 0
+            balance = (12 - (((y - yearAsset) * 12 - monthAsset + 12) - time))
+            let timeF = await getTheLastDayOfTheMonth(yearAsset, monthAsset)
+            objGoods['discountedValue12'] = originalPrice / time / timeF * balance
         }
     }
     residualValue = originalPrice - accumulatedDepreciation
@@ -229,6 +233,7 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
     objGoods['accumulatedDepreciationEndYear'] = accumulatedDepreciationEndYear
     objGoods['yearEndResidualValue'] = yearEndResidualValue
     objGoods['residualValue'] = residualValue
+    console.log(objGoods);
     return objGoods
 }
 async function getDetailAsset(db, idGoods, goodsName, year) {
