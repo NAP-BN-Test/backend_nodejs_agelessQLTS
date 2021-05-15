@@ -469,6 +469,14 @@ module.exports = {
                             }
                         })
                         let bhxhSalaryTotal = 0
+                        let bhxhCTTotal = 0
+                        let bhxhNVTotal = 0
+                        let bhytCTTotal = 0
+                        let bhytNVTotal = 0
+                        let bhtnCTTotal = 0
+                        let bhtnNVTotal = 0
+                        let bhtnldTotal = 0
+                        let tongTotal = 0
                         for (var i = 0; i < data.length; i++) {
                             var reduce = 0;
                             await mtblDMGiaDinh(db).findAll({
@@ -487,6 +495,15 @@ module.exports = {
                             var coefficientsSalary = data[i].IDNhanVien ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0;
                             let bhxhSalary = coefficientsSalary * minimumWage + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
                             bhxhSalaryTotal += bhxhSalary
+                            bhxhCTTotal += bhxhSalary * objInsurance['companyBHXH']
+                            bhxhNVTotal += bhxhSalary * objInsurance['staffBHXH']
+                            bhytCTTotal += bhxhSalary * objInsurance['companyBHYT']
+                            bhytNVTotal += bhxhSalary * objInsurance['staffBHYT']
+                            bhtnNVTotal += bhxhSalary * objInsurance['staffBHTN']
+                            bhtnCTTotal += bhxhSalary * objInsurance['companyBHTN']
+                            bhtnldTotal += bhxhSalary * objInsurance['staffBHTNLD']
+                            let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD'])
+                            tongTotal += total
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -513,6 +530,14 @@ module.exports = {
                             array: array,
                             totalFooter: {
                                 bhxhSalaryTotal: bhxhSalaryTotal,
+                                bhxhCTTotal: bhxhCTTotal,
+                                bhxhNVTotal: bhxhNVTotal,
+                                bhytCTTotal: bhytCTTotal,
+                                bhytNVTotal: bhytNVTotal,
+                                bhtnCTTotal: bhtnCTTotal,
+                                bhtnNVTotal: bhtnNVTotal,
+                                bhtnldTotal: bhtnldTotal,
+                                tongTotal: tongTotal,
                             },
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

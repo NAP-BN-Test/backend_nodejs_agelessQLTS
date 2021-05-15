@@ -166,6 +166,7 @@ module.exports = {
     sockketIO: async (io) => {
         io.on("connection", async function (socket) {
             socket.on("sendrequest", async function (data) {
+                let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
                     dialect: 'mssql',
@@ -198,9 +199,14 @@ module.exports = {
                         str += data.id[key] + ', ';
                     }
                 }
-                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ GỬI' where ID in " + str
-                db.query(query)
-                io.sockets.emit("sendrequest", data.id);
+                if (data.id) {
+                    let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ GỬI', NgayGui = '" + now + "' where ID in " + str
+                    console.log(query, 1234);
+                    db.query(query)
+                    io.sockets.emit("sendrequest", data.id);
+                }
+                io.sockets.emit("sendrequest", []);
+
             });
             console.log('The user is connecting : ' + socket.id);
             var array = await getPaymentAndREquest()
