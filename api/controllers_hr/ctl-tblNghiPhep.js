@@ -8,13 +8,22 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+var mtblDateOfLeave = require('../tables/hrmanage/tblDateOfLeave')
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblNghiPhep(db, listID) {
+    await mtblDateOfLeave(db).destroy({
+        where: {
+            LeaveID: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblNghiPhep(db).destroy({
         where: {
             ID: {
-                [Op.in]: listID }
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -52,13 +61,14 @@ async function handleCalculateAdvancePayment(db, idStaff) {
 }
 async function handleCalculateUsedLeave(db, idStaff) {
     var result = 0;
-    await mtblNghiPhep(db).findAll({
-        where: { IDNhanVien: idStaff }
+    await mtblNghiPhep(db).findOne({
+        where: { IDNhanVien: idStaff },
+        order: [
+            ['ID', 'DESC']
+        ],
     }).then(data => {
         if (data) {
-            data.forEach(item => {
-                result += item.NumberHoliday
-            })
+            result += data.NumberHoliday
         }
     })
     return result;
@@ -106,7 +116,8 @@ async function handleCalculatePreviousYear(db, idStaff, currentYear) {
         where: {
             IDNhanVien: idStaff,
             DateEnd: {
-                [Op.substring]: currentYear }
+                [Op.substring]: currentYear
+            }
         },
         order: [
             ['ID', 'DESC']
@@ -152,10 +163,12 @@ module.exports = {
                     let usedLeave = 0;
                     let numberHoliday = 0;
                     let remainingPreviousYear = 0;
+                    let arrayRespone = JSON.parse(body.array)
                     if (body.type == 'TakeLeave') {
                         seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
                             // var quotient = Math.floor(y / x);  // lấy nguyên
                             // var remainder = y % x; // lấy dư
+                        console.log(seniority);
                         if (seniority > 12) {
                             advancePayment = 12 + Math.floor(seniority / 60)
                         } else {
@@ -170,8 +183,17 @@ module.exports = {
                                 advancePayment = 12 - Number(moment(dateSign).format('MM'))
                             }
                         }
+                        for (let i = 0; i < arrayRespone.length; i++) {
+                            let numberHolidayArray = 0
+                            if (!arrayRespone[i].timeStart)
+                                arrayRespone[i].timeStart = "08:00"
+                            if (!arrayRespone[i].timeEnd)
+                                arrayRespone[i].timeEnd = "18:00"
+                            numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                            numberHoliday += numberHolidayArray
+                        }
+                        //  từ từ
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
-                        numberHoliday = await handleCalculateDayOff(body.dateStart, body.dateEnd)
                         let currentYear = Number(moment().format('YYYY'))
                         let currentMonth = Number(moment().format('MM'))
                         if (currentMonth < 4)
@@ -180,8 +202,8 @@ module.exports = {
                             remainingPreviousYear = 0
                     }
                     mtblNghiPhep(db).create({
-                        DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
-                        DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                        // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                        // DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
                         NumberLeave: code,
@@ -199,6 +221,14 @@ module.exports = {
                         Time: body.time ? body.time : '',
                         Note: body.note ? body.note : ''
                     }).then(async data => {
+                        if (data)
+                            for (let i = 0; i < arrayRespone.length; i++) {
+                                await mtblDateOfLeave(db).create({
+                                    DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                                    DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                                    LeaveID: data.ID,
+                                })
+                            }
                         if (body.type == 'TakeLeave') {
                             body.fileAttach = JSON.parse(body.fileAttach)
                             if (body.fileAttach.length > 0)
@@ -376,11 +406,16 @@ module.exports = {
                                     ['ID', 'DESC']
                                 ],
                                 where: {
-                                    [Op.or]: [
-                                        { StaffCode: {
-                                                [Op.like]: '%' + data.search + '%' } },
-                                        { StaffName: {
-                                                [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -388,20 +423,27 @@ module.exports = {
                                     list.push(item.ID);
                                 })
                             })
-                            where = [
-                                { IDNhanVien: {
-                                        [Op.in]: list } },
-                                { NumberLeave: {
-                                        [Op.like]: '%' + data.search + '%' } },
+                            where = [{
+                                    IDNhanVien: {
+                                        [Op.in]: list
+                                    }
+                                },
+                                {
+                                    NumberLeave: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { NumberLeave: {
-                                        [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                NumberLeave: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         arraySearchAnd.push({
-                                [Op.or]: where })
+                                [Op.or]: where
+                            })
                             // arraySearchOr.push({ ID: { [Op.ne]: null } })
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
@@ -409,7 +451,8 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'NGƯỜI LÀM ĐƠN') {
                                     var list = [];
                                     userFind['IDNhanVien'] = {
-                                        [Op.eq]: data.items[i]['searchFields'] }
+                                        [Op.eq]: data.items[i]['searchFields']
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -430,7 +473,8 @@ module.exports = {
                                         })
                                     })
                                     userFind['IDNhanVien'] = {
-                                        [Op.in]: list }
+                                        [Op.in]: list
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -443,7 +487,8 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
                                     userFind['Status'] = {
-                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -457,7 +502,8 @@ module.exports = {
                                 if (data.items[i].fields['name'] === 'NGÀY LÀM ĐƠN') {
                                     let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
                                     userFind['Date'] = {
-                                        [Op.substring]: '%' + date + '%' }
+                                        [Op.substring]: '%' + date + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -526,42 +572,57 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (var i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                dateEnd: element.DateEnd ? moment(element.DateEnd).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
-                                dateStart: element.DateStart ? moment(element.DateStart).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
-                                idLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.ID : '',
-                                nameLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Name : '',
-                                codeLoaiChamCong: element.loaiChamCong ? element.loaiChamCong.Code : '',
-                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : '',
-                                staffCode: element.nv ? element.nv.StaffCode : '',
-                                staffName: element.nv ? element.nv.StaffName : '',
-                                departmentName: element.nv ? element.nv.bp ? element.nv.bp.DepartmentName : '' : '',
-                                departmentID: element.nv ? element.nv.bp ? element.nv.bp.ID : '' : '',
-                                numberLeave: element.NumberLeave ? element.NumberLeave : '',
-                                content: element.ContentLeave ? element.ContentLeave : '',
-                                status: element.Status ? element.Status : '',
-                                type: element.Type ? element.Type : '',
-                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                remaining: element.AdvancePayment - element.UsedLeave - element.NumberHoliday,
-                                idHeadDepartment: element.IDHeadDepartment ? element.IDHeadDepartment : '',
-                                headDepartmentCode: element.headDepartment ? element.headDepartment.StaffCode : '',
-                                headDepartmentName: element.headDepartment ? element.headDepartment.StaffName : '',
-                                idAdministrationHR: element.IDAdministrationHR ? element.IDAdministrationHR : '',
-                                administrationHRCode: element.adminHR ? element.adminHR.StaffCode : '',
-                                administrationHRName: element.adminHR ? element.adminHR.StaffName : '',
-                                idHeads: element.IDHeads ? element.IDHeads : '',
-                                headsCode: element.heads ? element.heads.StaffCode : '',
-                                headsName: element.heads ? element.heads.StaffName : '',
-                                reason: element.Reason ? element.Reason : '',
-                                time: element.Time ? element.Time : '',
-                                note: element.Note ? element.Note : '',
+                                id: Number(data[i].ID),
+                                dateEnd: data[i].DateEnd ? moment(data[i].DateEnd).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
+                                dateStart: data[i].DateStart ? moment(data[i].DateStart).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
+                                idLoaiChamCong: data[i].loaiChamCong ? data[i].loaiChamCong.ID : '',
+                                nameLoaiChamCong: data[i].loaiChamCong ? data[i].loaiChamCong.Name : '',
+                                codeLoaiChamCong: data[i].loaiChamCong ? data[i].loaiChamCong.Code : '',
+                                idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : '',
+                                staffCode: data[i].nv ? data[i].nv.StaffCode : '',
+                                staffName: data[i].nv ? data[i].nv.StaffName : '',
+                                departmentName: data[i].nv ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
+                                departmentID: data[i].nv ? data[i].nv.bp ? data[i].nv.bp.ID : '' : '',
+                                numberLeave: data[i].NumberLeave ? data[i].NumberLeave : '',
+                                content: data[i].ContentLeave ? data[i].ContentLeave : '',
+                                status: data[i].Status ? data[i].Status : '',
+                                type: data[i].Type ? data[i].Type : '',
+                                date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
+                                remaining: data[i].AdvancePayment - data[i].UsedLeave - data[i].NumberHoliday,
+                                idHeadDepartment: data[i].IDHeadDepartment ? data[i].IDHeadDepartment : '',
+                                headDepartmentCode: data[i].headDepartment ? data[i].headDepartment.StaffCode : '',
+                                headDepartmentName: data[i].headDepartment ? data[i].headDepartment.StaffName : '',
+                                idAdministrationHR: data[i].IDAdministrationHR ? data[i].IDAdministrationHR : '',
+                                administrationHRCode: data[i].adminHR ? data[i].adminHR.StaffCode : '',
+                                administrationHRName: data[i].adminHR ? data[i].adminHR.StaffName : '',
+                                idHeads: data[i].IDHeads ? data[i].IDHeads : '',
+                                headsCode: data[i].heads ? data[i].heads.StaffCode : '',
+                                headsName: data[i].heads ? data[i].heads.StaffName : '',
+                                reason: data[i].Reason ? data[i].Reason : '',
+                                time: data[i].Time ? data[i].Time : '',
+                                note: data[i].Note ? data[i].Note : '',
                             }
+                            await mtblDateOfLeave(db).findAll({
+                                where: { LeaveID: data[i].ID }
+                            }).then(date => {
+                                let arrayDate = []
+                                date.forEach(item => {
+                                    arrayDate.push({
+                                        dateStart: moment(item.DateStart).format('YYYY-MM-DD'),
+                                        timeStart: moment(item.DateStart).format('HH:mm'),
+                                        dateEnd: moment(item.DateEnd).format('YYYY-MM-DD'),
+                                        timeEnd: moment(item.DateEnd).format('HH:mm'),
+                                    })
+                                })
+                                obj['array'] = arrayDate
+                            })
+                            console.log(obj);
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         for (var i = 0; i < array.length; i++) {
                             var arrayFile = []
                             await mtblFileAttach(db).findAll({ where: { IDTakeLeave: array[i].id } }).then(file => {
