@@ -1,4 +1,4 @@
-module.exports = function (app) {
+module.exports = function(app) {
     var checkToken = require('./constants/token');
     var tblDMUser = require('./controllers/ctl-tblDMUser');
     var tblDMNhanvien = require('./controllers/ctl-tblDMNhanvien');
@@ -21,6 +21,9 @@ module.exports = function (app) {
     var exportPDF = require('./controllers/export');
 
     app.route('/qlnb/convert_docx_to_pdf').post(exportPDF.convertDocxToPDF);
+
+    let locy = require('./controller_finance/ctl-locyApi')
+    app.route('/get_ticket_types').post(locy.apiGetTicketTypes);
 
     app.route('/qlnb/export_to_file_excel').post(exportPDF.exportToFileExcel);
 
@@ -502,7 +505,7 @@ module.exports = function (app) {
     var apiSpecializedSoftware = require('./controller_finance/ctl-apiSpecializedSoftware')
     app.route('/qlnb/get_list_department').post(apiSpecializedSoftware.getListDepartment);
     var tblInvoice = require('./controller_finance/ctl-tblInvoice')
-    // app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
+        // app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
     app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
     app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);

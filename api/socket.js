@@ -230,13 +230,14 @@ module.exports = {
 
             });
             socket.on("change-received-status", async function(data) {
+                console.log(data, 1234);
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-                let dbMaster = await connectDatabase('Customer_VTNAP')
+                let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                 let dbName1 = await connectDatabase(data.dbname1)
                 let dbMasterQuery = "SELECT ID FROM CustomerDB WHERE NameDatabase = N'" + data.dbname2 + "'"
-                console.log(dbMasterQuery);
-                let IDCustomer = dbMaster.query(dbMasterQuery)
-                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ NHẬN', NgayGui = '" + now + "', IDNhaXe = " + IDCustomer.ID + " where ID in " + str
+                let IDCustomer = await dbMaster.query(dbMasterQuery)
+                console.log(IDCustomer[0][0]);
+                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ NHẬN', NgayGui = '" + now + "', IDNhaXe = " + IDCustomer[0][0].ID + " where ID = " + data.id
                 console.log(query);
                 dbName1.query(query)
                 io.sockets.emit("sendrequest", []);
