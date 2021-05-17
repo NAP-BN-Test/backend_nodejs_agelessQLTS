@@ -17,8 +17,11 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
     var result = 0;
     var array = [];
     await mtblThemVPP(db).findAll({
-        where: { Date: {
-                [Op.lte]: dateFrom } }
+        where: {
+            Date: {
+                [Op.lte]: dateFrom
+            }
+        }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -28,8 +31,11 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDThemVPP: {
-                        [Op.in]: array } }
+                {
+                    IDThemVPP: {
+                        [Op.in]: array
+                    }
+                }
             ]
         }
     }).then(detail => {
@@ -38,8 +44,11 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
         })
     })
     await mtblPhanPhoiVPP(db).findAll({
-        where: { Date: {
-                [Op.lte]: dateFrom } }
+        where: {
+            Date: {
+                [Op.lte]: dateFrom
+            }
+        }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -49,8 +58,11 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDPhanPhoiVPP: {
-                        [Op.in]: array } }
+                {
+                    IDPhanPhoiVPP: {
+                        [Op.in]: array
+                    }
+                }
             ]
         }
     }).then(detail => {
@@ -67,8 +79,11 @@ async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
     var result = 0;
     var array = [];
     await mtblThemVPP(db).findAll({
-        where: { Date: {
-                [Op.between]: [dateFrom, dateTo] } }
+        where: {
+            Date: {
+                [Op.between]: [dateFrom, dateTo]
+            }
+        }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -78,8 +93,11 @@ async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDThemVPP: {
-                        [Op.in]: array } }
+                {
+                    IDThemVPP: {
+                        [Op.in]: array
+                    }
+                }
             ]
         }
     }).then(detail => {
@@ -95,8 +113,11 @@ async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
     var result = 0;
     var array = [];
     await mtblPhanPhoiVPP(db).findAll({
-        where: { Date: {
-                [Op.between]: [dateFrom, dateTo] } }
+        where: {
+            Date: {
+                [Op.between]: [dateFrom, dateTo]
+            }
+        }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -106,8 +127,11 @@ async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDPhanPhoiVPP: {
-                        [Op.in]: array } }
+                {
+                    IDPhanPhoiVPP: {
+                        [Op.in]: array
+                    }
+                }
             ]
         }
     }).then(detail => {
@@ -238,7 +262,8 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
         where: {
             IDDMHangHoa: idGoods,
             depreciationDate: {
-                [Op.ne]: null }
+                [Op.ne]: null
+            }
         },
         include: [{
             model: mtblTaiSanADD(db),
@@ -298,6 +323,7 @@ async function getInfoAssetFromIDTypeAsset(db, typeAssetID, year) {
     }).then(async goods => {
         for (var g = 0; g < goods.length; g++) {
             let arrayAsset = await getDetailAsset(db, goods[g].ID, goods[g].Name, year)
+                // console.log(arrayAsset);
             Array.prototype.push.apply(arrayResult, arrayAsset);
         }
 
@@ -420,8 +446,10 @@ module.exports = {
                                 let totalAnnualDepreciation = 0
                                 let totalAccumulatedDepreciationEndYear = 0
                                 let totalyearEndResidualValue = 0
-
+                                let stt = 1
                                 for (let asset = 0; asset < arrayAsset.length; asset++) {
+                                    arrayAsset[asset]['stt'] = stt
+                                    stt += 1
                                     totalOriginalPrice += arrayAsset[asset].originalPrice
                                     totalTime += arrayAsset[asset].time
                                     totalAccumulatedDepreciation += arrayAsset[asset].accumulatedDepreciation
