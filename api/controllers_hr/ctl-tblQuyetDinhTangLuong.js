@@ -67,7 +67,6 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id, staffID) {
         })
         let salaryIncrease = 0
         if (staff) {
-            console.log(Number((staff.ProductivityWages ? staff.ProductivityWages : 0)));
             salaryIncrease = Number((staff.ProductivityWages ? staff.ProductivityWages : 0)) + Number(data.Increase)
         }
         obj = {
@@ -95,7 +94,6 @@ module.exports = {
     //  get_detail_tbl_quyetdinh_tangluong
     detailtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -111,7 +109,6 @@ module.exports = {
                     })
 
                     var count = 0
-                    console.log(array);
                     var result = {
                         array: array,
                         status: Constant.STATUS.SUCCESS,

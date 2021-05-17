@@ -1104,7 +1104,7 @@ module.exports = {
                     let tblDMNhanvien = mtblDMNhanvien(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
 
-                    tblDMNhanvien(db).findAll({
+                    tblDMNhanvien.findAll({
                         include: [{
                             model: mtblDMBoPhan(db),
                             required: false,
