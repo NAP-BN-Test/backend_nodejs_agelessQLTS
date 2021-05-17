@@ -17,7 +17,8 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
     var result = 0;
     var array = [];
     await mtblThemVPP(db).findAll({
-        where: { Date: { [Op.lte]: dateFrom } }
+        where: { Date: {
+                [Op.lte]: dateFrom } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -27,7 +28,8 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDThemVPP: { [Op.in]: array } }
+                { IDThemVPP: {
+                        [Op.in]: array } }
             ]
         }
     }).then(detail => {
@@ -36,7 +38,8 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
         })
     })
     await mtblPhanPhoiVPP(db).findAll({
-        where: { Date: { [Op.lte]: dateFrom } }
+        where: { Date: {
+                [Op.lte]: dateFrom } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -46,7 +49,8 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDPhanPhoiVPP: { [Op.in]: array } }
+                { IDPhanPhoiVPP: {
+                        [Op.in]: array } }
             ]
         }
     }).then(detail => {
@@ -60,12 +64,11 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
 async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
     // dateFrom = moment(dateFrom).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
     dateTo = moment(dateTo).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
-    console.log(28913471289423789892347892347891234789);
-    console.log(dateFrom, dateTo);
     var result = 0;
     var array = [];
     await mtblThemVPP(db).findAll({
-        where: { Date: { [Op.between]: [dateFrom, dateTo] } }
+        where: { Date: {
+                [Op.between]: [dateFrom, dateTo] } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -75,7 +78,8 @@ async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDThemVPP: { [Op.in]: array } }
+                { IDThemVPP: {
+                        [Op.in]: array } }
             ]
         }
     }).then(detail => {
@@ -91,7 +95,8 @@ async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
     var result = 0;
     var array = [];
     await mtblPhanPhoiVPP(db).findAll({
-        where: { Date: { [Op.between]: [dateFrom, dateTo] } }
+        where: { Date: {
+                [Op.between]: [dateFrom, dateTo] } }
     }).then(data => {
         data.forEach(element => {
             array.push(element.ID);
@@ -101,7 +106,8 @@ async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
         where: {
             [Op.and]: [
                 { IDVanPhongPham: idVPP },
-                { IDPhanPhoiVPP: { [Op.in]: array } }
+                { IDPhanPhoiVPP: {
+                        [Op.in]: array } }
             ]
         }
     }).then(detail => {
@@ -199,7 +205,7 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
         yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
         if (((y - yearAsset) * 12 - monthAsset + 12) >= time) {
             let balance = 0 // số tháng dư
-            //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
+                //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
             balance = (12 - (((y - yearAsset) * 12 - monthAsset + 12) - time))
             for (month = 1; month < balance; month++) {
                 objGoods['discountedValue' + month] = monthlyDepreciationRate
@@ -231,15 +237,14 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
     await tblTaiSan.findAll({
         where: {
             IDDMHangHoa: idGoods,
-            depreciationDate: { [Op.ne]: null }
+            depreciationDate: {
+                [Op.ne]: null }
         },
-        include: [
-            {
-                model: mtblTaiSanADD(db),
-                required: false,
-                as: 'asset'
-            },
-        ],
+        include: [{
+            model: mtblTaiSanADD(db),
+            required: false,
+            as: 'asset'
+        }, ],
     }).then(async asset => {
         let stt = 1;
         for (let s = 0; s < asset.length; s++) {

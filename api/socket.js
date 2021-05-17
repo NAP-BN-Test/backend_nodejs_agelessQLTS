@@ -161,6 +161,28 @@ async function getStaffContractExpirationData() {
     })
     return array
 }
+async function connectDatabase(dbname) {
+    const db = new Sequelize(dbname, 'struck_user', '123456a$', {
+        host: 'dbdev.namanphu.vn',
+        dialect: 'mssql',
+        operatorsAliases: '0',
+        // Bắt buộc phải có
+        dialectOptions: {
+            options: { encrypt: false }
+        },
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        },
+        define: {
+            timestamps: false,
+            freezeTableName: true
+        }
+    });
+    return db
+}
 module.exports = {
     sockketIO: async(io) => {
         io.on("connection", async function(socket) {
@@ -209,44 +231,15 @@ module.exports = {
             });
             socket.on("change-received-status", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-                const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
-                    host: 'dbdev.namanphu.vn',
-                    dialect: 'mssql',
-                    operatorsAliases: '0',
-                    // Bắt buộc phải có
-                    dialectOptions: {
-                        options: { encrypt: false }
-                    },
-                    pool: {
-                        max: 5,
-                        min: 0,
-                        acquire: 30000,
-                        idle: 10000
-                    },
-                    define: {
-                        timestamps: false,
-                        freezeTableName: true
-                    }
-                });
-
-                db.authenticate()
-                    .then(() => console.log('Ket noi thanh cong'))
-                    .catch(err => console.log(err.message));
-                let str = '(';
-                for (var key = 0; key < data.id.length; key++) {
-                    if (key == (data.id.length - 1)) {
-                        str += data.id[key];
-                        str += ')'
-                    } else {
-                        str += data.id[key] + ', ';
-                    }
-                }
-                if (data.id) {
-                    let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ NHẬN', NgayGui = '" + now + "' where ID in " + str
-                    db.query(query)
-                    io.sockets.emit("csendrequest", data.id);
-                }
-                io.sockets.emit("csendrequest", []);
+                let dbMaster = await connectDatabase('Customer_VTNAP')
+                let dbName1 = await connectDatabase(data.dbname1)
+                let dbMasterQuery = "SELECT ID FROM CustomerDB WHERE NameDatabase = N'" + data.dbname2 + "'"
+                console.log(dbMasterQuery);
+                let IDCustomer = dbMaster.query(dbMasterQuery)
+                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ NHẬN', NgayGui = '" + now + "', IDNhaXe = " + IDCustomer.ID + " where ID in " + str
+                console.log(query);
+                dbName1.query(query)
+                io.sockets.emit("sendrequest", []);
 
             });
             console.log('The user is connecting : ' + socket.id);

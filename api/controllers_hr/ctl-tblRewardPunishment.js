@@ -8,6 +8,13 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 async function deleteRelationshiptblRewardPunishment(db, listID) {
+    await mtblFileAttach(db).destroy({
+        where: {
+            IDRewardPunishment: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblRewardPunishment(db).destroy({
         where: {
             ID: {
