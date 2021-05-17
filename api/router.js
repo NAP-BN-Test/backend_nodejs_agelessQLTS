@@ -23,7 +23,7 @@ module.exports = function(app) {
     app.route('/qlnb/convert_docx_to_pdf').post(exportPDF.convertDocxToPDF);
 
     let locy = require('./controller_finance/ctl-locyApi')
-    app.route('/get_ticket_types').post(locy.apiGetTicketTypes);
+    app.route('/qlnb/get_ticket_types').post(locy.apiGetTicketTypes);
 
     app.route('/qlnb/export_to_file_excel').post(exportPDF.exportToFileExcel);
 

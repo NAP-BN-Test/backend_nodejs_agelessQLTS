@@ -235,9 +235,12 @@ module.exports = {
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                 let dbName1 = await connectDatabase(data.dbname1)
                 let dbMasterQuery = "SELECT ID FROM CustomerDB WHERE NameDatabase = N'" + data.dbname2 + "'"
-                let IDCustomer = await dbMaster.query(dbMasterQuery)
-                console.log(IDCustomer[0][0]);
-                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ NHẬN', NgayGui = '" + now + "', IDNhaXe = " + IDCustomer[0][0].ID + " where ID = " + data.id
+                let IDCustomerDB = await dbMaster.query(dbMasterQuery)
+                console.log(IDCustomerDB[0][0]);
+                let strGetCus = 'SELECt ID FROM tblKhachHang WHERE IDCustomer = ' + IDCustomerDB[0][0].ID
+                let IDCus = await dbName1.query(strGetCus)
+                console.log(IDCus);
+                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ NHẬN', NgayGui = '" + now + "', IDNhaXe = " + IDCus[0][0].ID + " where ID = " + data.id
                 console.log(query);
                 dbName1.query(query)
                 io.sockets.emit("sendrequest", []);
