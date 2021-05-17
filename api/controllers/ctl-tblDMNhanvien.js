@@ -37,47 +37,181 @@ var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblPhanPhoiVPP(db).update({
         IDNhanVienBanGiao: null,
-    }, { where: { IDNhanVienBanGiao: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDNhanVienBanGiao: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblPhanPhoiVPP(db).update({
         IDNhanVienSoHuu: null,
-    }, { where: { IDNhanVienSoHuu: { [Op.in]: listID } } })
-    await mtblChamCong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblChamCong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblNghiPhep(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblNghiPhep(db).destroy({ where: { IDHeadDepartment: { [Op.in]: listID } } })
-    await mtblNghiPhep(db).destroy({ where: { IDHeads: { [Op.in]: listID } } })
-    await mtblNghiPhep(db).destroy({ where: { IDAdministrationHR: { [Op.in]: listID } } })
-    await mtblQuyetDinhTangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblDMGiaDinh(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblBangLuong(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblDaoTaoTruoc(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblDaoTaoSau(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblHopDongNhanSu(db).destroy({ where: { IDNhanVien: { [Op.in]: listID } } })
-    await mtblHopDongNhanSu(db).destroy({ where: { IDNhanVienSDLD: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDNhanVienSoHuu: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblChamCong(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblChamCong(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblNghiPhep(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblNghiPhep(db).destroy({
+        where: {
+            IDHeadDepartment: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblNghiPhep(db).destroy({
+        where: {
+            IDHeads: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblNghiPhep(db).destroy({
+        where: {
+            IDAdministrationHR: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblQuyetDinhTangLuong(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblDMGiaDinh(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblBangLuong(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblDaoTaoTruoc(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblDaoTaoSau(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblHopDongNhanSu(db).destroy({
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblHopDongNhanSu(db).destroy({
+        where: {
+            IDNhanVienSDLD: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblDMBoPhan(db).update({
         IDNhanVienBanGiao: null,
-    }, { where: { IDNhanVienBanGiao: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDNhanVienBanGiao: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblTaiSanBanGiao(db).update({
         IDNhanVienBanGiao: null,
-    }, { where: { IDNhanVienBanGiao: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDNhanVienBanGiao: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblTaiSanBanGiao(db).update({
         IDNhanVienSoHuu: null,
-    }, { where: { IDNhanVienSoHuu: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDNhanVienSoHuu: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblYeuCauMuaSam(db).update({
         IDNhanVien: null,
-    }, { where: { IDNhanVien: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDNhanVien: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblYeuCauMuaSam(db).update({
         IDPheDuyet1: null,
-    }, { where: { IDPheDuyet1: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDPheDuyet1: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblYeuCauMuaSam(db).update({
         IDPheDuyet2: null,
-    }, { where: { IDPheDuyet2: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDPheDuyet2: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblDMUser(db).update({
         IDNhanvien: null,
-    }, { where: { IDNhanvien: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDNhanvien: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblDMNhanvien(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -100,13 +234,11 @@ module.exports = {
                                 { IDPheDuyet1: user.IDNhanvien },
                                 { Status: 'Chờ phê duyệt' }
                             ],
-                            include: [
-                                {
-                                    model: mtblDMNhanvien(db),
-                                    required: false,
-                                    as: 'nv'
-                                },
-                            ],
+                            include: [{
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -121,13 +253,11 @@ module.exports = {
                                 { IDPheDuyet2: user.IDNhanvien },
                                 { Status: 'Đang phê duyệt' }
                             ],
-                            include: [
-                                {
-                                    model: mtblDMNhanvien(db),
-                                    required: false,
-                                    as: 'nv'
-                                },
-                            ],
+                            include: [{
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -144,13 +274,11 @@ module.exports = {
                                 { IDNhanVienKTPD: user.IDNhanvien },
                                 { TrangThaiPheDuyetKT: 'Chờ phê duyệt' }
                             ],
-                            include: [
-                                {
-                                    model: mtblDMNhanvien(db),
-                                    required: false,
-                                    as: 'nv'
-                                },
-                            ],
+                            include: [{
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -170,13 +298,11 @@ module.exports = {
                                     ]
                                 }
                             ],
-                            include: [
-                                {
-                                    model: mtblDMNhanvien(db),
-                                    required: false,
-                                    as: 'nv'
-                                },
-                            ],
+                            include: [{
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nv'
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -223,8 +349,7 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: { ID: body.id },
-                        include: [
-                            {
+                        include: [{
                                 model: tblDMBoPhan,
                                 required: false,
                                 as: 'bophan',
@@ -287,13 +412,11 @@ module.exports = {
                             order: [
                                 ['ID', 'DESC']
                             ],
-                            include: [
-                                {
-                                    model: mtblLoaiHopDong(db),
-                                    required: false,
-                                    as: 'loaiHD'
-                                },
-                            ],
+                            include: [{
+                                model: mtblLoaiHopDong(db),
+                                required: false,
+                                as: 'loaiHD'
+                            }, ],
                         }).then(hd => {
                             // workingSalary ghi đè lên bảng employee
                             obj['contractCode'] = hd ? hd.ContractCode : '';
@@ -681,9 +804,16 @@ module.exports = {
                                     ['ID', 'DESC']
                                 ],
                                 where: {
-                                    [Op.or]: [
-                                        { DepartmentCode: { [Op.like]: '%' + data.search + '%' } },
-                                        { DepartmentName: { [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            DepartmentCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            DepartmentName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -691,28 +821,61 @@ module.exports = {
                                     list.push(item.ID);
                                 })
                             })
-                            where = [
-                                { StaffCode: { [Op.like]: '%' + data.search + '%' } },
-                                { StaffName: { [Op.like]: '%' + data.search + '%' } },
-                                { Address: { [Op.like]: '%' + data.search + '%' } },
-                                { Email: { [Op.like]: '%' + data.search + '%' } },
-                                { Gender: { [Op.like]: '%' + data.search + '%' } },
-                                { IDBoPhan: { [Op.in]: list } },
+                            where = [{
+                                    StaffCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    StaffName: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Address: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Email: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Gender: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    IDBoPhan: {
+                                        [Op.in]: list
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { StaffName: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                StaffName: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'MÃ NHÂN VIÊN') {
-                                    userFind['StaffCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['StaffCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -724,7 +887,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'GIỚI TÍNH') {
-                                    userFind['Gender'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Gender'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -737,7 +902,9 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY SINH') {
                                     let date = moment(data.items[i]['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
-                                    userFind['Birthday'] = { [Op.substring]: '%' + date + '%' }
+                                    userFind['Birthday'] = {
+                                        [Op.substring]: '%' + date + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -749,7 +916,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TÊN NHÂN VIÊN') {
-                                    userFind['StaffName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['StaffName'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -761,7 +930,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'ĐỊA CHỈ') {
-                                    userFind['Address'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Address'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -773,7 +944,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'EMAIL') {
-                                    userFind['Email'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Email'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -785,7 +958,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'LOẠI ĐỐI TƯỢNG') {
-                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -797,7 +972,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'SỐ ĐIỆN THOẠI') {
-                                    userFind['PhoneNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['PhoneNumber'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -809,7 +986,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'SỐ CMND') {
-                                    userFind['CMNDNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['CMNDNumber'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -821,7 +1000,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'PHÒNG BAN/BỘ PHẬN') {
-                                    userFind['IDBoPhan'] = { [Op.eq]: data.items[i]['searchFields'] }
+                                    userFind['IDBoPhan'] = {
+                                        [Op.eq]: data.items[i]['searchFields']
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -848,16 +1029,14 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
-                                model: tblDMBoPhan,
-                                required: false,
-                                as: 'bophan',
-                                include: [{
-                                    model: mtblDMChiNhanh(db)
-                                }]
-                            },
-                        ],
+                        include: [{
+                            model: tblDMBoPhan,
+                            required: false,
+                            as: 'bophan',
+                            include: [{
+                                model: mtblDMChiNhanh(db)
+                            }]
+                        }, ],
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {
@@ -922,13 +1101,23 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMNhanvien(db).findAll().then(data => {
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+
+                    tblDMNhanvien(db).findAll({
+                        include: [{
+                            model: mtblDMBoPhan(db),
+                            required: false,
+                            as: 'bp'
+                        }, ],
+                    }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {
                                 id: Number(element.ID),
                                 staffCode: element.StaffCode ? element.StaffCode : '',
                                 staffName: element.StaffName ? element.StaffName : '',
+                                departmentName: element.bp ? element.bp.DepartmentName : '',
                             }
                             array.push(obj);
                         });
@@ -977,18 +1166,15 @@ module.exports = {
                                     where: {
                                         IDTaiSanBanGiao: data[i].ID,
                                     },
-                                    include: [
-                                        {
+                                    include: [{
                                             model: tblTaiSan,
                                             required: false,
                                             as: 'taisan',
-                                            include: [
-                                                {
-                                                    model: mtblDMHangHoa(db),
-                                                    required: false,
-                                                    as: 'hanghoa'
-                                                },
-                                            ],
+                                            include: [{
+                                                model: mtblDMHangHoa(db),
+                                                required: false,
+                                                as: 'hanghoa'
+                                            }, ],
                                         },
                                         {
                                             model: mtblTaiSanBanGiao(db),
@@ -1048,13 +1234,11 @@ module.exports = {
 
                                 await tblPhanPhoiVPPChiTiet.findAll({
                                     where: { IDPhanPhoiVPP: data[i].ID },
-                                    include: [
-                                        {
-                                            model: mtblVanPhongPham(db),
-                                            required: false,
-                                            as: 'vpp'
-                                        },
-                                    ],
+                                    include: [{
+                                        model: mtblVanPhongPham(db),
+                                        required: false,
+                                        as: 'vpp'
+                                    }, ],
                                 }).then(detail => {
                                     detail.forEach(element => {
                                         array.push({
@@ -1104,16 +1288,14 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
-                                model: tblDMBoPhan,
-                                required: false,
-                                as: 'bophan',
-                                include: [{
-                                    model: mtblDMChiNhanh(db)
-                                }]
-                            },
-                        ],
+                        include: [{
+                            model: tblDMBoPhan,
+                            required: false,
+                            as: 'bophan',
+                            include: [{
+                                model: mtblDMChiNhanh(db)
+                            }]
+                        }, ],
                     }).then(data => {
                         var array = [];
                         data.forEach(element => {

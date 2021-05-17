@@ -35,69 +35,90 @@ async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
         }
     })
 }
+async function getDetailDecidedToIncreaseTheSalaries(db, id, staffID) {
+    var obj = {}
+    let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
+    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
+    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDEmployeeApproval', sourceKey: 'IDEmployeeApproval', as: 'employeeApproval' })
+    await tblQuyetDinhTangLuong.findOne({
+        // offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+        // limit: Number(body.itemPerPage),
+        where: { ID: id },
+        include: [{
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'employee'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'employeeApproval'
+            },
+        ],
+        order: [
+            ['ID', 'DESC']
+        ],
+    }).then(async data => {
+        let staff = await mtblDMNhanvien(db).findOne({
+            order: [
+                ['ID', 'DESC']
+            ],
+            where: { ID: staffID }
+        })
+        let salaryIncrease = 0
+        if (staff) {
+            console.log(Number((staff.ProductivityWages ? staff.ProductivityWages : 0)));
+            salaryIncrease = Number((staff.ProductivityWages ? staff.ProductivityWages : 0)) + Number(data.Increase)
+        }
+        obj = {
+            id: Number(data.ID),
+            decisionCode: data.DecisionCode ? data.DecisionCode : '',
+            decisionDate: data.DecisionDate ? moment(data.DecisionDate).format('DD/MM/YYYY') : null,
+            increaseDate: data.IncreaseDate ? moment(data.IncreaseDate).format('DD/MM/YYYY') : null,
+            stopDate: data.StopDate ? moment(data.StopDate).format('DD/MM/YYYY') : null,
+            stopReason: data.StopReason ? data.StopReason : '',
+            idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+            nameNhanVien: data.IDNhanVien ? data.employee.StaffName : null,
+            salaryIncrease: salaryIncrease,
+            status: data.Status ? data.Status : '',
+            reason: data.Reason ? data.Reason : '',
+            statusDecision: data.StatusDecision ? data.StatusDecision : '',
+            idStaffApproval: data.IDEmployeeApproval ? data.IDEmployeeApproval : null,
+            increase: data.Increase ? data.Increase : null,
+            nameStaffApproval: data.employeeApproval ? data.employeeApproval.StaffName : null,
+        }
+    })
+    return obj
+}
 module.exports = {
     deleteRelationshiptblQuyetDinhTangLuong,
     //  get_detail_tbl_quyetdinh_tangluong
     detailtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let stt = 1;
-                    let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
-                    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
-                    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDEmployeeApproval', sourceKey: 'IDEmployeeApproval', as: 'employeeApproval' })
-                    tblQuyetDinhTangLuong.findAll({
-                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
-                        limit: Number(body.itemPerPage),
-                        where: { IDNhanVien: body.idNhanVien },
-                        include: [{
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'employee'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'employeeApproval'
-                            },
-                        ],
-                        order: [
-                            ['ID', 'DESC']
-                        ],
+                    let array = []
+                    await mtblIncreaseSalariesAndStaff(db).findAll({
+                        where: { StaffID: body.idNhanVien }
                     }).then(async data => {
-                        var array = [];
-                        data.forEach(element => {
-                            var obj = {
-                                stt: stt,
-                                id: Number(element.ID),
-                                decisionCode: element.DecisionCode ? element.DecisionCode : '',
-                                decisionDate: element.DecisionDate ? moment(element.DecisionDate).format('DD/MM/YYYY') : null,
-                                increaseDate: element.IncreaseDate ? moment(element.IncreaseDate).format('DD/MM/YYYY') : null,
-                                stopDate: element.StopDate ? moment(element.StopDate).format('DD/MM/YYYY') : null,
-                                stopReason: element.StopReason ? element.StopReason : '',
-                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
-                                nameNhanVien: element.IDNhanVien ? element.employee.StaffName : null,
-                                salaryIncrease: element.SalaryIncrease ? element.SalaryIncrease : '',
-                                status: element.Status ? element.Status : '',
-                                reason: element.Reason ? element.Reason : '',
-                                statusDecision: element.StatusDecision ? element.StatusDecision : '',
-                                idStaffApproval: element.IDEmployeeApproval ? element.IDEmployeeApproval : null,
-                                increase: element.Increase ? element.Increase : null,
-                                nameStaffApproval: element.employeeApproval ? element.employeeApproval.StaffName : null,
-                            }
-                            array.push(obj);
-                            stt += 1;
-                        });
-                        var count = await mtblQuyetDinhTangLuong(db).count({ IDNhanVien: body.idNhanVien })
-                        var result = {
-                            array: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
+                        for (var i = 0; i < data.length; i++) {
+                            let obj = await getDetailDecidedToIncreaseTheSalaries(db, data[i].IncreaseSalariesID, body.idNhanVien)
+                            array.push(obj)
                         }
-                        res.json(result);
                     })
+
+                    var count = 0
+                    console.log(array);
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: count
+                    }
+                    res.json(result);
 
                 } catch (error) {
                     console.log(error);
@@ -123,7 +144,7 @@ module.exports = {
                         StopReason: body.stopReason ? body.stopReason : '',
                         // IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         IDEmployeeApproval: body.idStaffApproval ? body.idStaffApproval : null,
-                        SalaryIncrease: body.salaryIncrease ? body.salaryIncrease : '',
+                        // SalaryIncrease: salaryIncrease,
                         StatusDecision: body.statusDecision ? body.statusDecision : '',
                         Increase: body.increase ? body.increase : '',
                         Status: 'Chờ phê duyệt',
