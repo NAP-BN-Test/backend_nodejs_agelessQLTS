@@ -10,7 +10,9 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 async function deleteRelationshiptblRewardPunishment(db, listID) {
     await mtblRewardPunishment(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -58,11 +60,12 @@ module.exports = {
     // add_tbl_reward_punishment
     addtblRewardPunishment: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblRewardPunishment(db).create({
-                        IDStaff: body.idStaff ? body.idStaff : null,
+                        IDStaff: body.staffID ? body.staffID : null,
                         Date: body.date ? body.date : null,
                         SalaryIncrease: body.amountMoney ? body.amountMoney : '',
                         Reason: body.reason ? body.reason : '',
@@ -245,13 +248,11 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staff'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'staff'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {

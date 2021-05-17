@@ -20,9 +20,18 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 //     }
 // })
 async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
+    await mtblIncreaseSalariesAndStaff(db).destroy({
+        where: {
+            IncreaseSalariesID: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblQuyetDinhTangLuong(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -42,8 +51,7 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: { IDNhanVien: body.idNhanVien },
-                        include: [
-                            {
+                        include: [{
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'employee'
@@ -347,24 +355,41 @@ module.exports = {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
-                            where = [
-                                { DecisionCode: { [Op.like]: '%' + data.search + '%' } },
-                                { Status: { [Op.like]: '%' + data.search + '%' } },
+                            where = [{
+                                    DecisionCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Status: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { DecisionCode: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                DecisionCode: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'SỐ QUYẾT ĐỊNH') {
-                                    userFind['DecisionCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['DecisionCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -376,7 +401,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TÌNH TRẠNG QUYẾT ĐỊNH') {
-                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -398,8 +425,7 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
+                        include: [{
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'employee'
@@ -439,19 +465,17 @@ module.exports = {
                             tblIncreaseSalariesAndStaff.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
                             await tblIncreaseSalariesAndStaff.findAll({
                                 where: { IncreaseSalariesID: data[i].ID },
-                                include: [
-                                    {
-                                        model: mtblDMNhanvien(db),
-                                        required: false,
-                                        as: 'staff'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'staff'
+                                }, ],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
                                         id: item.staff.ID,
-                                        staffName: item.staff.StaffCode,
-                                        staffCode: item.staff.StaffName,
+                                        staffName: item.staff.StaffName,
+                                        staffCode: item.staff.StaffCode,
                                     })
                                 })
                             })

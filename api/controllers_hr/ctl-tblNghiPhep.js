@@ -13,13 +13,14 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 async function deleteRelationshiptblNghiPhep(db, listID) {
     await mtblNghiPhep(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID }
         }
     })
 }
 var mModules = require('../constants/modules');
 
-var enumerateDaysBetweenDates = function (startDate, endDate) {
+var enumerateDaysBetweenDates = function(startDate, endDate) {
     var dates = [];
     var currDate = moment(startDate).startOf('day');
     var lastDate = moment(endDate).startOf('day');
@@ -90,11 +91,11 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
                 result = 1.5
             else
                 result = 2
-        else
-            if (checkDateEnd < 17)
-                result = 0.5
-            else
-                result = 1
+    else
+    if (checkDateEnd < 17)
+        result = 0.5
+    else
+        result = 1
     else
         result = days.length + 2 - array7th.length - subtractHalfDay
     return result
@@ -104,7 +105,8 @@ async function handleCalculatePreviousYear(db, idStaff, currentYear) {
     await mtblNghiPhep(db).findOne({
         where: {
             IDNhanVien: idStaff,
-            DateEnd: { [Op.substring]: currentYear }
+            DateEnd: {
+                [Op.substring]: currentYear }
         },
         order: [
             ['ID', 'DESC']
@@ -121,6 +123,7 @@ module.exports = {
     // add_tbl_nghiphep
     addtblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -151,8 +154,8 @@ module.exports = {
                     let remainingPreviousYear = 0;
                     if (body.type == 'TakeLeave') {
                         seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
-                        // var quotient = Math.floor(y / x);  // lấy nguyên
-                        // var remainder = y % x; // lấy dư
+                            // var quotient = Math.floor(y / x);  // lấy nguyên
+                            // var remainder = y % x; // lấy dư
                         if (seniority > 12) {
                             advancePayment = 12 + Math.floor(seniority / 60)
                         } else {
@@ -374,8 +377,10 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [
-                                        { StaffCode: { [Op.like]: '%' + data.search + '%' } },
-                                        { StaffName: { [Op.like]: '%' + data.search + '%' } }
+                                        { StaffCode: {
+                                                [Op.like]: '%' + data.search + '%' } },
+                                        { StaffName: {
+                                                [Op.like]: '%' + data.search + '%' } }
                                     ]
                                 }
                             }).then(data => {
@@ -384,22 +389,27 @@ module.exports = {
                                 })
                             })
                             where = [
-                                { IDNhanVien: { [Op.in]: list } },
-                                { NumberLeave: { [Op.like]: '%' + data.search + '%' } },
+                                { IDNhanVien: {
+                                        [Op.in]: list } },
+                                { NumberLeave: {
+                                        [Op.like]: '%' + data.search + '%' } },
                             ];
                         } else {
                             where = [
-                                { NumberLeave: { [Op.ne]: '%%' } },
+                                { NumberLeave: {
+                                        [Op.ne]: '%%' } },
                             ];
                         }
-                        arraySearchAnd.push({ [Op.or]: where })
-                        // arraySearchOr.push({ ID: { [Op.ne]: null } })
+                        arraySearchAnd.push({
+                                [Op.or]: where })
+                            // arraySearchOr.push({ ID: { [Op.ne]: null } })
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGƯỜI LÀM ĐƠN') {
                                     var list = [];
-                                    userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
+                                    userFind['IDNhanVien'] = {
+                                        [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -419,7 +429,8 @@ module.exports = {
                                             list.push(item.ID)
                                         })
                                     })
-                                    userFind['IDNhanVien'] = { [Op.in]: list }
+                                    userFind['IDNhanVien'] = {
+                                        [Op.in]: list }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -431,7 +442,8 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
-                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -444,7 +456,8 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY LÀM ĐƠN') {
                                     let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
-                                    userFind['Date'] = { [Op.substring]: '%' + date + '%' }
+                                    userFind['Date'] = {
+                                        [Op.substring]: '%' + date + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -477,8 +490,7 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereObj,
-                        include: [
-                            {
+                        include: [{
                                 model: mtblLoaiChamCong(db),
                                 required: false,
                                 as: 'loaiChamCong'
@@ -487,13 +499,11 @@ module.exports = {
                                 model: tblDMNhanvien,
                                 required: false,
                                 as: 'nv',
-                                include: [
-                                    {
-                                        model: mtblDMBoPhan(db),
-                                        required: false,
-                                        as: 'bp'
-                                    },
-                                ]
+                                include: [{
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'bp'
+                                }, ]
                             },
                             {
                                 model: tblDMNhanvien,
