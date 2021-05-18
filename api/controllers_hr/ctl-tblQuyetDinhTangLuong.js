@@ -510,6 +510,20 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDIncreaseSlary: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayFile'] = arrayFile;
+                        }
                         var count = await mtblQuyetDinhTangLuong(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

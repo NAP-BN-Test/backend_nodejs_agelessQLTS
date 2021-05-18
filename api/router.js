@@ -391,7 +391,7 @@ module.exports = function(app) {
     //---------------------------------------------------------------- Quyết định thưởng/phạt --------------------------------------------------------------------------------------
     var tblRewardPunishment = require('./controllers_hr/ctl-tblRewardPunishment');
     app.route('/qlnb/add_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.addtblRewardPunishment);
-    app.route('/qlnb/get_detail_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.detailtblRewardPunishment);
+    app.route('/qlnb/get_detail_tbl_reward_punishment').post(tblRewardPunishment.detailtblRewardPunishment);
     app.route('/qlnb/update_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.updatetblRewardPunishment);
     app.route('/qlnb/delete_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.deletetblRewardPunishment);
     app.route('/qlnb/get_list_tbl_reward_punishment').post(tblRewardPunishment.getListtblRewardPunishment);

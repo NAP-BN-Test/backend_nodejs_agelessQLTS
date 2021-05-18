@@ -80,7 +80,7 @@ module.exports = {
                             Description: body.description ? body.description : '',
                             Type: body.type ? body.type : '',
                             Compensation: body.isCompensation ? body.isCompensation : false,
-                            SalaryIsAllowed: body.isSlaryIsAllowed ? body.isSlaryIsAllowed : false,
+                            SalaryIsAllowed: body.isSalaryIsAllowed ? body.isSalaryIsAllowed : false,
                         }).then(data => {
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -290,8 +290,8 @@ module.exports = {
                                 code: element.Code ? element.Code : '',
                                 description: element.Description ? element.Description : '',
                                 type: element.Type ? element.Type : '',
-                                salaryIsAllowed: element.SalaryIsAllowed ? element.SalaryIsAllowed : false,
-                                compensation: element.Compensation ? element.Compensation : false,
+                                isSalaryIsAllowed: element.SalaryIsAllowed ? element.SalaryIsAllowed : false,
+                                isCompensation: element.Compensation ? element.Compensation : false,
                             }
                             array.push(obj);
                             stt += 1;

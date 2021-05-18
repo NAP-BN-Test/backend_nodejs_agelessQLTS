@@ -87,6 +87,20 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDRewardPunishment: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayFile'] = arrayFile;
+                        }
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -355,6 +369,20 @@ module.exports = {
                             obj['staffIDs'] = arrayStaff
                             array.push(obj);
                             stt += 1;
+                        }
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDRewardPunishment: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayFile'] = arrayFile;
                         }
                         var count = await mtblRewardPunishment(db).count({ where: whereOjb, })
                         var result = {
