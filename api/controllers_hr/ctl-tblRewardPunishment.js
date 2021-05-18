@@ -3,6 +3,7 @@ const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblRewardPunishment = require('../tables/hrmanage/tblRewardPunishment')
+var mtblRewardPunishmentRStaff = require('../tables/hrmanage/tblRewardPunishmentRStaff')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
@@ -31,32 +32,71 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblRewardPunishment(db).findOne({ where: { ID: body.id } }).then(data => {
-                        if (data) {
+                    let stt = 1;
+                    let tblRewardPunishment = mtblRewardPunishment(db);
+                    tblRewardPunishment.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })
+                    tblRewardPunishment.findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { IDStaff: body.staffID },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'staff'
+                        }, ],
+                    }).then(async data => {
+                        var array = [];
+                        for (let i = 0; i < data.length; i++) {
                             var obj = {
-                                id: data.ID,
-                                date: data.Date ? data.Date : null,
-                                idStaff: data.IDStaff ? data.IDStaff : null,
-                                amountMoney: data.SalaryIncrease ? data.SalaryIncrease : null,
-                                reason: data.Reason ? data.Reason : null,
-                                code: data.Code ? data.Code : null,
-                                status: data.Status ? data.Status : null,
-                                idEmployeeApproval: data.IDEmployeeApproval ? data.IDEmployeeApproval : null,
-                                reasonReject: data.ReasonReject ? data.ReasonReject : null,
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
+                                // idStaff: data[i].IDStaff ? data[i].IDStaff : null,
+                                // staffName: data[i].IDStaff ? data[i].staff.StaffName : '',
+                                amountMoney: data[i].SalaryIncrease ? data[i].SalaryIncrease : null,
+                                reason: data[i].Reason ? data[i].Reason : null,
+                                code: data[i].Code ? data[i].Code : null,
+                                status: data[i].Status ? data[i].Status : null,
+                                idEmployeeApproval: data[i].IDEmployeeApproval ? data[i].IDEmployeeApproval : null,
+                                reasonReject: data[i].ReasonReject ? data[i].ReasonReject : null,
+                                type: data[i].Type ? data[i].Type : null,
                             }
-                            var result = {
-                                obj: obj,
-                                status: Constant.STATUS.SUCCESS,
-                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                            }
-                            res.json(result);
-                        } else {
-                            res.json(Result.NO_DATA_RESULT)
-
+                            let arrayStaff = []
+                            let tblRewardPunishmentRStaff = mtblRewardPunishmentRStaff(db);
+                            tblRewardPunishmentRStaff.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
+                            await tblRewardPunishmentRStaff.findAll({
+                                where: { RewardPunishmentID: data[i].ID },
+                                include: [{
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'staff'
+                                }, ],
+                            }).then(inc => {
+                                inc.forEach(item => {
+                                    arrayStaff.push({
+                                        id: item.staff.ID,
+                                        staffName: item.staff.StaffName,
+                                        staffCode: item.staff.StaffCode,
+                                    })
+                                })
+                            })
+                            obj['staffIDs'] = arrayStaff
+                            array.push(obj);
+                            stt += 1;
                         }
-
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
                     })
+
                 } catch (error) {
+                    console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
                 }
             } else {
@@ -68,11 +108,12 @@ module.exports = {
     addtblRewardPunishment: (req, res) => {
         let body = req.body;
         console.log(body);
+        body.staffID = JSON.parse(body.staffID)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     mtblRewardPunishment(db).create({
-                        IDStaff: body.staffID ? body.staffID : null,
+                        // IDStaff: body.staffID ? body.staffID : null,
                         Date: body.date ? body.date : null,
                         SalaryIncrease: body.amountMoney ? body.amountMoney : '',
                         Reason: body.reason ? body.reason : '',
@@ -94,6 +135,12 @@ module.exports = {
                                                 ID: body.fileAttach[j].id
                                             }
                                         })
+                            }
+                            for (let staff = 0; staff < body.staffID.length; staff++) {
+                                await mtblRewardPunishmentRStaff(db).create({
+                                    StaffID: body.staffID[staff].id,
+                                    RewardPunishmentID: data.ID,
+                                })
                             }
 
                         }
@@ -130,6 +177,15 @@ module.exports = {
                                         ID: body.fileAttach[j].id
                                     }
                                 })
+                    }
+                    if (body.staffID) {
+                        body.staffID = JSON.parse(body.staffID)
+                        for (let staff = 0; staff < body.staffID.length; staff++) {
+                            await mtblRewardPunishmentRStaff(db).create({
+                                StaffID: body.staffID[staff].id,
+                                RewardPunishmentID: body.id,
+                            })
+                        }
                     }
                     if (body.idStaff || body.idStaff === '') {
                         if (body.idStaff === '')
@@ -262,24 +318,44 @@ module.exports = {
                         }, ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (let i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                idStaff: element.IDStaff ? element.IDStaff : null,
-                                staffName: element.IDStaff ? element.staff.StaffName : '',
-                                amountMoney: element.SalaryIncrease ? element.SalaryIncrease : null,
-                                reason: element.Reason ? element.Reason : null,
-                                code: element.Code ? element.Code : null,
-                                status: element.Status ? element.Status : null,
-                                idEmployeeApproval: element.IDEmployeeApproval ? element.IDEmployeeApproval : null,
-                                reasonReject: element.ReasonReject ? element.ReasonReject : null,
-                                type: element.Type ? element.Type : null,
+                                id: Number(data[i].ID),
+                                date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
+                                // idStaff: data[i].IDStaff ? data[i].IDStaff : null,
+                                // staffName: data[i].IDStaff ? data[i].staff.StaffName : '',
+                                amountMoney: data[i].SalaryIncrease ? data[i].SalaryIncrease : null,
+                                reason: data[i].Reason ? data[i].Reason : null,
+                                code: data[i].Code ? data[i].Code : null,
+                                status: data[i].Status ? data[i].Status : null,
+                                idEmployeeApproval: data[i].IDEmployeeApproval ? data[i].IDEmployeeApproval : null,
+                                reasonReject: data[i].ReasonReject ? data[i].ReasonReject : null,
+                                type: data[i].Type ? data[i].Type : null,
                             }
+                            let arrayStaff = []
+                            let tblRewardPunishmentRStaff = mtblRewardPunishmentRStaff(db);
+                            tblRewardPunishmentRStaff.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
+                            await tblRewardPunishmentRStaff.findAll({
+                                where: { RewardPunishmentID: data[i].ID },
+                                include: [{
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'staff'
+                                }, ],
+                            }).then(inc => {
+                                inc.forEach(item => {
+                                    arrayStaff.push({
+                                        id: item.staff.ID,
+                                        staffName: item.staff.StaffName,
+                                        staffCode: item.staff.StaffCode,
+                                    })
+                                })
+                            })
+                            obj['staffIDs'] = arrayStaff
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         var count = await mtblRewardPunishment(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

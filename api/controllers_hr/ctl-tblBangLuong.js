@@ -17,14 +17,19 @@ var mtblMinWageConfig = require('../tables/hrmanage/tblMinWageConfig')
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 const Sequelize = require('sequelize');
+var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
+var mtblIncreaseSalariesAndStaff = require('../tables/hrmanage/tblIncreaseSalariesAndStaff')
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
+
 function checkDuplicate(array, elm) {
     var check = false;
     array.forEach(item => {
@@ -62,8 +67,7 @@ async function maxTimeArray(array) {
             if (seconrd > maxTime) {
                 maxTime = seconrd;
             }
-        }
-        else {
+        } else {
             let seconrd = Number(array[i].slice(5, 7)) + Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60
             if (seconrd > maxTime) {
                 maxTime = seconrd;
@@ -81,8 +85,7 @@ async function minTimeArray(array) {
             if (seconrd < minTime) {
                 minTime = seconrd;
             }
-        }
-        else {
+        } else {
             let seconrd = Number(array[i].slice(5, 7)) + Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60;
             if (seconrd < minTime) {
                 minTime = seconrd;
@@ -96,8 +99,7 @@ async function minTimeArray(array) {
 async function convertNumber(number) {
     if (number < 10) {
         return '0' + number
-    }
-    else
+    } else
         return number
 }
 async function sortArrayDESC(array) {
@@ -106,8 +108,7 @@ async function sortArrayDESC(array) {
         if (Number(array[i].slice(0, 2))) {
             let seconrd = Number(array[i].slice(6, 8)) + Number(array[i].slice(3, 5)) * 60 + Number(array[i].slice(0, 2)) * 60 * 60
             arraySort.push(seconrd)
-        }
-        else {
+        } else {
             let seconrd = Number(array[i].slice(5, 7)) + Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60
             arraySort.push(seconrd)
         }
@@ -158,8 +159,12 @@ async function getDateTakeLeave(db, month, year, idNhanVien) {
     await mtblNghiPhep(db).findAll({
         where: {
             [Op.or]: {
-                DateStart: { [Op.substring]: yearMonth },
-                DateEnd: { [Op.substring]: yearMonth },
+                DateStart: {
+                    [Op.substring]: yearMonth
+                },
+                DateEnd: {
+                    [Op.substring]: yearMonth
+                },
             },
             [Op.and]: {
                 IDNhanVien: idNhanVien,
@@ -181,7 +186,7 @@ async function getDateholiday(db, month, year) {
     let query = `SELECT [ID], [IDLoaiChamCong], [DateStart], [DateEnd], [IDNhanVien], [NumberLeave], [Type], [Date], [Remaining], 
     [IDHeadDepartment], [IDAdministrationHR], [IDHeads], [Status], [Reason], [ContentLeave], [AdvancePayment], 
     [UsedLeave], [RemainingPreviousYear], [NumberHoliday], [Time], [Note] 
-    FROM [tblNghiPhep] AS [tblNghiPhep] WHERE (DATEPART(yy, [tblNghiPhep].[DateEnd]) = `+ year + `AND DATEPART(mm, [tblNghiPhep].[DateEnd]) = ` + month + `)`
+    FROM [tblNghiPhep] AS [tblNghiPhep] WHERE (DATEPART(yy, [tblNghiPhep].[DateEnd]) = ` + year + `AND DATEPART(mm, [tblNghiPhep].[DateEnd]) = ` + month + `)`
     const results = await db.query(query);
     for (var i = 0; i < results.length; i++) {
         let dateStart = moment(results[i][0].DateStart).date()
@@ -222,13 +227,11 @@ async function checkTypeContract(db, staffID, personalTax) {
         order: [
             ['ID', 'DESC']
         ],
-        include: [
-            {
-                model: mtblLoaiHopDong(db),
-                required: false,
-                as: 'typeContract'
-            },
-        ],
+        include: [{
+            model: mtblLoaiHopDong(db),
+            required: false,
+            as: 'typeContract'
+        }, ],
     })
     console.log(staffID);
     if (contract)
@@ -251,33 +254,34 @@ module.exports = {
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
                     tblBangLuong.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                     tblBangLuong.findAll({
-                        include: [
-                            {
-                                model: tblDMNhanvien,
+                        include: [{
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'nv',
+                            include: [{
+                                model: mtblDMBoPhan(db),
                                 required: false,
-                                as: 'nv',
-                                include: [
-                                    {
-                                        model: mtblDMBoPhan(db),
-                                        required: false,
-                                        as: 'department'
-                                    }
-                                ]
-                            },
-                        ],
+                                as: 'department'
+                            }]
+                        }, ],
                         order: [
                             ['ID', 'DESC']
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: {
-                            [Op.or]: [
-                                {
-                                    Date: { [Op.lte]: date },
-                                    DateEnd: { [Op.gte]: date },
+                            [Op.or]: [{
+                                    Date: {
+                                        [Op.lte]: date
+                                    },
+                                    DateEnd: {
+                                        [Op.gte]: date
+                                    },
                                 },
                                 {
-                                    Date: { [Op.lte]: date },
+                                    Date: {
+                                        [Op.lte]: date
+                                    },
                                     DateEnd: null,
                                 }
                             ]
@@ -325,6 +329,22 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
+                            let salariesDecidedIncrease = 0; // quyết định tawg lương năng suất
+                            let tblIncreaseSalariesAndStaff = mtblIncreaseSalariesAndStaff(db);
+                            tblIncreaseSalariesAndStaff.belongsTo(mtblQuyetDinhTangLuong(db), { foreignKey: 'IncreaseSalariesID', sourceKey: 'IncreaseSalariesID', as: 'IncreaseSalaries' })
+
+                            await tblIncreaseSalariesAndStaff.findOne({
+                                where: { StaffID: data[i].IDNhanVien },
+                                include: [{
+                                    model: mtblQuyetDinhTangLuong(db),
+                                    required: false,
+                                    as: 'IncreaseSalaries'
+                                }, ],
+                            }).then(Increase => {
+                                if (Increase)
+                                    salariesDecidedIncrease = Increase.IncreaseSalaries ? Increase.IncreaseSalaries.Increase ? Increase.IncreaseSalaries.Increase : 0 : 0
+                            })
+                            data[i].nv.ProductivityWages += salariesDecidedIncrease
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
                             let union = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : ((data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) * objInsurance['union'] / 100)
@@ -377,7 +397,13 @@ module.exports = {
                                 stt += 1;
                             }
                         }
-                        var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
+                        var count = await mtblBangLuong(db).count({
+                            where: {
+                                Date: {
+                                    [Op.substring]: body.date
+                                }
+                            },
+                        })
                         var result = {
                             objInsurance: objInsurance,
                             totalFooter: {
@@ -422,26 +448,26 @@ module.exports = {
                     tblBangLuong.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
                     tblBangLuong.findAll({
-                        include: [
-                            {
-                                model: tblDMNhanvien,
+                        include: [{
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'nv',
+                            include: [{
+                                model: mtblDMBoPhan(db),
                                 required: false,
-                                as: 'nv',
-                                include: [
-                                    {
-                                        model: mtblDMBoPhan(db),
-                                        required: false,
-                                        as: 'bp'
-                                    },
-                                ],
-                            },
-                        ],
+                                as: 'bp'
+                            }, ],
+                        }, ],
                         order: [
                             ['ID', 'DESC']
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { Date: { [Op.substring]: body.date.slice(0, 4) } },
+                        where: {
+                            Date: {
+                                [Op.substring]: body.date.slice(0, 4)
+                            }
+                        },
                     }).then(async data => {
                         var array = [];
                         var objInsurance = {};
@@ -524,7 +550,13 @@ module.exports = {
                             }
 
                         }
-                        var count = await mtblBangLuong(db).count({ where: { Date: { [Op.substring]: body.date } }, })
+                        var count = await mtblBangLuong(db).count({
+                            where: {
+                                Date: {
+                                    [Op.substring]: body.date
+                                }
+                            },
+                        })
                         var result = {
                             objInsurance: objInsurance,
                             array: array,
@@ -556,7 +588,7 @@ module.exports = {
         })
     },
     // data_timekeeping
-    dataTimekeeping: async (req, res) => {
+    dataTimekeeping: async(req, res) => {
         let body = req.body;
         let arrayData = [
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
@@ -666,9 +698,11 @@ module.exports = {
                     var arrayHoliday = await getDateholiday(db, month, year)
                     var yearMonth = year + '-' + await convertNumber(month);
                     var timeKeeping = await mtblChamCong(db).findOne({
-                        where: [
-                            { Date: { [Op.substring]: '%' + yearMonth + '%' } },
-                        ]
+                        where: [{
+                            Date: {
+                                [Op.substring]: '%' + yearMonth + '%'
+                            }
+                        }, ]
                     })
                     var arrayDays = [];
                     let checkFor = 0;
@@ -688,7 +722,11 @@ module.exports = {
                                     var array7thDB = [];
                                     //  lấy danh sách thứ 7 đi làm
                                     await mtblConfigWorkday(db).findAll({
-                                        where: { Date: { [Op.substring]: year + '-' + await convertNumber(month) } },
+                                        where: {
+                                            Date: {
+                                                [Op.substring]: year + '-' + await convertNumber(month)
+                                            }
+                                        },
                                         order: [
                                             ['Date', 'DESC']
                                         ],
@@ -753,8 +791,7 @@ module.exports = {
                                                         if (thirteenH < maxTime) {
                                                             statusAfternoon = await converFromSecondsToHourLate(maxTime - thirteenH)
                                                             summaryEndDateC = await roundNumberMinutes(maxTime - thirteenH)
-                                                        }
-                                                        else {
+                                                        } else {
                                                             statusAfternoon = ''
                                                         }
                                                         statusMorning = '0.5'
@@ -764,8 +801,7 @@ module.exports = {
                                                         if (minTime > eightH) {
                                                             statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                                                             summaryEndDateS = await roundNumberMinutes(minTime - eightH)
-                                                        }
-                                                        else {
+                                                        } else {
                                                             statusMorning = ''
                                                         }
                                                         statusAfternoon = '0.5'
@@ -779,45 +815,38 @@ module.exports = {
                                                             statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                                                             summaryEndDateS = await roundNumberMinutes(minTime - eightH)
 
-                                                        }
-                                                        else {
+                                                        } else {
                                                             if (twelveH > maxTime) {
                                                                 statusMorning = await converFromSecondsToHourAftersoon(twelveH - maxTime)
                                                                 summaryEndDateS = await roundNumberMinutes(twelveH - maxTime)
-                                                            }
-                                                            else {
+                                                            } else {
                                                                 statusMorning = ''
                                                             }
                                                         }
                                                         statusAfternoon = '0.5'
                                                         summaryEndDateC = 0.5
-                                                    }
-                                                    else {
+                                                    } else {
                                                         if (minTime >= thirteenH) {
                                                             statusMorning = '0.5'
                                                             summaryEndDateS = 0.5
-                                                            // check chiều
+                                                                // check chiều
                                                             if (thirteenH < minTime) {
                                                                 statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
                                                                 summaryEndDateC = await roundNumberMinutes(minTime - thirteenH)
-                                                            }
-                                                            else {
+                                                            } else {
                                                                 if (seventeenH > maxTime) {
                                                                     statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
                                                                     summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
-                                                                }
-                                                                else {
+                                                                } else {
                                                                     statusAfternoon = ''
                                                                 }
                                                             }
-                                                        }
-                                                        else {
+                                                        } else {
                                                             // check sáng
                                                             if (minTime > eightH) {
                                                                 statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                                                                 summaryEndDateS = await roundNumberMinutes(minTime - eightH)
-                                                            }
-                                                            else {
+                                                            } else {
                                                                 statusMorning = ''
                                                             }
                                                             // check chiều
@@ -825,8 +854,7 @@ module.exports = {
                                                                 statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
                                                                 summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
 
-                                                            }
-                                                            else {
+                                                            } else {
                                                                 statusAfternoon = ''
                                                             }
                                                         }
@@ -909,7 +937,11 @@ module.exports = {
                             let arraySearchNot = [];
                             if (body.date) {
                                 arraySearchAnd.push({ IDNhanVien: staff[i].ID });
-                                arraySearchAnd.push({ Date: { [Op.substring]: '%' + yearMonth + '%' } });
+                                arraySearchAnd.push({
+                                    Date: {
+                                        [Op.substring]: '%' + yearMonth + '%'
+                                    }
+                                });
                             }
                             if (arraySearchOr.length > 0)
                                 objWhere[Op.or] = arraySearchOr
@@ -956,8 +988,7 @@ module.exports = {
                                                 objDay['status'] = 'H';
                                                 obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
                                                 freeBreak += 1;
-                                            }
-                                            else {
+                                            } else {
                                                 if (checkFor == 0)
                                                     arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
                                                 let objDay = {};
@@ -1091,7 +1122,11 @@ module.exports = {
                         var timeKeeping = await mtblChamCong(db).findOne({
                             where: [
                                 { IDNhanVien: staff[i].ID },
-                                { Date: { [Op.substring]: '%' + yearMonth + '%' } },
+                                {
+                                    Date: {
+                                        [Op.substring]: '%' + yearMonth + '%'
+                                    }
+                                },
                             ]
                         })
                         let objMorning = {};
@@ -1123,8 +1158,7 @@ module.exports = {
                                             count += 1;
                                         objMorning[await convertNumber(j) + "/" + await convertNumber(month)] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
                                         objAfternoon[await convertNumber(j) + "/" + await convertNumber(month)] = timeKeepingA ? timeKeepingA.Status ? timeKeepingA.Status : '' : ' ';
-                                    }
-                                    else {
+                                    } else {
                                         if (checkDuplicate(arrayTakeLeave, j)) {
                                             if (checkFor == 0)
                                                 count += 1;
@@ -1132,8 +1166,7 @@ module.exports = {
                                             objMorning[await convertNumber(j) + "/" + await convertNumber(month)] = 1;
                                             objAfternoon[await convertNumber(j) + "/" + await convertNumber(month)] = '';
                                             freeBreak += 1;
-                                        }
-                                        else {
+                                        } else {
                                             if (checkFor == 0)
                                                 count += 1;
                                             objMorning[await convertNumber(j) + "/" + await convertNumber(month)] = 1;
@@ -1162,7 +1195,7 @@ module.exports = {
         })
     },
     // delete_all_timekeeping
-    deleteAllTimekeeping: async (req, res) => {
+    deleteAllTimekeeping: async(req, res) => {
         let body = req.body;
         await axios.get(`http://192.168.23.13:1333/dulieuchamcong/deleteall`).then(data => {
             if (data == 'done') {
@@ -1175,7 +1208,7 @@ module.exports = {
         })
     },
     // synthetic_information_monthly
-    syntheticInformationMonthly: async (req, res) => {
+    syntheticInformationMonthly: async(req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1191,13 +1224,11 @@ module.exports = {
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
 
                     await tblDMNhanvien.findAll({
-                        include: [
-                            {
-                                model: mtblDMBoPhan(db),
-                                required: false,
-                                as: 'department'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMBoPhan(db),
+                            required: false,
+                            as: 'department'
+                        }, ],
                         where: obj,
                     }).then(async data => {
                         for (var i = 0; i < data.length; i++) {
@@ -1209,48 +1240,48 @@ module.exports = {
                             let lateDay = 0;
                             // Tính ngày thời gian thêm giờ
                             await mtblNghiPhep(db).findAll({
-                                where: {
-                                    Type: 'SignUp',
-                                    IDNhanVien: data[i].ID,
-                                }
-                            }).then(leave => {
-                                leave.forEach(item => {
-                                    var hour = Number(item.Time.slice(0, 2));
-                                    var minute = Number(item.Time.slice(3, 5));
-                                    overtime += minute + hour * 60
-                                })
-                            })
-                            // lấy số ngày được ứng của tháng trước và phép còn lại
-                            await mtblNghiPhep(db).findOne({
-                                order: [
-                                    ['ID', 'DESC']
-                                ],
-                                where: {
-                                    Type: 'TakeLeave',
-                                    IDNhanVien: data[i].ID,
-                                }
-                            }).then(data => {
-                                if (data) {
-                                    remaining = data.AdvancePayment - data.UsedLeave - data.NumberHoliday
-                                    remainingPreviousYear = data.RemainingPreviousYear
-                                }
-                            })
-                            // tính số ngày nghỉ trong tháng
-                            await mtblNghiPhep(db).findAll({
-                                order: [
-                                    ['ID', 'DESC']
-                                ],
-                                where: {
-                                    Type: 'TakeLeave',
-                                    IDNhanVien: data[i].ID,
-                                }
-                            }).then(data => {
-                                if (data)
-                                    data.forEach(item => {
-                                        numberHoliday += item.NumberHoliday
+                                    where: {
+                                        Type: 'SignUp',
+                                        IDNhanVien: data[i].ID,
+                                    }
+                                }).then(leave => {
+                                    leave.forEach(item => {
+                                        var hour = Number(item.Time.slice(0, 2));
+                                        var minute = Number(item.Time.slice(3, 5));
+                                        overtime += minute + hour * 60
                                     })
-                            })
-                            // tính số ngày đi muộn, nghỉ tự do
+                                })
+                                // lấy số ngày được ứng của tháng trước và phép còn lại
+                            await mtblNghiPhep(db).findOne({
+                                    order: [
+                                        ['ID', 'DESC']
+                                    ],
+                                    where: {
+                                        Type: 'TakeLeave',
+                                        IDNhanVien: data[i].ID,
+                                    }
+                                }).then(data => {
+                                    if (data) {
+                                        remaining = data.AdvancePayment - data.UsedLeave - data.NumberHoliday
+                                        remainingPreviousYear = data.RemainingPreviousYear
+                                    }
+                                })
+                                // tính số ngày nghỉ trong tháng
+                            await mtblNghiPhep(db).findAll({
+                                    order: [
+                                        ['ID', 'DESC']
+                                    ],
+                                    where: {
+                                        Type: 'TakeLeave',
+                                        IDNhanVien: data[i].ID,
+                                    }
+                                }).then(data => {
+                                    if (data)
+                                        data.forEach(item => {
+                                            numberHoliday += item.NumberHoliday
+                                        })
+                                })
+                                // tính số ngày đi muộn, nghỉ tự do
                             await mtblChamCong(db).findAll({
                                 order: [
                                     ['ID', 'DESC']

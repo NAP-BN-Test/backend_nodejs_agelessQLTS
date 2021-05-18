@@ -11,7 +11,9 @@ async function deleteRelationshiptblLoaiChamCong(db, listID) {
         IDLoaiChamCong: null,
     }, {
         where: {
-            IDLoaiChamCong: { [Op.in]: listID }
+            IDLoaiChamCong: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblLoaiChamCong(db).destroy({
@@ -19,7 +21,9 @@ async function deleteRelationshiptblLoaiChamCong(db, listID) {
         // tblNghiPhep
         // tblNghiLe
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -75,6 +79,8 @@ module.exports = {
                             Name: body.name ? body.name : '',
                             Description: body.description ? body.description : '',
                             Type: body.type ? body.type : '',
+                            Compensation: body.compensation ? body.compensation : false,
+                            SalaryIsAllowed: body.salaryIsAllowed ? body.salaryIsAllowed : false,
                         }).then(data => {
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -114,6 +120,10 @@ module.exports = {
                         update.push({ key: 'Description', value: body.description });
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
+                    if (body.compensation || body.compensation === '')
+                        update.push({ key: 'Compensation', value: body.compensation });
+                    if (body.salaryIsAllowed || body.salaryIsAllowed === '')
+                        update.push({ key: 'SalaryIsAllowed', value: body.salaryIsAllowed });
                     database.updateTable(update, mtblLoaiChamCong(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -163,26 +173,46 @@ module.exports = {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
-                            where = [
-                                { Code: { [Op.like]: '%' + data.search + '%' } },
-                                { Name: { [Op.like]: '%' + data.search + '%' } },
+                            where = [{
+                                    Code: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Name: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
 
                             ];
                         } else {
-                            where = [
-                                { Name: { [Op.ne]: '%%' } },
+                            where = [{
+                                    Name: {
+                                        [Op.ne]: '%%'
+                                    }
+                                },
 
                             ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }, { [Op.or]: { Type: body.type } }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }, {
+                                [Op.or]: { Type: body.type }
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÊN LOẠI' || data.items[i].fields['name'] === 'TÊN LOẠI NGHỈ LỄ') {
-                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Name'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -194,7 +224,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ LOẠI' || data.items[i].fields['name'] === 'MÃ LOẠI NGHỈ LỄ') {
-                                    userFind['Code'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Code'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -258,6 +290,8 @@ module.exports = {
                                 code: element.Code ? element.Code : '',
                                 description: element.Description ? element.Description : '',
                                 type: element.Type ? element.Type : '',
+                                salaryIsAllowed: element.SalaryIsAllowed ? element.SalaryIsAllowed : false,
+                                compensation: element.Compensation ? element.Compensation : false,
                             }
                             array.push(obj);
                             stt += 1;

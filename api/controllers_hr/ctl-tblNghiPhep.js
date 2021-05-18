@@ -168,7 +168,6 @@ module.exports = {
                         seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
                             // var quotient = Math.floor(y / x);  // lấy nguyên
                             // var remainder = y % x; // lấy dư
-                        console.log(seniority);
                         if (seniority > 12) {
                             advancePayment = 12 + Math.floor(seniority / 60)
                         } else {
@@ -200,6 +199,13 @@ module.exports = {
                             remainingPreviousYear = await handleCalculatePreviousYear(db, body.idNhanVien, currentYear - 1)
                         else
                             remainingPreviousYear = 0
+                    }
+                    if (body.idLoaiChamCong) {
+                        let typeLeave = await mtblLoaiChamCong(db).findOne({ where: { ID: body.idLoaiChamCong } })
+                        if (typeLeave && typeLeave.Compensation) {
+                            usedLeave = 0
+                            numberHoliday = 0
+                        }
                     }
                     mtblNghiPhep(db).create({
                         // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
@@ -336,8 +342,16 @@ module.exports = {
                     if (body.idLoaiChamCong || body.idLoaiChamCong === '') {
                         if (body.idLoaiChamCong === '')
                             update.push({ key: 'IDLoaiChamCong', value: null });
-                        else
+                        else {
+                            if (body.idLoaiChamCong) {
+                                let typeLeave = await mtblLoaiChamCong(db).findOne({ where: { ID: body.idLoaiChamCong } })
+                                if (typeLeave && typeLeave.Compensation) {
+                                    update.push({ key: 'UsedLeave', value: null });
+                                    update.push({ key: 'NumberHoliday', value: null });
+                                }
+                            }
                             update.push({ key: 'IDLoaiChamCong', value: body.idLoaiChamCong });
+                        }
                     }
                     // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
                     // await mtblFileAttach(db).update({

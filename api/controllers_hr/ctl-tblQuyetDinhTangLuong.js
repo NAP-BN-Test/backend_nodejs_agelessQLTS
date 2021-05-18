@@ -237,6 +237,15 @@ module.exports = {
                                     }
                                 })
                     }
+                    if (body.idNhanVien) {
+                        body.idNhanVien = JSON.parse(body.idNhanVien)
+                        for (let staff = 0; staff < body.idNhanVien.length; staff++) {
+                            await mtblIncreaseSalariesAndStaff(db).create({
+                                StaffID: body.idNhanVien[staff].id,
+                                IncreaseSalariesID: body.id,
+                            })
+                        }
+                    }
                     if (body.decisionDate || body.decisionDate === '') {
                         if (body.decisionDate === '')
                             update.push({ key: 'DecisionDate', value: null });
