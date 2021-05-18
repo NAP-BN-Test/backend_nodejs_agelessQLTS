@@ -79,8 +79,8 @@ module.exports = {
                             Name: body.name ? body.name : '',
                             Description: body.description ? body.description : '',
                             Type: body.type ? body.type : '',
-                            Compensation: body.compensation ? body.compensation : false,
-                            SalaryIsAllowed: body.salaryIsAllowed ? body.salaryIsAllowed : false,
+                            Compensation: body.isCompensation ? body.isCompensation : false,
+                            SalaryIsAllowed: body.isSlaryIsAllowed ? body.isSlaryIsAllowed : false,
                         }).then(data => {
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -120,10 +120,10 @@ module.exports = {
                         update.push({ key: 'Description', value: body.description });
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
-                    if (body.compensation || body.compensation === '')
-                        update.push({ key: 'Compensation', value: body.compensation });
-                    if (body.salaryIsAllowed || body.salaryIsAllowed === '')
-                        update.push({ key: 'SalaryIsAllowed', value: body.salaryIsAllowed });
+                    if (body.isCompensation || body.isCompensation === '')
+                        update.push({ key: 'Compensation', value: body.isCompensation });
+                    if (body.isSalaryIsAllowed || body.isSalaryIsAllowed === '')
+                        update.push({ key: 'SalaryIsAllowed', value: body.isSalaryIsAllowed });
                     database.updateTable(update, mtblLoaiChamCong(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
