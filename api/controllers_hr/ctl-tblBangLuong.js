@@ -19,6 +19,7 @@ var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 const Sequelize = require('sequelize');
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var mtblIncreaseSalariesAndStaff = require('../tables/hrmanage/tblIncreaseSalariesAndStaff')
+var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
@@ -238,6 +239,87 @@ async function checkTypeContract(db, staffID, personalTax) {
         result = await calculationPersonalUncomeTaxWay2(personalTax)
     return result
 }
+
+async function getIncreaseSalaryOfStaff(db, staffID) {
+    let salariesDecidedIncrease = 0
+    let tblIncreaseSalariesAndStaff = mtblIncreaseSalariesAndStaff(db);
+    tblIncreaseSalariesAndStaff.belongsTo(mtblQuyetDinhTangLuong(db), { foreignKey: 'IncreaseSalariesID', sourceKey: 'IncreaseSalariesID', as: 'IncreaseSalaries' })
+
+    await tblIncreaseSalariesAndStaff.findOne({
+        where: { StaffID: staffID },
+        include: [{
+            model: mtblQuyetDinhTangLuong(db),
+            required: false,
+            as: 'IncreaseSalaries'
+        }, ],
+    }).then(Increase => {
+        if (Increase)
+            salariesDecidedIncrease = Increase.IncreaseSalaries ? Increase.IncreaseSalaries.Increase ? Increase.IncreaseSalaries.Increase : 0 : 0
+    })
+    return salariesDecidedIncrease
+}
+
+async function realProductivityWageCalculation(db, staffID, date, productivityWages) {
+    console.log(staffID, date, 1234);
+    var month = Number(date.slice(5, 7)); // January
+    var year = Number(date.slice(0, 4));
+    var dateF = new Date(year, month, 0);
+    var dateFinal = Number(dateF.toISOString().slice(8, 10))
+    dateFinal += 1
+    if (month < 10)
+        month = '0' + month
+    let result = 0;
+    let leaveFree = 0
+    let dayOff = 0
+    await mtblChamCong(db).findAll({
+        where: {
+            IDNhanVien: staffID,
+            Date: {
+                [Op.substring]: year + '-' + month
+            }
+        }
+    }).then(async leave => {
+        for (let i = 0; i < leave.length; i++) {
+            if (leave[i].Reason == 'Nghỉ không phép') {
+                leaveFree += 1
+            } else if (leave[i].Reason == 'Ngày nghỉ phép') {
+                let tblNghiPhep = mtblNghiPhep(db);
+                tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'typeLeave' })
+                await tblNghiPhep.findOne({
+                    include: [{
+                        model: mtblLoaiChamCong(db),
+                        required: false,
+                        as: 'typeLeave'
+                    }, ],
+                    where: {
+                        IDNhanVien: staffID,
+                        DateEnd: {
+                            [Op.gte]: date
+                        },
+                        DateStart: {
+                            [Op.lte]: date
+                        },
+                    }
+                }).then(takeLeade => {
+                    if (takeLeade && takeLeade.typeLeave) {
+                        if (!takeLeade.typeLeave.SalaryIsAllowed) {
+                            dayOff += 1
+                        }
+                    }
+                })
+            }
+        }
+    })
+    let sunSta = 0
+    for (let i = 0; i < dateFinal; i++) {
+        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+        if (datetConvert.slice(0, 8) == 'Chủ nhật' || datetConvert.slice(0, 5) == 'Thứ 7') {
+            sunSta += 1
+        }
+    }
+    result = productivityWages / (dateFinal - sunSta) * ((dateFinal - sunSta) - (dayOff / 2 + leaveFree / 2))
+    return result
+}
 module.exports = {
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
@@ -329,21 +411,10 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
-                            let salariesDecidedIncrease = 0; // quyết định tawg lương năng suất
-                            let tblIncreaseSalariesAndStaff = mtblIncreaseSalariesAndStaff(db);
-                            tblIncreaseSalariesAndStaff.belongsTo(mtblQuyetDinhTangLuong(db), { foreignKey: 'IncreaseSalariesID', sourceKey: 'IncreaseSalariesID', as: 'IncreaseSalaries' })
-
-                            await tblIncreaseSalariesAndStaff.findOne({
-                                where: { StaffID: data[i].IDNhanVien },
-                                include: [{
-                                    model: mtblQuyetDinhTangLuong(db),
-                                    required: false,
-                                    as: 'IncreaseSalaries'
-                                }, ],
-                            }).then(Increase => {
-                                if (Increase)
-                                    salariesDecidedIncrease = Increase.IncreaseSalaries ? Increase.IncreaseSalaries.Increase ? Increase.IncreaseSalaries.Increase : 0 : 0
-                            })
+                            let realProductivityWage = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv.ProductivityWages)
+                            console.log(realProductivityWage, 1234);
+                            data[i].nv.ProductivityWages = realProductivityWage
+                            let salariesDecidedIncrease = await getIncreaseSalaryOfStaff(db, data[i].IDNhanVien); // quyết định tawg lương năng suất
                             data[i].nv.ProductivityWages += salariesDecidedIncrease
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
@@ -900,7 +971,6 @@ module.exports = {
                                                     })
                                                 }
                                             } else {
-                                                console.log(12345);
                                                 await mtblChamCong(db).create({
                                                     IDNhanVien: staff ? staff.ID : null,
                                                     Date: moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'),
