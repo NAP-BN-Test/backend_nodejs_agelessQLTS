@@ -31,7 +31,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        },],
+                        }, ],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -51,7 +51,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        },],
+                        }, ],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -85,7 +85,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        },],
+                        }, ],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -115,23 +115,23 @@ async function getStaffContractExpirationData() {
             await tblHopDongNhanSu.findAll({
                 where: {
                     [Op.or]: [{
-                        Status: 'Có hiệu lực',
-                        Time: {
-                            [Op.eq]: null
+                            Status: 'Có hiệu lực',
+                            Time: {
+                                [Op.eq]: null
+                            },
+                            NoticeTime: {
+                                [Op.substring]: now
+                            }
                         },
-                        NoticeTime: {
-                            [Op.substring]: now
+                        {
+                            Status: 'Có hiệu lực',
+                            NoticeTime: {
+                                [Op.substring]: now
+                            },
+                            Time: {
+                                [Op.lte]: nowTime
+                            },
                         }
-                    },
-                    {
-                        Status: 'Có hiệu lực',
-                        NoticeTime: {
-                            [Op.substring]: now
-                        },
-                        Time: {
-                            [Op.lte]: nowTime
-                        },
-                    }
                     ]
                 },
                 order: [
@@ -141,7 +141,7 @@ async function getStaffContractExpirationData() {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'staff'
-                },],
+                }, ],
             }).then(contract => {
                 if (contract.length > 0) {
                     for (var i = 0; i < contract.length; i++) {
@@ -184,9 +184,9 @@ async function connectDatabase(dbname) {
     return db
 }
 module.exports = {
-    sockketIO: async (io) => {
-        io.on("connection", async function (socket) {
-            socket.on("sendrequest", async function (data) {
+    sockketIO: async(io) => {
+        io.on("connection", async function(socket) {
+            socket.on("sendrequest", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
@@ -229,7 +229,7 @@ module.exports = {
                 io.sockets.emit("sendrequest", []);
 
             });
-            socket.on("change-received-status", async function (data) {
+            socket.on("change-received-status", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                 let dbName1 = await connectDatabase(data.dbname1)
@@ -250,8 +250,7 @@ module.exports = {
                 io.sockets.emit("sendrequest", []);
 
             });
-            socket.on("send-plan-cost", async function (data) {
-                console.log(data);
+            socket.on("send-plan-cost", async function(data) {
                 let status = 'XÁC NHẬN KẾ HOẠCH'
                 if (data.type == 'CHIPHI')
                     status = 'XÁC NHẬN CHI PHÍ'
@@ -327,8 +326,7 @@ module.exports = {
                         dbnameKH = await dbMaster.query(dbMasterQuery)
                         if (dbnameKH[0][0] && dbnameKH[0][0].NameDatabase) {
                             dbnameKH = dbnameKH[0][0].NameDatabase
-                        }
-                        else {
+                        } else {
                             dbnameKH = null
                         }
                     }
@@ -345,8 +343,7 @@ module.exports = {
                         dbnameNX = await dbMaster.query(dbMasterQuery)
                         if (dbnameNX[0][0] && dbnameNX[0][0].NameDatabase) {
                             dbnameNX = dbnameNX[0][0].NameDatabase
-                        }
-                        else {
+                        } else {
                             dbnameNX = null
                         }
                     }
@@ -354,8 +351,8 @@ module.exports = {
                     dbnameNX = null
                 }
                 console.log(dbnameNX, dbnameKH);
-                console.log("UPDATE tblDonHang SET TrangThaiCho = N'" + status + "', ConfirmKH = '" + ConfirmKH + "', ConfirmNX = '" + ConfirmNX + "' WHERE ID = " + data.iddonhang);
-                await db.query("UPDATE tblDonHang SET TrangThaiCho = N'" + status + "', ConfirmKH = " + ConfirmKH + ", ConfirmNX = " + ConfirmNX + " WHERE ID = " + data.iddonhang)
+                console.log("UPDATE tblDonHang SET NgayGui = '" + now + "' ,TrangThaiCho = N'" + status + "', ConfirmKH = '" + ConfirmKH + "', ConfirmNX = '" + ConfirmNX + "' WHERE ID = " + data.iddonhang);
+                await db.query("UPDATE tblDonHang SET NgayGui = '" + now + "' ,TrangThaiCho = N'" + status + "', ConfirmKH = " + ConfirmKH + ", ConfirmNX = " + ConfirmNX + " WHERE ID = " + data.iddonhang)
                 let objResult = {
                     dbnameKH: dbnameKH,
                     dbnameNX: dbnameNX,
@@ -365,7 +362,7 @@ module.exports = {
                 io.sockets.emit("send-plan-cost", objResult);
 
             });
-            socket.on("confirm-plan-cost", async function (data) {
+            socket.on("confirm-plan-cost", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
@@ -427,7 +424,7 @@ module.exports = {
                 let IDCustomer;
                 let IDNhaXe;
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
-                // check dbname khách hàng
+                    // check dbname khách hàng
                 if (!objOrder.IDKhachHang) {
                     dbnameKH = null
                 } else {
@@ -516,10 +513,10 @@ module.exports = {
                     }
                 }
             })
-            socket.on("disconnect", function () {
+            socket.on("disconnect", function() {
                 console.log(socket.id + " disconnected!");
             });
-            socket.on("Client-send-data", async function (data) {
+            socket.on("Client-send-data", async function(data) {
                 console.log(socket.id + " just sent: " + data);
                 var array = [];
                 await database.connectDatabase().then(async db => {
@@ -539,7 +536,7 @@ module.exports = {
                                         model: mtblDMNhanvien(db),
                                         required: false,
                                         as: 'nv'
-                                    },],
+                                    }, ],
                                 }).then(data => {
                                     data.forEach(item => {
                                         array.push({
@@ -559,7 +556,7 @@ module.exports = {
                                         model: mtblDMNhanvien(db),
                                         required: false,
                                         as: 'nv'
-                                    },],
+                                    }, ],
                                 }).then(data => {
                                     data.forEach(item => {
                                         array.push({
@@ -593,7 +590,7 @@ module.exports = {
                                         model: mtblDMNhanvien(db),
                                         required: false,
                                         as: 'nv'
-                                    },],
+                                    }, ],
                                 }).then(data => {
                                     data.forEach(item => {
                                         array.push({
@@ -612,7 +609,7 @@ module.exports = {
                 })
                 io.sockets.emit("Server-send-data", array);
             });
-            socket.on("Client-send-contract-notification-schedule", async function (data) {
+            socket.on("Client-send-contract-notification-schedule", async function(data) {
                 var arrayContractClient = await getStaffContractExpirationData();
 
                 io.sockets.emit("Server-send-contract-notification-schedule", arrayContractClient);

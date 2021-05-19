@@ -189,13 +189,15 @@ async function getDateholiday(db, month, year) {
     [UsedLeave], [RemainingPreviousYear], [NumberHoliday], [Time], [Note] 
     FROM [tblNghiPhep] AS [tblNghiPhep] WHERE (DATEPART(yy, [tblNghiPhep].[DateEnd]) = ` + year + `AND DATEPART(mm, [tblNghiPhep].[DateEnd]) = ` + month + `)`
     const results = await db.query(query);
-    for (var i = 0; i < results.length; i++) {
-        let dateStart = moment(results[i][0].DateStart).date()
-        let dateEnd = moment(results[i][0].DateEnd).subtract(7, 'hour').date()
-        for (var i = dateStart; i <= dateEnd; i++) {
-            array.push(i)
+    console.log(results[0][0]);
+    if (results[0][0])
+        for (var i = 0; i < results.length; i++) {
+            let dateStart = moment(results[i][0].DateStart).date()
+            let dateEnd = moment(results[i][0].DateEnd).subtract(7, 'hour').date()
+            for (var i = dateStart; i <= dateEnd; i++) {
+                array.push(i)
+            }
         }
-    }
     return array
 }
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
@@ -852,6 +854,7 @@ module.exports = {
                                         } else {
                                             var summaryEndDateS = 0;
                                             var summaryEndDateC = 0;
+                                            console.log(arrayHoliday, j, 123456);
                                             if (!checkDuplicate(arrayHoliday, j)) {
                                                 let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData, month, year)
                                                 let maxTime = await maxTimeArray(arrayTimeOfDate);
@@ -1136,15 +1139,22 @@ module.exports = {
             if (db) {
                 try {
                     body.array = JSON.parse(body.array);
+                    console.log(body.array);
                     for (var i = 0; i < body.array.length; i++) {
-                        if (body.array[i].id)
-                            mtblChamCong(db).update({
-                                Status: body.array[i].status
-                            }, {
+                        if (body.array[i].id) {
+                            let reason = ''
+                            let obj = {
+                                Status: body.array[i].status,
+                            }
+                            if (body.array[i].status != 1) {
+                                obj['Reason'] = reason
+                            }
+                            mtblChamCong(db).update(obj, {
                                 where: {
                                     ID: body.array[i].id
                                 }
                             })
+                        }
                     }
                     var result = {
                         status: Constant.STATUS.SUCCESS,
