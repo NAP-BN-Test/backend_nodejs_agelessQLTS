@@ -129,6 +129,7 @@ module.exports = {
     // add_tbl_quyetdinh_tangluong
     addtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         body.idNhanVien = JSON.parse(body.idNhanVien);
         database.connectDatabase().then(async db => {
             if (db) {
@@ -239,6 +240,7 @@ module.exports = {
                     }
                     if (body.idNhanVien) {
                         body.idNhanVien = JSON.parse(body.idNhanVien)
+                        await mtblIncreaseSalariesAndStaff(db).destroy({ where: { IncreaseSalariesID: body.id, } })
                         for (let staff = 0; staff < body.idNhanVien.length; staff++) {
                             await mtblIncreaseSalariesAndStaff(db).create({
                                 StaffID: body.idNhanVien[staff].id,
@@ -264,12 +266,12 @@ module.exports = {
                         else
                             update.push({ key: 'StopDate', value: body.stopDate });
                     }
-                    if (body.idNhanVien || body.idNhanVien === '') {
-                        if (body.idNhanVien === '')
-                            update.push({ key: 'IDNhanVien', value: null });
-                        else
-                            update.push({ key: 'IDNhanVien', value: body.idNhanVien });
-                    }
+                    // if (body.idNhanVien || body.idNhanVien === '') {
+                    //     if (body.idNhanVien === '')
+                    //         update.push({ key: 'IDNhanVien', value: null });
+                    //     else
+                    //         update.push({ key: 'IDNhanVien', value: body.idNhanVien });
+                    // }
                     if (body.idEmployeeApproval || body.idEmployeeApproval === '') {
                         if (body.idEmployeeApproval === '')
                             update.push({ key: 'IDEmployeeApproval', value: null });

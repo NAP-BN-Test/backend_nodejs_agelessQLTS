@@ -413,11 +413,12 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
-                            let realProductivityWage = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv.ProductivityWages)
+                            let realProductivityWage = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv ? data[i].nv.ProductivityWages : 0)
                             console.log(realProductivityWage, 1234);
-                            data[i].nv.ProductivityWages = realProductivityWage
+                            let productivityWages = data[i].nv ? data[i].nv.ProductivityWages : 0;
+                            productivityWages = realProductivityWage
                             let salariesDecidedIncrease = await getIncreaseSalaryOfStaff(db, data[i].IDNhanVien); // quyết định tawg lương năng suất
-                            data[i].nv.ProductivityWages += salariesDecidedIncrease
+                            productivityWages += salariesDecidedIncrease
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
                             let union = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : ((data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) * objInsurance['union'] / 100)
@@ -667,84 +668,617 @@ module.exports = {
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-1 8:00:00",
+                'Verify Date': "2021-4-1 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-1 18:00:30",
+                'Verify Date': "2021-4-1 17:00:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-1-1 8:00:16",
+                'Verify Date': "2021-4-1 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-1 16:20:20",
+                'Verify Date': "2021-4-1 17:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -06 ----------------------------------------------------------------------------------------------------------------------------------
+            // -02 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-6 9:00:00",
+                'Verify Date': "2021-4-2 9:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-6 17:10:28",
+                'Verify Date': "2021-4-2 17:30:28",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-6 8:00:16",
+                'Verify Date': "2021-4-2 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-6 17:00:20",
+                'Verify Date': "2021-4-2 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -07 ----------------------------------------------------------------------------------------------------------------------------------
+            // -03----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-7 8:00:00",
+                'Verify Date': "2021-4-3 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-1-7 9:20:00",
+                'Verify Date': "2021-4-3 17:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-1-7 8:00:16",
+                'Verify Date': "2021-4-3 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-7 17:00:20",
+                'Verify Date': "2021-1-7 12:00:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -04----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-4 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-4 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-4 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-1-4 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -05----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-5 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-5 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-5 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-5 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -07----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-7 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-7 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-7 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-7 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -08----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-8 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-8 12:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-8 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-8 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -09----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-9 9:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-9 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-9 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-1-9 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -10----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-10 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-10 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-10 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-1-10 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -11----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-11 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-11 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-11 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-1-11 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -14----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-14 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-14 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-14 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-1-14 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -15----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-15 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-15 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-15 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-15 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -16----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-16 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-16 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-16 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-16 12:00:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -17----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-17 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-17 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-17 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-17 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -20----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-20 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-20 12:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-20 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-20 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -21----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-21 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-21 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-21 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-21 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -22----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-22 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-22 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-22 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-22 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+
+            // -23----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-23 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-23 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-23 9:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-23 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -24----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-24 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-24 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-24 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-24 17:00:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -25----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-25 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-25 16:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-25 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-25 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -28----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-28 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-28 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-28 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-28 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // -29----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-29 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-4-29 17:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-4-29 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-4-29 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -782,7 +1316,7 @@ module.exports = {
                     if (!timeKeeping) {
                         if (arrayUserID.length > 0) {
                             for (var i = 0; i < arrayUserID.length; i++) {
-                                let seventeenH = 3600 * 17
+                                let seventeenH = 3600 * 17 + 30 * 60
                                 let eightH = 3600 * 8
                                 let twelveH = 3600 * 12
                                 let thirteenH = 3600 * 13

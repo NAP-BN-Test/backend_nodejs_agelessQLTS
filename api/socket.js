@@ -185,6 +185,8 @@ async function connectDatabase(dbname) {
 }
 module.exports = {
     sockketIO: async(io) => {
+        var array = await getPaymentAndREquest()
+        var arrayContract = await getStaffContractExpirationData();
         io.on("connection", async function(socket) {
             socket.on("sendrequest", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
@@ -487,8 +489,6 @@ module.exports = {
 
             });
             console.log('The user is connecting : ' + socket.id);
-            var array = await getPaymentAndREquest()
-            var arrayContract = await getStaffContractExpirationData();
             io.sockets.emit("Server-send-data", array);
             socket.emit("Server-send-contract-notification-schedule", arrayContract);
             io.sockets.emit("Server-send-all-the-messages", {

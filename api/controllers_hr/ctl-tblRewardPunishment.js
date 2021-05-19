@@ -53,7 +53,8 @@ module.exports = {
                     tblRewardPunishment.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { ID: { [Op.in]: arrayRewardPunishmentID } },
+                        where: { ID: {
+                                [Op.in]: arrayRewardPunishmentID } },
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -61,7 +62,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        },],
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (let i = 0; i < data.length; i++) {
@@ -88,7 +89,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                },],
+                                }, ],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
@@ -209,6 +210,8 @@ module.exports = {
                     }
                     if (body.staffID) {
                         body.staffID = JSON.parse(body.staffID)
+                        await mtblRewardPunishmentRStaff(db).destroy({ where: { RewardPunishmentID: body.id, } })
+
                         for (let staff = 0; staff < body.staffID.length; staff++) {
                             await mtblRewardPunishmentRStaff(db).create({
                                 StaffID: body.staffID[staff].id,
@@ -344,7 +347,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        },],
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (let i = 0; i < data.length; i++) {
@@ -371,7 +374,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                },],
+                                }, ],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
