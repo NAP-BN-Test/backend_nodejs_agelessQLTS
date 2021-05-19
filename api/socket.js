@@ -31,7 +31,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -51,7 +51,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -85,7 +85,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -115,23 +115,23 @@ async function getStaffContractExpirationData() {
             await tblHopDongNhanSu.findAll({
                 where: {
                     [Op.or]: [{
-                            Status: 'Có hiệu lực',
-                            Time: {
-                                [Op.eq]: null
-                            },
-                            NoticeTime: {
-                                [Op.substring]: now
-                            }
+                        Status: 'Có hiệu lực',
+                        Time: {
+                            [Op.eq]: null
                         },
-                        {
-                            Status: 'Có hiệu lực',
-                            NoticeTime: {
-                                [Op.substring]: now
-                            },
-                            Time: {
-                                [Op.lte]: nowTime
-                            },
+                        NoticeTime: {
+                            [Op.substring]: now
                         }
+                    },
+                    {
+                        Status: 'Có hiệu lực',
+                        NoticeTime: {
+                            [Op.substring]: now
+                        },
+                        Time: {
+                            [Op.lte]: nowTime
+                        },
+                    }
                     ]
                 },
                 order: [
@@ -141,7 +141,7 @@ async function getStaffContractExpirationData() {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'staff'
-                }, ],
+                },],
             }).then(contract => {
                 if (contract.length > 0) {
                     for (var i = 0; i < contract.length; i++) {
@@ -184,9 +184,9 @@ async function connectDatabase(dbname) {
     return db
 }
 module.exports = {
-    sockketIO: async(io) => {
-        io.on("connection", async function(socket) {
-            socket.on("sendrequest", async function(data) {
+    sockketIO: async (io) => {
+        io.on("connection", async function (socket) {
+            socket.on("sendrequest", async function (data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
@@ -229,14 +229,18 @@ module.exports = {
                 io.sockets.emit("sendrequest", []);
 
             });
-            socket.on("change-received-status", async function(data) {
-                console.log(data, 1234);
+            socket.on("change-received-status", async function (data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                 let dbName1 = await connectDatabase(data.dbname1)
                 let dbMasterQuery = "SELECT ID FROM CustomerDB WHERE NameDatabase = N'" + data.dbname2 + "'"
-                let IDCustomerDB = await dbMaster.query(dbMasterQuery)
+                let IDCustomerDB;
+                IDCustomerDB = await dbMaster.query(dbMasterQuery)
                 console.log(IDCustomerDB[0][0]);
+                if (!IDCustomerDB[0][0]) {
+                    dbMaster = await connectDatabase('Customer_VTNAP')
+                    IDCustomerDB = await dbMaster.query(dbMasterQuery)
+                }
                 let strGetCus = 'SELECt ID FROM tblKhachHang WHERE IDCustomer = ' + IDCustomerDB[0][0].ID
                 let IDCus = await dbName1.query(strGetCus)
                 console.log(IDCus);
@@ -244,6 +248,121 @@ module.exports = {
                 console.log(query);
                 dbName1.query(query)
                 io.sockets.emit("sendrequest", []);
+
+            });
+            socket.on("confirm-plan-cost", async function (data) {
+                console.log(data);
+                let status = 'XÁC NHẬN KẾ HOẠCH'
+                if (data.type == 'CHIPHI')
+                    status = 'XÁC NHẬN CHI PHÍ'
+                let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+                const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
+                    host: 'dbdev.namanphu.vn',
+                    dialect: 'mssql',
+                    operatorsAliases: '0',
+                    // Bắt buộc phải có
+                    dialectOptions: {
+                        options: { encrypt: false }
+                    },
+                    pool: {
+                        max: 5,
+                        min: 0,
+                        acquire: 30000,
+                        idle: 10000
+                    },
+                    define: {
+                        timestamps: false,
+                        freezeTableName: true
+                    }
+                });
+
+                db.authenticate()
+                    .then(() => console.log('Ket noi thanh cong'))
+                    .catch(err => console.log(err.message));
+
+                let queryUpdateOrder = 'SELECT IDKhachHang, IDNhaXe FROM tblDonHang WHERE ID = ' + data.iddonhang
+                let orderObj = await db.query(queryUpdateOrder)
+                let ConfirmKH;
+                let ConfirmNX;
+                let idCustomerKH;
+                let idCustomerNX;
+                if (orderObj[0][0]) {
+                    let queryCustomer = 'SELECT IDCustomer FROM tblKhachHang WHERE ID = ' + orderObj[0][0].IDKhachHang
+                    let CustomerObj = await db.query(queryCustomer)
+                    if (CustomerObj[0][0] && CustomerObj[0][0].IDCustomer) {
+                        ConfirmKH = null
+                        idCustomerKH = CustomerObj[0][0].IDCustomer
+                    } else {
+                        ConfirmKH = 1
+                        idCustomerKH = null
+                    }
+                } else {
+                    ConfirmKH = null
+                    idCustomerKH = null
+                }
+                if (orderObj[0][0]) {
+                    let queryCustomer = 'SELECT IDCustomer FROM tblKhachHang WHERE ID = ' + orderObj[0][0].IDNhaXe
+                    let CustomerObj = await db.query(queryCustomer)
+                    if (CustomerObj[0][0] && CustomerObj[0][0].IDCustomer) {
+                        ConfirmNX = null
+                        idCustomerNX = CustomerObj[0][0].IDCustomer
+                    } else {
+                        ConfirmNX = 1
+                        idCustomerNX = null
+                    }
+                } else {
+                    ConfirmNX = null
+                    idCustomerNX = null
+                }
+                let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
+                let dbnameKH;
+                let dbnameNX;
+                if (idCustomerKH) {
+                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + idCustomerKH
+                    dbnameKH = await dbMaster.query(dbMasterQuery)
+                    if (dbnameKH[0][0] && dbnameKH[0][0].NameDatabase) {
+                        dbnameKH = dbnameKH[0][0].NameDatabase
+                    } else {
+                        dbMaster = await connectDatabase('Customer_VTNAP')
+                        dbnameKH = await dbMaster.query(dbMasterQuery)
+                        if (dbnameKH[0][0] && dbnameKH[0][0].NameDatabase) {
+                            dbnameKH = dbnameKH[0][0].NameDatabase
+                        }
+                        else {
+                            dbnameKH = null
+                        }
+                    }
+                } else {
+                    dbnameKH = null
+                }
+                if (idCustomerNX) {
+                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + idCustomerNX
+                    dbnameNX = await dbMaster.query(dbMasterQuery)
+                    if (dbnameNX[0][0] && dbnameNX[0][0].NameDatabase) {
+                        dbnameNX = dbnameNX[0][0].NameDatabase
+                    } else {
+                        dbMaster = await connectDatabase('Customer_VTNAP')
+                        dbnameNX = await dbMaster.query(dbMasterQuery)
+                        if (dbnameNX[0][0] && dbnameNX[0][0].NameDatabase) {
+                            dbnameNX = dbnameNX[0][0].NameDatabase
+                        }
+                        else {
+                            dbnameNX = null
+                        }
+                    }
+                } else {
+                    dbnameNX = null
+                }
+                console.log(dbnameNX, dbnameKH);
+                console.log("UPDATE tblDonHang SET TrangThaiCho = N'" + status + "', ConfirmKH = '" + ConfirmKH + "', ConfirmNX = '" + ConfirmNX + "' WHERE ID = " + data.iddonhang);
+                await db.query("UPDATE tblDonHang SET TrangThaiCho = N'" + status + "', ConfirmKH = " + ConfirmKH + ", ConfirmNX = " + ConfirmNX + " WHERE ID = " + data.iddonhang)
+                let objResult = {
+                    dbnameKH: dbnameKH,
+                    dbnameNX: dbnameNX,
+                    type: data.type,
+                }
+                console.log(objResult);
+                io.sockets.emit("confirm-plan-cost", objResult);
 
             });
             console.log('The user is connecting : ' + socket.id);
@@ -273,10 +392,10 @@ module.exports = {
                     }
                 }
             })
-            socket.on("disconnect", function() {
+            socket.on("disconnect", function () {
                 console.log(socket.id + " disconnected!");
             });
-            socket.on("Client-send-data", async function(data) {
+            socket.on("Client-send-data", async function (data) {
                 console.log(socket.id + " just sent: " + data);
                 var array = [];
                 await database.connectDatabase().then(async db => {
@@ -296,7 +415,7 @@ module.exports = {
                                         model: mtblDMNhanvien(db),
                                         required: false,
                                         as: 'nv'
-                                    }, ],
+                                    },],
                                 }).then(data => {
                                     data.forEach(item => {
                                         array.push({
@@ -316,7 +435,7 @@ module.exports = {
                                         model: mtblDMNhanvien(db),
                                         required: false,
                                         as: 'nv'
-                                    }, ],
+                                    },],
                                 }).then(data => {
                                     data.forEach(item => {
                                         array.push({
@@ -350,7 +469,7 @@ module.exports = {
                                         model: mtblDMNhanvien(db),
                                         required: false,
                                         as: 'nv'
-                                    }, ],
+                                    },],
                                 }).then(data => {
                                     data.forEach(item => {
                                         array.push({
@@ -369,7 +488,7 @@ module.exports = {
                 })
                 io.sockets.emit("Server-send-data", array);
             });
-            socket.on("Client-send-contract-notification-schedule", async function(data) {
+            socket.on("Client-send-contract-notification-schedule", async function (data) {
                 var arrayContractClient = await getStaffContractExpirationData();
 
                 io.sockets.emit("Server-send-contract-notification-schedule", arrayContractClient);

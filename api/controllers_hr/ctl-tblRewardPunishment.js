@@ -16,6 +16,13 @@ async function deleteRelationshiptblRewardPunishment(db, listID) {
             }
         }
     })
+    await mtblRewardPunishmentRStaff(db).destroy({
+        where: {
+            RewardPunishmentID: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblRewardPunishment(db).destroy({
         where: {
             ID: {
@@ -33,12 +40,20 @@ module.exports = {
             if (db) {
                 try {
                     let stt = 1;
+                    let arrayRewardPunishmentID = []
+                    await mtblRewardPunishmentRStaff(db).findAll({
+                        where: { StaffID: body.staffID },
+                    }).then(inc => {
+                        inc.forEach(item => {
+                            arrayRewardPunishmentID.push(item.RewardPunishmentID)
+                        })
+                    })
                     let tblRewardPunishment = mtblRewardPunishment(db);
                     tblRewardPunishment.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })
                     tblRewardPunishment.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { IDStaff: body.staffID },
+                        where: { ID: { [Op.in]: arrayRewardPunishmentID } },
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -46,7 +61,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (let i = 0; i < data.length; i++) {
@@ -73,7 +88,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                }, ],
+                                },],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
@@ -329,7 +344,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (let i = 0; i < data.length; i++) {
@@ -356,7 +371,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                }, ],
+                                },],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
