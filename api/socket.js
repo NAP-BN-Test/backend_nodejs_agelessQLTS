@@ -250,7 +250,7 @@ module.exports = {
                 io.sockets.emit("sendrequest", []);
 
             });
-            socket.on("confirm-plan-cost", async function (data) {
+            socket.on("send-plan-cost", async function (data) {
                 console.log(data);
                 let status = 'XÁC NHẬN KẾ HOẠCH'
                 if (data.type == 'CHIPHI')
@@ -362,7 +362,131 @@ module.exports = {
                     type: data.type,
                 }
                 console.log(objResult);
-                io.sockets.emit("confirm-plan-cost", objResult);
+                io.sockets.emit("send-plan-cost", objResult);
+
+            });
+            socket.on("confirm-plan-cost", async function (data) {
+                let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+                const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
+                    host: 'dbdev.namanphu.vn',
+                    dialect: 'mssql',
+                    operatorsAliases: '0',
+                    // Bắt buộc phải có
+                    dialectOptions: {
+                        options: { encrypt: false }
+                    },
+                    pool: {
+                        max: 5,
+                        min: 0,
+                        acquire: 30000,
+                        idle: 10000
+                    },
+                    define: {
+                        timestamps: false,
+                        freezeTableName: true
+                    }
+                });
+                db.authenticate()
+                    .then(() => console.log('Ket noi thanh cong'))
+                    .catch(err => console.log(err.message));
+                let objOrder = await db.query("SELECT ConfirmKH, IDKhachHang, IDNhaXe , ConfirmNX FROM tblDonHang WHERE ID = " + data.id)
+                objOrder = objOrder[0][0]
+                if (data.object.toUpperCase() == 'KHÁCH HÀNG') {
+                    if (data.confirm == 0) {
+                        let queryUpdate = 'UPDATE tblDonHang SET ConfirmKH = 0 WHERE ID = ' + data.id
+                        await db.query(queryUpdate)
+                    } else {
+                        if (objOrder.ConfirmNX == 1) {
+                            if (data.type.toUpperCase() == 'KEHOACH') {
+                                await db.query("UPDATE tblDonHang SET ConfirmKH = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH' WHERE ID = " + data.id)
+                            } else {
+                                await db.query("UPDATE tblDonHang SET ConfirmKH = 1, TrangThaiCho = N'CHI PHÍ HOÀN THÀNH' WHERE ID = " + data.id)
+                            }
+                        } else {
+                            await db.query("UPDATE tblDonHang SET ConfirmKH = 1 WHERE ID = " + data.id)
+                        }
+                    }
+                } else {
+                    if (data.confirm == 0) {
+                        let queryUpdate = 'UPDATE tblDonHang SET ConfirmNX = 0 WHERE ID = ' + data.id
+                        await db.query(queryUpdate)
+                    } else {
+                        if (objOrder.ConfirmKH == 1) {
+                            if (data.type.toUpperCase() == 'KEHOACH') {
+                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH' WHERE ID = " + data.id)
+                            } else {
+                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'CHI PHÍ HOÀN THÀNH' WHERE ID = " + data.id)
+                            }
+                        } else {
+                            await db.query("UPDATE tblDonHang SET ConfirmNX = 1 WHERE ID = " + data.id)
+                        }
+                    }
+                }
+                let dbnameKH;
+                let dbnameNX;
+                let IDCustomer;
+                let IDNhaXe;
+                let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
+                // check dbname khách hàng
+                if (!objOrder.IDKhachHang) {
+                    dbnameKH = null
+                } else {
+                    IDCustomer = await db.query('select IDCustomer from tblKhachHang where ID = ' + objOrder.IDKhachHang)
+                    IDCustomer = IDCustomer[0][0]
+                    if (!IDCustomer)
+                        dbnameKH = null
+                    else {
+                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDCustomer.IDCustomer
+                        dbnameKH = await dbMaster.query(dbMasterQuery)
+                        dbnameKH = dbnameKH[0][0]
+                        if (dbnameKH) {
+                            dbnameKH = dbnameKH.NameDatabase
+                        } else {
+                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDCustomer.IDCustomer
+                            dbMaster = await connectDatabase('Customer_VTNAP')
+                            dbnameKH = await dbMaster.query(dbMasterQuery)
+                            dbnameKH = dbnameKH[0][0]
+                            if (dbnameKH)
+                                dbnameKH = dbnameKH.NameDatabase
+                            else
+                                dbnameKH = null
+                        }
+                    }
+                }
+                // check dbname nhà xe
+                dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
+
+                if (!objOrder.IDNhaXe) {
+                    dbnameNX = null
+                } else {
+                    IDNhaXe = await db.query('select IDCustomer from tblKhachHang where ID = ' + objOrder.IDNhaXe)
+                    IDNhaXe = IDNhaXe[0][0]
+                    if (!IDNhaXe)
+                        dbnameNX = null
+                    else {
+                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDNhaXe.IDCustomer
+                        dbnameNX = await dbMaster.query(dbMasterQuery)
+                        dbnameNX = dbnameNX[0][0]
+                        if (dbnameNX) {
+                            dbnameNX = dbnameNX.NameDatabase
+                        } else {
+                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDNhaXe.IDCustomer
+                            dbMaster = await connectDatabase('Customer_VTNAP')
+                            dbnameNX = await dbMaster.query(dbMasterQuery)
+                            dbnameNX = dbnameNX[0][0]
+                            if (dbnameNX)
+                                dbnameNX = dbnameNX.NameDatabase
+                            else
+                                dbnameNX = null
+                        }
+                    }
+                }
+
+                let obj = {
+                    dbnameKH: dbnameKH,
+                    dbnameNX: dbnameNX,
+                }
+                io.sockets.emit("confirm-plan-cost", obj);
 
             });
             console.log('The user is connecting : ' + socket.id);
