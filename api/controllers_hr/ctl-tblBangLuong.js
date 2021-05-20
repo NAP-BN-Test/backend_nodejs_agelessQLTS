@@ -184,20 +184,7 @@ async function getDateTakeLeave(db, month, year, idNhanVien) {
 }
 async function getDateholiday(db, month, year) {
     var array = [];
-    let query = `SELECT [ID], [IDLoaiChamCong], [DateStart], [DateEnd], [IDNhanVien], [NumberLeave], [Type], [Date], [Remaining], 
-    [IDHeadDepartment], [IDAdministrationHR], [IDHeads], [Status], [Reason], [ContentLeave], [AdvancePayment], 
-    [UsedLeave], [RemainingPreviousYear], [NumberHoliday], [Time], [Note] 
-    FROM [tblNghiPhep] AS [tblNghiPhep] WHERE (DATEPART(yy, [tblNghiPhep].[DateEnd]) = ` + year + `AND DATEPART(mm, [tblNghiPhep].[DateEnd]) = ` + month + `)`
-    const results = await db.query(query);
-    console.log(results[0][0]);
-    if (results[0][0])
-        for (var i = 0; i < results.length; i++) {
-            let dateStart = moment(results[i][0].DateStart).date()
-            let dateEnd = moment(results[i][0].DateEnd).subtract(7, 'hour').date()
-            for (var i = dateStart; i <= dateEnd; i++) {
-                array.push(i)
-            }
-        }
+    await mtblNghiPhep(db).findAll({ where: {} })
     return array
 }
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
@@ -1302,7 +1289,6 @@ module.exports = {
                     var dateFinal = Number(date.toISOString().slice(8, 10))
                     dateFinal += 1
                     var arrayUserID = await getUserIDExits(arrayData);
-                    var arrayHoliday = await getDateholiday(db, month, year)
                     var yearMonth = year + '-' + await convertNumber(month);
                     var timeKeeping = await mtblChamCong(db).findOne({
                         where: [{
@@ -1322,6 +1308,7 @@ module.exports = {
                                 let thirteenH = 3600 * 13
                                 var statusMorning = '';
                                 var statusAfternoon = '';
+                                var arrayHoliday = await getDateholiday(db, month, year, arrayUserID[i])
                                 var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
                                 if (staff) {
                                     var yearMonth = year + '-' + await convertNumber(month);
@@ -1388,7 +1375,6 @@ module.exports = {
                                         } else {
                                             var summaryEndDateS = 0;
                                             var summaryEndDateC = 0;
-                                            console.log(arrayHoliday, j, 123456);
                                             if (!checkDuplicate(arrayHoliday, j)) {
                                                 let arrayTimeOfDate = await filterByDate(arrayUserID[i], j, arrayData, month, year)
                                                 let maxTime = await maxTimeArray(arrayTimeOfDate);
@@ -1629,7 +1615,7 @@ module.exports = {
                                 }
                             }
                             obj['takeLeave'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                            obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
+                            // obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
                             obj['freeBreak'] = freeBreak;
                             obj['workingDay'] = workingDay;
                             obj['dayOff'] = Number(Number(summary) + Number(freeBreak)).toFixed(3);

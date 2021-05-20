@@ -61,14 +61,16 @@ async function handleCalculateAdvancePayment(db, idStaff) {
 }
 async function handleCalculateUsedLeave(db, idStaff) {
     var result = 0;
-    await mtblNghiPhep(db).findOne({
+    await mtblNghiPhep(db).findAll({
         where: { IDNhanVien: idStaff },
         order: [
             ['ID', 'DESC']
         ],
     }).then(data => {
         if (data) {
-            result += data.NumberHoliday
+            data.forEach(item => {
+                result += item.NumberHoliday
+            })
         }
     })
     return result;
@@ -189,10 +191,12 @@ module.exports = {
                             if (!arrayRespone[i].timeEnd)
                                 arrayRespone[i].timeEnd = "18:00"
                             numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                            console.log(numberHolidayArray);
                             numberHoliday += numberHolidayArray
                         }
                         //  từ từ
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
+                        console.log(usedLeave, 123456);
                         let currentYear = Number(moment().format('YYYY'))
                         let currentMonth = Number(moment().format('MM'))
                         if (currentMonth < 4)
@@ -587,6 +591,8 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
+                            console.log(data[i].AdvancePayment - data[i].UsedLeave - data[i].NumberHoliday);
+                            console.log(data[i].AdvancePayment, data[i].UsedLeave, data[i].NumberHoliday);
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -606,6 +612,9 @@ module.exports = {
                                 type: data[i].Type ? data[i].Type : '',
                                 date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 remaining: data[i].AdvancePayment - data[i].UsedLeave - data[i].NumberHoliday,
+                                numberHoliday: data[i].NumberHoliday,
+                                advancePayment: data[i].AdvancePayment,
+                                usedLeave: data[i].UsedLeave,
                                 idHeadDepartment: data[i].IDHeadDepartment ? data[i].IDHeadDepartment : '',
                                 headDepartmentCode: data[i].headDepartment ? data[i].headDepartment.StaffCode : '',
                                 headDepartmentName: data[i].headDepartment ? data[i].headDepartment.StaffName : '',
