@@ -20,6 +20,7 @@ const Sequelize = require('sequelize');
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var mtblIncreaseSalariesAndStaff = require('../tables/hrmanage/tblIncreaseSalariesAndStaff')
 var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
+var mtblDateOfLeave = require('../tables/hrmanage/tblDateOfLeave')
 
 async function deleteRelationshiptblBangLuong(db, listID) {
     await mtblBangLuong(db).destroy({
@@ -182,9 +183,32 @@ async function getDateTakeLeave(db, month, year, idNhanVien) {
     return array
 
 }
-async function getDateholiday(db, month, year) {
+async function getDateholiday(db, month, year, staffID) {
     var array = [];
-    await mtblNghiPhep(db).findAll({ where: {} })
+    let listID = []
+    await mtblNghiPhep(db).findAll({ where: { IDNhanVien: staffID } }).then(leave => {
+        leave.forEach(item => {
+            listID.push(item.ID)
+        })
+    })
+    for (let i = 0; i < listID.length; i++) {
+        await mtblDateOfLeave(db).findAll({ where: { LeaveID: listID[i] } }).then(date => {
+            date.forEach(element => {
+                // if (Number(moment(element.DateEnd).subtract(7, 'hours').format('HH')) <= 8) {
+
+                // }
+                let dateStart = moment(element.DateStart).subtract(7, 'hours').date()
+                let dateEnd = moment(element.DateEnd).subtract(7, 'hours').date()
+                if (Number(moment(element.DateEnd).subtract(7, 'hours').format('HH') <= 8)) {
+                    dateEnd -= 1
+                }
+                for (var i = dateStart; i <= dateEnd; i++) {
+                    array.push(i)
+                }
+            })
+        })
+
+    }
     return array
 }
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')

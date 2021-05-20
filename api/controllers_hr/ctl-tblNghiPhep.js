@@ -184,12 +184,14 @@ module.exports = {
                                 advancePayment = 12 - Number(moment(dateSign).format('MM'))
                             }
                         }
+                        console.log(arrayRespone);
                         for (let i = 0; i < arrayRespone.length; i++) {
                             let numberHolidayArray = 0
                             if (!arrayRespone[i].timeStart)
                                 arrayRespone[i].timeStart = "08:00"
                             if (!arrayRespone[i].timeEnd)
                                 arrayRespone[i].timeEnd = "18:00"
+                            console.log(arrayRespone);
                             numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
                             console.log(numberHolidayArray);
                             numberHoliday += numberHolidayArray
@@ -207,7 +209,7 @@ module.exports = {
                     if (body.idLoaiChamCong) {
                         let typeLeave = await mtblLoaiChamCong(db).findOne({ where: { ID: body.idLoaiChamCong } })
                         if (typeLeave && typeLeave.Compensation) {
-                            usedLeave = 0
+                            // usedLeave = 0
                             numberHoliday = 0
                         }
                     }
@@ -285,6 +287,27 @@ module.exports = {
                                     }
                                 })
                     }
+                    console.log(body);
+                    let arrayRespone = JSON.parse(body.array)
+                    let numberHoliday = 0
+                    for (let i = 0; i < arrayRespone.length; i++) {
+                        let numberHolidayArray = 0
+                        if (!arrayRespone[i].timeStart)
+                            arrayRespone[i].timeStart = "08:00"
+                        if (!arrayRespone[i].timeEnd)
+                            arrayRespone[i].timeEnd = "18:00"
+                        numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                        numberHoliday += numberHolidayArray
+
+                    }
+                    await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
+                    for (let i = 0; i < arrayRespone.length; i++) {
+                        await mtblDateOfLeave(db).create({
+                            DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                            DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                            LeaveID: body.id,
+                        })
+                    }
                     if (body.numberLeave || body.numberLeave === '')
                         update.push({ key: 'NumberLeave', value: body.numberLeave });
                     if (body.time || body.time === '')
@@ -325,18 +348,18 @@ module.exports = {
                         else
                             update.push({ key: 'IDHeads', value: body.idHeads });
                     }
-                    if (body.dateEnd || body.dateEnd === '') {
-                        if (body.dateEnd === '')
-                            update.push({ key: 'DateEnd', value: null });
-                        else
-                            update.push({ key: 'DateEnd', value: moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') });
-                    }
-                    if (body.dateStart || body.dateStart === '') {
-                        if (body.dateStart === '')
-                            update.push({ key: 'DateStart', value: null });
-                        else
-                            update.push({ key: 'DateStart', value: moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') });
-                    }
+                    // if (body.dateEnd || body.dateEnd === '') {
+                    //     if (body.dateEnd === '')
+                    //         update.push({ key: 'DateEnd', value: null });
+                    //     else
+                    //         update.push({ key: 'DateEnd', value: moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') });
+                    // }
+                    // if (body.dateStart || body.dateStart === '') {
+                    //     if (body.dateStart === '')
+                    //         update.push({ key: 'DateStart', value: null });
+                    //     else
+                    //         update.push({ key: 'DateStart', value: moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') });
+                    // }
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });
@@ -350,24 +373,37 @@ module.exports = {
                             if (body.idLoaiChamCong) {
                                 let typeLeave = await mtblLoaiChamCong(db).findOne({ where: { ID: body.idLoaiChamCong } })
                                 if (typeLeave && typeLeave.Compensation) {
-                                    update.push({ key: 'UsedLeave', value: null });
-                                    update.push({ key: 'NumberHoliday', value: null });
+                                    update.push({ key: 'NumberHoliday', value: 0 });
+                                } else {
+                                    update.push({ key: 'NumberHoliday', value: numberHoliday });
                                 }
+                            } else {
+                                let leave = await mtblNghiPhep(db).findOne({ where: { ID: body.id } })
+                                if (leave && leave.IDLoaiChamCong) {
+                                    let typeLeave = await mtblLoaiChamCong(db).findOne({ where: { ID: leave.IDLoaiChamCong } })
+                                    if (typeLeave && typeLeave.Compensation) {
+                                        if (typeLeave.Compensation)
+                                            update.push({ key: 'NumberHoliday', value: 0 });
+                                        else
+                                            update.push({ key: 'NumberHoliday', value: numberHoliday });
+
+                                    }
+                                }
+                                update.push({ key: 'IDLoaiChamCong', value: body.idLoaiChamCong });
                             }
-                            update.push({ key: 'IDLoaiChamCong', value: body.idLoaiChamCong });
                         }
+                        // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
+                        // await mtblFileAttach(db).update({
+                        //     Link: link,
+                        // }, { where: { IDContract: body.id } })
+                        database.updateTable(update, mtblNghiPhep(db), body.id).then(response => {
+                            if (response == 1) {
+                                res.json(Result.ACTION_SUCCESS);
+                            } else {
+                                res.json(Result.SYS_ERROR_RESULT);
+                            }
+                        })
                     }
-                    // let link = await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx')
-                    // await mtblFileAttach(db).update({
-                    //     Link: link,
-                    // }, { where: { IDContract: body.id } })
-                    database.updateTable(update, mtblNghiPhep(db), body.id).then(response => {
-                        if (response == 1) {
-                            res.json(Result.ACTION_SUCCESS);
-                        } else {
-                            res.json(Result.SYS_ERROR_RESULT);
-                        }
-                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -634,10 +670,10 @@ module.exports = {
                                 let arrayDate = []
                                 date.forEach(item => {
                                     arrayDate.push({
-                                        dateStart: moment(item.DateStart).format('YYYY-MM-DD'),
-                                        timeStart: moment(item.DateStart).format('HH:mm'),
-                                        dateEnd: moment(item.DateEnd).format('YYYY-MM-DD'),
-                                        timeEnd: moment(item.DateEnd).format('HH:mm'),
+                                        dateStart: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                        timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
+                                        dateEnd: moment(item.DateEnd).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                        timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
                                     })
                                 })
                                 obj['array'] = arrayDate
