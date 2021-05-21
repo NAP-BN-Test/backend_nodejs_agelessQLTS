@@ -3,7 +3,7 @@ const Op = require('sequelize').Op;
 const Constant = require('../constants/constant');
 
 async function connectDatabase() {
-    const db = new Sequelize('LOCYF', 'locyf', '123456a$', {
+    const db = new Sequelize('NMQ_DB', 'nmq_user', '123456a$', {
         host: 'db.namanphu.vn',
         dialect: 'mssql',
         operatorsAliases: '0',

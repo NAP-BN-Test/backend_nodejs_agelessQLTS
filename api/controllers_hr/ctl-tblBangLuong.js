@@ -47,7 +47,7 @@ async function filterByDate(userID, dateFinal, array, month, year) {
         var date = moment(array[i]['Verify Date']).format("YYYY-MM-DD hh:mm:ss")
         if (Number(date.slice(5, 7)) == month && Number(date.slice(0, 4)) == year) {
             if (array[i]['User ID'] == userID && Number(date.slice(8, 10)) == dateFinal) {
-                arrayResult.push(array[i]['Verify Date'].slice(9, 22))
+                arrayResult.push(array[i]['Verify Date'].slice(9, 22).trim())
             }
         }
 
@@ -67,12 +67,12 @@ async function maxTimeArray(array) {
     for (var i = 0; i < array.length; i++) {
         if (Number(array[i].slice(0, 2))) {
             let seconrd = Number(array[i].slice(6, 8)) + Number(array[i].slice(3, 5)) * 60 + Number(array[i].slice(0, 2)) * 60 * 60
-            if (seconrd > maxTime) {
+            if (seconrd >= maxTime) {
                 maxTime = seconrd;
             }
         } else {
             let seconrd = Number(array[i].slice(5, 7)) + Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60
-            if (seconrd > maxTime) {
+            if (seconrd >= maxTime) {
                 maxTime = seconrd;
             }
         }
@@ -542,10 +542,11 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     let arrayTimeOfDate = await filterByDate(userID, date, arrayData, month, year)
     let maxTime = await maxTimeArray(arrayTimeOfDate);
     let minTime = await minTimeArray(arrayTimeOfDate);
+    console.log(maxTime, minTime);
     if (arrayTimeOfDate.length == 1) {
-        if (minTime > twelveH) {
+        if (minTime >= twelveH) {
             // check chiều
-            if (thirteenH < maxTime) {
+            if (thirteenH <= maxTime) {
                 statusAfternoon = await converFromSecondsToHourLate(maxTime - thirteenH)
                 summaryEndDateC = await roundNumberMinutes(maxTime - thirteenH)
             } else {
@@ -555,7 +556,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
             summaryEndDateS = 0.5
         } else {
             // check sáng
-            if (minTime > eightH) {
+            if (minTime >= eightH) {
                 statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                 summaryEndDateS = await roundNumberMinutes(minTime - eightH)
             } else {
@@ -568,12 +569,12 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     if (arrayTimeOfDate.length > 1) {
         if (maxTime <= twelveH) {
             // check sáng
-            if (minTime > eightH) {
+            if (minTime >= eightH) {
                 statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                 summaryEndDateS = await roundNumberMinutes(minTime - eightH)
 
             } else {
-                if (twelveH > maxTime) {
+                if (twelveH >= maxTime) {
                     statusMorning = await converFromSecondsToHourLate(twelveH - maxTime)
                     summaryEndDateS = await roundNumberMinutes(twelveH - maxTime)
                 } else {
@@ -587,11 +588,11 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                 statusMorning = '0.5'
                 summaryEndDateS = 0.5
                     // check chiều
-                if (thirteenH < minTime) {
+                if (thirteenH <= minTime) {
                     statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
                     summaryEndDateC = await roundNumberMinutes(minTime - thirteenH)
                 } else {
-                    if (seventeenH > maxTime) {
+                    if (seventeenH >= maxTime) {
                         statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
                         summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
                     } else {
@@ -600,14 +601,14 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                 }
             } else {
                 // check sáng
-                if (minTime > eightH) {
+                if (minTime >= eightH) {
                     statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                     summaryEndDateS = await roundNumberMinutes(minTime - eightH)
                 } else {
                     statusMorning = ''
                 }
                 // check chiều
-                if (seventeenH > maxTime) {
+                if (seventeenH >= maxTime) {
                     statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
                     summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
 
@@ -630,26 +631,6 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     }
 }
 
-// Xóa dữ liệu cũ có ngày thứ 7, chủ nhật và các hôm nghỉ, xóa cả nhưng ngày nghỉ phép để cập nhật
-async function deleteDataFromTimekeeping(db, year, month) {
-    let arrayWhere = ['Sunday', 'Saturday', 'Holiday']
-    await mtblChamCong(db).destroy({
-        where: {
-            [Op.or]: [{
-                    Status: {
-                        [Op.in]: arrayWhere
-                    },
-                },
-                {
-                    Reason: 'Nghỉ phép'
-                }
-            ],
-            Date: {
-                [Op.substring]: year + '-' + await convertNumber(month)
-            },
-        }
-    })
-}
 module.exports = {
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
@@ -1060,7 +1041,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-3 17:30",
+                'Verify Date': "2021-4-3 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1088,7 +1069,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-4 17:30",
+                'Verify Date': "2021-4-4 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1116,7 +1097,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-5 17:30",
+                'Verify Date': "2021-4-5 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1144,7 +1125,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-7 17:30",
+                'Verify Date': "2021-4-7 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1172,7 +1153,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-8 12:00",
+                'Verify Date': "2021-4-8 12:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1200,7 +1181,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-9 17:30",
+                'Verify Date': "2021-4-9 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1228,7 +1209,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-10 17:30",
+                'Verify Date': "2021-4-10 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1256,7 +1237,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-11 17:30",
+                'Verify Date': "2021-4-11 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1284,7 +1265,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-14 17:30",
+                'Verify Date': "2021-4-14 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1312,7 +1293,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-15 17:30",
+                'Verify Date': "2021-4-15 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1340,7 +1321,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-16 17:30",
+                'Verify Date': "2021-4-16 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1368,7 +1349,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-17 17:30",
+                'Verify Date': "2021-4-17 17:30:39",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1396,7 +1377,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-20 12:30",
+                'Verify Date': "2021-4-20 12:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1424,7 +1405,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-21 17:30",
+                'Verify Date': "2021-4-21 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1452,7 +1433,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-22 17:30",
+                'Verify Date': "2021-4-22 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1481,7 +1462,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-23 17:30",
+                'Verify Date': "2021-4-23 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1509,7 +1490,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-24 17:30",
+                'Verify Date': "2021-4-24 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1537,7 +1518,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-25 16:30",
+                'Verify Date': "2021-4-25 16:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1565,7 +1546,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-28 17:30",
+                'Verify Date': "2021-4-28 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1593,7 +1574,7 @@ module.exports = {
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-29 17:30",
+                'Verify Date': "2021-4-29 17:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1680,7 +1661,6 @@ module.exports = {
                             }
                         }
                     } else {
-                        await deleteDataFromTimekeeping(db, year, month)
                         if (arrayUserID.length > 0) {
                             for (var i = 0; i < arrayUserID.length; i++) {
                                 var arrayHoliday = await getListHoliday(db, month, year, dateFinal)
@@ -1693,18 +1673,38 @@ module.exports = {
                                         let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
                                         let staffID = staff ? staff.ID : null
                                         if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                            await mtblChamCong(db).destroy({
+                                                where: {
+                                                    Date: date
+                                                }
+                                            })
                                             await createAttendanceData(db, staffID, date, null, 'Sunday', 'Nghỉ chủ nhật', true, 0)
                                             await createAttendanceData(db, staffID, date, null, 'Sunday', 'Nghỉ chủ nhật', false, 0)
                                         } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                            await mtblChamCong(db).destroy({
+                                                where: {
+                                                    Date: date
+                                                }
+                                            })
                                             await createAttendanceData(db, staffID, date, null, 'Saturday', 'Nghỉ thứ bảy', true, 0)
                                             await createAttendanceData(db, staffID, date, null, 'Saturday', 'Nghỉ thứ bảy', false, 0)
                                         } else if (checkDuplicate(arrayHoliday, j)) {
+                                            await mtblChamCong(db).destroy({
+                                                where: {
+                                                    Date: date
+                                                }
+                                            })
                                             await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
                                             await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
                                         } else {
                                             // check xem có trong ngày nghỉ phép không ?
                                             if (checkDuplicate(arrayLeaveDay.array, j)) {
                                                 for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                    await mtblChamCong(db).destroy({
+                                                        where: {
+                                                            Date: date
+                                                        }
+                                                    })
                                                     await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
                                                     await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
                                                 }
