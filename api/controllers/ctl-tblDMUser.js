@@ -1,4 +1,3 @@
-
 const Op = require('sequelize').Op;
 const Constant = require('../constants/constant');
 const Result = require('../constants/result');
@@ -14,7 +13,9 @@ let jwt = require('jsonwebtoken');
 async function deleteRelationshiptblDMUser(db, listID) {
     await mtblDMUser(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -145,9 +146,11 @@ module.exports = {
                                     ['ID', 'DESC']
                                 ],
                                 where: {
-                                    [Op.or]: [
-                                        { PermissionName: { [Op.like]: '%' + data.search + '%' } },
-                                    ]
+                                    [Op.or]: [{
+                                        PermissionName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }, ]
                                 }
                             }).then(data => {
                                 data.forEach(item => {
@@ -160,9 +163,16 @@ module.exports = {
                             let employeeIDS = [];
                             await mtblDMNhanvien(db).findAll({
                                 where: {
-                                    [Op.or]: [
-                                        { StaffName: { [Op.like]: '%' + data.search + '%' } },
-                                        { StaffCode: { [Op.like]: '%' + data.search + '%' } },
+                                    [Op.or]: [{
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
                                     ]
                                 },
                                 order: [
@@ -174,26 +184,54 @@ module.exports = {
                                 })
                             })
                             if (active !== '')
-                                where = [
-                                    { IDPermission: { [Op.in]: permission } },
-                                    { Username: { [Op.like]: '%' + data.search + '%' } },
+                                where = [{
+                                        IDPermission: {
+                                            [Op.in]: permission
+                                        }
+                                    },
+                                    {
+                                        Username: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
                                     { Active: active },
-                                    { IDNhanvien: { [Op.in]: employeeIDS } },
+                                    {
+                                        IDNhanvien: {
+                                            [Op.in]: employeeIDS
+                                        }
+                                    },
                                 ];
                             else
-                                where = [
-                                    { IDPermission: { [Op.in]: permission } },
-                                    { Username: { [Op.like]: '%' + data.search + '%' } },
+                                where = [{
+                                        IDPermission: {
+                                            [Op.in]: permission
+                                        }
+                                    },
+                                    {
+                                        Username: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
                                     // { Active: active },
-                                    { [Op.and]: { IDNhanvien: { [Op.in]: employeeIDS } } },
+                                    {
+                                        [Op.and]: {
+                                            IDNhanvien: {
+                                                [Op.in]: employeeIDS
+                                            }
+                                        }
+                                    },
                                 ];
                             console.log(where);
                         } else {
-                            where = [
-                                { Username: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                Username: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.or]: where
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -201,16 +239,20 @@ module.exports = {
                                     let employeeIDS = [];
                                     await mtblDMNhanvien(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { StaffName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
+                                            [Op.or]: [{
+                                                StaffName: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
                                             employeeIDS.push(item.ID);
                                         })
                                     })
-                                    userFind['IDNhanvien'] = { [Op.in]: employeeIDS }
+                                    userFind['IDNhanvien'] = {
+                                        [Op.in]: employeeIDS
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -225,16 +267,20 @@ module.exports = {
                                     let employeeIDS = [];
                                     await mtblDMNhanvien(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { StaffCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
+                                            [Op.or]: [{
+                                                StaffCode: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
                                             employeeIDS.push(item.ID);
                                         })
                                     })
-                                    userFind['IDNhanvien'] = { [Op.in]: employeeIDS }
+                                    userFind['IDNhanvien'] = {
+                                        [Op.in]: employeeIDS
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -246,7 +292,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TÊN ĐĂNG NHẬP') {
-                                    userFind['Username'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Username'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -278,16 +326,20 @@ module.exports = {
                                     var permission = [];
                                     await mtblDMPermission(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { PermissionName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
+                                            [Op.or]: [{
+                                                PermissionName: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
                                             permission.push(item.ID);
                                         })
                                     })
-                                    userFind['IDPermission'] = { [Op.in]: permission }
+                                    userFind['IDPermission'] = {
+                                        [Op.in]: permission
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -307,8 +359,7 @@ module.exports = {
                     tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission' })
                     let count = await tblDMUser.count({ where: whereOjb })
                     tblDMUser.findAll({
-                        include: [
-                            {
+                        include: [{
                                 model: mtblDMNhanvien(db),
                                 required: false,
                             },
@@ -408,25 +459,20 @@ module.exports = {
 
                 var data = await tblDMUser.findOne({
                     where: { UserName: body.userName, Password: body.password },
-                    include: [
-                        {
+                    include: [{
                             model: tblDMNhanvien,
                             required: false,
                             as: 'nv',
-                            include: [
-                                {
-                                    model: tblDMBoPhan,
+                            include: [{
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'bp',
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
                                     required: false,
-                                    as: 'bp',
-                                    include: [
-                                        {
-                                            model: mtblDMChiNhanh(db),
-                                            required: false,
-                                            as: 'chinhanh'
-                                        },
-                                    ],
-                                }
-                            ],
+                                    as: 'chinhanh'
+                                }, ],
+                            }],
                         },
                         {
                             model: mtblDMPermission(db),
@@ -457,15 +503,16 @@ module.exports = {
                         branchID: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.ID : null : null : null,
                     }
                     payload = {
-                        "Username": req.body.userName,
-                        // standard fields
-                        // - Xác thực người tạo
-                        "iss": "Tungnn",
-                    }
+                            "Username": req.body.userName,
+                            // standard fields
+                            // - Xác thực người tạo
+                            "iss": "Tungnn",
+                        }
+                        // payload = { username: 'haidn', password: '123456a$' }
                     let token = jwt.sign(payload,
-                        'abcdxys',
-                        {}
+                        'abcdxys', { expiresIn: '30d' }
                     );
+                    console.log(token);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: '',

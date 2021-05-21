@@ -392,7 +392,7 @@ module.exports = {
                 objOrder = objOrder[0][0]
                 if (data.object.toUpperCase() == 'KHÁCH HÀNG') {
                     if (data.confirm == 0) {
-                        let queryUpdate = 'UPDATE tblDonHang SET ConfirmKH = 0 WHERE ID = ' + data.id
+                        let queryUpdate = "UPDATE tblDonHang SET ConfirmKH = 0, TrangThaiCho = N'Khách Hàng Từ Chối' WHERE ID = " + data.id
                         await db.query(queryUpdate)
                     } else {
                         if (objOrder.ConfirmNX == 1) {
@@ -407,7 +407,7 @@ module.exports = {
                     }
                 } else {
                     if (data.confirm == 0) {
-                        let queryUpdate = 'UPDATE tblDonHang SET ConfirmNX = 0 WHERE ID = ' + data.id
+                        let queryUpdate = "UPDATE tblDonHang SET ConfirmNX = 0, TrangThaiCho = N'Nhà Xe Từ Chối' WHERE ID = " + data.id
                         await db.query(queryUpdate)
                     } else {
                         if (objOrder.ConfirmKH == 1) {

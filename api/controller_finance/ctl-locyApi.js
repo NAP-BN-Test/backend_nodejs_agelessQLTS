@@ -37,7 +37,7 @@ module.exports = {
         } else if (body.type == 'loan') {
             query = 'SELECT * FROM tblJOBPhieuThuChi WHERE enumLoaiPhieuTamUng = 2'
         } else {
-            query = 'SELECT * FROM tblJOBPhieuThuChi WHERE enumLoaiPhieuTamUng = 2'
+            query = 'SELECT * FROM tblJOBPhieuThuChi WHERE enumLoaiPhieuTamUng = 3'
 
         }
         let locyData = await db.query(query)

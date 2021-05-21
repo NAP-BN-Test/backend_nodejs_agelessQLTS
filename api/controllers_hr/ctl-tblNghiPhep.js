@@ -366,6 +366,7 @@ module.exports = {
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
                     }
+                    console.log(body);
                     if (body.idLoaiChamCong || body.idLoaiChamCong === '') {
                         if (body.idLoaiChamCong === '')
                             update.push({ key: 'IDLoaiChamCong', value: null });
@@ -377,6 +378,7 @@ module.exports = {
                                 } else {
                                     update.push({ key: 'NumberHoliday', value: numberHoliday });
                                 }
+                                update.push({ key: 'IDLoaiChamCong', value: body.idLoaiChamCong });
                             } else {
                                 let leave = await mtblNghiPhep(db).findOne({ where: { ID: body.id } })
                                 if (leave && leave.IDLoaiChamCong) {
@@ -678,7 +680,6 @@ module.exports = {
                                 })
                                 obj['array'] = arrayDate
                             })
-                            console.log(obj);
                             array.push(obj);
                             stt += 1;
                         }
