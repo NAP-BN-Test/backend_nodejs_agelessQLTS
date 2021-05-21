@@ -31,9 +31,9 @@ module.exports = {
         let query = `SELECT * FROM tblJOBPhieuThuChi`
 
         if (body.type == 'receipts') {
-            query = 'SELECT * FROM tblJOBPhieuThuChi WHERE EnumLoaiPhieu = 0'
+            query = 'SELECT * FROM tblJOBPhieuThuChi WHERE EnumLoaiPhieu = 0 and enumLoaiPhieuTamUng is NULL'
         } else if (body.type == 'payment') {
-            query = 'SELECT * FROM tblJOBPhieuThuChi WHERE EnumLoaiPhieu = 1'
+            query = 'SELECT * FROM tblJOBPhieuThuChi WHERE EnumLoaiPhieu = 1  and enumLoaiPhieuTamUng is NULL'
         } else if (body.type == 'loan') {
             query = 'SELECT * FROM tblJOBPhieuThuChi WHERE enumLoaiPhieuTamUng = 2'
         } else {
