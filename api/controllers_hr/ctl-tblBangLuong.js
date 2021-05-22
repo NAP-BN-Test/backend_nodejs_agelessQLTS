@@ -1648,8 +1648,10 @@ module.exports = {
                                             // check xem có trong ngày nghỉ phép không ?
                                             if (checkDuplicate(arrayLeaveDay.array, j)) {
                                                 for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                    }
                                                 }
                                             } else {
                                                 await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
@@ -1675,7 +1677,8 @@ module.exports = {
                                         if (datetConvert.slice(0, 8) == 'Chủ nhật') {
                                             await mtblChamCong(db).destroy({
                                                 where: {
-                                                    Date: date
+                                                    Date: date,
+                                                    IDNhanVien: staffID
                                                 }
                                             })
                                             await createAttendanceData(db, staffID, date, null, 'Sunday', 'Nghỉ chủ nhật', true, 0)
@@ -1683,7 +1686,8 @@ module.exports = {
                                         } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
                                             await mtblChamCong(db).destroy({
                                                 where: {
-                                                    Date: date
+                                                    Date: date,
+                                                    IDNhanVien: staffID
                                                 }
                                             })
                                             await createAttendanceData(db, staffID, date, null, 'Saturday', 'Nghỉ thứ bảy', true, 0)
@@ -1691,7 +1695,8 @@ module.exports = {
                                         } else if (checkDuplicate(arrayHoliday, j)) {
                                             await mtblChamCong(db).destroy({
                                                 where: {
-                                                    Date: date
+                                                    Date: date,
+                                                    IDNhanVien: staffID
                                                 }
                                             })
                                             await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
@@ -1700,13 +1705,16 @@ module.exports = {
                                             // check xem có trong ngày nghỉ phép không ?
                                             if (checkDuplicate(arrayLeaveDay.array, j)) {
                                                 for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    await mtblChamCong(db).destroy({
-                                                        where: {
-                                                            Date: date
-                                                        }
-                                                    })
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                        await mtblChamCong(db).destroy({
+                                                            where: {
+                                                                Date: date,
+                                                                IDNhanVien: staffID
+                                                            }
+                                                        })
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                    }
                                                 }
                                             }
                                         }
