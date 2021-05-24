@@ -59,7 +59,7 @@ let storage = multer.diskStorage({
 let upload = multer({ storage: storage });
 const DIR = 'C:/images_services/ageless_sendmail';
 
-app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (req, res) {
+app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function(req, res) {
     if (!req.files) {
         console.log("No file received");
         return res.send({
@@ -79,7 +79,7 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (
 
                 var apiInstance = new CloudmersiveConvertApiClient.ConvertDocumentApi();
                 var inputFile = Buffer.from(fs.readFileSync(pathFirst).buffer); // File | Input file to perform the operation on.
-                var callback = function (error, data, response) {
+                var callback = function(error, data, response) {
                     if (error) {
                         console.error(error);
                     } else {
@@ -91,8 +91,7 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function (
                 fs.unlink(pathFirst, (err) => {
                     if (err) console.log(err);
                 });
-            }
-            else {
+            } else {
                 pathFinal = pathFirst;
             }
             pathFinal = pathFinal.slice(36, 100)
@@ -145,8 +144,7 @@ async function handleRequestShopping(db, idycms) {
         order: [
             ['ID', 'DESC']
         ],
-        include: [
-            {
+        include: [{
                 model: mtblDMBoPhan(db),
                 required: false,
                 as: 'phongban'
@@ -190,13 +188,11 @@ async function handleRequestShopping(db, idycms) {
                     where: {
                         ID: data.line[j].IDDMHangHoa,
                     },
-                    include: [
-                        {
-                            model: mtblDMLoaiTaiSan(db),
-                            required: false,
-                            as: 'loaiTaiSan'
-                        },
-                    ],
+                    include: [{
+                        model: mtblDMLoaiTaiSan(db),
+                        required: false,
+                        as: 'loaiTaiSan'
+                    }, ],
                 }).then(data => {
                     if (data) {
                         name += ',' + data ? data.Name : ''
@@ -248,25 +244,20 @@ async function handlePaymentOrder(db, iddntt) {
         order: [
             ['ID', 'DESC']
         ],
-        include: [
-            {
+        include: [{
                 model: tblDMNhanvien,
                 required: false,
                 as: 'NhanVien',
-                include: [
-                    {
-                        model: tblDMBoPhan,
+                include: [{
+                    model: tblDMBoPhan,
+                    required: false,
+                    as: 'bophan',
+                    include: [{
+                        model: mtblDMChiNhanh(db),
                         required: false,
-                        as: 'bophan',
-                        include: [
-                            {
-                                model: mtblDMChiNhanh(db),
-                                required: false,
-                                as: 'chinhanh'
-                            },
-                        ],
-                    },
-                ],
+                        as: 'chinhanh'
+                    }, ],
+                }, ],
             },
             {
                 model: mtblDMNhanvien(db),
@@ -299,13 +290,11 @@ async function getPathFromtblTmplate(db, code, idycms) {
     tblTemplate.hasMany(mtblFileAttach(db), { foreignKey: 'IDTemplate', as: 'tem' })
     await tblTemplate.findOne({
         where: { Code: code },
-        include: [
-            {
-                model: mtblFileAttach(db),
-                required: false,
-                as: 'tem'
-            },
-        ],
+        include: [{
+            model: mtblFileAttach(db),
+            required: false,
+            as: 'tem'
+        }, ],
     }).then(data => {
         //  data.tem[0].Link.slice(44, 100)
         pathFirst = data.tem[0].Link.slice(47, 100);
@@ -316,55 +305,55 @@ async function getPathFromtblTmplate(db, code, idycms) {
     return pathFirst
 }
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-app.post('/qlnb/render_automatic_work', async function (req, res) {
-    let body = req.body;
-    var pathFirst = '';
-    var objKey = {};
-    await database.connectDatabase().then(async db => {
-        pathFirst = await getPathFromtblTmplate(db, body.code, body.id)
-        if (body.code == 'ycms') {
-            objKey = await handleRequestShopping(db, body.id)
-        } else if (body.code == 'dntt') {
-            objKey = await handlePaymentOrder(db, body.id)
-        } else {
-            objKey = await handleRequestShopping(db, body.id)
-        }
-    })
-    var pathTo = 'C:/images_services/ageless_sendmail/'
-    console.log(pathTo + pathFirst);
-    fs.readFile(pathTo + pathFirst, 'binary', function (err, data) {
-        try {
-            if (err) {
-                console.log(err);
-                var result = {
-                    status: Constant.STATUS.FAIL,
-                    message: 'File không tồn tại. Vui lòng cầu hình lại!',
-                }
-                res.json(result);
+app.post('/qlnb/render_automatic_work', async function(req, res) {
+        let body = req.body;
+        var pathFirst = '';
+        var objKey = {};
+        await database.connectDatabase().then(async db => {
+            pathFirst = await getPathFromtblTmplate(db, body.code, body.id)
+            if (body.code == 'ycms') {
+                objKey = await handleRequestShopping(db, body.id)
+            } else if (body.code == 'dntt') {
+                objKey = await handlePaymentOrder(db, body.id)
             } else {
-                var zip = new JSZip(data);
-                var doc = new Docxtemplater().loadZip(zip)
-                //set the templateVariables
-                doc.setData(objKey);
-                doc.render()
-                var buf = doc.getZip().generate({ type: 'nodebuffer' });
-                // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
-                // var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
-                fs.writeFileSync(path.resolve(pathTo, 'export-file-word.docx'), buf);
-                var result = {
-                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export-file-word.docx',
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                }
-                res.json(result);
+                objKey = await handleRequestShopping(db, body.id)
             }
-        } catch (error) {
-            console.log(error);
-            res.json('Lỗi file export. Vui lòng cầu hình lại!')
-        }
-    });
-})
-// -------------------------------------------------------------------------------------------------------------------------
+        })
+        var pathTo = 'C:/images_services/ageless_sendmail/'
+        console.log(pathTo + pathFirst);
+        fs.readFile(pathTo + pathFirst, 'binary', function(err, data) {
+            try {
+                if (err) {
+                    console.log(err);
+                    var result = {
+                        status: Constant.STATUS.FAIL,
+                        message: 'File không tồn tại. Vui lòng cầu hình lại!',
+                    }
+                    res.json(result);
+                } else {
+                    var zip = new JSZip(data);
+                    var doc = new Docxtemplater().loadZip(zip)
+                        //set the templateVariables
+                    doc.setData(objKey);
+                    doc.render()
+                    var buf = doc.getZip().generate({ type: 'nodebuffer' });
+                    // buf is a nodejs buffer, you can either write it to a file or do anything else with it.
+                    // var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
+                    fs.writeFileSync(path.resolve(pathTo, 'export-file-word.docx'), buf);
+                    var result = {
+                        link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export-file-word.docx',
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                }
+            } catch (error) {
+                console.log(error);
+                res.json('Lỗi file export. Vui lòng cầu hình lại!')
+            }
+        });
+    })
+    // -------------------------------------------------------------------------------------------------------------------------
 let routes = require('./api/router') //importing route
 routes(app)
 
@@ -373,7 +362,7 @@ let connect = require('./api/database')
 connect.connectDatabase();
 
 const port = process.env.PORT || 3100
-// wsEngine cho phép gọi vào hàm
+    // wsEngine cho phép gọi vào hàm
 var io = require("socket.io")(server, {
     cors: {
         wsEngine: 'eiows',
@@ -382,10 +371,14 @@ var io = require("socket.io")(server, {
         credentials: true,
     }
 })
-server.listen(port, function () {
+server.listen(port, function() {
     console.log('http://localhost:' + port);
 });
 let scheduleJob = require('./api/scheduleJob')
 scheduleJob.editStatus24HourEveryday()
-// connect socket
+    // connect socket
 socket.sockketIO(io)
+app.post('/notification-zalo', async function(req, res) {
+    let body = req.body;
+    socket.socketEmit(io, body.dbname)
+})

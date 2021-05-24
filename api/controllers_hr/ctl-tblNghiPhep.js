@@ -305,17 +305,29 @@ module.exports = {
                             arrayRespone[i].timeStart = "08:00"
                         if (!arrayRespone[i].timeEnd)
                             arrayRespone[i].timeEnd = "17:30"
-                        numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                        if (body.type != 'TakeLeave') {
+                            numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].date + ' ' + arrayRespone[i].timeStart, arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd)
+
+                        } else {
+                            numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                        }
                         numberHoliday += numberHolidayArray
 
                     }
                     await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
                     for (let i = 0; i < arrayRespone.length; i++) {
-                        await mtblDateOfLeave(db).create({
-                            DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
-                            DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
-                            LeaveID: body.id,
-                        })
+                        if (body.type != 'TakeLeave') {
+                            await mtblDateOfLeave(db).create({
+                                DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
+                                DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                LeaveID: body.id,
+                            })
+                        } else
+                            await mtblDateOfLeave(db).create({
+                                DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                                DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                                LeaveID: body.id,
+                            })
                     }
                     if (body.numberLeave || body.numberLeave === '')
                         update.push({ key: 'NumberLeave', value: body.numberLeave });
@@ -377,7 +389,6 @@ module.exports = {
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
                     }
-                    console.log(body);
                     if (body.idLoaiChamCong || body.idLoaiChamCong === '') {
                         if (body.idLoaiChamCong === '')
                             update.push({ key: 'IDLoaiChamCong', value: null });

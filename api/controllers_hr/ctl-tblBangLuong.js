@@ -538,12 +538,11 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     var statusAfternoon = '';
     let seventeenH = 3600 * 17 + 30 * 60
     let eightH = 3600 * 8
-    let twelveH = 3600 * 12
+    let twelveH = 3600 * 12 + 30 * 60
     let thirteenH = 3600 * 13
     let arrayTimeOfDate = await filterByDate(userID, date, arrayData, month, year)
     let maxTime = await maxTimeArray(arrayTimeOfDate);
     let minTime = await minTimeArray(arrayTimeOfDate);
-    console.log(maxTime, minTime);
     if (arrayTimeOfDate.length == 1) {
         if (minTime >= twelveH) {
             // check chiều

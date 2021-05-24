@@ -620,4 +620,7 @@ module.exports = {
             });
         })
     },
+    socketEmit: async(io, dbname) => {
+        io.sockets.emit("notification-zalo", { dbname: dbname });
+    },
 }
