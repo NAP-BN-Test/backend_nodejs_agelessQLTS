@@ -193,10 +193,8 @@ module.exports = {
                                 if (!arrayRespone[i].timeStart)
                                     arrayRespone[i].timeStart = "08:00"
                                 if (!arrayRespone[i].timeEnd)
-                                    arrayRespone[i].timeEnd = "18:00"
-                                console.log(arrayRespone);
+                                    arrayRespone[i].timeEnd = "17:30"
                                 numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
-                                console.log(numberHolidayArray);
                                 numberHoliday += numberHolidayArray
                             }
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
@@ -232,7 +230,8 @@ module.exports = {
                         RemainingPreviousYear: remainingPreviousYear,
                         NumberHoliday: numberHoliday,
                         Time: body.time ? body.time : '',
-                        Note: body.note ? body.note : ''
+                        Note: body.note ? body.note : '',
+                        WorkContent: body.work ? body.work : ''
                     }).then(async data => {
                         if (data)
                             if (body.type == 'TakeLeave') {
@@ -305,7 +304,7 @@ module.exports = {
                         if (!arrayRespone[i].timeStart)
                             arrayRespone[i].timeStart = "08:00"
                         if (!arrayRespone[i].timeEnd)
-                            arrayRespone[i].timeEnd = "18:00"
+                            arrayRespone[i].timeEnd = "17:30"
                         numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
                         numberHoliday += numberHolidayArray
 
@@ -328,6 +327,8 @@ module.exports = {
                         update.push({ key: 'Type', value: body.type });
                     if (body.content || body.content === '')
                         update.push({ key: 'ContentLeave', value: body.content });
+                    if (body.work || body.work === '')
+                        update.push({ key: 'WorkContent', value: body.work });
                     if (body.date || body.date === '') {
                         if (body.date === '')
                             update.push({ key: 'Date', value: null });
@@ -679,6 +680,7 @@ module.exports = {
                                 reason: data[i].Reason ? data[i].Reason : '',
                                 time: data[i].Time ? data[i].Time : '',
                                 note: data[i].Note ? data[i].Note : '',
+                                work: data[i].WorkContent ? data[i].WorkContent : '',
                             }
                             await mtblDateOfLeave(db).findAll({
                                 where: { LeaveID: data[i].ID }
@@ -741,15 +743,56 @@ module.exports = {
             }
         })
     },
-    // approval_head_department
-    approvalHeadDepartment: (req, res) => {
+    // confirm_head_department
+    confirmHeadDepartment: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    await mtblNghiPhep(db).update({
-                        Status: 'Chờ hành chính nhân sự phê duyệt',
-                    }, { where: { ID: body.id } })
+                    let leave = await mtblNghiPhep(db).findOne({
+                        where: { ID: body.id }
+                    })
+                    if (leave.Type == 'TakeLeave')
+                        await mtblNghiPhep(db).update({
+                            Status: 'Chờ thủ trưởng phê duyệt',
+                        }, { where: { ID: body.id } })
+                    else
+                        await mtblNghiPhep(db).update({
+                            Status: 'Chờ hành chính nhân sự phê duyệt',
+                        }, { where: { ID: body.id } })
+
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // approval_head_department
+    approvalHeadDepartment: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let leave = await mtblNghiPhep(db).findOne({
+                        where: { ID: body.id }
+                    })
+                    if (leave.Type == 'TakeLeave')
+                        await mtblNghiPhep(db).update({
+                            Status: 'Chờ thủ trưởng phê duyệt',
+                        }, { where: { ID: body.id } })
+                    else
+                        await mtblNghiPhep(db).update({
+                            Status: 'Chờ trưởng bộ phận xác nhận',
+                        }, { where: { ID: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -770,9 +813,18 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    await mtblNghiPhep(db).update({
-                        Status: 'Chờ thủ trưởng phê duyệt',
-                    }, { where: { ID: body.id } })
+                    let leave = await mtblNghiPhep(db).findOne({
+                        where: { ID: body.id }
+                    })
+                    if (leave.Type == 'TakeLeave')
+                        await mtblNghiPhep(db).update({
+                            Status: 'Hoàn thành',
+                        }, { where: { ID: body.id } })
+                    else
+                        await mtblNghiPhep(db).update({
+                            Status: 'Chờ thủ trưởng phê duyệt',
+                        }, { where: { ID: body.id } })
+
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -793,9 +845,17 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    await mtblNghiPhep(db).update({
-                        Status: 'Hoàn thành',
-                    }, { where: { ID: body.id } })
+                    let leave = await mtblNghiPhep(db).findOne({
+                        where: { ID: body.id }
+                    })
+                    if (leave.Type == 'TakeLeave')
+                        await mtblNghiPhep(db).update({
+                            Status: 'Chờ hành chính nhân sự phê duyệt',
+                        }, { where: { ID: body.id } })
+                    else
+                        await mtblNghiPhep(db).update({
+                            Status: 'Hoàn thành',
+                        }, { where: { ID: body.id } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,

@@ -624,8 +624,8 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     let statusAfternoonDB = statusAfternoon ? statusAfternoon : null
     console.log(statusMorningDB, statusAfternoonDB);
     if (arrayTimeOfDate.length >= 1) {
-        await createAttendanceData(db, staffID, datedb, null, statusMorningDB, '', true, summaryEndDateS)
-        await createAttendanceData(db, staffID, datedb, null, statusAfternoonDB, '', false, summaryEndDateC)
+        await createAttendanceData(db, staffID, datedb, null, statusMorningDB, '+', true, summaryEndDateS)
+        await createAttendanceData(db, staffID, datedb, null, statusAfternoonDB, '+', false, summaryEndDateC)
     } else {
         await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', true, summaryEndDateS)
         await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', false, summaryEndDateC)
@@ -2047,6 +2047,7 @@ module.exports = {
                                     where: {
                                         Type: 'SignUp',
                                         IDNhanVien: data[i].ID,
+                                        Status: 'Hoàn thành',
                                     }
                                 }).then(leave => {
                                     leave.forEach(item => {
@@ -2063,6 +2064,7 @@ module.exports = {
                                     where: {
                                         Type: 'TakeLeave',
                                         IDNhanVien: data[i].ID,
+                                        Status: 'Hoàn thành',
                                     }
                                 }).then(data => {
                                     if (data) {
@@ -2078,6 +2080,7 @@ module.exports = {
                                     where: {
                                         Type: 'TakeLeave',
                                         IDNhanVien: data[i].ID,
+                                        Status: 'Hoàn thành',
                                     }
                                 }).then(data => {
                                     if (data)

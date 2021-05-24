@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = function (db) {
+module.exports = function(db) {
     var table = db.define('tblNghiPhep', {
         ID: {
             type: Sequelize.BIGINT,
@@ -22,11 +22,12 @@ module.exports = function (db) {
         Reason: Sequelize.STRING,
         ContentLeave: Sequelize.STRING,
         AdvancePayment: Sequelize.FLOAT, // số phép được ứng
-        UsedLeave: Sequelize.FLOAT,// số phép đã sử dụng
+        UsedLeave: Sequelize.FLOAT, // số phép đã sử dụng
         RemainingPreviousYear: Sequelize.FLOAT, // Số phép còn lại của năm trước
         NumberHoliday: Sequelize.FLOAT, // Số ngày nghỉ
         Time: Sequelize.STRING, // HH/MM
         Note: Sequelize.STRING,
+        WorkContent: Sequelize.STRING,
     });
 
     return table;
