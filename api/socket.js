@@ -231,6 +231,10 @@ module.exports = {
                 io.sockets.emit("sendrequest", []);
 
             });
+            socket.on("notification-zalo", async function(data) {
+                io.sockets.emit("notification-zalo", { dbname: data.dbname });
+
+            });
             socket.on("change-received-status", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')

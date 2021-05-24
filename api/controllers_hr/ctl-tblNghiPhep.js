@@ -62,7 +62,10 @@ async function handleCalculateAdvancePayment(db, idStaff) {
 async function handleCalculateUsedLeave(db, idStaff) {
     var result = 0;
     await mtblNghiPhep(db).findAll({
-        where: { IDNhanVien: idStaff },
+        where: {
+            IDNhanVien: idStaff,
+            Status: 'Hoàn thành',
+        },
         order: [
             ['ID', 'DESC']
         ],
@@ -184,21 +187,19 @@ module.exports = {
                                 advancePayment = 12 - Number(moment(dateSign).format('MM'))
                             }
                         }
-                        console.log(arrayRespone);
-                        for (let i = 0; i < arrayRespone.length; i++) {
-                            let numberHolidayArray = 0
-                            if (!arrayRespone[i].timeStart)
-                                arrayRespone[i].timeStart = "08:00"
-                            if (!arrayRespone[i].timeEnd)
-                                arrayRespone[i].timeEnd = "18:00"
-                            console.log(arrayRespone);
-                            numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
-                            console.log(numberHolidayArray);
-                            numberHoliday += numberHolidayArray
-                        }
-                        //  từ từ
+                        if (body.type == 'TakeLeave')
+                            for (let i = 0; i < arrayRespone.length; i++) {
+                                let numberHolidayArray = 0
+                                if (!arrayRespone[i].timeStart)
+                                    arrayRespone[i].timeStart = "08:00"
+                                if (!arrayRespone[i].timeEnd)
+                                    arrayRespone[i].timeEnd = "18:00"
+                                console.log(arrayRespone);
+                                numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                                console.log(numberHolidayArray);
+                                numberHoliday += numberHolidayArray
+                            }
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
-                        console.log(usedLeave, 123456);
                         let currentYear = Number(moment().format('YYYY'))
                         let currentMonth = Number(moment().format('MM'))
                         if (currentMonth < 4)
@@ -234,12 +235,22 @@ module.exports = {
                         Note: body.note ? body.note : ''
                     }).then(async data => {
                         if (data)
-                            for (let i = 0; i < arrayRespone.length; i++) {
-                                await mtblDateOfLeave(db).create({
-                                    DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
-                                    DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
-                                    LeaveID: data.ID,
-                                })
+                            if (body.type == 'TakeLeave') {
+                                for (let i = 0; i < arrayRespone.length; i++) {
+                                    await mtblDateOfLeave(db).create({
+                                        DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                                        DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                                        LeaveID: data.ID,
+                                    })
+                                }
+                            } else {
+                                for (let i = 0; i < arrayRespone.length; i++) {
+                                    await mtblDateOfLeave(db).create({
+                                        DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
+                                        DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                        LeaveID: data.ID,
+                                    })
+                                }
                             }
                         if (body.type == 'TakeLeave') {
                             body.fileAttach = JSON.parse(body.fileAttach)
@@ -287,7 +298,6 @@ module.exports = {
                                     }
                                 })
                     }
-                    console.log(body);
                     let arrayRespone = JSON.parse(body.array)
                     let numberHoliday = 0
                     for (let i = 0; i < arrayRespone.length; i++) {
@@ -629,8 +639,12 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
-                            console.log(data[i].AdvancePayment - data[i].UsedLeave - data[i].NumberHoliday);
-                            console.log(data[i].AdvancePayment, data[i].UsedLeave, data[i].NumberHoliday);
+                            let remaining = 0
+                            if (data[i].Status == 'Hoàn thành') {
+                                remaining = data[i].AdvancePayment - data[i].UsedLeave - data[i].NumberHoliday
+                            } else {
+                                remaining = data[i].AdvancePayment - data[i].UsedLeave
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -649,7 +663,7 @@ module.exports = {
                                 status: data[i].Status ? data[i].Status : '',
                                 type: data[i].Type ? data[i].Type : '',
                                 date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
-                                remaining: data[i].AdvancePayment - data[i].UsedLeave - data[i].NumberHoliday,
+                                remaining: remaining,
                                 numberHoliday: data[i].NumberHoliday,
                                 advancePayment: data[i].AdvancePayment,
                                 usedLeave: data[i].UsedLeave,
@@ -670,14 +684,24 @@ module.exports = {
                                 where: { LeaveID: data[i].ID }
                             }).then(date => {
                                 let arrayDate = []
-                                date.forEach(item => {
-                                    arrayDate.push({
-                                        dateStart: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
-                                        timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
-                                        dateEnd: moment(item.DateEnd).subtract(7, 'hour').format('YYYY-MM-DD'),
-                                        timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
+                                if (obj.type == 'TakeLeave')
+                                    date.forEach(item => {
+                                        arrayDate.push({
+                                            dateStart: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                            timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
+                                            dateEnd: moment(item.DateEnd).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                            timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
+                                        })
                                     })
-                                })
+                                else {
+                                    date.forEach(item => {
+                                        arrayDate.push({
+                                            date: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                            timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
+                                            timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
+                                        })
+                                    })
+                                }
                                 obj['array'] = arrayDate
                             })
                             array.push(obj);

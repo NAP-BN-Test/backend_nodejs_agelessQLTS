@@ -196,6 +196,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     await mtblNghiPhep(db).findAll({
         where: {
             IDNhanVien: staffID,
+            Status: 'Hoàn thành',
         }
     }).then(leave => {
         leave.forEach(item => {
