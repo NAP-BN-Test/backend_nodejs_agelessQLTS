@@ -10,7 +10,7 @@ module.exports = function(db) {
         LeaveID: Sequelize.BIGINT,
         DateEnd: Sequelize.NOW,
         DateStart: Sequelize.NOW,
-
+        WorkContent: Sequelize.STRING,
     });
 
     return table;

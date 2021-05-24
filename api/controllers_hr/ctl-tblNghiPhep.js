@@ -212,7 +212,7 @@ module.exports = {
                             numberHoliday = 0
                         }
                     }
-                    mtblNghiPhep(db).create({
+                    await mtblNghiPhep(db).create({
                         // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                         // DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
@@ -243,10 +243,12 @@ module.exports = {
                                     })
                                 }
                             } else {
+                                console.log(arrayRespone);
                                 for (let i = 0; i < arrayRespone.length; i++) {
                                     await mtblDateOfLeave(db).create({
                                         DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                         DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                        WorkContent: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
                                         LeaveID: data.ID,
                                     })
                                 }
@@ -281,6 +283,7 @@ module.exports = {
     // update_tbl_nghiphep
     updatetblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -316,18 +319,20 @@ module.exports = {
                     }
                     await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
                     for (let i = 0; i < arrayRespone.length; i++) {
+                        console.log(arrayRespone);
                         if (body.type != 'TakeLeave') {
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                 DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                WorkContent: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
                                 LeaveID: body.id,
                             })
-                        } else
-                            await mtblDateOfLeave(db).create({
-                                DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
-                                DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
-                                LeaveID: body.id,
-                            })
+                        } else {}
+                        await mtblDateOfLeave(db).create({
+                            DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                            DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                            LeaveID: body.id,
+                        })
                     }
                     if (body.numberLeave || body.numberLeave === '')
                         update.push({ key: 'NumberLeave', value: body.numberLeave });
@@ -712,6 +717,7 @@ module.exports = {
                                             date: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
                                             timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
                                             timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
+                                            workResult: item.WorkContent ? item.WorkContent : ''
                                         })
                                     })
                                 }
