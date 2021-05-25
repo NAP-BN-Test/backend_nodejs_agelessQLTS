@@ -290,6 +290,7 @@ module.exports = {
                     let update = [];
                     if (body.type == 'TakeLeave') {
                         body.fileAttach = JSON.parse(body.fileAttach)
+                        await mtblFileAttach(db).destroy({ where: { IDTakeLeave: body.id } })
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
                                 await mtblFileAttach(db).update({

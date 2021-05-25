@@ -32,32 +32,47 @@ async function deleteRelationshiptblTaiSanADD(db, listID) {
     await mtblThanhLyTaiSan(db).destroy({
         where: {
             [Op.or]: {
-                IDTaiSan: { [Op.in]: listID },
+                IDTaiSan: {
+                    [Op.in]: listID
+                },
             }
         }
     })
     await mtblThayTheTaiSan(db).destroy({
         where: {
             [Op.or]: {
-                IDTaiSan: { [Op.in]: listID },
-                IDTaiSanThayThe: { [Op.in]: listID },
+                IDTaiSan: {
+                    [Op.in]: listID
+                },
+                IDTaiSanThayThe: {
+                    [Op.in]: listID
+                },
             }
         }
     })
     await mtblFileAttach(db).destroy({
         where: {
-            IDTaiSanADD: { [Op.in]: listID }
+            IDTaiSanADD: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblTaiSanHistory(db).destroy({
-        where: { IDTaiSan: { [Op.in]: listID } }
+        where: {
+            IDTaiSan: {
+                [Op.in]: listID
+            }
+        }
     })
     await mtblTaiSan(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
+
 function checkDuplicate(array, elm) {
     var check = false;
     array.forEach(item => {
@@ -77,25 +92,22 @@ async function getDepartFromTaiSan(db, idTaiSan) {
             DateThuHoi: null,
             IDTaiSan: idTaiSan,
         },
-        include: [
-            {
-                model: tblTaiSanBanGiao,
-                required: false,
-                as: 'tsbangiao',
-                include: [
-                    {
-                        model: tblDMNhanvien(db),
-                        required: false,
-                        as: 'nv'
-                    },
-                    {
-                        model: tblDMBoPhan(db),
-                        required: false,
-                        as: 'bp'
-                    },
-                ],
-            },
-        ],
+        include: [{
+            model: tblTaiSanBanGiao,
+            required: false,
+            as: 'tsbangiao',
+            include: [{
+                    model: tblDMNhanvien(db),
+                    required: false,
+                    as: 'nv'
+                },
+                {
+                    model: tblDMBoPhan(db),
+                    required: false,
+                    as: 'bp'
+                },
+            ],
+        }, ],
 
     }).then(data => {
         if (data) {
@@ -117,25 +129,22 @@ async function getStaffFromTaiSan(db, idTaiSan) {
             DateThuHoi: null,
             IDTaiSan: idTaiSan,
         },
-        include: [
-            {
-                model: tblTaiSanBanGiao,
-                required: false,
-                as: 'tsbangiao',
-                include: [
-                    {
-                        model: tblDMNhanvien(db),
-                        required: false,
-                        as: 'nv'
-                    },
-                    {
-                        model: tblDMBoPhan(db),
-                        required: false,
-                        as: 'bp'
-                    },
-                ],
-            },
-        ],
+        include: [{
+            model: tblTaiSanBanGiao,
+            required: false,
+            as: 'tsbangiao',
+            include: [{
+                    model: tblDMNhanvien(db),
+                    required: false,
+                    as: 'nv'
+                },
+                {
+                    model: tblDMBoPhan(db),
+                    required: false,
+                    as: 'bp'
+                },
+            ],
+        }, ],
 
     }).then(data => {
         if (data) {
@@ -157,25 +166,21 @@ async function getDetailTaiSan(db, idTaiSan) {
     tblTaiSan.belongsTo(tblTaiSanADD, { foreignKey: 'IDTaiSanADD', sourceKey: 'IDTaiSanADD', as: 'taisanADD' })
     await tblTaiSan.findOne({
         where: { ID: idTaiSan },
-        include: [
-            {
+        include: [{
                 model: tblDMHangHoa,
                 required: false,
                 as: 'hanghoa',
-                include: [
-                    {
-                        model: mtblDMLoaiTaiSan(db),
-                        required: false,
-                        as: 'loaitaisan'
-                    },
-                ],
+                include: [{
+                    model: mtblDMLoaiTaiSan(db),
+                    required: false,
+                    as: 'loaitaisan'
+                }, ],
             },
             {
                 model: tblTaiSanADD,
                 required: false,
                 as: 'taisanADD',
-                include: [
-                    {
+                include: [{
                         model: mtblDMNhaCungCap(db),
                         required: false,
                         as: 'ncc'
@@ -243,27 +248,21 @@ module.exports = {
                     tblTaiSanBanGiao.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nv' })
                     tblTaiSan.findOne({
                         where: { ID: body.id },
-                        include: [
-                            {
-                                model: tblTaiSanHistory,
+                        include: [{
+                            model: tblTaiSanHistory,
+                            required: false,
+                            as: 'history',
+                            include: [{
+                                model: tblTaiSanBanGiao,
                                 required: false,
-                                as: 'history',
-                                include: [
-                                    {
-                                        model: tblTaiSanBanGiao,
-                                        required: false,
-                                        as: 'taisanbangiao',
-                                        include: [
-                                            {
-                                                model: mtblDMNhanvien(db),
-                                                required: false,
-                                                as: 'nv',
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        ],
+                                as: 'taisanbangiao',
+                                include: [{
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'nv',
+                                }, ],
+                            }, ],
+                        }, ],
                     }).then(async data => {
                         if (data.history)
                             for (var i = 0; i < data.history.length; i++) {
@@ -379,12 +378,12 @@ module.exports = {
                             // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     }
-                    console.log(obj);
                     await mtblTaiSan(db).update(obj, {
                         where: { ID: body.id }
                     })
                     let idAdd = await mtblTaiSan(db).findOne({ where: { ID: body.id } })
                     body.obj.fileAttach = JSON.parse(body.obj.fileAttach)
+                    await mtblFileAttach(db).destroy({ where: { IDTaiSanADD: idAdd.IDTaiSanADD } })
                     if (body.obj.fileAttach.length > 0) {
                         for (var i = 0; i < body.obj.fileAttach.length; i++) {
                             if (body.obj.fileAttach[i].id)
@@ -450,13 +449,11 @@ module.exports = {
                                         if (data.TSNBNumber) {
                                             tsnbNumber = Number(data.TSNBNumber) + 1;
                                             tsnbCode = body.taisan[i].idDMHangHoa.code + Number(tsnbNumber)
-                                        }
-                                        else {
+                                        } else {
                                             tsnbCode = body.taisan[i].idDMHangHoa.code + 1
                                             tsnbNumber = 1
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         tsnbCode = body.taisan[i].idDMHangHoa.code + 1
                                         tsnbNumber = 1
                                     }
@@ -583,11 +580,11 @@ module.exports = {
                     if (body.type != 'TSCSD') {
                         let listIDTaiSan = [];
                         await mtblTaiSanHistory(db).findAll({
-                            where: [
-                                {
-                                    DateThuHoi: { [Op.ne]: null }
+                            where: [{
+                                DateThuHoi: {
+                                    [Op.ne]: null
                                 }
-                            ]
+                            }]
                         }).then(data => {
                             data.forEach(item => {
                                 if (item.IDTaiSan) {
@@ -598,11 +595,11 @@ module.exports = {
                         })
                         let listIDTaiSanADD = [];
                         await mtblTaiSan(db).findAll({
-                            where: [
-                                {
-                                    ID: { [Op.in]: listIDTaiSan }
+                            where: [{
+                                ID: {
+                                    [Op.in]: listIDTaiSan
                                 }
-                            ]
+                            }]
                         }).then(data => {
                             data.forEach(item => {
                                 if (item.IDTaiSanADD) {
@@ -612,7 +609,9 @@ module.exports = {
                             })
                         })
                         whereOjb.push({
-                            ID: { [Op.in]: listIDTaiSanADD }
+                            ID: {
+                                [Op.in]: listIDTaiSanADD
+                            }
                         })
                     }
                     // if (body.dataSearch) {
@@ -659,13 +658,11 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
-                                model: mtblTaiSan(db),
-                                required: false,
-                                as: 'add'
-                            },
-                        ],
+                        include: [{
+                            model: mtblTaiSan(db),
+                            required: false,
+                            as: 'add'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
@@ -722,11 +719,15 @@ module.exports = {
                         })
                     } else if (body.type == 'depreciation') {
                         arraySearchAnd.push({
-                            DepreciationDate: { [Op.ne]: null }
+                            DepreciationDate: {
+                                [Op.ne]: null
+                            }
                         })
                     } else {
                         arraySearchAnd.push({
-                            Status: { [Op.ne]: 'Đã thanh lý' }
+                            Status: {
+                                [Op.ne]: 'Đã thanh lý'
+                            }
                         })
                     }
                     if (body.dataSearch) {
@@ -736,9 +737,16 @@ module.exports = {
                             var list = [];
                             await mtblDMHangHoa(db).findAll({
                                 where: {
-                                    [Op.or]: [
-                                        { Name: { [Op.like]: '%' + data.search + '%' } },
-                                        { Code: { [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            Name: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            Code: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -746,23 +754,40 @@ module.exports = {
                                     list.push(Number(item.ID));
                                 })
                             })
-                            where = [
-                                { TSNBCode: { [Op.like]: '%' + data.search + '%' } },
-                                { SerialNumber: { [Op.like]: '%' + data.search + '%' } },
-                                { IDDMHangHoa: { [Op.in]: list } },
+                            where = [{
+                                    TSNBCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    SerialNumber: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    IDDMHangHoa: {
+                                        [Op.in]: list
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { TSNBCode: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                TSNBCode: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
 
                         }
-                        whereObj = { [Op.or]: where };
+                        whereObj = {
+                            [Op.or]: where
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÌNH TRẠNG') {
-                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -774,7 +799,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ NỘI BỘ') {
-                                    userFind['TSNBCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['TSNBCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -803,9 +830,16 @@ module.exports = {
                                     var list = [];
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            [Op.or]: [{
+                                                    Name: {
+                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                    }
+                                                },
+                                                {
+                                                    Code: {
+                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                    }
+                                                }
                                             ]
                                         }
                                     }).then(data => {
@@ -830,7 +864,9 @@ module.exports = {
                                     var list = [];
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
-                                            IDDMLoaiTaiSan: { [Op.eq]: data.items[i]['searchFields'] }
+                                            IDDMLoaiTaiSan: {
+                                                [Op.eq]: data.items[i]['searchFields']
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -852,8 +888,7 @@ module.exports = {
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         let userFind = {};
                         userFind['ID'] = {
                             [Op.notIn]: listIDTaiSan,
@@ -881,8 +916,7 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereObj,
-                        include: [
-                            {
+                        include: [{
                                 model: mtblTaiSanADD(db),
                                 required: false,
                                 as: 'taisan'
@@ -891,13 +925,11 @@ module.exports = {
                                 model: tblDMHangHoa,
                                 required: false,
                                 as: 'hanghoa',
-                                include: [
-                                    {
-                                        model: mtblDMLoaiTaiSan(db),
-                                        required: false,
-                                        as: 'loaitaisan'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMLoaiTaiSan(db),
+                                    required: false,
+                                    as: 'loaitaisan'
+                                }, ],
                             },
                         ],
                     }).then(async data => {
@@ -967,11 +999,9 @@ module.exports = {
                     var whereOjb = {};
                     let listIDTaiSan = [];
                     await mtblTaiSanHistory(db).findAll({
-                        where: [
-                            {
-                                DateThuHoi: null
-                            }
-                        ]
+                        where: [{
+                            DateThuHoi: null
+                        }]
                     }).then(data => {
                         data.forEach(item => {
                             if (item.IDTaiSan) {
@@ -987,9 +1017,16 @@ module.exports = {
                             var list = [];
                             await mtblDMHangHoa(db).findAll({
                                 where: {
-                                    [Op.or]: [
-                                        { Name: { [Op.like]: '%' + data.search + '%' } },
-                                        { Code: { [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            Name: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            Code: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -997,17 +1034,32 @@ module.exports = {
                                     list.push(Number(item.ID));
                                 })
                             })
-                            where = [
-                                { TSNBCode: { [Op.like]: '%' + data.search + '%' } },
-                                { SerialNumber: { [Op.like]: '%' + data.search + '%' } },
-                                { IDDMHangHoa: { [Op.in]: list } },
+                            where = [{
+                                    TSNBCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    SerialNumber: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    IDDMHangHoa: {
+                                        [Op.in]: list
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { TSNBCode: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                TSNBCode: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.or]: where
+                        };
                         // let listIDTaiSan = [];
                         // await mtblTaiSanHistory(db).findAll({
                         //     where: [
@@ -1055,9 +1107,16 @@ module.exports = {
                                     var list = [];
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            [Op.or]: [{
+                                                    Name: {
+                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                    }
+                                                },
+                                                {
+                                                    Code: {
+                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                    }
+                                                }
                                             ]
                                         }
                                     }).then(data => {
@@ -1083,8 +1142,7 @@ module.exports = {
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         let userFind = {};
                         userFind['ID'] = {
                             [Op.in]: listIDTaiSan,
@@ -1140,8 +1198,7 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         where: whereOjb,
-                        include: [
-                            {
+                        include: [{
                                 model: mtblTaiSanADD(db),
                                 required: false,
                                 as: 'taisan'
@@ -1150,13 +1207,11 @@ module.exports = {
                                 model: tblDMHangHoa,
                                 required: false,
                                 as: 'hanghoa',
-                                include: [
-                                    {
-                                        model: mtblDMLoaiTaiSan(db),
-                                        required: false,
-                                        as: 'loaitaisan'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMLoaiTaiSan(db),
+                                    required: false,
+                                    as: 'loaitaisan'
+                                }, ],
                             },
                             // {
                             //     model: mtblDMLoaiTaiSan(db),
@@ -1181,7 +1236,11 @@ module.exports = {
 
                     })
                     await mtblTaiSanHistory(db).findAll({
-                        where: { IDTaiSan: { [Op.in]: listTaiSan } },
+                        where: {
+                            IDTaiSan: {
+                                [Op.in]: listTaiSan
+                            }
+                        },
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         order: [
@@ -1196,8 +1255,7 @@ module.exports = {
                             tblTaiSanBanGiao.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bophan' })
                             var bangiao = await tblTaiSanBanGiao.findOne({
                                 where: { ID: history[e].IDTaiSanBanGiao },
-                                include: [
-                                    {
+                                include: [{
                                         model: mtblDMNhanvien(db),
                                         required: false,
                                         as: 'nhanvien'
@@ -1230,7 +1288,13 @@ module.exports = {
                                 }
                             })
                         }
-                        var count = await mtblTaiSanHistory(db).count({ where: { IDTaiSan: { [Op.in]: listTaiSan } } })
+                        var count = await mtblTaiSanHistory(db).count({
+                            where: {
+                                IDTaiSan: {
+                                    [Op.in]: listTaiSan
+                                }
+                            }
+                        })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
@@ -1268,13 +1332,11 @@ module.exports = {
 
                     tblTaiSan.findAll({
                         where: { IDTaiSanDiKem: body.id },
-                        include: [
-                            {
-                                model: mtblDMHangHoa(db),
-                                required: false,
-                                as: 'hanghoa'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMHangHoa(db),
+                            required: false,
+                            as: 'hanghoa'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -1324,8 +1386,7 @@ module.exports = {
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: body.id,
                                 DateDiKem: body.date ? body.date : null,
-                            }, { where: { ID: array[i].idReplaceAsset.id } }).then(data => {
-                            })
+                            }, { where: { ID: array[i].idReplaceAsset.id } }).then(data => {})
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: null,
                                 DateDiKem: null
@@ -1442,11 +1503,9 @@ module.exports = {
                     let whereOjb = [];
                     let listIDTaiSan = [];
                     await mtblTaiSanHistory(db).findAll({
-                        where: [
-                            {
-                                DateThuHoi: null
-                            }
-                        ]
+                        where: [{
+                            DateThuHoi: null
+                        }]
                     }).then(data => {
                         data.forEach(item => {
                             if (item.IDTaiSan) {
@@ -1456,7 +1515,9 @@ module.exports = {
                         })
                     })
                     whereOjb.push({
-                        ID: { [Op.notIn]: listIDTaiSan },
+                        ID: {
+                            [Op.notIn]: listIDTaiSan
+                        },
                         IDTaiSanDiKem: null
                     })
                     let tblTaiSan = mtblTaiSan(db);
@@ -1468,13 +1529,11 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
-                                model: mtblDMHangHoa(db),
-                                required: false,
-                                as: 'hanghoa',
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMHangHoa(db),
+                            required: false,
+                            as: 'hanghoa',
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         var stt = 1;

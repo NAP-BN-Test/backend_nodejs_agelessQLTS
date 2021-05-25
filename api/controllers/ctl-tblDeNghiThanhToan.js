@@ -23,17 +23,20 @@ async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
 
     await mtblFileAttach(db).destroy({
         where: {
-            IDDeNghiThanhToan: { [Op.in]: listID }
+            IDDeNghiThanhToan: {
+                [Op.in]: listID }
         }
     })
     await mtblDeNghiThanhToan(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID }
         }
     })
     await mtblDeNghiThanhToan(db).findAll({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID }
         }
     }).then(data => {
         data.forEach(item => {
@@ -58,8 +61,7 @@ async function getDetailYCMS(db, id) {
         order: [
             ['ID', 'DESC']
         ],
-        include: [
-            {
+        include: [{
                 model: mtblDMBoPhan(db),
                 required: false,
                 as: 'phongban'
@@ -124,13 +126,11 @@ async function getDetailYCMS(db, id) {
                         where: {
                             ID: obj.line[j].IDDMHangHoa,
                         },
-                        include: [
-                            {
-                                model: mtblDMLoaiTaiSan(db),
-                                required: false,
-                                as: 'loaiTaiSan'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMLoaiTaiSan(db),
+                            required: false,
+                            as: 'loaiTaiSan'
+                        }, ],
                     }).then(data => {
                         if (data)
                             arrayTaiSan.push({
@@ -248,6 +248,8 @@ module.exports = {
             if (db) {
                 try {
                     body.fileAttach = JSON.parse(body.fileAttach)
+                    await mtblFileAttach(db).destroy({ where: { IDDeNghiThanhToan: body.id } })
+
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
@@ -318,7 +320,8 @@ module.exports = {
                     await mtblYeuCauMuaSam(db).update({
                         Status: 'Đã mua',
                         IDPaymentOrder: null
-                    }, { where: { IDPaymentOrder: { [Op.in]: listID } } })
+                    }, { where: { IDPaymentOrder: {
+                                [Op.in]: listID } } })
                     await deleteRelationshiptblDeNghiThanhToan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -355,8 +358,10 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [
-                                        { StaffCode: { [Op.like]: '%' + data.search + '%' } },
-                                        { StaffName: { [Op.like]: '%' + data.search + '%' } }
+                                        { StaffCode: {
+                                                [Op.like]: '%' + data.search + '%' } },
+                                        { StaffName: {
+                                                [Op.like]: '%' + data.search + '%' } }
                                     ]
                                 }
                             }).then(data => {
@@ -365,11 +370,13 @@ module.exports = {
                                 })
                             })
                             where = [
-                                { IDNhanVien: { [Op.in]: list } },
+                                { IDNhanVien: {
+                                        [Op.in]: list } },
                             ];
                         } else {
                             where = [
-                                { Contents: { [Op.ne]: '%%' } },
+                                { Contents: {
+                                        [Op.ne]: '%%' } },
                             ];
                         }
                         whereObj[Op.and] = where
@@ -389,7 +396,8 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ ĐNTT') {
-                                    userFind['PaymentOrderCode'] = { [Op.eq]: data.items[i]['searchFields'] }
+                                    userFind['PaymentOrderCode'] = {
+                                        [Op.eq]: data.items[i]['searchFields'] }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -437,18 +445,15 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereObj,
-                        include: [
-                            {
+                        include: [{
                                 model: tblDMNhanvien,
                                 required: false,
                                 as: 'NhanVien',
-                                include: [
-                                    {
-                                        model: mtblDMBoPhan(db),
-                                        required: false,
-                                        as: 'bp'
-                                    },
-                                ]
+                                include: [{
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'bp'
+                                }, ]
                             },
                             {
                                 model: tblDMNhanvien,
@@ -561,25 +566,20 @@ module.exports = {
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        include: [
-                            {
+                        include: [{
                                 model: tblDMNhanvien,
                                 required: false,
                                 as: 'NhanVien',
-                                include: [
-                                    {
-                                        model: tblDMBoPhan,
+                                include: [{
+                                    model: tblDMBoPhan,
+                                    required: false,
+                                    as: 'bophan',
+                                    include: [{
+                                        model: mtblDMChiNhanh(db),
                                         required: false,
-                                        as: 'bophan',
-                                        include: [
-                                            {
-                                                model: mtblDMChiNhanh(db),
-                                                required: false,
-                                                as: 'chinhanh'
-                                            },
-                                        ],
-                                    },
-                                ],
+                                        as: 'chinhanh'
+                                    }, ],
+                                }, ],
                             },
                             {
                                 model: mtblDMNhanvien(db),

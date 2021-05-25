@@ -10,7 +10,8 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 async function deleteRelationshiptblDaoTaoTruoc(db, listID) {
     await mtblDaoTaoTruoc(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID }
         }
     })
 }
@@ -26,13 +27,11 @@ module.exports = {
                     tblDaoTaoTruoc.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
                     tblDaoTaoTruoc.findOne({
                         where: { ID: body.id },
-                        include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'employee'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'employee'
+                        }, ],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -132,6 +131,7 @@ module.exports = {
                 try {
                     let update = [];
                     body.fileAttach = JSON.parse(body.fileAttach)
+                    await mtblFileAttach(db).destroy({ where: { IDDaoTaoTruoc: body.id } })
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
@@ -255,13 +255,11 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: { IDNhanVien: body.idNhanVien },
-                        include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'employee'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'employee'
+                        }, ],
                         order: [
                             ['ID', 'DESC']
                         ],

@@ -20,17 +20,23 @@ var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
     await mtblYeuCauMuaSamDetail(db).destroy({
         where: {
-            IDYeuCauMuaSam: { [Op.in]: listID }
+            IDYeuCauMuaSam: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblFileAttach(db).destroy({
         where: {
-            IDYeuCauMuaSam: { [Op.in]: listID }
+            IDYeuCauMuaSam: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblYeuCauMuaSam(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -136,6 +142,7 @@ module.exports = {
                     }
                     body.line = JSON.parse(body.line)
                     body.fileAttach = JSON.parse(body.fileAttach)
+                    await mtblFileAttach(db).destroy({ where: { IDYeuCauMuaSam: body.id } })
                     if (body.fileAttach.length > 0)
                         for (var j = 0; j < body.fileAttach.length; j++)
                             await mtblFileAttach(db).update({
@@ -215,8 +222,12 @@ module.exports = {
                     await mtblYeuCauMuaSam(db).findAll({
                         where: {
                             [Op.and]: {
-                                ID: { [Op.in]: listID },
-                                Status: { [Op.ne]: 'Chờ phê duyệt' }
+                                ID: {
+                                    [Op.in]: listID
+                                },
+                                Status: {
+                                    [Op.ne]: 'Chờ phê duyệt'
+                                }
                             }
                         }
                     }).then(async data => {
@@ -226,8 +237,7 @@ module.exports = {
                                 message: 'Không thể xóa yêu cầu đã phê duyệt. Vui lòng kiểm tra lại!',
                             }
                             res.json(result);
-                        }
-                        else {
+                        } else {
                             await deleteRelationshiptblYeuCauMuaSam(db, listID);
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -427,13 +437,20 @@ module.exports = {
                     let arraySearchNot = [];
                     if (body.type == 'end') {
                         arraySearchOr.push({ Status: 'Từ chối' })
-                        // arraySearchOr.push({ Status: 'Đã thanh toán' })
+                            // arraySearchOr.push({ Status: 'Đã thanh toán' })
                         arraySearchOr.push({ Status: 'Đã thêm mới tài sản' })
-                    }
-                    else {
-                        arraySearchAnd.push({ Status: { [Op.ne]: 'Từ chối' } })
-                        // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
-                        arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thêm mới tài sản' } })
+                    } else {
+                        arraySearchAnd.push({
+                                Status: {
+                                    [Op.ne]: 'Từ chối'
+                                }
+                            })
+                            // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
+                        arraySearchAnd.push({
+                            Status: {
+                                [Op.ne]: 'Đã thêm mới tài sản'
+                            }
+                        })
 
                     }
                     if (body.dataSearch) {
@@ -442,9 +459,16 @@ module.exports = {
                             var listStaff = [];
                             await mtblDMNhanvien(db).findAll({
                                 where: {
-                                    [Op.or]: [
-                                        { StaffName: { [Op.like]: '%' + data.search + '%' } },
-                                        { StaffCode: { [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -455,9 +479,16 @@ module.exports = {
                             var listDepartment = [];
                             await mtblDMBoPhan(db).findAll({
                                 where: {
-                                    [Op.or]: [
-                                        { DepartmentCode: { [Op.like]: '%' + data.search + '%' } },
-                                        { DepartmentName: { [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            DepartmentCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            DepartmentName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -469,9 +500,16 @@ module.exports = {
                             var listGoods = [];
                             await mtblDMHangHoa(db).findAll({
                                 where: {
-                                    [Op.or]: [
-                                        { Name: { [Op.like]: '%' + data.search + '%' } },
-                                        { Code: { [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            Name: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            Code: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -482,50 +520,90 @@ module.exports = {
 
                             var listYCMS = [];
                             await mtblYeuCauMuaSamDetail(db).findAll({
-                                where: { IDDMHangHoa: { [Op.in]: listGoods } }
+                                where: {
+                                    IDDMHangHoa: {
+                                        [Op.in]: listGoods
+                                    }
+                                }
                             }).then(data => {
                                 data.forEach(item => {
                                     listYCMS.push(item.IDYeuCauMuaSam);
                                 })
                             })
                             if (data.search) {
-                                where = [
-                                    { Status: { [Op.like]: '%' + data.search + '%' } },
-                                    { RequestCode: { [Op.like]: '%' + data.search + '%' } },
-                                    { IDNhanVien: { [Op.in]: listStaff } },
-                                    { IDPhongBan: { [Op.in]: listDepartment } },
-                                    { ID: { [Op.in]: listYCMS } },
+                                where = [{
+                                        Status: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        RequestCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        IDNhanVien: {
+                                            [Op.in]: listStaff
+                                        }
+                                    },
+                                    {
+                                        IDPhongBan: {
+                                            [Op.in]: listDepartment
+                                        }
+                                    },
+                                    {
+                                        ID: {
+                                            [Op.in]: listYCMS
+                                        }
+                                    },
                                 ];
                             } else {
-                                where = [
-                                    { RequestCode: { [Op.ne]: '%%' } },
+                                where = [{
+                                        RequestCode: {
+                                            [Op.ne]: '%%'
+                                        }
+                                    },
 
                                 ];
                             }
                             whereOjb = {
-                                [Op.and]: [{ [Op.or]: where }],
-                                [Op.or]: [{ ID: { [Op.ne]: null } }],
+                                [Op.and]: [{
+                                    [Op.or]: where
+                                }],
+                                [Op.or]: [{
+                                    ID: {
+                                        [Op.ne]: null
+                                    }
+                                }],
                             };
                         } else {
                             whereSecond.push({
-                                Status: { [Op.like]: '%%' },
+                                Status: {
+                                    [Op.like]: '%%'
+                                },
                             })
                         }
                         if (where.length < 1)
                             whereObj = {
                                 // [Op.or]: where,
-                                [Op.and]: [{ [Op.or]: whereSecond }]
+                                [Op.and]: [{
+                                    [Op.or]: whereSecond
+                                }]
                             }
                         else
                             whereObj = {
                                 [Op.or]: where,
-                                [Op.and]: [{ [Op.or]: whereSecond }]
+                                [Op.and]: [{
+                                    [Op.or]: whereSecond
+                                }]
                             }
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
-                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -537,7 +615,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ YCMS') {
-                                    userFind['RequestCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['RequestCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -550,7 +630,9 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY ĐỀ XUẤT') {
                                     let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
-                                    userFind['RequireDate'] = { [Op.substring]: '%' + date + '%' }
+                                    userFind['RequireDate'] = {
+                                        [Op.substring]: '%' + date + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -562,7 +644,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
-                                    userFind['IDNhanVien'] = { [Op.eq]: data.items[i]['searchFields'] }
+                                    userFind['IDNhanVien'] = {
+                                        [Op.eq]: data.items[i]['searchFields']
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -577,9 +661,11 @@ module.exports = {
                                     var listGoods = [];
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { Code: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
-                                            ]
+                                            [Op.or]: [{
+                                                Code: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -589,13 +675,19 @@ module.exports = {
 
                                     var listYCMS = [];
                                     await mtblYeuCauMuaSamDetail(db).findAll({
-                                        where: { IDDMHangHoa: { [Op.in]: listGoods } }
+                                        where: {
+                                            IDDMHangHoa: {
+                                                [Op.in]: listGoods
+                                            }
+                                        }
                                     }).then(data => {
                                         data.forEach(item => {
                                             listYCMS.push(item.IDYeuCauMuaSam);
                                         })
                                     })
-                                    userFind['ID'] = { [Op.in]: listYCMS }
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -610,9 +702,11 @@ module.exports = {
                                     var listGoods = [];
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { Name: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
+                                            [Op.or]: [{
+                                                Name: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -622,13 +716,19 @@ module.exports = {
 
                                     var listYCMS = [];
                                     await mtblYeuCauMuaSamDetail(db).findAll({
-                                        where: { IDDMHangHoa: { [Op.in]: listGoods } }
+                                        where: {
+                                            IDDMHangHoa: {
+                                                [Op.in]: listGoods
+                                            }
+                                        }
                                     }).then(data => {
                                         data.forEach(item => {
                                             listYCMS.push(item.IDYeuCauMuaSam);
                                         })
                                     })
-                                    userFind['ID'] = { [Op.in]: listYCMS }
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -662,18 +762,15 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
+                        include: [{
                                 model: tblDMBoPhan,
                                 required: false,
                                 as: 'phongban',
-                                include: [
-                                    {
-                                        model: mtblDMChiNhanh(db),
-                                        required: false,
-                                        as: 'chinhanh',
-                                    }
-                                ]
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
+                                    required: false,
+                                    as: 'chinhanh',
+                                }]
                             },
                             {
                                 model: mtblDMNhanvien(db),
@@ -833,8 +930,7 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
+                        include: [{
                                 model: mtblDMBoPhan(db),
                                 required: false,
                                 as: 'phongban'
@@ -899,13 +995,11 @@ module.exports = {
                                     where: {
                                         ID: obj.line[j].IDDMHangHoa,
                                     },
-                                    include: [
-                                        {
-                                            model: mtblDMLoaiTaiSan(db),
-                                            required: false,
-                                            as: 'loaiTaiSan'
-                                        },
-                                    ],
+                                    include: [{
+                                        model: mtblDMLoaiTaiSan(db),
+                                        required: false,
+                                        as: 'loaiTaiSan'
+                                    }, ],
                                 }).then(data => {
                                     if (data)
                                         arrayTaiSan.push({
@@ -992,18 +1086,15 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
+                        include: [{
                                 model: tblDMBoPhan,
                                 required: false,
                                 as: 'phongban',
-                                include: [
-                                    {
-                                        model: mtblDMChiNhanh(db),
-                                        required: false,
-                                        as: 'chinhanh',
-                                    }
-                                ]
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
+                                    required: false,
+                                    as: 'chinhanh',
+                                }]
                             },
                             {
                                 model: mtblDMNhanvien(db),
