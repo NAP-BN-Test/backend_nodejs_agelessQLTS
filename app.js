@@ -387,3 +387,21 @@ app.post('/notification-zalo', async function(req, res) {
     }
     res.json(result);
 })
+app.post('/notification-kehoach', async function(req, res) {
+    let body = req.body;
+    await socket.socketEmitNotifiPlan(io, body.dbname)
+    var result = {
+        status: 1,
+        message: '',
+    }
+    res.json(result);
+})
+app.post('/notification-chiphi', async function(req, res) {
+    let body = req.body;
+    await socket.socketEmitNotifiCost(io, body.dbname)
+    var result = {
+        status: 1,
+        message: '',
+    }
+    res.json(result);
+})

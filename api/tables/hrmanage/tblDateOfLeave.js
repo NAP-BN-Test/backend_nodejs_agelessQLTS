@@ -12,6 +12,5 @@ module.exports = function(db) {
         DateStart: Sequelize.NOW,
         WorkContent: Sequelize.STRING,
     });
-
     return table;
 }

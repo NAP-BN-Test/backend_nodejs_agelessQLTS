@@ -621,10 +621,17 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     let datedb = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
     let statusMorningDB = statusMorning ? statusMorning : null
     let statusAfternoonDB = statusAfternoon ? statusAfternoon : null
-    console.log(statusMorningDB, statusAfternoonDB);
+    console.log(statusMorningDB, statusAfternoonDB, 123);
     if (arrayTimeOfDate.length >= 1) {
-        await createAttendanceData(db, staffID, datedb, null, statusMorningDB, '+', true, summaryEndDateS)
-        await createAttendanceData(db, staffID, datedb, null, statusAfternoonDB, '+', false, summaryEndDateC)
+        if (statusMorningDB == null && statusAfternoonDB == null) {
+            console.log(1234);
+            await createAttendanceData(db, staffID, datedb, null, '+', '+', true, summaryEndDateS)
+            await createAttendanceData(db, staffID, datedb, null, '+', '+', false, summaryEndDateC)
+        } else {
+            await createAttendanceData(db, staffID, datedb, null, statusMorningDB, '+', true, summaryEndDateS)
+            await createAttendanceData(db, staffID, datedb, null, statusAfternoonDB, '+', false, summaryEndDateC)
+        }
+
     } else {
         await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', true, summaryEndDateS)
         await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', false, summaryEndDateC)
@@ -1858,6 +1865,7 @@ module.exports = {
     // update_timekeeping
     updateTimekeeping: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1866,13 +1874,19 @@ module.exports = {
                     for (var i = 0; i < body.array.length; i++) {
                         if (body.array[i].id) {
                             let reason = ''
-                            let obj = {
-                                Status: body.array[i].status,
-                            }
+                            let obj = {}
+                            if (body.array[i].status == 'plus')
+                                obj = {
+                                    Status: '+',
+                                }
+                            else
+                                obj = {
+                                    Status: body.array[i].status,
+                                }
                             if (body.array[i].status != 1) {
                                 obj['Reason'] = reason
                             }
-                            mtblChamCong(db).update(obj, {
+                            await mtblChamCong(db).update(obj, {
                                 where: {
                                     ID: body.array[i].id
                                 }
@@ -2025,7 +2039,6 @@ module.exports = {
                     }
                     let tblDMNhanvien = mtblDMNhanvien(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
-
                     await tblDMNhanvien.findAll({
                         include: [{
                             model: mtblDMBoPhan(db),

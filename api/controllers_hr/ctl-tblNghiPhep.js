@@ -327,12 +327,14 @@ module.exports = {
                                 WorkContent: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
                                 LeaveID: body.id,
                             })
-                        } else {}
-                        await mtblDateOfLeave(db).create({
-                            DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
-                            DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
-                            LeaveID: body.id,
-                        })
+                            console.log(123);
+                        } else {
+                            await mtblDateOfLeave(db).create({
+                                DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                                DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                                LeaveID: body.id,
+                            })
+                        }
                     }
                     if (body.numberLeave || body.numberLeave === '')
                         update.push({ key: 'NumberLeave', value: body.numberLeave });
@@ -425,14 +427,14 @@ module.exports = {
                         // await mtblFileAttach(db).update({
                         //     Link: link,
                         // }, { where: { IDContract: body.id } })
-                        database.updateTable(update, mtblNghiPhep(db), body.id).then(response => {
-                            if (response == 1) {
-                                res.json(Result.ACTION_SUCCESS);
-                            } else {
-                                res.json(Result.SYS_ERROR_RESULT);
-                            }
-                        })
                     }
+                    database.updateTable(update, mtblNghiPhep(db), body.id).then(response => {
+                        if (response == 1) {
+                            res.json(Result.ACTION_SUCCESS);
+                        } else {
+                            res.json(Result.SYS_ERROR_RESULT);
+                        }
+                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -449,12 +451,33 @@ module.exports = {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
-                    await deleteRelationshiptblNghiPhep(db, listID);
-                    var result = {
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    await mtblNghiPhep(db).findAll({
+                        where: {
+                            ID: {
+                                [Op.in]: listID
+                            }
+                        }
+                    }).then(async data => {
+                        let check = true
+                        let array = []
+                        let mess = Constant.MESSAGE.ACTION_SUCCESS
+                        for (let i = 0; i < data.length; i++) {
+                            if (data[i].Status == 'Hoàn thành') {
+                                check = false
+                            } else
+                                array.push(data[i].ID)
+
+                        }
+                        await deleteRelationshiptblNghiPhep(db, array);
+                        if (!check)
+                            mess = 'Không thể xóa những bản ghi đã hoàn thành. Vui lòng kiểm tra lại !'
+                        var result = {
+                            status: Constant.STATUS.SUCCESS,
+                            message: mess,
+                        }
+                        res.json(result);
+                    })
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -894,7 +917,7 @@ module.exports = {
             if (db) {
                 try {
                     await mtblNghiPhep(db).update({
-                        Status: 'Hành chính nhân sự đã từ chối',
+                        Status: 'Trưởng bộ phận đã từ chối',
                         Reason: body.reason,
                     }, { where: { ID: body.id } })
                     var result = {
@@ -918,7 +941,7 @@ module.exports = {
             if (db) {
                 try {
                     await mtblNghiPhep(db).update({
-                        Status: 'Thủ trưởng đã từ chối',
+                        Status: 'Hành chính nhân sự đã từ chối',
                         Reason: body.reason,
                     }, { where: { ID: body.id } })
                     var result = {

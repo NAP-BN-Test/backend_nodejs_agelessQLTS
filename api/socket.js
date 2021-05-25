@@ -623,4 +623,10 @@ module.exports = {
     socketEmit: async(io, dbname) => {
         io.sockets.emit("notification-zalo", { dbname: dbname });
     },
+    socketEmitNotifiPlan: async(io, dbname) => {
+        io.sockets.emit("notification-kehoach", { dbname: dbname });
+    },
+    socketEmitNotifiCost: async(io, dbname) => {
+        io.sockets.emit("notification-chiphi", { dbname: dbname });
+    },
 }
