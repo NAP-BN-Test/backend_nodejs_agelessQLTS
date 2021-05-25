@@ -25,6 +25,8 @@ async function deleteRelationshipTBLThemVPP(db, listID) {
         }
     })
 }
+var mModules = require('../constants/modules');
+
 module.exports = {
     deleteRelationshipTBLThemVPP,
     // add_tbl_them_vpp
@@ -97,16 +99,9 @@ module.exports = {
                             update.push({ key: 'Date', value: body.date });
                     }
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    await mtblFileAttach(db).destroy({ where: { IDVanPhongPham: body.id } })
-                    if (body.fileAttach.length > 0)
-                        for (var j = 0; j < body.fileAttach.length; j++)
-                            await mtblFileAttach(db).update({
-                                IDVanPhongPham: body.id,
-                            }, {
-                                where: {
-                                    ID: body.fileAttach[i].id
-                                }
-                            })
+                    if (body.fileAttach.length > 0) {
+                        await mModules.updateForFileAttach(db, 'IDVanPhongPham', body.fileAttach, body.id)
+                    }
                     body.line = JSON.parse(body.line)
                     if (body.line.length > 0)
                         for (var i = 0; i < body.line.length; i++)

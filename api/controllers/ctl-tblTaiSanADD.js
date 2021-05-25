@@ -229,6 +229,7 @@ async function getDetailTaiSan(db, idTaiSan) {
     return obj;
 
 }
+var mModules = require('../constants/modules');
 
 module.exports = {
     deleteRelationshiptblTaiSanADD,
@@ -341,7 +342,6 @@ module.exports = {
     updateDetailAsset: (req, res) => {
         let body = req.body;
         body.obj = JSON.parse(body.obj)
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -383,14 +383,8 @@ module.exports = {
                     })
                     let idAdd = await mtblTaiSan(db).findOne({ where: { ID: body.id } })
                     body.obj.fileAttach = JSON.parse(body.obj.fileAttach)
-                    await mtblFileAttach(db).destroy({ where: { IDTaiSanADD: idAdd.IDTaiSanADD } })
-                    if (body.obj.fileAttach.length > 0) {
-                        for (var i = 0; i < body.obj.fileAttach.length; i++) {
-                            if (body.obj.fileAttach[i].id)
-                                await mtblFileAttach(db).update({
-                                    IDTaiSanADD: idAdd.IDTaiSanADD,
-                                }, { where: { ID: body.obj.fileAttach[i].id } })
-                        }
+                    if (body.fileAttach.length > 0) {
+                        await mModules.updateForFileAttach(db, 'IDTaiSanADD', body.obj.fileAttach, idAdd.IDTaiSanADD)
                     }
                     var result = {
                         status: Constant.STATUS.SUCCESS,

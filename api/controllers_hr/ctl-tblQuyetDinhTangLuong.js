@@ -228,15 +228,9 @@ module.exports = {
                     let update = [];
                     if (body.fileAttach) {
                         body.fileAttach = JSON.parse(body.fileAttach)
-                        if (body.fileAttach.length > 0)
-                            for (var j = 0; j < body.fileAttach.length; j++)
-                                await mtblFileAttach(db).update({
-                                    IDIncreaseSlary: body.id,
-                                }, {
-                                    where: {
-                                        ID: body.fileAttach[j].id
-                                    }
-                                })
+                        if (body.fileAttach.length > 0) {
+                            await mModules.updateForFileAttach(db, 'IDIncreaseSlary', body.fileAttach, body.id)
+                        }
                     }
                     if (body.idNhanVien) {
                         body.idNhanVien = JSON.parse(body.idNhanVien)

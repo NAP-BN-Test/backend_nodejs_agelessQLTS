@@ -31,6 +31,8 @@ async function deleteRelationshiptblRewardPunishment(db, listID) {
         }
     })
 }
+var mModules = require('../constants/modules');
+
 module.exports = {
     deleteRelationshiptblRewardPunishment,
     //  get_detail_tbl_reward_punishment
@@ -53,8 +55,11 @@ module.exports = {
                     tblRewardPunishment.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { ID: {
-                                [Op.in]: arrayRewardPunishmentID } },
+                        where: {
+                            ID: {
+                                [Op.in]: arrayRewardPunishmentID
+                            }
+                        },
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -198,15 +203,9 @@ module.exports = {
                     let update = [];
                     if (body.fileAttach) {
                         body.fileAttach = JSON.parse(body.fileAttach)
-                        if (body.fileAttach.length > 0)
-                            for (var j = 0; j < body.fileAttach.length; j++)
-                                await mtblFileAttach(db).update({
-                                    IDRewardPunishment: body.id,
-                                }, {
-                                    where: {
-                                        ID: body.fileAttach[j].id
-                                    }
-                                })
+                        if (body.fileAttach.length > 0) {
+                            await mModules.updateForFileAttach(db, 'IDRewardPunishment', body.fileAttach, body.id)
+                        }
                     }
                     if (body.staffID) {
                         body.staffID = JSON.parse(body.staffID)

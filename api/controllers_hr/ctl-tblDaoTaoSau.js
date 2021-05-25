@@ -11,10 +11,12 @@ async function deleteRelationshiptblDaoTaoSaus(db, listID) {
     await mtblDaoTaoSau(db).destroy({
         where: {
             ID: {
-                [Op.in]: listID }
+                [Op.in]: listID
+            }
         }
     })
 }
+var mModules = require('../constants/modules');
 module.exports = {
     deleteRelationshiptblDaoTaoSaus,
     //  get_detail_tbl_training_after
@@ -141,16 +143,9 @@ module.exports = {
                 try {
                     let update = [];
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    await mtblFileAttach(db).destroy({ where: { IDDaoTaoSau: body.id } })
-                    if (body.fileAttach.length > 0)
-                        for (var j = 0; j < body.fileAttach.length; j++)
-                            await mtblFileAttach(db).update({
-                                IDDaoTaoSau: body.id,
-                            }, {
-                                where: {
-                                    ID: body.fileAttach[j].id
-                                }
-                            })
+                    if (body.fileAttach.length > 0) {
+                        await mModules.updateForFileAttach(db, 'IDDaoTaoSau', body.fileAttach, body.id)
+                    }
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });

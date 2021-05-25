@@ -134,6 +134,8 @@ async function handleCalculatePreviousYear(db, idStaff, currentYear) {
     })
     return result;
 }
+var mModules = require('../constants/modules');
+
 module.exports = {
     deleteRelationshiptblNghiPhep,
     // add_tbl_nghiphep
@@ -290,16 +292,9 @@ module.exports = {
                     let update = [];
                     if (body.type == 'TakeLeave') {
                         body.fileAttach = JSON.parse(body.fileAttach)
-                        await mtblFileAttach(db).destroy({ where: { IDTakeLeave: body.id } })
-                        if (body.fileAttach.length > 0)
-                            for (var j = 0; j < body.fileAttach.length; j++)
-                                await mtblFileAttach(db).update({
-                                    IDTakeLeave: body.id,
-                                }, {
-                                    where: {
-                                        ID: body.fileAttach[j].id
-                                    }
-                                })
+                        if (body.fileAttach.length > 0) {
+                            await mModules.updateForFileAttach(db, 'IDTakeLeave', body.fileAttach, body.id)
+                        }
                     }
                     let arrayRespone = JSON.parse(body.array)
                     let numberHoliday = 0

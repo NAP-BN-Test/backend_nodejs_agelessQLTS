@@ -24,19 +24,22 @@ async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     await mtblFileAttach(db).destroy({
         where: {
             IDDeNghiThanhToan: {
-                [Op.in]: listID }
+                [Op.in]: listID
+            }
         }
     })
     await mtblDeNghiThanhToan(db).destroy({
         where: {
             ID: {
-                [Op.in]: listID }
+                [Op.in]: listID
+            }
         }
     })
     await mtblDeNghiThanhToan(db).findAll({
         where: {
             ID: {
-                [Op.in]: listID }
+                [Op.in]: listID
+            }
         }
     }).then(data => {
         data.forEach(item => {
@@ -186,6 +189,8 @@ async function getDetailYCMS(db, id) {
 
 
 }
+var mModules = require('../constants/modules');
+
 module.exports = {
     deleteRelationshiptblDeNghiThanhToan,
     // add_tbl_denghi_thanhtoan
@@ -248,17 +253,9 @@ module.exports = {
             if (db) {
                 try {
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    await mtblFileAttach(db).destroy({ where: { IDDeNghiThanhToan: body.id } })
-
-                    if (body.fileAttach.length > 0)
-                        for (var j = 0; j < body.fileAttach.length; j++)
-                            await mtblFileAttach(db).update({
-                                IDDeNghiThanhToan: body.id,
-                            }, {
-                                where: {
-                                    ID: body.fileAttach[j].id
-                                }
-                            })
+                    if (body.fileAttach.length > 0) {
+                        await mModules.updateForFileAttach(db, 'IDDeNghiThanhToan', body.fileAttach, body.id)
+                    }
                     let update = [];
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
@@ -320,8 +317,13 @@ module.exports = {
                     await mtblYeuCauMuaSam(db).update({
                         Status: 'Đã mua',
                         IDPaymentOrder: null
-                    }, { where: { IDPaymentOrder: {
-                                [Op.in]: listID } } })
+                    }, {
+                        where: {
+                            IDPaymentOrder: {
+                                [Op.in]: listID
+                            }
+                        }
+                    })
                     await deleteRelationshiptblDeNghiThanhToan(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -357,11 +359,16 @@ module.exports = {
                                     ['ID', 'DESC']
                                 ],
                                 where: {
-                                    [Op.or]: [
-                                        { StaffCode: {
-                                                [Op.like]: '%' + data.search + '%' } },
-                                        { StaffName: {
-                                                [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -369,15 +376,17 @@ module.exports = {
                                     list.push(item.ID);
                                 })
                             })
-                            where = [
-                                { IDNhanVien: {
-                                        [Op.in]: list } },
-                            ];
+                            where = [{
+                                IDNhanVien: {
+                                    [Op.in]: list
+                                }
+                            }, ];
                         } else {
-                            where = [
-                                { Contents: {
-                                        [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                Contents: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         whereObj[Op.and] = where
                         if (data.items) {
@@ -397,7 +406,8 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ ĐNTT') {
                                     userFind['PaymentOrderCode'] = {
-                                        [Op.eq]: data.items[i]['searchFields'] }
+                                        [Op.eq]: data.items[i]['searchFields']
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }

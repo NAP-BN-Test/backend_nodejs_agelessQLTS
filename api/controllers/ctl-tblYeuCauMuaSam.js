@@ -40,6 +40,8 @@ async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
         }
     })
 }
+var mModules = require('../constants/modules');
+
 module.exports = {
     deleteRelationshiptblYeuCauMuaSam,
     // add_tbl_yeucaumuasam
@@ -142,16 +144,10 @@ module.exports = {
                     }
                     body.line = JSON.parse(body.line)
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    await mtblFileAttach(db).destroy({ where: { IDYeuCauMuaSam: body.id } })
-                    if (body.fileAttach.length > 0)
-                        for (var j = 0; j < body.fileAttach.length; j++)
-                            await mtblFileAttach(db).update({
-                                IDYeuCauMuaSam: body.id,
-                            }, {
-                                where: {
-                                    ID: body.fileAttach[j].id
-                                }
-                            })
+
+                    if (body.fileAttach.length > 0) {
+                        await mModules.updateForFileAttach(db, 'IDYeuCauMuaSam', body.fileAttach, body.id)
+                    }
                     if (body.line.length > 0) {
                         await mtblYeuCauMuaSamDetail(db).destroy({
                             where: { IDYeuCauMuaSam: body.id }

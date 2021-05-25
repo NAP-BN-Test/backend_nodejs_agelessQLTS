@@ -6,15 +6,16 @@ var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoTruoc')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
-
 async function deleteRelationshiptblDaoTaoTruoc(db, listID) {
     await mtblDaoTaoTruoc(db).destroy({
         where: {
             ID: {
-                [Op.in]: listID }
+                [Op.in]: listID
+            }
         }
     })
 }
+var mModules = require('../constants/modules');
 module.exports = {
     deleteRelationshiptblDaoTaoTruoc,
     //  get_detail_tbl_pre_training
@@ -131,16 +132,9 @@ module.exports = {
                 try {
                     let update = [];
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    await mtblFileAttach(db).destroy({ where: { IDDaoTaoTruoc: body.id } })
-                    if (body.fileAttach.length > 0)
-                        for (var j = 0; j < body.fileAttach.length; j++)
-                            await mtblFileAttach(db).update({
-                                IDDaoTaoTruoc: body.id,
-                            }, {
-                                where: {
-                                    ID: body.fileAttach[j].id
-                                }
-                            })
+                    if (body.fileAttach.length > 0) {
+                        await mModules.updateForFileAttach(db, 'IDDaoTaoTruoc', body.fileAttach, body.id)
+                    }
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });
@@ -295,7 +289,6 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        console.log(array);
                         var count = await mtblDaoTaoTruoc(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
