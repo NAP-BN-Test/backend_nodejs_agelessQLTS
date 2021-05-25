@@ -52,8 +52,13 @@ module.exports = {
             where: where
         }).then(async data => {
             for (let file = 0; file < data.length; file++) {
-                if (!checkDuplicate(arrayFileAttach, data[file].ID))
+                console.log(array);
+                console.log(data[file].ID);
+                if (!checkDuplicate(arrayFileAttach, data[file].ID)) {
+                    console.log(123);
                     await ctlFileAttach.deleteRelationshiptblFileAttach(db, data[file].ID)
+
+                }
             }
         })
         for (var j = 0; j < array.length; j++)

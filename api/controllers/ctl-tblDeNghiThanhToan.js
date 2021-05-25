@@ -253,9 +253,7 @@ module.exports = {
             if (db) {
                 try {
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    if (body.fileAttach.length > 0) {
-                        await mModules.updateForFileAttach(db, 'IDDeNghiThanhToan', body.fileAttach, body.id)
-                    }
+                    await mModules.updateForFileAttach(db, 'IDDeNghiThanhToan', body.fileAttach, body.id)
                     let update = [];
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')

@@ -383,9 +383,7 @@ module.exports = {
                     })
                     let idAdd = await mtblTaiSan(db).findOne({ where: { ID: body.id } })
                     body.obj.fileAttach = JSON.parse(body.obj.fileAttach)
-                    if (body.fileAttach.length > 0) {
-                        await mModules.updateForFileAttach(db, 'IDTaiSanADD', body.obj.fileAttach, idAdd.IDTaiSanADD)
-                    }
+                    await mModules.updateForFileAttach(db, 'IDTaiSanADD', body.obj.fileAttach, idAdd.IDTaiSanADD)
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,

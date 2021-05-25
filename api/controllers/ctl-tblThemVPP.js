@@ -99,9 +99,7 @@ module.exports = {
                             update.push({ key: 'Date', value: body.date });
                     }
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    if (body.fileAttach.length > 0) {
-                        await mModules.updateForFileAttach(db, 'IDVanPhongPham', body.fileAttach, body.id)
-                    }
+                    await mModules.updateForFileAttach(db, 'IDVanPhongPham', body.fileAttach, body.id)
                     body.line = JSON.parse(body.line)
                     if (body.line.length > 0)
                         for (var i = 0; i < body.line.length; i++)

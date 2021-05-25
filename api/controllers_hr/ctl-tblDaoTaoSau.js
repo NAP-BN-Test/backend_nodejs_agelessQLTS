@@ -143,9 +143,7 @@ module.exports = {
                 try {
                     let update = [];
                     body.fileAttach = JSON.parse(body.fileAttach)
-                    if (body.fileAttach.length > 0) {
-                        await mModules.updateForFileAttach(db, 'IDDaoTaoSau', body.fileAttach, body.id)
-                    }
+                    await mModules.updateForFileAttach(db, 'IDDaoTaoSau', body.fileAttach, body.id)
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });

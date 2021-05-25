@@ -292,9 +292,7 @@ module.exports = {
                     let update = [];
                     if (body.type == 'TakeLeave') {
                         body.fileAttach = JSON.parse(body.fileAttach)
-                        if (body.fileAttach.length > 0) {
-                            await mModules.updateForFileAttach(db, 'IDTakeLeave', body.fileAttach, body.id)
-                        }
+                        await mModules.updateForFileAttach(db, 'IDTakeLeave', body.fileAttach, body.id)
                     }
                     let arrayRespone = JSON.parse(body.array)
                     let numberHoliday = 0

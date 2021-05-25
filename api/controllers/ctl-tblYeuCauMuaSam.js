@@ -144,10 +144,7 @@ module.exports = {
                     }
                     body.line = JSON.parse(body.line)
                     body.fileAttach = JSON.parse(body.fileAttach)
-
-                    if (body.fileAttach.length > 0) {
-                        await mModules.updateForFileAttach(db, 'IDYeuCauMuaSam', body.fileAttach, body.id)
-                    }
+                    await mModules.updateForFileAttach(db, 'IDYeuCauMuaSam', body.fileAttach, body.id)
                     if (body.line.length > 0) {
                         await mtblYeuCauMuaSamDetail(db).destroy({
                             where: { IDYeuCauMuaSam: body.id }

@@ -203,9 +203,7 @@ module.exports = {
                     let update = [];
                     if (body.fileAttach) {
                         body.fileAttach = JSON.parse(body.fileAttach)
-                        if (body.fileAttach.length > 0) {
-                            await mModules.updateForFileAttach(db, 'IDRewardPunishment', body.fileAttach, body.id)
-                        }
+                        await mModules.updateForFileAttach(db, 'IDRewardPunishment', body.fileAttach, body.id)
                     }
                     if (body.staffID) {
                         body.staffID = JSON.parse(body.staffID)
