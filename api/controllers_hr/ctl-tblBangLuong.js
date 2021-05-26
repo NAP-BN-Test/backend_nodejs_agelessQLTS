@@ -528,7 +528,16 @@ async function checkTheStatusOfTheDay(params) {
     }
     return objResult
 }
+var enumerateDaysBetweenDates = function(startDate, endDate) {
+    var dates = [];
+    var currDate = moment(startDate).startOf('day');
+    var lastDate = moment(endDate).startOf('day');
+    while (currDate.add(1, 'days').diff(lastDate) < 0) {
+        dates.push(moment(currDate.clone().toDate()).format('YYYY-MM-DD'));
+    }
 
+    return dates;
+};
 
 // ghi dữ liệu từ máy chấm công vào database
 async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, year, date, staffID) {
@@ -621,21 +630,141 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     let datedb = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
     let statusMorningDB = statusMorning ? statusMorning : null
     let statusAfternoonDB = statusAfternoon ? statusAfternoon : null
-    console.log(statusMorningDB, statusAfternoonDB, 123);
     if (arrayTimeOfDate.length >= 1) {
         if (statusMorningDB == null && statusAfternoonDB == null) {
-            console.log(1234);
             await createAttendanceData(db, staffID, datedb, null, '+', '+', true, summaryEndDateS)
             await createAttendanceData(db, staffID, datedb, null, '+', '+', false, summaryEndDateC)
         } else {
-            await createAttendanceData(db, staffID, datedb, null, statusMorningDB, '+', true, summaryEndDateS)
-            await createAttendanceData(db, staffID, datedb, null, statusAfternoonDB, '+', false, summaryEndDateC)
+            await createAttendanceData(db, staffID, datedb, null, statusMorningDB, null, true, summaryEndDateS)
+            await createAttendanceData(db, staffID, datedb, null, statusAfternoonDB, null, false, summaryEndDateC)
         }
 
     } else {
         await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', true, summaryEndDateS)
         await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', false, summaryEndDateC)
     }
+}
+async function handleCalculateDayOff(dateStart, dateEnd) {
+    let result = 0;
+    let subtractHalfDay = 0;
+    let days = await enumerateDaysBetweenDates(dateStart, dateEnd)
+    let array7th = [];
+    for (var i = 0; i < days.length; i++) {
+        var datetConvert = mModules.toDatetimeDay(moment(days[i]).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+            array7th.push(days[i])
+        }
+        if (datetConvert.slice(0, 5) == 'Thứ 7') {
+            array7th.push(days[i])
+        }
+    }
+    let checkDateStart = Number(dateStart.slice(11, 13))
+    let checkDateEnd = Number(dateEnd.slice(11, 13))
+    if (checkDateStart < 12) {
+        if (checkDateEnd <= 12)
+            subtractHalfDay = 0.5
+    } else {
+        subtractHalfDay = 0.5
+    }
+    if (days.length < 1)
+        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
+            if (checkDateEnd < 17)
+                result = 1.5
+            else
+                result = 2
+    else
+    if (checkDateEnd < 17)
+        result = 0.5
+    else
+        result = 1
+    else
+        result = days.length + 2 - array7th.length - subtractHalfDay
+    return result
+}
+// tính thời gian làm thêm giờ
+async function calculateOvertime(db, staffID, date) {
+    // Tính ngày thời gian thêm giờ
+    let result = 0
+    var month = Number(date.slice(5, 7));
+    var year = Number(date.slice(0, 4));
+    await mtblNghiPhep(db).findAll({
+        where: {
+            Type: 'SignUp',
+            IDNhanVien: staffID,
+            Status: 'Hoàn thành',
+        }
+    }).then(async leave => {
+        let thirteenH = 60 * 13 + 30
+        let twelveH = 60 * 12
+
+        for (let i = 0; i < leave.length; i++) {
+            let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+            WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + month + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
+            let date = await db.query(query)
+            date = date[0]
+            for (let i = 0; i < date.length; i++) {
+                let minuteDateStart = 0;
+                let minuteDateEnd = 0;
+
+                if (date[i].DateEnd && date[i].DateStart) {
+                    minuteDateStart = Number(moment(date[i].DateStart).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateStart).subtract(7, 'hours').format('mm'))
+                    minuteDateEnd = Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateEnd).subtract(7, 'hours').format('mm'))
+                }
+                if (minuteDateEnd > minuteDateStart) {
+                    // trường hợp thời gian kết thúc < 12
+                    if (minuteDateEnd <= twelveH)
+                        result += (minuteDateEnd - minuteDateStart) / 60
+                        //  trường hợp thời gian kết thúc > 12h
+                    else {
+                        if (minuteDateEnd <= thirteenH)
+                            if (minuteDateStart < twelveH)
+                                result += (minuteDateEnd - minuteDateStart) / 60 - 1.5
+                            else
+                                result = 0
+                        else {
+                            if (minuteDateStart < twelveH)
+                                result += (minuteDateEnd - minuteDateStart) / 60 - 1.5
+                            else {
+                                if (minuteDateStart <= thirteenH)
+                                    result += (minuteDateEnd - thirteenH) / 60
+                                else
+                                    result += (minuteDateEnd - minuteDateStart) / 60
+                            }
+
+                        }
+                    }
+
+                }
+            }
+        }
+    })
+    return result
+}
+// tính thời gian nghỉ phép
+async function calculateNumberLeave(db, staffID, date) {
+    // Tính ngày thời gian thêm giờ
+    let result = 0
+    var month = Number(date.slice(5, 7));
+    var year = Number(date.slice(0, 4));
+    await mtblNghiPhep(db).findAll({
+        where: {
+            Type: 'TakeLeave',
+            IDNhanVien: staffID,
+            Status: 'Hoàn thành',
+        }
+    }).then(async leave => {
+        for (let i = 0; i < leave.length; i++) {
+            let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+                WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + month + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
+            let date = await db.query(query)
+            date = date[0]
+            for (let j = 0; j < date.length; j++) {
+                if (leave[i].NumberHoliday != 0)
+                    result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
+            }
+        }
+    })
+    return result
 }
 
 module.exports = {
@@ -1643,11 +1772,11 @@ module.exports = {
                                         let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
                                         let staffID = staff ? staff.ID : null
                                         if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await createAttendanceData(db, staffID, date, null, 'Sunday', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sunday', 'Nghỉ chủ nhật', false, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
                                         } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Saturday', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Saturday', 'Nghỉ thứ bảy', false, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
                                         } else if (checkDuplicate(arrayHoliday, j)) {
                                             await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
                                             await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
@@ -1786,7 +1915,7 @@ module.exports = {
                                                 let objDay = {};
                                                 objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
                                                 objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
-                                                objDay['C'] = ' ';
+                                                objDay['C'] = timeKeepingA ? timeKeepingA.Status : '';
                                                 objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
                                                 objDay['status'] = 'H';
                                                 obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
@@ -1797,7 +1926,7 @@ module.exports = {
                                                 let objDay = {};
                                                 objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
                                                 objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
-                                                objDay['C'] = ' ';
+                                                objDay['C'] = timeKeepingA ? timeKeepingA.Status : '';
                                                 objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
                                                 objDay['status'] = 'F';
                                                 obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
@@ -2048,27 +2177,16 @@ module.exports = {
                         where: obj,
                     }).then(async data => {
                         for (var i = 0; i < data.length; i++) {
-                            let overtime = 0; // số ngày lm thêm giờ
+                            let overtime = 0; // thời gian lm thêm giờ
                             let remainingPreviousYear = 0; // số ngày được ứng của năm trước
                             let numberHoliday = 0; // số ngày nghỉ trong tháng
                             let remaining = 0; // số phép còn lại
                             let freeBreak = 0;
                             let lateDay = 0;
-                            // Tính ngày thời gian thêm giờ
-                            await mtblNghiPhep(db).findAll({
-                                    where: {
-                                        Type: 'SignUp',
-                                        IDNhanVien: data[i].ID,
-                                        Status: 'Hoàn thành',
-                                    }
-                                }).then(leave => {
-                                    leave.forEach(item => {
-                                        var hour = Number(item.Time.slice(0, 2));
-                                        var minute = Number(item.Time.slice(3, 5));
-                                        overtime += minute + hour * 60
-                                    })
-                                })
-                                // lấy số ngày được ứng của tháng trước và phép còn lại
+                            overtime = await calculateOvertime(db, data[i].ID, body.date)
+                            numberHoliday = await calculateNumberLeave(db, data[i].ID, body.date)
+
+                            // lấy số ngày được ứng của tháng trước và phép còn lại
                             await mtblNghiPhep(db).findOne({
                                     order: [
                                         ['ID', 'DESC']
@@ -2080,25 +2198,8 @@ module.exports = {
                                     }
                                 }).then(data => {
                                     if (data) {
-                                        remaining = data.AdvancePayment - data.UsedLeave - data.NumberHoliday
-                                        remainingPreviousYear = data.RemainingPreviousYear
+                                        remainingPreviousYear = data.RemainingPreviousYear + data.AdvancePayment - data.UsedLeave
                                     }
-                                })
-                                // tính số ngày nghỉ trong tháng
-                            await mtblNghiPhep(db).findAll({
-                                    order: [
-                                        ['ID', 'DESC']
-                                    ],
-                                    where: {
-                                        Type: 'TakeLeave',
-                                        IDNhanVien: data[i].ID,
-                                        Status: 'Hoàn thành',
-                                    }
-                                }).then(data => {
-                                    if (data)
-                                        data.forEach(item => {
-                                            numberHoliday += item.NumberHoliday
-                                        })
                                 })
                                 // tính số ngày đi muộn, nghỉ tự do
                             await mtblChamCong(db).findAll({
@@ -2107,17 +2208,24 @@ module.exports = {
                                 ],
                                 where: {
                                     IDNhanVien: data[i].ID,
+                                    Date: {
+                                        [Op.substring]: '%' + body.date + '%'
+                                    }
                                 }
                             }).then(data => {
                                 if (data)
                                     data.forEach(item => {
-                                        if (item.status == '1') {
+                                        if (item.Status == '1') {
                                             freeBreak += 1
-                                        } else if (item.status != null) {
-                                            lateDay += 1
+                                        } else if (item.Status != '+') {
+                                            if (item.Status && item.Status != '0.5' && !item.Reason) {
+                                                lateDay += (Number(item.Status.slice(1, 10)) / 60 / 8)
+                                            }
                                         }
                                     })
                             })
+                            lateDay = lateDay.toFixed(2)
+                            remaining = Number(remainingPreviousYear) + Number(overtime) - Number(lateDay) - Number(numberHoliday) - Number(Math.round(freeBreak / 2))
                             array.push({
                                 staffName: data[i].StaffName ? data[i].StaffName : '',
                                 staffCode: data[i].StaffCode ? data[i].StaffCode : '',
@@ -2126,7 +2234,7 @@ module.exports = {
                                 remaining: remaining,
                                 remainingPreviousYear: remainingPreviousYear,
                                 numberHoliday: numberHoliday,
-                                freeBreak: freeBreak,
+                                freeBreak: Math.round(freeBreak / 2),
                                 lateDay: lateDay,
                             })
                         }
