@@ -406,6 +406,26 @@ async function getListHoliday(db, year, month, dateFinal) {
     })
     return arrayResult
 }
+async function monthDiff(d1, d2) {
+    var months = 0;
+    months = (Number(moment(d1).format('MM')) + (Number(moment(d1).format('YY')) * 12)) - (Number(moment(d2).format('MM')) + (12 * Number(moment(d2).format('YY'))))
+    return months;
+}
+async function handleCalculateAdvancePayment(db, idStaff) {
+    let staffData = await mtblHopDongNhanSu(db).findOne({
+        where: { IDNhanVien: idStaff },
+        order: [
+            ['ID', 'ASC']
+        ],
+    })
+    var diff;
+    if (staffData) {
+        let now = new Date()
+        let dateSign = new Date(staffData.Date)
+        diff = await monthDiff(now, dateSign)
+    }
+    return diff ? diff : 0
+}
 // Lấy danh sách thứ 7 đi làm
 async function take7thDataToWork(db, year, month) {
     //  lấy danh sách thứ 7 đi làm ------------------------------------
@@ -2183,6 +2203,8 @@ module.exports = {
                             let remaining = 0; // số phép còn lại
                             let freeBreak = 0;
                             let lateDay = 0;
+                            var month = Number(body.date.slice(5, 7));
+                            var year = Number(body.date.slice(0, 4));
                             overtime = await calculateOvertime(db, data[i].ID, body.date)
                             numberHoliday = await calculateNumberLeave(db, data[i].ID, body.date)
 
@@ -2195,10 +2217,34 @@ module.exports = {
                                         Type: 'TakeLeave',
                                         IDNhanVien: data[i].ID,
                                         Status: 'Hoàn thành',
+                                        Date: {
+                                            [Op.substring]: '%' + year + '-' + month + '%'
+                                        }
                                     }
-                                }).then(data => {
-                                    if (data) {
-                                        remainingPreviousYear = data.RemainingPreviousYear + data.AdvancePayment - data.UsedLeave
+                                }).then(async leave => {
+                                    if (leave) {
+                                        remainingPreviousYear = leave.RemainingPreviousYear + leave.AdvancePayment - leave.UsedLeave
+                                    } else {
+                                        let advancePayment = 0
+                                        seniority = await handleCalculateAdvancePayment(db, data[i].ID) // thâm niên
+                                            // var quotient = Math.floor(y / x);  // lấy nguyên
+                                            // var remainder = y % x; // lấy dư
+                                        if (seniority > 12) {
+                                            advancePayment = 12 + Math.floor(seniority / 60)
+                                        } else {
+                                            let staffData = await mtblHopDongNhanSu(db).findOne({
+                                                where: { IDNhanVien: data[i].ID },
+                                                order: [
+                                                    ['ID', 'ASC']
+                                                ],
+                                            })
+                                            if (staffData) {
+                                                let dateSign = new Date(staffData.Date)
+                                                advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                                            }
+                                        }
+                                        console.log(advancePayment);
+                                        remainingPreviousYear = advancePayment
                                     }
                                 })
                                 // tính số ngày đi muộn, nghỉ tự do
@@ -2231,7 +2277,7 @@ module.exports = {
                                 staffCode: data[i].StaffCode ? data[i].StaffCode : '',
                                 departmentName: data[i].department ? data[i].department.DepartmentName : '',
                                 overtime: overtime,
-                                remaining: remaining,
+                                remaining: remaining.toFixed(2),
                                 remainingPreviousYear: remainingPreviousYear,
                                 numberHoliday: numberHoliday,
                                 freeBreak: Math.round(freeBreak / 2),
