@@ -888,9 +888,10 @@ module.exports = {
                                 }, ],
                             }).then(async leave => {
                                 for (let l = 0; l < leave.length; l++) {
-                                    if (leave[l].type)
+                                    if (leave[l].type) {
                                         if (!leave[l].type.SalaryIsAllowed)
                                             check = true
+                                    }
                                 }
                             })
                             let productivityWages = data[i].nv ? data[i].nv.ProductivityWages : 0;
@@ -934,12 +935,12 @@ module.exports = {
                                 reduce: reduce + 11000000,
                                 totalReduce: totalReduce,
                                 realField: realField,
-                                productivityWages: data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0,
+                                productivityWages: productivityWages,
                             }
                             if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Hưởng lương') {
                                 totalRealField += realField;
                                 totalBHXHSalary += bhxhSalary;
-                                totalProductivityWages += (data[i].nv ? data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0 : 0);
+                                totalProductivityWages += productivityWages;
                                 totalStaffBHXH += staffBHXH;
                                 totalStaffBHYT += staffBHYT;
                                 totalStaffBHTN += staffBHTN;
