@@ -141,7 +141,6 @@ module.exports = {
     // add_tbl_nghiphep
     addtblNghiPhep: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -187,6 +186,8 @@ module.exports = {
                             if (staffData) {
                                 let dateSign = new Date(staffData.Date)
                                 advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                                if (Number(moment(dateSign).format('DD')) == 1)
+                                    advancePayment += 1
                             }
                         }
                         if (body.type == 'TakeLeave')

@@ -292,7 +292,6 @@ async function checkTypeContract(db, staffID, personalTax) {
             as: 'typeContract'
         }, ],
     })
-    console.log(staffID);
     if (contract)
         result = await calculationPersonalUncomeTaxWay2(personalTax)
     return result
@@ -318,7 +317,6 @@ async function getIncreaseSalaryOfStaff(db, staffID) {
 }
 
 async function realProductivityWageCalculation(db, staffID, date, productivityWages) {
-    console.log(staffID, date, 1234);
     var month = Number(date.slice(5, 7)); // January
     var year = Number(date.slice(0, 4));
     var dateF = new Date(year, month, 0);
@@ -786,7 +784,6 @@ async function calculateNumberLeave(db, staffID, date) {
     })
     return result
 }
-
 module.exports = {
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
@@ -878,10 +875,29 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
-                            let realProductivityWage = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv ? data[i].nv.ProductivityWages : 0)
-                            console.log(realProductivityWage, 1234);
+                            let check = false;
+                            let tblNghiPhep = mtblNghiPhep(db);
+                            tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'type' })
+
+                            await tblNghiPhep.findAll({
+                                where: { IDNhanVien: data[i].IDNhanVien },
+                                include: [{
+                                    model: mtblLoaiChamCong(db),
+                                    required: false,
+                                    as: 'type'
+                                }, ],
+                            }).then(async leave => {
+                                for (let l = 0; l < leave.length; l++) {
+                                    if (leave[l].type)
+                                        if (!leave[l].type.SalaryIsAllowed)
+                                            check = true
+                                }
+                            })
                             let productivityWages = data[i].nv ? data[i].nv.ProductivityWages : 0;
-                            productivityWages = realProductivityWage
+                            // trường hợp có đơn xin nghỉ không hưởng lương sẽ tính theo công thức dưới đâu
+                            if (check) {
+                                productivityWages = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv ? data[i].nv.ProductivityWages : 0)
+                            }
                             let salariesDecidedIncrease = await getIncreaseSalaryOfStaff(db, data[i].IDNhanVien); // quyết định tawg lương năng suất
                             productivityWages += salariesDecidedIncrease
                             var coefficientsSalary = 0;
@@ -1060,15 +1076,15 @@ module.exports = {
                             var coefficientsSalary = data[i].IDNhanVien ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0;
                             let bhxhSalary = coefficientsSalary * minimumWage + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
                             bhxhSalaryTotal += bhxhSalary
-                            bhxhCTTotal += bhxhSalary * objInsurance['companyBHXH']
-                            bhxhNVTotal += bhxhSalary * objInsurance['staffBHXH']
-                            bhytCTTotal += bhxhSalary * objInsurance['companyBHYT']
-                            bhytNVTotal += bhxhSalary * objInsurance['staffBHYT']
-                            bhtnNVTotal += bhxhSalary * objInsurance['staffBHTN']
-                            bhtnCTTotal += bhxhSalary * objInsurance['companyBHTN']
-                            bhtnldTotal += bhxhSalary * objInsurance['staffBHTNLD']
-                            let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD'])
-                            tongTotal += total
+                            bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
+                            bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
+                            bhytCTTotal += (bhxhSalary * objInsurance['companyBHYT'] / 100)
+                            bhytNVTotal += (bhxhSalary * objInsurance['staffBHYT'] / 100)
+                            bhtnNVTotal += (bhxhSalary * objInsurance['staffBHTN'] / 100)
+                            bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
+                            bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
+                            let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
+                                // tongTotal += total
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -1084,6 +1100,7 @@ module.exports = {
                                 coefficientsSalary: coefficientsSalary
                             }
                             if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
+                                tongTotal += total
                                 array.push(obj);
                                 stt += 1;
                             }
@@ -2218,7 +2235,7 @@ module.exports = {
                                         IDNhanVien: data[i].ID,
                                         Status: 'Hoàn thành',
                                         Date: {
-                                            [Op.substring]: '%' + year + '-' + month + '%'
+                                            [Op.substring]: '%' + year + '-' + await convertNumber(month - 1) + '%'
                                         }
                                     }
                                 }).then(async leave => {
@@ -2239,11 +2256,14 @@ module.exports = {
                                                 ],
                                             })
                                             if (staffData) {
+                                                console.log(staffData.Date);
+
                                                 let dateSign = new Date(staffData.Date)
                                                 advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                                                if (Number(moment(dateSign).format('DD')) == 1)
+                                                    advancePayment + 1
                                             }
                                         }
-                                        console.log(advancePayment);
                                         remainingPreviousYear = advancePayment
                                     }
                                 })

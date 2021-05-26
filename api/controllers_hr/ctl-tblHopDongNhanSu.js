@@ -16,12 +16,16 @@ var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblFileAttach(db).destroy({
         where: {
-            IDContract: { [Op.in]: listID }
+            IDContract: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblHopDongNhanSu(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -32,8 +36,7 @@ async function detailContract(db, id) {
     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
     await tblHopDongNhanSu.findOne({
         where: { ID: id },
-        include: [
-            {
+        include: [{
                 model: mtblLoaiHopDong(db),
                 required: false,
                 as: 'lhd'
@@ -84,8 +87,7 @@ async function inWordContact(db, id) {
     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
     await tblHopDongNhanSu.findOne({
         where: { ID: id },
-        include: [
-            {
+        include: [{
                 model: mtblLoaiHopDong(db),
                 required: false,
                 as: 'lhd'
@@ -107,13 +109,11 @@ async function inWordContact(db, id) {
 
             let staff = await tblDMNhanvien.findOne({
                 where: { ID: data.IDNhanVien },
-                include: [
-                    {
-                        model: mtblDMChucVu(db),
-                        required: false,
-                        as: 'position'
-                    },
-                ],
+                include: [{
+                    model: mtblDMChucVu(db),
+                    required: false,
+                    as: 'position'
+                }, ],
             })
             obj = {
                 'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
@@ -178,6 +178,7 @@ module.exports = {
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
                             }
+                            console.log(obj);
                             res.json(result);
                         } else {
                             res.json(Result.NO_DATA_RESULT)
@@ -236,6 +237,11 @@ module.exports = {
                         CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
                         ProductivityWages: body.productivityWages ? body.productivityWages : null,
                     }).then(async data => {
+                        if (body.idNhanVien)
+                            await mtblDMNhanvien(db).update({
+                                CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
+                                ProductivityWages: body.productivityWages ? body.productivityWages : null,
+                            }, { where: { ID: body.idNhanVien } })
                         let obj = {}
                         var contract = await detailContract(db, data.ID)
                         let tblDMNhanvien = mtblDMNhanvien(db);
@@ -243,13 +249,11 @@ module.exports = {
 
                         let staff = await tblDMNhanvien.findOne({
                             where: { ID: body.idNhanVien },
-                            include: [
-                                {
-                                    model: mtblDMChucVu(db),
-                                    required: false,
-                                    as: 'position'
-                                },
-                            ],
+                            include: [{
+                                model: mtblDMChucVu(db),
+                                required: false,
+                                as: 'position'
+                            }, ],
                         })
                         obj = {
                             'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
@@ -269,20 +273,20 @@ module.exports = {
                         }
                         await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                         await mtblFileAttach(db).create({
-                            Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
-                            Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
-                            IDContract: data.ID
-                        })
-                        // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
-                        //     order: [
-                        //         Sequelize.literal('max(DecisionDate) DESC'),
-                        //     ],
-                        //     group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
-                        //     where: {
-                        //         IDNhanVien: body.idNhanVien,
-                        //     }
-                        // })
-                        // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
+                                Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
+                                Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
+                                IDContract: data.ID
+                            })
+                            // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
+                            //     order: [
+                            //         Sequelize.literal('max(DecisionDate) DESC'),
+                            //     ],
+                            //     group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                            //     where: {
+                            //         IDNhanVien: body.idNhanVien,
+                            //     }
+                            // })
+                            // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
                         let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
                         if (!bl)
                             await mtblBangLuong(db).create({
@@ -372,8 +376,12 @@ module.exports = {
                         else
                             update.push({ key: 'ProductivityWages', value: body.productivityWages });
                     }
-                    let contract = await mtblHopDongNhanSu(db).findOne({ ID: body.id })
+                    let contract = await mtblHopDongNhanSu(db).findOne({ where: { ID: body.id } })
                     let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: contract.IDNhanVien } })
+                    await mtblDMNhanvien(db).update({
+                        CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
+                        ProductivityWages: body.productivityWages ? body.productivityWages : null,
+                    }, { where: { ID: contract.IDNhanVien } })
                     if (!bl)
                         await mtblBangLuong(db).create({
                             Date: body.signDate ? body.signDate : contract.Date,
@@ -449,9 +457,16 @@ module.exports = {
                                 ['ID', 'DESC']
                             ],
                             where: {
-                                [Op.or]: [
-                                    { MaLoaiHD: { [Op.like]: '%' + data.search + '%' } },
-                                    { TenLoaiHD: { [Op.like]: '%' + data.search + '%' } }
+                                [Op.or]: [{
+                                        MaLoaiHD: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        TenLoaiHD: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                 ]
                             }
                         }).then(data => {
@@ -464,9 +479,16 @@ module.exports = {
                                 ['ID', 'DESC']
                             ],
                             where: {
-                                [Op.or]: [
-                                    { StaffCode: { [Op.like]: '%' + data.search + '%' } },
-                                    { StaffName: { [Op.like]: '%' + data.search + '%' } }
+                                [Op.or]: [{
+                                        StaffCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        StaffName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                 ]
                             }
                         }).then(data => {
@@ -475,26 +497,51 @@ module.exports = {
                             })
                         })
                         if (data.search) {
-                            where = [
-                                { ContractCode: { [Op.like]: '%' + data.search + '%' } },
-                                { Status: { [Op.like]: '%' + data.search + '%' } },
-                                { IDLoaiHopDong: { [Op.in]: list } },
-                                { IDNhanVien: { [Op.in]: listStaff } },
+                            where = [{
+                                    ContractCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Status: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    IDLoaiHopDong: {
+                                        [Op.in]: list
+                                    }
+                                },
+                                {
+                                    IDNhanVien: {
+                                        [Op.in]: listStaff
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { ContractCode: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                ContractCode: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'SỐ HỢP ĐỒNG') {
-                                    userFind['ContractCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['ContractCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -518,7 +565,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TÌNH TRẠNG HỢP ĐỒNG') {
-                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -536,9 +585,16 @@ module.exports = {
                                             ['ID', 'DESC']
                                         ],
                                         where: {
-                                            [Op.or]: [
-                                                { MaLoaiHD: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                                { TenLoaiHD: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } }
+                                            [Op.or]: [{
+                                                    MaLoaiHD: {
+                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                    }
+                                                },
+                                                {
+                                                    TenLoaiHD: {
+                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                    }
+                                                }
                                             ]
                                         }
                                     }).then(data => {
@@ -546,7 +602,9 @@ module.exports = {
                                             list.push(item.ID);
                                         })
                                     })
-                                    userFind['IDLoaiHopDong'] = { [Op.in]: list }
+                                    userFind['IDLoaiHopDong'] = {
+                                        [Op.in]: list
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -568,8 +626,7 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
+                        include: [{
                                 model: mtblLoaiHopDong(db),
                                 required: false,
                                 as: 'lhd'
@@ -648,8 +705,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    if (body.dataSearch) {
-                    }
+                    if (body.dataSearch) {}
                     let stt = 1;
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
@@ -658,13 +714,11 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: { IDNhanVien: body.idNhanVien },
-                        include: [
-                            {
-                                model: mtblLoaiHopDong(db),
-                                required: false,
-                                as: 'lhd'
-                            },
-                        ],
+                        include: [{
+                            model: mtblLoaiHopDong(db),
+                            required: false,
+                            as: 'lhd'
+                        }, ],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -782,8 +836,7 @@ module.exports = {
                     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                     await tblHopDongNhanSu.findOne({
                         where: { ID: body.id },
-                        include: [
-                            {
+                        include: [{
                                 model: mtblLoaiHopDong(db),
                                 required: false,
                                 as: 'lhd'
@@ -803,13 +856,11 @@ module.exports = {
                             tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'position' })
                             let staff = await tblDMNhanvien.findOne({
                                 where: { ID: data.IDNhanVien },
-                                include: [
-                                    {
-                                        model: mtblDMChucVu(db),
-                                        required: false,
-                                        as: 'position'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMChucVu(db),
+                                    required: false,
+                                    as: 'position'
+                                }, ],
                             })
                             contactNumber = data.ContractCode
                             obj = {
