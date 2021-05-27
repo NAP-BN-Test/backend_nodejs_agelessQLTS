@@ -628,10 +628,10 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
         }
     }
     let datedb = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-    let statusMorningDB = statusMorning ? statusMorning : null
-    let statusAfternoonDB = statusAfternoon ? statusAfternoon : null
+    let statusMorningDB = statusMorning ? statusMorning : ''
+    let statusAfternoonDB = statusAfternoon ? statusAfternoon : ''
     if (arrayTimeOfDate.length >= 1) {
-        if (statusMorningDB == null && statusAfternoonDB == null) {
+        if (statusMorningDB == '' && statusAfternoonDB == '') {
             await createAttendanceData(db, staffID, datedb, null, '+', '+', true, summaryEndDateS)
             await createAttendanceData(db, staffID, datedb, null, '+', '+', false, summaryEndDateC)
         } else {
@@ -1265,620 +1265,711 @@ module.exports = {
     dataTimekeeping: async(req, res) => {
         let body = req.body;
         let arrayData = [
-            // 01 ----------------------------------------------------------------------------------------------------------------------------------
+            // 02 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-1 8:00:00",
+                'Verify Date': "2021-5-2 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-1 17:00:30",
+                'Verify Date': "2021-5-2 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-1 8:00:16",
+                'Verify Date': "2021-5-2 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-1 17:00:20",
+                'Verify Date': "2021-5-2 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -02 ----------------------------------------------------------------------------------------------------------------------------------
+            // 03 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-2 9:00:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-2 17:30:28",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 2,
-                'Verify Date': "2021-4-2 8:00:16",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 2,
-                'Verify Date': "2021-4-2 17:30:20",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            // -03----------------------------------------------------------------------------------------------------------------------------------
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-3 8:00:00",
+                'Verify Date': "2021-5-3 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-3 17:30:00",
+                'Verify Date': "2021-5-3 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-3 8:00:16",
+                'Verify Date': "2021-5-3 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-7 12:00:20",
+                'Verify Date': "2021-5-3 16:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -04----------------------------------------------------------------------------------------------------------------------------------
+            // 04 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-4 8:00:00",
+                'Verify Date': "2021-5-4 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-4 17:30:00",
+                'Verify Date': "2021-5-4 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-4 8:00:16",
+                'Verify Date': "2021-5-4 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-4 17:30:20",
+                'Verify Date': "2021-5-4 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -05----------------------------------------------------------------------------------------------------------------------------------
+            // 05 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-5 8:00:00",
+                'Verify Date': "2021-5-5 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-5 17:30:00",
+                'Verify Date': "2021-5-5 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-5 8:00:16",
+                'Verify Date': "2021-5-5 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-5 17:30:20",
+                'Verify Date': "2021-5-5 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -07----------------------------------------------------------------------------------------------------------------------------------
+            // 06 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-7 8:00:00",
+                'Verify Date': "2021-5-6 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-7 17:30:00",
+                'Verify Date': "2021-5-6 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-7 8:00:16",
+                'Verify Date': "2021-5-6 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-7 17:30:20",
+                'Verify Date': "2021-5-6 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -08----------------------------------------------------------------------------------------------------------------------------------
+            // 07 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-8 8:00:00",
+                'Verify Date': "2021-5-7 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-8 12:00:00",
+                'Verify Date': "2021-5-7 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-8 8:00:16",
+                'Verify Date': "2021-5-7 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-8 17:30:20",
+                'Verify Date': "2021-5-7 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -09----------------------------------------------------------------------------------------------------------------------------------
+            // 08 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-9 9:00:00",
+                'Verify Date': "2021-5-8 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-9 17:30:00",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-9 8:00:16",
+                'Verify Date': "2021-5-8 9:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-9 17:30:20",
+                'Verify Date': "2021-5-8 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -10----------------------------------------------------------------------------------------------------------------------------------
+            // 10 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-10 8:00:00",
+                'Verify Date': "2021-5-10 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-10 17:30:00",
+                'Verify Date': "2021-5-10 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-10 8:00:16",
+                'Verify Date': "2021-5-10 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-10 17:30:20",
+                'Verify Date': "2021-5-10 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -11----------------------------------------------------------------------------------------------------------------------------------
+            // 11 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-11 8:00:00",
+                'Verify Date': "2021-5-11 8:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-11 17:30:00",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-11 8:00:16",
+                'Verify Date': "2021-5-11 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-11 17:30:20",
+                'Verify Date': "2021-5-11 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -14----------------------------------------------------------------------------------------------------------------------------------
+            // 12 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-14 8:00:00",
+                'Verify Date': "2021-5-12 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-14 17:30:00",
+                'Verify Date': "2021-5-12 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-14 8:00:16",
+                'Verify Date': "2021-5-12 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-1-14 17:30:20",
+                'Verify Date': "2021-5-12 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -15----------------------------------------------------------------------------------------------------------------------------------
+            // 13 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-15 8:00:00",
+                'Verify Date': "2021-5-13 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-15 17:30:00",
+                'Verify Date': "2021-5-13 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-15 8:00:16",
+                'Verify Date': "2021-5-13 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-15 17:30:20",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            // -16----------------------------------------------------------------------------------------------------------------------------------
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-16 8:00:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-16 17:30:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            }, {
-                'User ID': 2,
-                'Verify Date': "2021-4-16 8:00:16",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 2,
-                'Verify Date': "2021-4-16 12:00:20",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            // -17----------------------------------------------------------------------------------------------------------------------------------
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-17 8:00:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-17 17:30:39",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            }, {
-                'User ID': 2,
-                'Verify Date': "2021-4-17 8:00:16",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 2,
-                'Verify Date': "2021-4-17 17:30:20",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            // -20----------------------------------------------------------------------------------------------------------------------------------
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-20 8:00:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-20 12:30:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            }, {
-                'User ID': 2,
-                'Verify Date': "2021-4-20 8:00:16",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 2,
-                'Verify Date': "2021-4-20 17:30:20",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            // -21----------------------------------------------------------------------------------------------------------------------------------
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-21 8:00:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-21 17:30:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            }, {
-                'User ID': 2,
-                'Verify Date': "2021-4-21 8:00:16",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 2,
-                'Verify Date': "2021-4-21 17:30:20",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            // -22----------------------------------------------------------------------------------------------------------------------------------
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-22 8:00:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 1,
-                'Verify Date': "2021-4-22 17:30:00",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            }, {
-                'User ID': 2,
-                'Verify Date': "2021-4-22 8:00:16",
-                'Verify Type': 1,
-                'Verify State': 1,
-                'Work Code': 1
-            },
-            {
-                'User ID': 2,
-                'Verify Date': "2021-4-22 17:30:20",
+                'Verify Date': "2021-5-13 17:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
 
-            // -23----------------------------------------------------------------------------------------------------------------------------------
+            // 14 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-23 8:00:00",
+                'Verify Date': "2021-5-14 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-23 17:30:00",
+                'Verify Date': "2021-5-14 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-23 9:00:16",
+                'Verify Date': "2021-5-14 9:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-23 17:30:20",
+                'Verify Date': "2021-5-14 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -24----------------------------------------------------------------------------------------------------------------------------------
+            // 15 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-24 8:00:00",
+                'Verify Date': "2021-5-15 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-24 17:30:00",
+                'Verify Date': "2021-5-15 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-24 8:00:16",
+                'Verify Date': "2021-5-15 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-24 17:00:20",
+                'Verify Date': "2021-5-15 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -25----------------------------------------------------------------------------------------------------------------------------------
+
+            // 16 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-25 8:00:00",
+                'Verify Date': "2021-5-16 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-25 16:30:00",
+                'Verify Date': "2021-5-16 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-25 8:00:16",
+                'Verify Date': "2021-5-16 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-25 17:30:20",
+                'Verify Date': "2021-5-16 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -28----------------------------------------------------------------------------------------------------------------------------------
+
+            // 17 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-28 8:00:00",
+                'Verify Date': "2021-5-17 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-28 17:30:00",
+                'Verify Date': "2021-5-17 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-28 8:00:16",
+                'Verify Date': "2021-5-17 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-28 17:30:20",
+                'Verify Date': "2021-5-17 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
-            // -29----------------------------------------------------------------------------------------------------------------------------------
+            // 18 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-29 8:00:00",
+                'Verify Date': "2021-5-18 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-29 17:30:00",
+                'Verify Date': "2021-5-18 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-29 8:00:16",
+                'Verify Date': "2021-5-18 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-29 17:30:20",
+                'Verify Date': "2021-5-18 17:00:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+
+            // 19 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-19 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-19 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-19 8:30:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-19 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+
+            // 20 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-20 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-20 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-20 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-20 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // 21 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-21 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-21 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-21 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-21 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+
+            // 24 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-24 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-14 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-24 10:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-24 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+
+            // 25----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-25 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-25 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-25 9:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-25 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // 26 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-26 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-14 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-26 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-26 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+
+            // 27 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-27 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-27 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-27 8:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-27 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+
+            // 28 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-28 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-28 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-28 9:00:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-28 17:30:20",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            // 31 ----------------------------------------------------------------------------------------------------------------------------------
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-31 8:00:00",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 1,
+                'Verify Date': "2021-5-31 17:30:30",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            }, {
+                'User ID': 2,
+                'Verify Date': "2021-5-31 8:30:16",
+                'Verify Type': 1,
+                'Verify State': 1,
+                'Work Code': 1
+            },
+            {
+                'User ID': 2,
+                'Verify Date': "2021-5-31 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
