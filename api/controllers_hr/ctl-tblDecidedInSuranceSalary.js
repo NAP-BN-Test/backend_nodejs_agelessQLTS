@@ -8,7 +8,9 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 async function deleteRelationshiptblDecidedInsuranceSalary(db, listID) {
     await mtblDecidedInsuranceSalary(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -24,13 +26,11 @@ module.exports = {
                     tblDecidedInsuranceSalary.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })
                     tblDecidedInsuranceSalary.findAll({
                         where: { IDStaff: body.staffID },
-                        include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staff'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'staff'
+                        }, ],
                     }).then(data => {
                         if (data) {
                             var array = [];
@@ -71,28 +71,41 @@ module.exports = {
     // add_tbl_decided_insurance_salary
     addtblDecidedInsuranceSalary: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    if (body.idStaff && body.coefficient)
-                        await mtblDMNhanvien(db).update({
-                            CoefficientsSalary: body.coefficient
-                        }, { where: { ID: body.idStaff } })
-                    mtblDecidedInsuranceSalary(db).create({
-                        IDStaff: body.idStaff ? body.idStaff : null,
-                        Name: body.name ? body.name : '',
-                        StartDate: body.startDate ? body.startDate : null,
-                        EndDate: body.endDate ? body.endDate : null,
-                        Increase: body.increase ? body.increase : null,
-                        Coefficient: body.coefficient ? body.coefficient : null,
-                    }).then(data => {
+                    let check;
+                    if (body.name) {
+                        check = await mtblDecidedInsuranceSalary(db).findOne({
+                            where: { Name: body.name }
+                        })
+                    }
+                    if (!check) {
+                        if (body.idStaff && body.coefficient)
+                            await mtblDMNhanvien(db).update({
+                                CoefficientsSalary: body.coefficient
+                            }, { where: { ID: body.idStaff } })
+                        mtblDecidedInsuranceSalary(db).create({
+                            IDStaff: body.idStaff ? body.idStaff : null,
+                            Name: body.name ? body.name : '',
+                            StartDate: body.startDate ? body.startDate : null,
+                            EndDate: body.endDate ? body.endDate : null,
+                            Increase: body.increase ? body.increase : null,
+                            Coefficient: body.coefficient ? body.coefficient : null,
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
+                    } else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: 'Tên quyết đinh ' + body.name + ' đã tồn tại.',
                         }
                         res.json(result);
-                    })
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -105,7 +118,6 @@ module.exports = {
     // update_tbl_decided_insurance_salary
     updatetblDecidedInsuranceSalary: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -199,9 +211,16 @@ module.exports = {
                                 ['ID', 'DESC']
                             ],
                             where: {
-                                [Op.or]: [
-                                    { StaffCode: { [Op.like]: '%' + data.search + '%' } },
-                                    { StaffName: { [Op.like]: '%' + data.search + '%' } }
+                                [Op.or]: [{
+                                        StaffCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        StaffName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                 ]
                             }
                         }).then(data => {
@@ -210,24 +229,41 @@ module.exports = {
                             })
                         })
                         if (data.search) {
-                            where = [
-                                { Name: { [Op.like]: '%' + data.search + '%' } },
-                                { IDStaff: { [Op.in]: listStaff } },
+                            where = [{
+                                    Name: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    IDStaff: {
+                                        [Op.in]: listStaff
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { Name: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                Name: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÊN') {
-                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Name'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -240,7 +276,9 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'TỪ NGÀY') {
                                     let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
-                                    userFind['StartDate'] = { [Op.substring]: date }
+                                    userFind['StartDate'] = {
+                                        [Op.substring]: date
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -276,13 +314,11 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'staff'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'staff'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {

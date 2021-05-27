@@ -41,6 +41,7 @@ const path = require('path');
 const unoconv = require('awesome-unoconv');
 const libre = require('libreoffice-convert-win');
 var moment = require('moment');
+
 function transform(amount, decimalCount = 2, decimal = '.', thousands = ',') {
     if (amount >= 100) {
         decimalCount = Math.abs(decimalCount);
@@ -76,8 +77,7 @@ async function getDetailYCMS(db, id) {
         order: [
             ['ID', 'DESC']
         ],
-        include: [
-            {
+        include: [{
                 model: mtblDMBoPhan(db),
                 required: false,
                 as: 'phongban'
@@ -137,13 +137,11 @@ async function getDetailYCMS(db, id) {
                     where: {
                         ID: obj.line[j].IDDMHangHoa,
                     },
-                    include: [
-                        {
-                            model: mtblDMLoaiTaiSan(db),
-                            required: false,
-                            as: 'loaiTaiSan'
-                        },
-                    ],
+                    include: [{
+                        model: mtblDMLoaiTaiSan(db),
+                        required: false,
+                        as: 'loaiTaiSan'
+                    }, ],
                 }).then(data => {
                     if (data)
                         arrayTaiSan.push({
@@ -337,8 +335,7 @@ module.exports = {
                         if (data[i].arrayTaiSanExport.length >= data[i].arrayFileExport.length) {
                             checkMaxRow += data[i].arrayTaiSanExport.length;
                             max = data[i].arrayTaiSanExport.length;
-                        }
-                        else {
+                        } else {
                             checkMaxRow += data[i].arrayFileExport.length;
                             max = data[i].arrayFileExport.length;
                         }
@@ -365,15 +362,14 @@ module.exports = {
                             ws.cell(row, 11, row + max - 1, 11, true).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
                             ws.cell(row, 13, row + max - 1, 13, true).string(data[i].reason).style(stylecell);
                             // ws.cell(row, 12, row + max - 1, 12, true).string(data[i].status).style(stylecell);
-                        }
-                        else {
+                        } else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell);
                             ws.cell(row, 2).string(data[i].type).style(stylecell);
                             ws.cell(row, 3).string(data[i].requestCode).style(stylecell);
                             ws.cell(row, 4).string(data[i].nameIDNhanVien).style(stylecell);
                             ws.cell(row, 5).string(data[i].requireDate).style(stylecell);
                             ws.cell(row, 11).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
-                            ws.cell(row, 13,).string(data[i].reason).style(stylecell);
+                            ws.cell(row, 13, ).string(data[i].reason).style(stylecell);
                             // ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
@@ -480,7 +476,7 @@ module.exports = {
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
                             row = checkMaxRow + 1
-                        // bản ghi đầu tiên
+                            // bản ghi đầu tiên
                         else
                             row = i + 2
                         if (data[i].arrayFileExport.length) {
@@ -503,8 +499,7 @@ module.exports = {
                             ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
                             ws.cell(row, 2, row + max - 1, 2, true).string(transform(data[i].paymentOrderCode ? data[i].paymentOrderCode : 0)).style(stylecell);
                             ws.cell(row, 6, row + max - 1, 6, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
-                        }
-                        else {
+                        } else {
                             ws.cell(row, 1).number(data[i].stt).style(stylecell)
                             ws.cell(row, 3).string(data[i].departmentName).style(stylecell)
                             ws.cell(row, 4).string(data[i].nameNhanVien).style(stylecell)
@@ -663,23 +658,20 @@ module.exports = {
                             ws.cell(3, row, 4, row, true)
                                 .string(arrayHeader[i])
                                 .style(styleHearder);
-                        }
-                        else if (i > 5 && i <= 10) {
+                        } else if (i > 5 && i <= 10) {
                             if (i < 10)
                                 ws.cell(4, row)
-                                    .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                                    .style(styleHearder);
+                                .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
+                                .style(styleHearder);
                             else if (i = 10) {
                                 ws.cell(4, row)
                                     .string(arrayHeader[i])
                                     .style(styleHearder);
-                            }
-                            else
+                            } else
                                 ws.cell(4, row)
-                                    .string(arrayHeader[i])
-                                    .style(styleHearder);
-                        }
-                        else {
+                                .string(arrayHeader[i])
+                                .style(styleHearder);
+                        } else {
                             ws.cell(3, row, 4, row, true)
                                 .string(arrayHeader[i])
                                 .style(styleHearder);
@@ -693,7 +685,7 @@ module.exports = {
                         ws.cell(5 + i, 2).string(data[i].staffCode ? data[i].staffCode : '').style(stylecell)
                         ws.cell(5 + i, 3).string(data[i].staffName ? data[i].staffName : '').style(stylecell)
                         ws.cell(5 + i, 4).string(data[i].departmentName ? data[i].departmentName : '').style(stylecell)
-                        // ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
+                            // ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 5).number(data[i].productivityWages ? data[i].productivityWages : 0).style(stylecellNumber)
                         ws.cell(5 + i, 6).number(data[i].bhxhSalary ? data[i].bhxhSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 7).number(data[i].staffBHXH).style(stylecellNumber)
@@ -742,8 +734,7 @@ module.exports = {
         })
     },
     // export_to_file_excel_payroll
-    exportToFileExcelTimekeeping: (req, res) => {
-    },
+    exportToFileExcelTimekeeping: (req, res) => {},
     // export_tofile_excel_insurance_premiums
     exportToFileExcelInsutancePremiums: (req, res) => {
         var wb = new xl.Workbook();
@@ -798,7 +789,9 @@ module.exports = {
         let objInsurance = JSON.parse(body.objInsurance);
         let arrayHeader = [
             'STT',
+            'MÃ NHÂN VIÊN',
             'HỌ VÀ TÊN',
+            'PHÒNG BAN',
             'HỆ SỐ LƯƠNG',
             'MỨC LƯƠNG',
             'CT',
@@ -822,13 +815,13 @@ module.exports = {
                     ws.cell(1, 1, 1, 14, true)
                         .string('THEO DÕI ĐÓNG BẢO HIỂM ' + month + '/' + year)
                         .style(styleHearder);
-                    ws.cell(3, 5, 3, 6, true)
+                    ws.cell(3, 7, 3, 8, true)
                         .string('BHXH')
                         .style(styleHearder);
-                    ws.cell(3, 7, 3, 8, true)
+                    ws.cell(3, 9, 3, 10, true)
                         .string('BHYT')
                         .style(styleHearder);
-                    ws.cell(3, 9, 3, 10, true)
+                    ws.cell(3, 11, 3, 12, true)
                         .string('BHTN')
                         .style(styleHearder);
                     // // push vào các khoản trừ %
@@ -837,6 +830,8 @@ module.exports = {
                     arrayReduct.push(2)
                     arrayReduct.push(3)
                     arrayReduct.push(4)
+                    arrayReduct.push(5)
+                    arrayReduct.push(6)
                     arrayReduct.push(objInsurance.companyBHXH)
                     arrayReduct.push(objInsurance.staffBHXH)
                     arrayReduct.push(objInsurance.companyBHYT)
@@ -846,17 +841,15 @@ module.exports = {
                     arrayReduct.push(objInsurance.staffBHTNLD)
                     arrayReduct.push(objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD)
                     for (var i = 0; i < arrayHeader.length; i++) {
-                        if (i <= 3) {
+                        if (i <= 5) {
                             ws.cell(3, row, 4, row, true)
                                 .string(arrayHeader[i])
                                 .style(styleHearder);
-                        }
-                        else if (i > 3 && i < 10) {
+                        } else if (i > 5 && i < 12) {
                             ws.cell(4, row)
                                 .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
                                 .style(styleHearder);
-                        }
-                        else {
+                        } else {
                             ws.cell(3, row, 4, row, true)
                                 .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
                                 .style(styleHearder);
@@ -864,20 +857,23 @@ module.exports = {
                         row += 1
                         ws.column(row).setWidth(20);
                     }
+                    console.log(data);
                     for (var i = 0; i < data.length; i++) {
                         let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
                         ws.cell(5 + i, 1).number(data[i].stt).style(stylecellNumber)
-                        ws.cell(5 + i, 2).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
-                        ws.cell(5 + i, 3).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 4).number(wages).style(stylecellNumber)
-                        ws.cell(5 + i, 5).number(wages * objInsurance.companyBHXH / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 6).number(wages * objInsurance.staffBHXH / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 7).number(wages * objInsurance.companyBHYT / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 8).number(wages * objInsurance.staffBHYT / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 9).number(wages * objInsurance.companyBHTN / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 10).number(wages * objInsurance.staffBHTN / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 11).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 12).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 2).string(data[i].staffCode).style(stylecell)
+                        ws.cell(5 + i, 3).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
+                        ws.cell(5 + i, 4).string(data[i].nameDepartment ? data[i].nameDepartment : '').style(stylecell)
+                        ws.cell(5 + i, 5).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNumber)
+                        ws.cell(5 + i, 6).number(wages).style(stylecellNumber)
+                        ws.cell(5 + i, 7).number(wages * objInsurance.companyBHXH / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 8).number(wages * objInsurance.staffBHXH / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 9).number(wages * objInsurance.companyBHYT / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 10).number(wages * objInsurance.staffBHYT / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 11).number(wages * objInsurance.companyBHTN / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 12).number(wages * objInsurance.staffBHTN / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 13).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellNumber)
+                        ws.cell(5 + i, 14).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
                     }
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
                     setTimeout(() => {
@@ -1066,7 +1062,7 @@ module.exports = {
                 var numberRandom = Math.floor(Math.random() * 1000000);
                 nameMiddle = numberRandom.toString();
                 var dir = 'photo-' + nameMiddle + '.jpg';
-                require("fs").writeFile('C:/images_services/struck_web/' + dir, buf, function (err) {
+                require("fs").writeFile('C:/images_services/struck_web/' + dir, buf, function(err) {
                     if (err) console.log(err + '');
                 });
                 var result = {

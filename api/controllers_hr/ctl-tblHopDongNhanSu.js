@@ -200,121 +200,137 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let now = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
-                    if (body.idSalaryIncrease)
-                        mtblQuyetDinhTangLuong(db).update({
-                            Status: "Đã tạo hợp đồng"
-                        }, { where: { ID: body.idSalaryIncrease } })
-                    if (body.idNhanVien)
-                        await mtblHopDongNhanSu(db).update({
-                            Status: 'Hết hiệu lực',
-                            EditDate: now,
-                        }, {
-                            where: { IDNhanVien: body.idNhanVien }
+                    let check;
+                    if (body.contractCode) {
+                        check = await mtblHopDongNhanSu(db).findOne({
+                            where: { ContractCode: body.contractCode }
                         })
-                    let noticeTime;
-                    if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
-                        noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
-                    else
-                        noticeTime = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
-                    mtblHopDongNhanSu(db).create({
-                        IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
-                        ContractCode: body.contractCode ? body.contractCode : '',
-                        Date: body.signDate ? body.signDate : null,
-                        IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                        SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
-                        SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                        ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                        ContractDateStart: body.signDate ? body.signDate : null,
-                        UnitSalary: 'VND',
-                        WorkingPlace: '',
-                        Status: body.status ? body.status : '',
-                        CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
-                        CMNDate: body.cmndate ? body.cmndate : null,
-                        CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
-                        Announced: false,
-                        NoticeTime: noticeTime,
-                        CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
-                        ProductivityWages: body.productivityWages ? body.productivityWages : null,
-                    }).then(async data => {
+                    }
+                    if (!check) {
+                        let now = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                        if (body.idSalaryIncrease)
+                            mtblQuyetDinhTangLuong(db).update({
+                                Status: "Đã tạo hợp đồng"
+                            }, { where: { ID: body.idSalaryIncrease } })
                         if (body.idNhanVien)
-                            await mtblDMNhanvien(db).update({
-                                CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
-                                ProductivityWages: body.productivityWages ? body.productivityWages : null,
-                            }, { where: { ID: body.idNhanVien } })
-                        let obj = {}
-                        var contract = await detailContract(db, data.ID)
-                        let tblDMNhanvien = mtblDMNhanvien(db);
-                        tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'position' })
+                            await mtblHopDongNhanSu(db).update({
+                                Status: 'Hết hiệu lực',
+                                EditDate: now,
+                            }, {
+                                where: { IDNhanVien: body.idNhanVien }
+                            })
+                        let noticeTime;
+                        if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
+                            noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
+                        else
+                            noticeTime = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                        mtblHopDongNhanSu(db).create({
+                            IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
+                            ContractCode: body.contractCode ? body.contractCode : '',
+                            Date: body.signDate ? body.signDate : null,
+                            IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                            SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                            ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                            ContractDateStart: body.signDate ? body.signDate : null,
+                            UnitSalary: 'VND',
+                            WorkingPlace: '',
+                            Status: body.status ? body.status : '',
+                            CMNDNumber: body.cmndNumber ? body.cmndNumber : '',
+                            CMNDate: body.cmndate ? body.cmndate : null,
+                            CMNDPlace: body.cmndPlace ? body.cmndPlace : '',
+                            Announced: false,
+                            NoticeTime: noticeTime,
+                            CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
+                            ProductivityWages: body.productivityWages ? body.productivityWages : null,
+                        }).then(async data => {
+                            if (body.idNhanVien)
+                                await mtblDMNhanvien(db).update({
+                                    CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
+                                    ProductivityWages: body.productivityWages ? body.productivityWages : null,
+                                }, { where: { ID: body.idNhanVien } })
+                            let obj = {}
+                            var contract = await detailContract(db, data.ID)
+                            let tblDMNhanvien = mtblDMNhanvien(db);
+                            tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'position' })
 
-                        let staff = await tblDMNhanvien.findOne({
-                            where: { ID: body.idNhanVien },
-                            include: [{
-                                model: mtblDMChucVu(db),
-                                required: false,
-                                as: 'position'
-                            }, ],
+                            let staff = await tblDMNhanvien.findOne({
+                                where: { ID: body.idNhanVien },
+                                include: [{
+                                    model: mtblDMChucVu(db),
+                                    required: false,
+                                    as: 'position'
+                                }, ],
+                            })
+                            obj = {
+                                'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
+                                'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
+                                'NHÂN VIÊN': contract.nv ? contract.nv.StaffName ? contract.nv.StaffName : '' : '',
+                                'NGÀY SINH': contract.nv ? moment(contract.nv.Birthday).format('DD/MM/YYYY') ? moment(contract.nv.Birthday).format('DD/MM/YYYY') : '' : '',
+                                'TÊN THÀNH PHỐ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
+                                'ĐỊA CHỈ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
+                                'CMT': contract.nv ? contract.nv.CMNDNumber ? contract.nv.CMNDNumber : '' : '',
+                                'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
+                                'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
+                                'LOẠI HỢP ĐỒNG': contract.lhd ? contract.lhd.TenLoaiHD ? contract.lhd.TenLoaiHD : '' : '',
+                                'TỪ NGÀY': contract.ContractDateStart ? moment(contract.ContractDateStart).format('DD/MM/YYYY') : '',
+                                'ĐẾN NGÀY': contract.ContractDateEnd ? moment(contract.ContractDateEnd).format('DD/MM/YYYY') : '',
+                                'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
+                                'CHỨC VỤ': staff.position ? staff.position ? staff.position.PositionName : '' : '',
+                            }
+                            await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
+                            await mtblFileAttach(db).create({
+                                    Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
+                                    Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
+                                    IDContract: data.ID
+                                })
+                                // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
+                                //     order: [
+                                //         Sequelize.literal('max(DecisionDate) DESC'),
+                                //     ],
+                                //     group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                                //     where: {
+                                //         IDNhanVien: body.idNhanVien,
+                                //     }
+                                // })
+                                // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
+                            let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
+                            if (!bl)
+                                await mtblBangLuong(db).create({
+                                    Date: body.signDate,
+                                    IDNhanVien: body.idNhanVien,
+                                    WorkingSalary: body.salaryNumber,
+                                    BHXHSalary: body.salaryNumber,
+                                    DateEnd: body.contractDateEnd,
+                                })
+                            else {
+                                await mtblBangLuong(db).update({
+                                    Date: body.signDate,
+                                    WorkingSalary: body.salaryNumber,
+                                    BHXHSalary: body.salaryNumber,
+                                    DateEnd: body.contractDateEnd,
+                                }, { where: { IDNhanVien: body.idNhanVien } })
+                            }
+
+                            var result = {
+                                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
+                                contractID: data.ID,
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            setTimeout(() => {
+                                res.json(result);
+                            }, 500);
                         })
-                        obj = {
-                            'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
-                            'NGÀY KÍ': data.Date ? moment(data.Date).format('DD/MM/YYYY') : '',
-                            'NHÂN VIÊN': contract.nv ? contract.nv.StaffName ? contract.nv.StaffName : '' : '',
-                            'NGÀY SINH': contract.nv ? moment(contract.nv.Birthday).format('DD/MM/YYYY') ? moment(contract.nv.Birthday).format('DD/MM/YYYY') : '' : '',
-                            'TÊN THÀNH PHỐ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
-                            'ĐỊA CHỈ': contract.nv ? contract.nv.Address ? contract.nv.Address : '' : '',
-                            'CMT': contract.nv ? contract.nv.CMNDNumber ? contract.nv.CMNDNumber : '' : '',
-                            'NGÀY CẤP': contract.nv ? contract.nv.CMNDDate ? contract.nv.CMNDDate : '' : '',
-                            'NƠI CẤP': contract.nv ? contract.nv.CMNDPlace ? contract.nv.CMNDPlace : '' : '',
-                            'LOẠI HỢP ĐỒNG': contract.lhd ? contract.lhd.TenLoaiHD ? contract.lhd.TenLoaiHD : '' : '',
-                            'TỪ NGÀY': contract.ContractDateStart ? moment(contract.ContractDateStart).format('DD/MM/YYYY') : '',
-                            'ĐẾN NGÀY': contract.ContractDateEnd ? moment(contract.ContractDateEnd).format('DD/MM/YYYY') : '',
-                            'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
-                            'CHỨC VỤ': staff.position ? staff.position ? staff.position.PositionName : '' : '',
-                        }
-                        await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
-                        await mtblFileAttach(db).create({
-                                Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
-                                Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
-                                IDContract: data.ID
-                            })
-                            // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
-                            //     order: [
-                            //         Sequelize.literal('max(DecisionDate) DESC'),
-                            //     ],
-                            //     group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
-                            //     where: {
-                            //         IDNhanVien: body.idNhanVien,
-                            //     }
-                            // })
-                            // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
-                        let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
-                        if (!bl)
-                            await mtblBangLuong(db).create({
-                                Date: body.signDate,
-                                IDNhanVien: body.idNhanVien,
-                                WorkingSalary: body.salaryNumber,
-                                BHXHSalary: body.salaryNumber,
-                                DateEnd: body.contractDateEnd,
-                            })
-                        else {
-                            await mtblBangLuong(db).update({
-                                Date: body.signDate,
-                                WorkingSalary: body.salaryNumber,
-                                BHXHSalary: body.salaryNumber,
-                                DateEnd: body.contractDateEnd,
-                            }, { where: { IDNhanVien: body.idNhanVien } })
-                        }
-
+                    } else {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
-                            contractID: data.ID,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: 'Số hợp đồng ' + body.contractCode + ' đã tồn tại !',
                         }
-                        setTimeout(() => {
-                            res.json(result);
-                        }, 500);
-                    })
+                        res.json(result);
+
+                    }
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

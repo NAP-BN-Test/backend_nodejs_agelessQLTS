@@ -498,6 +498,8 @@ module.exports = {
                     } else {
                         arraySearchAnd.push({ Type: 'SignUp' })
                     }
+                    if (body.staffID)
+                        arraySearchAnd.push({ IDNhanVien: body.staffID })
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
