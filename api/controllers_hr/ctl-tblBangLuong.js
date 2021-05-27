@@ -336,36 +336,18 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
         }
     }).then(async leave => {
         for (let i = 0; i < leave.length; i++) {
-            if (leave[i].Reason == 'Nghỉ không phép') {
+            if (leave[i].Status == '1') {
+                console.log(1);
                 leaveFree += 1
-            } else if (leave[i].Reason == 'Ngày nghỉ phép') {
-                let tblNghiPhep = mtblNghiPhep(db);
-                tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'typeLeave' })
-                await tblNghiPhep.findOne({
-                    include: [{
-                        model: mtblLoaiChamCong(db),
-                        required: false,
-                        as: 'typeLeave'
-                    }, ],
-                    where: {
-                        IDNhanVien: staffID,
-                        DateEnd: {
-                            [Op.gte]: date
-                        },
-                        DateStart: {
-                            [Op.lte]: date
-                        },
-                    }
-                }).then(takeLeade => {
-                    if (takeLeade && takeLeade.typeLeave) {
-                        if (!takeLeade.typeLeave.SalaryIsAllowed) {
-                            dayOff += 1
-                        }
-                    }
-                })
+            } else if (leave[i].Status == '0.5') {
+                console.log(2);
+                leaveFree += 1
             }
         }
     })
+    var array7thDB = await take7thDataToWork(db, year, Number(month));
+    array7thDB = array7thDB.length
+    let numberHoliday = await calculateNumberLeave(db, staffID, date)
     let sunSta = 0
     for (let i = 0; i < dateFinal; i++) {
         var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
@@ -373,7 +355,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
             sunSta += 1
         }
     }
-    result = productivityWages / (dateFinal - sunSta) * ((dateFinal - sunSta) - (dayOff / 2 + leaveFree / 2))
+    result = productivityWages / (dateFinal - sunSta) * (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB))
     return result
 }
 async function getListHoliday(db, year, month, dateFinal) {
@@ -784,6 +766,141 @@ async function calculateNumberLeave(db, staffID, date) {
     })
     return result
 }
+
+// Tính số ngày tồn từ tháng trước
+async function calculateRemainingPreviousYear(db, staffID, date) {
+    // Tính ngày thời gian thêm giờ
+    let remainingPreviousYear = 0
+    let result = 0
+    let freeBreak = 0;
+    let lateDay = 0;
+    let overtime = 0
+    var month = Number(date.slice(5, 7));
+    var year = Number(date.slice(0, 4));
+    await mtblNghiPhep(db).findAll({
+        where: {
+            Type: 'TakeLeave',
+            IDNhanVien: staffID,
+            Status: 'Hoàn thành',
+        }
+    }).then(async leave => {
+        for (let i = 0; i < leave.length; i++) {
+            for (m = 1; m < month; m++) {
+                let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+                WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + m + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
+                let date = await db.query(query)
+                date = date[0]
+                for (let j = 0; j < date.length; j++) {
+                    if (leave[i].NumberHoliday != 0)
+                        result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
+                }
+            }
+        }
+        let freeBreakPlus = 0
+        let lateDayPlus = 0
+        let overtimePlus = 0
+        for (m = 1; m < month; m++) {
+            let dateWhere = year + '-' + await convertNumber(m)
+            overtimePlus = await calculateOvertime(db, staffID, dateWhere)
+
+            await mtblChamCong(db).findAll({
+                order: [
+                    ['ID', 'DESC']
+                ],
+                where: {
+                    IDNhanVien: staffID,
+                    Date: {
+                        [Op.substring]: '%' + dateWhere + '%'
+                    }
+                }
+            }).then(data => {
+                if (data)
+                    data.forEach(item => {
+                        if (item.Status == '1') {
+                            freeBreakPlus += 1
+                        } else if (item.Status != '+') {
+                            if (item.Status && item.Status != '0.5' && !item.Reason) {
+                                lateDayPlus += (Number(item.Status.slice(1, 10)) / 60 / 8)
+                            }
+                        }
+                    })
+            })
+        }
+        freeBreak += freeBreakPlus
+        lateDay += lateDayPlus
+        overtime += overtimePlus
+    })
+    lateDay = lateDay.toFixed(2)
+    let advancePayment = 0
+    seniority = await handleCalculateAdvancePayment(db, staffID) // thâm niên
+        // var quotient = Math.floor(y / x);  // lấy nguyên
+        // var remainder = y % x; // lấy dư
+    if (seniority > 12) {
+        advancePayment = 12 + Math.floor(seniority / 60)
+    } else {
+        let staffData = await mtblHopDongNhanSu(db).findOne({
+            where: { IDNhanVien: staffID },
+            order: [
+                ['ID', 'ASC']
+            ],
+        })
+        if (staffData) {
+            let dateSign = new Date(staffData.Date)
+            advancePayment = 12 - Number(moment(dateSign).format('MM'))
+            if (Number(moment(dateSign).format('DD')) == 1)
+                advancePayment += 1
+        }
+    }
+    remainingPreviousYear = advancePayment + overtime / 8 - lateDay - result - freeBreak / 2
+    return remainingPreviousYear
+}
+
+// tính tổng hợp chấm công theo từng tháng
+async function aggregateTimekeepingForEachMonth(db, staff, date) {
+    let objResult = {}
+    let overtime = 0; // thời gian lm thêm giờ
+    let numberHoliday = 0; // số ngày nghỉ trong tháng
+    let freeBreak = 0;
+    let lateDay = 0;
+    var month = Number(date.slice(5, 7));
+    var year = Number(date.slice(0, 4));
+    overtime = await calculateOvertime(db, staff.ID, date)
+    numberHoliday = await calculateNumberLeave(db, staff.ID, date)
+        // tính số ngày đi muộn, nghỉ tự do
+    await mtblChamCong(db).findAll({
+        order: [
+            ['ID', 'DESC']
+        ],
+        where: {
+            IDNhanVien: staff.ID,
+            Date: {
+                [Op.substring]: '%' + date + '%'
+            }
+        }
+    }).then(data => {
+        if (data)
+            data.forEach(item => {
+                if (item.Status == '1') {
+                    freeBreak += 1
+                } else if (item.Status != '+') {
+                    if (item.Status && item.Status != '0.5' && !item.Reason) {
+                        lateDay += (Number(item.Status.slice(1, 10)) / 60 / 8)
+                    }
+                }
+            })
+    })
+    lateDay = lateDay.toFixed(2)
+    objResult = {
+        staffName: staff.StaffName ? staff.StaffName : '',
+        staffCode: staff.StaffCode ? staff.StaffCode : '',
+        departmentName: staff.department ? staff.department.DepartmentName : '',
+        overtime: overtime / 8,
+        numberHoliday: numberHoliday,
+        freeBreak: Math.round(freeBreak / 2),
+        lateDay: lateDay,
+    }
+    return objResult
+}
 module.exports = {
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
@@ -903,20 +1020,20 @@ module.exports = {
                             productivityWages += salariesDecidedIncrease
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
-                            let union = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : ((data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) * objInsurance['union'] / 100)
+                            let union = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : (productivityWages * objInsurance['union'] / 100)
                             let bhxhSalary = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary)
                             let staffBHXH = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHXH'] / 100)
                             let staffBHYT = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHYT'] / 100)
                             let staffBHTN = data[i].nv.Status == "Hưởng lương" ? 0 : (minimumWage * coefficientsSalary * objInsurance['staffBHTN'] / 100)
                             let totalReduceBHXH = staffBHYT + staffBHXH + union + staffBHTN
                             let workingSalary = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : (data[i].WorkingSalary ? data[i].WorkingSalary : 0)
-                            let personalTaxSalary = (data[i].nv ? data[i].nv.ProductivityWages : 0) - totalReduceBHXH - reduce - 11000000
+                            let personalTaxSalary = productivityWages - totalReduceBHXH - reduce - 11000000
                             personalTaxSalary = personalTaxSalary > 0 ? personalTaxSalary : 0
                             let personalTax = personalTaxSalary > 0 ? await checkTypeContract(db, data[i].IDNhanVien, Number(personalTaxSalary)) : 0;
                             let totalReduce = totalReduceBHXH + personalTax
                             totalReduce = totalReduce > 0 ? totalReduce : 0
                             totalReduce = Math.round(totalReduce)
-                            let realField = (data[i].nv.ProductivityWages ? data[i].nv.ProductivityWages : 0) - totalReduce
+                            let realField = productivityWages - totalReduce
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -2215,95 +2332,12 @@ module.exports = {
                         where: obj,
                     }).then(async data => {
                         for (var i = 0; i < data.length; i++) {
-                            let overtime = 0; // thời gian lm thêm giờ
-                            let remainingPreviousYear = 0; // số ngày được ứng của năm trước
-                            let numberHoliday = 0; // số ngày nghỉ trong tháng
-                            let remaining = 0; // số phép còn lại
-                            let freeBreak = 0;
-                            let lateDay = 0;
-                            var month = Number(body.date.slice(5, 7));
-                            var year = Number(body.date.slice(0, 4));
-                            overtime = await calculateOvertime(db, data[i].ID, body.date)
-                            numberHoliday = await calculateNumberLeave(db, data[i].ID, body.date)
-
-                            // lấy số ngày được ứng của tháng trước và phép còn lại
-                            await mtblNghiPhep(db).findOne({
-                                    order: [
-                                        ['ID', 'DESC']
-                                    ],
-                                    where: {
-                                        Type: 'TakeLeave',
-                                        IDNhanVien: data[i].ID,
-                                        Status: 'Hoàn thành',
-                                        Date: {
-                                            [Op.substring]: '%' + year + '-' + await convertNumber(month - 1) + '%'
-                                        }
-                                    }
-                                }).then(async leave => {
-                                    if (leave) {
-                                        remainingPreviousYear = leave.RemainingPreviousYear + leave.AdvancePayment - leave.UsedLeave
-                                    } else {
-                                        let advancePayment = 0
-                                        seniority = await handleCalculateAdvancePayment(db, data[i].ID) // thâm niên
-                                            // var quotient = Math.floor(y / x);  // lấy nguyên
-                                            // var remainder = y % x; // lấy dư
-                                        if (seniority > 12) {
-                                            advancePayment = 12 + Math.floor(seniority / 60)
-                                        } else {
-                                            let staffData = await mtblHopDongNhanSu(db).findOne({
-                                                where: { IDNhanVien: data[i].ID },
-                                                order: [
-                                                    ['ID', 'ASC']
-                                                ],
-                                            })
-                                            if (staffData) {
-                                                console.log(staffData.Date);
-
-                                                let dateSign = new Date(staffData.Date)
-                                                advancePayment = 12 - Number(moment(dateSign).format('MM'))
-                                                if (Number(moment(dateSign).format('DD')) == 1)
-                                                    advancePayment + 1
-                                            }
-                                        }
-                                        remainingPreviousYear = advancePayment
-                                    }
-                                })
-                                // tính số ngày đi muộn, nghỉ tự do
-                            await mtblChamCong(db).findAll({
-                                order: [
-                                    ['ID', 'DESC']
-                                ],
-                                where: {
-                                    IDNhanVien: data[i].ID,
-                                    Date: {
-                                        [Op.substring]: '%' + body.date + '%'
-                                    }
-                                }
-                            }).then(data => {
-                                if (data)
-                                    data.forEach(item => {
-                                        if (item.Status == '1') {
-                                            freeBreak += 1
-                                        } else if (item.Status != '+') {
-                                            if (item.Status && item.Status != '0.5' && !item.Reason) {
-                                                lateDay += (Number(item.Status.slice(1, 10)) / 60 / 8)
-                                            }
-                                        }
-                                    })
-                            })
-                            lateDay = lateDay.toFixed(2)
-                            remaining = Number(remainingPreviousYear) + Number(overtime) - Number(lateDay) - Number(numberHoliday) - Number(Math.round(freeBreak / 2))
-                            array.push({
-                                staffName: data[i].StaffName ? data[i].StaffName : '',
-                                staffCode: data[i].StaffCode ? data[i].StaffCode : '',
-                                departmentName: data[i].department ? data[i].department.DepartmentName : '',
-                                overtime: overtime,
-                                remaining: remaining.toFixed(2),
-                                remainingPreviousYear: remainingPreviousYear,
-                                numberHoliday: numberHoliday,
-                                freeBreak: Math.round(freeBreak / 2),
-                                lateDay: lateDay,
-                            })
+                            let objResult = await aggregateTimekeepingForEachMonth(db, data[i], body.date)
+                            let remainingPreviousYear = await calculateRemainingPreviousYear(db, data[i].ID, body.date)
+                            let remaining = Number(remainingPreviousYear) + (Number(objResult.overtime) / 8) - Number(objResult.lateDay) - Number(objResult.numberHoliday) - Number(objResult.freeBreak)
+                            objResult['remaining'] = remaining.toFixed(2)
+                            objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
+                            array.push(objResult)
                         }
                     })
                     var result = {

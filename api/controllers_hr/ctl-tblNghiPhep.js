@@ -446,6 +446,7 @@ module.exports = {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
+                    await deleteRelationshiptblNghiPhep(db, listID);
                     await mtblNghiPhep(db).findAll({
                         where: {
                             ID: {
