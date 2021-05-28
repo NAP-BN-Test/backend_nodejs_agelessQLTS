@@ -880,6 +880,13 @@ async function aggregateTimekeepingForEachMonth(db, staff, date) {
 async function createTimeAttendanceSummary() {
     database.connectDatabase().then(async db => {
         if (db) {
+            await mtblTimeAttendanceSummary(db).destroy({
+                where: {
+                    ID: {
+                        [Op.ne]: null
+                    }
+                }
+            })
             let now = moment().format('MM');
             let yearNow = Number(moment().format('YYYY'));
             for (let month = 1; month <= Number(now); month++) {
@@ -2468,7 +2475,7 @@ module.exports = {
                 try {
                     let arrayStaff = []
                     let array = []
-
+                        // await createTimeAttendanceSummary()
                     let where = []
                     if (body.departmentID) {
                         await mtblDMNhanvien(db).findAll({
