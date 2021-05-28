@@ -10,6 +10,8 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblDateOfLeave = require('../tables/hrmanage/tblDateOfLeave')
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblDMUser = require('../tables/constants/tblDMUser');
+var mtblDMPermission = require('../tables/constants/tblDMPermission');
 
 async function deleteRelationshiptblNghiPhep(db, listID) {
     await mtblDateOfLeave(db).destroy({
@@ -506,8 +508,22 @@ module.exports = {
                     } else {
                         arraySearchAnd.push({ Type: 'SignUp' })
                     }
-                    if (body.staffID)
-                        arraySearchAnd.push({ IDNhanVien: body.staffID })
+                    if (body.staffID) {
+                        let tblDMUser = mtblDMUser(db);
+                        tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission', as: 'permission' })
+                        await tblDMUser.findOne({
+                            where: { IDNhanvien: body.staffID },
+                            include: [{
+                                model: mtblDMPermission(db),
+                                required: false,
+                                as: 'permission'
+                            }, ],
+                        }).then(user => {
+                            if (user.permission && user.permission.PermissionName != 'Admin') {
+                                arraySearchAnd.push({ IDNhanVien: body.staffID })
+                            }
+                        })
+                    }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 

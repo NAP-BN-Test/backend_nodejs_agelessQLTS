@@ -289,41 +289,41 @@ module.exports = {
                 let orderObj = await db.query(queryUpdateOrder)
                 let ConfirmKH;
                 let ConfirmNX;
-                let idCustomerKH;
-                let idCustomerNX;
+                let keyConnectKH;
+                let keyConnectNX;
                 if (orderObj[0][0]) {
-                    let queryCustomer = 'SELECT IDCustomer FROM tblKhachHang WHERE ID = ' + orderObj[0][0].IDKhachHang
+                    let queryCustomer = 'SELECT KeyConnect FROM tblKhachHang WHERE ID = ' + orderObj[0][0].IDKhachHang
                     let CustomerObj = await db.query(queryCustomer)
-                    if (CustomerObj[0][0] && CustomerObj[0][0].IDCustomer) {
+                    if (CustomerObj[0][0] && CustomerObj[0][0].KeyConnect) {
                         ConfirmKH = null
-                        idCustomerKH = CustomerObj[0][0].IDCustomer
+                        keyConnectKH = CustomerObj[0][0].KeyConnect
                     } else {
                         ConfirmKH = 1
-                        idCustomerKH = null
+                        keyConnectKH = null
                     }
                 } else {
                     ConfirmKH = null
-                    idCustomerKH = null
+                    keyConnectKH = null
                 }
                 if (orderObj[0][0]) {
-                    let queryCustomer = 'SELECT IDCustomer FROM tblKhachHang WHERE ID = ' + orderObj[0][0].IDNhaXe
+                    let queryCustomer = 'SELECT KeyConnect FROM tblKhachHang WHERE ID = ' + orderObj[0][0].IDNhaXe
                     let CustomerObj = await db.query(queryCustomer)
-                    if (CustomerObj[0][0] && CustomerObj[0][0].IDCustomer) {
+                    if (CustomerObj[0][0] && CustomerObj[0][0].KeyConnect) {
                         ConfirmNX = null
-                        idCustomerNX = CustomerObj[0][0].IDCustomer
+                        keyConnectNX = CustomerObj[0][0].KeyConnect
                     } else {
                         ConfirmNX = 1
-                        idCustomerNX = null
+                        keyConnectNX = null
                     }
                 } else {
                     ConfirmNX = null
-                    idCustomerNX = null
+                    keyConnectNX = null
                 }
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                 let dbnameKH;
                 let dbnameNX;
-                if (idCustomerKH) {
-                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + idCustomerKH
+                if (keyConnectKH) {
+                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + keyConnectKH
                     dbnameKH = await dbMaster.query(dbMasterQuery)
                     if (dbnameKH[0][0] && dbnameKH[0][0].NameDatabase) {
                         dbnameKH = dbnameKH[0][0].NameDatabase
@@ -339,8 +339,8 @@ module.exports = {
                 } else {
                     dbnameKH = null
                 }
-                if (idCustomerNX) {
-                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + idCustomerNX
+                if (keyConnectNX) {
+                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + keyConnectNX
                     dbnameNX = await dbMaster.query(dbMasterQuery)
                     if (dbnameNX[0][0] && dbnameNX[0][0].NameDatabase) {
                         dbnameNX = dbnameNX[0][0].NameDatabase
@@ -416,36 +416,36 @@ module.exports = {
                     } else {
                         if (objOrder.ConfirmKH == 1) {
                             if (data.type.toUpperCase() == 'KEHOACH') {
-                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH' WHERE ID = " + data.id)
+                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH', IDDMXeCongTy = NULL, BienSoXe = " + data.xecongty.biensoxe + ", TenLaiXe = " + data.xecongty.tenlaixe + ", SDTLaiXe = " + data.xecongty.sodienthoai + " WHERE ID = " + data.id)
                             } else {
                                 await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'CHI PHÍ HOÀN THÀNH' WHERE ID = " + data.id)
                             }
                         } else {
-                            await db.query("UPDATE tblDonHang SET ConfirmNX = 1 WHERE ID = " + data.id)
+                            await db.query("UPDATE tblDonHang SET ConfirmNX = 1, IDDMXeCongTy = NULL, BienSoXe = " + data.xecongty.biensoxe + ", TenLaiXe = " + data.xecongty.tenlaixe + ", SDTLaiXe = " + data.xecongty.sodienthoai + " WHERE ID = " + data.id)
                         }
                     }
                 }
                 let dbnameKH;
                 let dbnameNX;
-                let IDCustomer;
+                let KeyConnect;
                 let IDNhaXe;
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                     // check dbname khách hàng
                 if (!objOrder.IDKhachHang) {
                     dbnameKH = null
                 } else {
-                    IDCustomer = await db.query('select IDCustomer from tblKhachHang where ID = ' + objOrder.IDKhachHang)
-                    IDCustomer = IDCustomer[0][0]
-                    if (!IDCustomer)
+                    KeyConnect = await db.query('select KeyConnect from tblKhachHang where ID = ' + objOrder.IDKhachHang)
+                    KeyConnect = KeyConnect[0][0]
+                    if (!KeyConnect)
                         dbnameKH = null
                     else {
-                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDCustomer.IDCustomer
+                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + KeyConnect.KeyConnect
                         dbnameKH = await dbMaster.query(dbMasterQuery)
                         dbnameKH = dbnameKH[0][0]
                         if (dbnameKH) {
                             dbnameKH = dbnameKH.NameDatabase
                         } else {
-                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDCustomer.IDCustomer
+                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + KeyConnect.KeyConnect
                             dbMaster = await connectDatabase('Customer_VTNAP')
                             dbnameKH = await dbMaster.query(dbMasterQuery)
                             dbnameKH = dbnameKH[0][0]
@@ -462,18 +462,18 @@ module.exports = {
                 if (!objOrder.IDNhaXe) {
                     dbnameNX = null
                 } else {
-                    IDNhaXe = await db.query('select IDCustomer from tblKhachHang where ID = ' + objOrder.IDNhaXe)
+                    IDNhaXe = await db.query('select KeyConnect from tblKhachHang where ID = ' + objOrder.IDNhaXe)
                     IDNhaXe = IDNhaXe[0][0]
                     if (!IDNhaXe)
                         dbnameNX = null
                     else {
-                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDNhaXe.IDCustomer
+                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + IDNhaXe.KeyConnect
                         dbnameNX = await dbMaster.query(dbMasterQuery)
                         dbnameNX = dbnameNX[0][0]
                         if (dbnameNX) {
                             dbnameNX = dbnameNX.NameDatabase
                         } else {
-                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE ID = " + IDNhaXe.IDCustomer
+                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + IDNhaXe.KeyConnect
                             dbMaster = await connectDatabase('Customer_VTNAP')
                             dbnameNX = await dbMaster.query(dbMasterQuery)
                             dbnameNX = dbnameNX[0][0]

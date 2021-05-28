@@ -201,6 +201,7 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    console.log(body);
                     if (body.fileAttach) {
                         body.fileAttach = JSON.parse(body.fileAttach)
                         await mModules.updateForFileAttach(db, 'IDRewardPunishment', body.fileAttach, body.id)
@@ -391,6 +392,7 @@ module.exports = {
                                 if (file.length > 0) {
                                     for (var e = 0; e < file.length; e++) {
                                         arrayFile.push({
+                                            id: file[e].ID,
                                             name: file[e].Name ? file[e].Name : '',
                                             link: file[e].Link ? file[e].Link : '',
                                         })
