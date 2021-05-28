@@ -100,20 +100,27 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
     } else {
         subtractHalfDay = 0.5
     }
+    let plus = 0
+    if (checkDateStart < 12 && checkDateEnd >= 16) {
+        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
+            plus += 2
+        else
+            plus += 1
+    }
     if (days.length < 1)
         if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
             if (checkDateEnd < 17)
                 result = 1.5
             else
                 result = 2
-    else
-    if (checkDateEnd < 17)
+    else if (checkDateEnd < 17)
         result = 0.5
     else
         result = 1
     else
         result = days.length + 2 - array7th.length - subtractHalfDay
-    return result
+    console.log(result + plus);
+    return result + plus
 }
 async function handleCalculatePreviousYear(db, idStaff, currentYear) {
     var result = 0;
@@ -308,6 +315,7 @@ module.exports = {
 
                         } else {
                             numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                            console.log(numberHolidayArray, 1234);
                         }
                         numberHoliday += numberHolidayArray
 

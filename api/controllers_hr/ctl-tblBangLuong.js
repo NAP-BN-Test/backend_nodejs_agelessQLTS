@@ -66,12 +66,12 @@ async function maxTimeArray(array) {
     var maxTime = 0;
     for (var i = 0; i < array.length; i++) {
         if (Number(array[i].slice(0, 2))) {
-            let seconrd = Number(array[i].slice(6, 8)) + Number(array[i].slice(3, 5)) * 60 + Number(array[i].slice(0, 2)) * 60 * 60
+            let seconrd = Number(array[i].slice(3, 5)) * 60 + Number(array[i].slice(0, 2)) * 60 * 60
             if (seconrd >= maxTime) {
                 maxTime = seconrd;
             }
         } else {
-            let seconrd = Number(array[i].slice(5, 7)) + Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60
+            let seconrd = Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60
             if (seconrd >= maxTime) {
                 maxTime = seconrd;
             }
@@ -84,12 +84,12 @@ async function minTimeArray(array) {
     var minTime = 3000000000;
     for (var i = 0; i < array.length; i++) {
         if (Number(array[i].slice(0, 2))) {
-            let seconrd = Number(array[i].slice(6, 8)) + Number(array[i].slice(3, 5)) * 60 + Number(array[i].slice(0, 2)) * 60 * 60;
+            let seconrd = Number(array[i].slice(3, 5)) * 60 + Number(array[i].slice(0, 2)) * 60 * 60;
             if (seconrd < minTime) {
                 minTime = seconrd;
             }
         } else {
-            let seconrd = Number(array[i].slice(5, 7)) + Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60;
+            let seconrd = Number(array[i].slice(2, 4)) * 60 + Number(array[i].slice(0, 1)) * 60 * 60;
             if (seconrd < minTime) {
                 minTime = seconrd;
             }
@@ -193,14 +193,24 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     var array = [];
     var arrayObj = [];
     let listID = []
-    await mtblNghiPhep(db).findAll({
+    let tblNghiPhep = mtblNghiPhep(db);
+    let ListSign = [];
+    tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'type' })
+    await tblNghiPhep.findAll({
         where: {
             IDNhanVien: staffID,
             Status: 'Hoàn thành',
-        }
+        },
+        include: [{
+            model: mtblLoaiChamCong(db),
+            required: false,
+            as: 'type'
+        }, ],
     }).then(leave => {
         leave.forEach(item => {
+            let sign = item.IDLoaiChamCong ? item.type.Code : ''
             listID.push(item.ID)
+            ListSign.push(sign)
         })
     })
     for (let i = 0; i < listID.length; i++) {
@@ -208,25 +218,8 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
         WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + month + `) AND ([tblDateOfLeave].[LeaveID] = N'` + listID[i] + `');`
         let date = await db.query(query)
         date = date[0]
+        let signLeave = ListSign[i]
         for (let i = 0; i < date.length; i++) {
-            // kí hiệu
-            let sign = '';
-            let tblNghiPhep = mtblNghiPhep(db);
-            tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'type' })
-            await tblNghiPhep.findOne({
-                where: {
-                    ID: date[i].LeaveID
-                },
-                include: [{
-                    model: mtblLoaiChamCong(db),
-                    required: false,
-                    as: 'type'
-                }, ],
-            }).then(leave => {
-                if (leave) {
-                    sign = leave.type ? leave.type.Code : ''
-                }
-            })
             let dateStart = moment(date[i].DateStart).subtract(7, 'hours').date()
             let dateEnd = moment(date[i].DateEnd).subtract(7, 'hours').date()
             let dateEndMonth = moment(date[i].DateEnd).subtract(7, 'hours').month()
@@ -240,12 +233,14 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                 }
             }
             for (let d = dateStart; d <= dateEnd; d++) {
-                array.push(d)
-                arrayObj.push({
-                    date: d,
-                    id: date[i].ID,
-                    sign: sign,
-                })
+                if (signLeave != '') {
+                    array.push(d)
+                    arrayObj.push({
+                        date: d,
+                        id: date[i].ID,
+                        sign: signLeave,
+                    })
+                }
             }
         }
 
@@ -559,7 +554,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                 statusAfternoon = await converFromSecondsToHourLate(maxTime - thirteenH)
                 summaryEndDateC = await roundNumberMinutes(maxTime - thirteenH)
             } else {
-                statusAfternoon = ''
+                statusAfternoon = null
             }
             statusMorning = '0.5'
             summaryEndDateS = 0.5
@@ -569,7 +564,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                 statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                 summaryEndDateS = await roundNumberMinutes(minTime - eightH)
             } else {
-                statusMorning = ''
+                statusMorning = null
             }
             statusAfternoon = '0.5'
             summaryEndDateC = 0.5
@@ -587,7 +582,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                     statusMorning = await converFromSecondsToHourLate(twelveH - maxTime)
                     summaryEndDateS = await roundNumberMinutes(twelveH - maxTime)
                 } else {
-                    statusMorning = ''
+                    statusMorning = null
                 }
             }
             statusAfternoon = '0.5'
@@ -605,7 +600,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                         statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
                         summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
                     } else {
-                        statusAfternoon = ''
+                        statusAfternoon = null
                     }
                 }
             } else {
@@ -614,7 +609,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                     statusMorning = await converFromSecondsToHourLate(minTime - eightH)
                     summaryEndDateS = await roundNumberMinutes(minTime - eightH)
                 } else {
-                    statusMorning = ''
+                    statusMorning = null
                 }
                 // check chiều
                 if (seventeenH >= maxTime) {
@@ -622,16 +617,17 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
                     summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
 
                 } else {
-                    statusAfternoon = ''
+                    statusAfternoon = null
                 }
             }
         }
     }
     let datedb = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-    let statusMorningDB = statusMorning ? statusMorning : ''
-    let statusAfternoonDB = statusAfternoon ? statusAfternoon : ''
+    let statusMorningDB = statusMorning ? statusMorning : null
+    let statusAfternoonDB = statusAfternoon ? statusAfternoon : null
+    console.log(statusMorningDB, statusAfternoonDB);
     if (arrayTimeOfDate.length >= 1) {
-        if (statusMorningDB == '' && statusAfternoonDB == '') {
+        if (statusMorningDB == null && statusAfternoonDB == null) {
             await createAttendanceData(db, staffID, datedb, null, '+', '+', true, summaryEndDateS)
             await createAttendanceData(db, staffID, datedb, null, '+', '+', false, summaryEndDateC)
         } else {
@@ -2240,12 +2236,10 @@ module.exports = {
     // update_timekeeping
     updateTimekeeping: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     body.array = JSON.parse(body.array);
-                    console.log(body.array);
                     for (var i = 0; i < body.array.length; i++) {
                         if (body.array[i].id) {
                             let reason = ''
@@ -2285,7 +2279,6 @@ module.exports = {
     // data_export_excel
     dataExportExcel: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             try {
                 var array = [];
@@ -2298,13 +2291,23 @@ module.exports = {
                 var holiday = 0;
                 var count = 0;
                 let checkFor = 0;
-                var arrayHoliday = await getListleaveDate(db, month, year, dateFinal)
                 var obj = [];
                 if (body.idNhanVien) {
                     obj.push({ ID: body.idNhanVien })
                 }
-                await mtblDMNhanvien(db).findAll({ where: obj }).then(async staff => {
+                let tblDMNhanvien = mtblDMNhanvien(db);
+                tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
+                await tblDMNhanvien.findAll({
+                    where: obj,
+                    include: [{
+                        model: mtblDMBoPhan(db),
+                        required: false,
+                        as: 'department'
+                    }, ],
+                }).then(async staff => {
+                    let stt = 1
                     for (var i = 0; i < staff.length; i++) {
+                        var arrayHoliday = await getListleaveDate(db, month, year, staff[i].ID, dateFinal)
                         if (count > 0)
                             checkFor = 1;
                         var freeBreak = 0;
@@ -2323,13 +2326,19 @@ module.exports = {
                         })
                         let objMorning = {};
                         let objAfternoon = {};
+                        objAfternoon['Số thứ tự'] = stt;
+                        objAfternoon['Mã nhân viên'] = staff[i] ? staff[i].StaffCode : '';
                         objAfternoon['Tên nhân viên'] = staff[i] ? staff[i].StaffName : '';
+                        objAfternoon['Phòng ban'] = staff[i].department ? staff[i].department ? staff[i].department.DepartmentName : '' : '';
                         objAfternoon['Buổi'] = 'Chiều';
+                        objMorning['Số thứ tự'] = stt;
+                        objMorning['Mã nhân viên'] = staff[i] ? staff[i].StaffCode : '';
                         objMorning['Tên nhân viên'] = staff[i] ? staff[i].StaffName : '';
+                        objMorning['Phòng ban'] = staff[i].department ? staff[i].department ? staff[i].department.DepartmentName : '' : '';
                         objMorning['Buổi'] = 'Sáng';
                         if (timeKeeping) {
                             for (var j = 1; j <= dateFinal; j++) {
-                                if (!checkDuplicate(arrayHoliday, j)) {
+                                if (!checkDuplicate(arrayHoliday.array, j)) {
                                     var timeKeepingM = await mtblChamCong(db).findOne({
                                         where: [
                                             { IDNhanVien: staff[i].ID },
@@ -2369,6 +2378,7 @@ module.exports = {
                                 }
                             }
                         }
+                        stt += 1
                         array.push(objMorning)
                         array.push(objAfternoon)
                     }

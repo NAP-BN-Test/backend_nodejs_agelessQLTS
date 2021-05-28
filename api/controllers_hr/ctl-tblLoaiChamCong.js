@@ -5,8 +5,18 @@ var moment = require('moment');
 var mtblLoaiChamCong = require('../tables/hrmanage/tblLoaiChamCong')
 var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
 var database = require('../database');
+var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 
 async function deleteRelationshiptblLoaiChamCong(db, listID) {
+    await mtblNghiPhep(db).update({
+        IDLoaiChamCong: null,
+    }, {
+        where: {
+            IDLoaiChamCong: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblNghiLe(db).update({
         IDLoaiChamCong: null,
     }, {
