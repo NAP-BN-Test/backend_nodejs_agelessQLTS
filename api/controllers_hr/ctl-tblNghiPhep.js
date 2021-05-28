@@ -520,7 +520,14 @@ module.exports = {
                             }, ],
                         }).then(user => {
                             if (user.permission && user.permission.PermissionName != 'Admin') {
-                                arraySearchAnd.push({ IDNhanVien: body.staffID })
+                                arraySearchAnd.push({
+                                    [Op.or]: [
+                                        { IDNhanVien: body.staffID },
+                                        { IDHeads: body.staffID },
+                                        { IDAdministrationHR: body.staffID },
+                                        { IDHeadDepartment: body.staffID },
+                                    ]
+                                })
                             }
                         })
                     }

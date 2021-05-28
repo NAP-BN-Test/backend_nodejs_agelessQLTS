@@ -920,6 +920,7 @@ async function createTimeAttendanceSummary() {
     })
 }
 module.exports = {
+    createTimeAttendanceSummary,
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
     getListtblBangLuong: (req, res) => {
@@ -2462,7 +2463,63 @@ module.exports = {
     // synthetic_information_monthly
     syntheticInformationMonthly: async(req, res) => {
         let body = req.body;
-        await createTimeAttendanceSummary()
-        res.json(Result.SYS_ERROR_RESULT)
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let arrayStaff = []
+                    let array = []
+
+                    let where = []
+                    if (body.departmentID) {
+                        await mtblDMNhanvien(db).findAll({
+                            where: { IDBoPhan: body.departmentID }
+                        }).then(staff => {
+                            if (staff.IDBoPhan == body.departmentID)
+                                arrayStaff.push(staff.ID)
+                        })
+                        where.push({
+                            StaffID: {
+                                [Op.in]: arrayStaff
+                            }
+                        })
+                    }
+                    where.push({
+                        Month: {
+                            [Op.like]: '%' + body.date + '%'
+                        }
+                    })
+                    await mtblTimeAttendanceSummary(db).findAll({
+                        where: where
+                    }).then(data => {
+                        for (let i = 0; i < data.length; i++) {
+                            array.push({
+                                staffID: data[i].StaffID,
+                                staffName: data[i].StaffName,
+                                staffCode: data[i].StaffCode,
+                                departmentName: data[i].DepartmentName,
+                                overtime: data[i].Overtime,
+                                numberHoliday: data[i].NumberHoliday,
+                                freeBreak: data[i].FreeBreak,
+                                lateDay: data[i].LateDay,
+                                remaining: data[i].Remaining,
+                                remainingPreviousYear: data[i].RemainingPreviousYear,
+                                month: data[i].Month
+                            })
+                        }
+                    })
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
     },
 }
