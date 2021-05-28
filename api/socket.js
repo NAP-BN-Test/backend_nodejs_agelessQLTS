@@ -416,12 +416,12 @@ module.exports = {
                     } else {
                         if (objOrder.ConfirmKH == 1) {
                             if (data.type.toUpperCase() == 'KEHOACH') {
-                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH', IDDMXeCongTy = NULL, BienSoXe = " + data.xecongty.biensoxe + ", TenLaiXe = " + data.xecongty.tenlaixe + ", SDTLaiXe = " + data.xecongty.sodienthoai + " WHERE ID = " + data.id)
+                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH', IDDMXeCongTy = NULL, BienSoXe = '" + data.xecongty.biensoxe + "', TenLaiXe = N'" + data.xecongty.tenlaixe + "', SDTLaiXe = '" + data.xecongty.sodienthoai + "' WHERE ID = " + data.id)
                             } else {
                                 await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'CHI PHÍ HOÀN THÀNH' WHERE ID = " + data.id)
                             }
                         } else {
-                            await db.query("UPDATE tblDonHang SET ConfirmNX = 1, IDDMXeCongTy = NULL, BienSoXe = " + data.xecongty.biensoxe + ", TenLaiXe = " + data.xecongty.tenlaixe + ", SDTLaiXe = " + data.xecongty.sodienthoai + " WHERE ID = " + data.id)
+                            await db.query("UPDATE tblDonHang SET ConfirmNX = 1, IDDMXeCongTy = NULL, BienSoXe = '" + data.xecongty.biensoxe + "', TenLaiXe = N'" + data.xecongty.tenlaixe + "', SDTLaiXe = '" + data.xecongty.sodienthoai + "' WHERE ID = " + data.id)
                         }
                     }
                 }
@@ -439,13 +439,13 @@ module.exports = {
                     if (!KeyConnect)
                         dbnameKH = null
                     else {
-                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + KeyConnect.KeyConnect
+                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = '" + KeyConnect.KeyConnect + "'"
                         dbnameKH = await dbMaster.query(dbMasterQuery)
                         dbnameKH = dbnameKH[0][0]
                         if (dbnameKH) {
                             dbnameKH = dbnameKH.NameDatabase
                         } else {
-                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + KeyConnect.KeyConnect
+                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = '" + KeyConnect.KeyConnect + "'"
                             dbMaster = await connectDatabase('Customer_VTNAP')
                             dbnameKH = await dbMaster.query(dbMasterQuery)
                             dbnameKH = dbnameKH[0][0]
@@ -467,13 +467,13 @@ module.exports = {
                     if (!IDNhaXe)
                         dbnameNX = null
                     else {
-                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + IDNhaXe.KeyConnect
+                        let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = '" + IDNhaXe.KeyConnect + "'"
                         dbnameNX = await dbMaster.query(dbMasterQuery)
                         dbnameNX = dbnameNX[0][0]
                         if (dbnameNX) {
                             dbnameNX = dbnameNX.NameDatabase
                         } else {
-                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + IDNhaXe.KeyConnect
+                            let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = '" + IDNhaXe.KeyConnect + "'"
                             dbMaster = await connectDatabase('Customer_VTNAP')
                             dbnameNX = await dbMaster.query(dbMasterQuery)
                             dbnameNX = dbnameNX[0][0]
