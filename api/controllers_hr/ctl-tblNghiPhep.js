@@ -144,6 +144,7 @@ async function handleCalculatePreviousYear(db, idStaff, currentYear) {
     return result;
 }
 var mModules = require('../constants/modules');
+let ctlTimeAttendanceSummary = require('./ctl-tblBangLuong')
 
 module.exports = {
     deleteRelationshiptblNghiPhep,
@@ -255,7 +256,6 @@ module.exports = {
                                     })
                                 }
                             } else {
-                                console.log(arrayRespone);
                                 for (let i = 0; i < arrayRespone.length; i++) {
                                     await mtblDateOfLeave(db).create({
                                         DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
@@ -295,7 +295,6 @@ module.exports = {
     // update_tbl_nghiphep
     updatetblNghiPhep: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -317,14 +316,12 @@ module.exports = {
 
                         } else {
                             numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
-                            console.log(numberHolidayArray, 1234);
                         }
                         numberHoliday += numberHolidayArray
 
                     }
                     await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
                     for (let i = 0; i < arrayRespone.length; i++) {
-                        console.log(arrayRespone);
                         if (body.type != 'TakeLeave') {
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
@@ -332,7 +329,6 @@ module.exports = {
                                 WorkContent: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
                                 LeaveID: body.id,
                             })
-                            console.log(123);
                         } else {
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
@@ -885,11 +881,21 @@ module.exports = {
                     let leave = await mtblNghiPhep(db).findOne({
                         where: { ID: body.id }
                     })
-                    if (leave.Type == 'TakeLeave')
+                    if (leave.Type == 'TakeLeave') {
                         await mtblNghiPhep(db).update({
                             Status: 'Hoàn thành',
                         }, { where: { ID: body.id } })
-                    else
+                        let min = Number(moment().format('MM'));
+                        await mtblDateOfLeave(db).findAll({
+                            where: { LeaveID: body.id }
+                        }).then(date => {
+                            date.forEach(element => {
+                                if (Number(moment(element.DateStart).format('MM')) < min)
+                                    min = Number(moment(element.DateStart).format('MM'))
+                            })
+                        })
+                        await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
+                    } else
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ thủ trưởng phê duyệt',
                         }, { where: { ID: body.id } })
@@ -921,10 +927,22 @@ module.exports = {
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ hành chính nhân sự phê duyệt',
                         }, { where: { ID: body.id } })
-                    else
+                    else {
                         await mtblNghiPhep(db).update({
                             Status: 'Hoàn thành',
                         }, { where: { ID: body.id } })
+                        let min = Number(moment().format('MM'));
+                        await mtblDateOfLeave(db).findAll({
+                            where: { LeaveID: body.id }
+                        }).then(date => {
+                            date.forEach(element => {
+                                if (Number(moment(element.DateStart).format('MM')) < min)
+                                    min = Number(moment(element.DateStart).format('MM'))
+                            })
+                        })
+                        await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
+                    }
+
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,

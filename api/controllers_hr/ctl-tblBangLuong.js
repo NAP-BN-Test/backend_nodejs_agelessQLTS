@@ -926,7 +926,79 @@ async function createTimeAttendanceSummary() {
         }
     })
 }
+async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffID) {
+    database.connectDatabase().then(async db => {
+        if (db) {
+            let now = moment().format('MM');
+            for (let month = monthRespone; month <= Number(now); month++) {
+                await mtblTimeAttendanceSummary(db).destroy({
+                    where: {
+                        Month: {
+                            [Op.like]: '%' + year + '-' + await convertNumber(month) + '%'
+                        },
+                        StaffID: staffID
+                    }
+                })
+                let tblDMNhanvien = mtblDMNhanvien(db);
+                tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
+                await tblDMNhanvien.findAll({
+                    include: [{
+                        model: mtblDMBoPhan(db),
+                        required: false,
+                        as: 'department'
+                    }, ],
+                    where: { ID: staffID }
+                }).then(async data => {
+                    for (var i = 0; i < data.length; i++) {
+                        let objResult = await aggregateTimekeepingForEachMonth(db, data[i], year + '-' + await convertNumber(month))
+                        let remainingPreviousYear = await mtblTimeAttendanceSummary(db).findOne({
+                            where: {
+                                Month: {
+                                    [Op.like]: '%' + year + '-' + await convertNumber(monthRespone - 1) + '%'
+                                },
+                                StaffID: staffID
+
+                            }
+                        })
+                        remainingPreviousYear = remainingPreviousYear ? remainingPreviousYear.Remaining : 0
+                        let remaining = Number(remainingPreviousYear) + Number(objResult.overtime) - Number(objResult.lateDay) - Number(objResult.numberHoliday) - Number(objResult.freeBreak)
+                        objResult['remaining'] = remaining.toFixed(2)
+                        objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
+                        console.log(123456);
+                        console.log({
+                            StaffID: objResult.staffID,
+                            StaffName: objResult.staffName,
+                            StaffCode: objResult.staffCode,
+                            DepartmentName: objResult.departmentName,
+                            Overtime: objResult.overtime,
+                            NumberHoliday: objResult.numberHoliday,
+                            FreeBreak: objResult.freeBreak,
+                            LateDay: objResult.lateDay,
+                            Remaining: objResult.remaining,
+                            RemainingPreviousYear: objResult.remainingPreviousYear,
+                            Month: year + '-' + await convertNumber(month)
+                        });
+                        await mtblTimeAttendanceSummary(db).create({
+                            StaffID: objResult.staffID,
+                            StaffName: objResult.staffName,
+                            StaffCode: objResult.staffCode,
+                            DepartmentName: objResult.departmentName,
+                            Overtime: objResult.overtime,
+                            NumberHoliday: objResult.numberHoliday,
+                            FreeBreak: objResult.freeBreak,
+                            LateDay: objResult.lateDay,
+                            Remaining: objResult.remaining,
+                            RemainingPreviousYear: objResult.remainingPreviousYear,
+                            Month: year + '-' + await convertNumber(month)
+                        })
+                    }
+                })
+            }
+        }
+    })
+}
 module.exports = {
+    createTimeAttendanceSummaryFollowMonth,
     createTimeAttendanceSummary,
     deleteRelationshiptblBangLuong,
     // get_list_tbl_bangluong
@@ -2470,6 +2542,7 @@ module.exports = {
     // synthetic_information_monthly
     syntheticInformationMonthly: async(req, res) => {
         let body = req.body;
+        // await createTimeAttendanceSummary()
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -2496,7 +2569,10 @@ module.exports = {
                         }
                     })
                     await mtblTimeAttendanceSummary(db).findAll({
-                        where: where
+                        where: where,
+                        order: [
+                            ['ID', 'DESC']
+                        ],
                     }).then(data => {
                         for (let i = 0; i < data.length; i++) {
                             array.push({
