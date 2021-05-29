@@ -508,7 +508,7 @@ module.exports = {
                         group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
                         where: {
                             DateEnd: {
-                                [Op.gt]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
+                                [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
                             }
                         }
                     })
