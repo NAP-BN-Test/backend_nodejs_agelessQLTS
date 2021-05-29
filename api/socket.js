@@ -512,8 +512,8 @@ module.exports = {
                             }
                         }
                     })
-                    if (!insurancePremiums) {
-                        io.socket.emit("check-insurance-premiums", 1);
+                    if (insurancePremiums) {
+                        io.sockets.emit("check-insurance-premiums", 1);
                     }
                 }
             })
