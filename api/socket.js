@@ -513,7 +513,7 @@ module.exports = {
                         }
                     })
                     if (!insurancePremiums) {
-                        io.to(socket.id).emit("check-insurance-premiums", 1);
+                        io.socket.emit("check-insurance-premiums", 1);
                     }
                 }
             })
