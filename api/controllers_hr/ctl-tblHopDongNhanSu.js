@@ -831,7 +831,6 @@ module.exports = {
     // in_word_contract
     inWordContract: (req, res) => {
         let body = req.body;
-        console.log(123);
         // ngày 20 tháng 10 năm 2020
         database.connectDatabase().then(async db => {
             if (db) {

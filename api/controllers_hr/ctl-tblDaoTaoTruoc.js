@@ -6,6 +6,8 @@ var mtblDaoTaoTruoc = require('../tables/hrmanage/tblDaoTaoTruoc')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+
 async function deleteRelationshiptblDaoTaoTruoc(db, listID) {
     await mtblDaoTaoTruoc(db).destroy({
         where: {
@@ -337,5 +339,74 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    // in_work_training
+    inWorkTraining: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let obj = {}
+                    let tblDaoTaoTruoc = mtblDaoTaoTruoc(db);
+                    tblDaoTaoTruoc.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
+                    await tblDaoTaoTruoc.findOne({
+                        where: { ID: body.id },
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'staff'
+                        }, ],
+                    }).then(async training => {
+                        if (training) {
+                            let contract = await mtblHopDongNhanSu(db).findOne({
+                                where: { IDNhanVien: training.IDNhanVien },
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
+                            })
+                            let staffName = ''
+                            if (training.staff) {
+                                staffName = training.staff.StaffName ? training.staff.StaffName : ''
+                                if (training.staff.Gender == 'Nam')
+                                    staffName = 'Ông ' + staffName
+                                else if (training.staff.Gender == 'Nam')
+                                    staffName = 'Bà ' + staffName
+                                else
+                                    staffName = '(Ông/Bà) ' + staffName
+                            }
+                            obj = {
+                                contractCode: contract ? contract.ContractCode : '',
+                                dateStart: moment(training.DateStart).add(7, 'hours').format('DD'),
+                                monthStart: moment(training.DateStart).add(7, 'hours').format('MM'),
+                                yearStart: moment(training.DateStart).add(7, 'hours').format('YYYY'),
+                                dateEnd: moment(training.DateEnd).add(7, 'hours').format('DD'),
+                                monthEnd: moment(training.DateEnd).add(7, 'hours').format('MM'),
+                                yearEnd: moment(training.DateEnd).add(7, 'hours').format('YYYY'),
+                                staffName: staffName,
+                            }
+                            await mModules.convertDataAndRenderWordFile(obj, 'template_training.docx', 'quyetdinhcudidaotao.docx')
+                            var result = {
+                                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/quyetdinhcudidaotao.docx',
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        } else {
+                            var result = {
+                                status: Constant.STATUS.FAIL,
+                                message: Constant.MESSAGE.DATA_NOT_FOUND,
+                            }
+                            res.json(result);
+                        }
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

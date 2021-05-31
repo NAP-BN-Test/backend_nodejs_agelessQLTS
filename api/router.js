@@ -328,6 +328,7 @@ module.exports = function(app) {
     app.route('/qlnb/update_tbl_pre_training').post(checkToken.checkToken, tblDaoTaoTruoc.updatetblDaoTaoTruoc);
     app.route('/qlnb/delete_tbl_pre_training').post(checkToken.checkToken, tblDaoTaoTruoc.deletetblDaoTaoTruoc);
     app.route('/qlnb/get_list_tbl_pre_training').post(checkToken.checkToken, tblDaoTaoTruoc.getListtblDaoTaoTruoc);
+    app.route('/qlnb/in_work_training').post(tblDaoTaoTruoc.inWorkTraining);
 
     // Lịch sử công tác
     var tblWorkHistory = require('./controllers_hr/ctl-tblWorkHistory');

@@ -1366,27 +1366,27 @@ module.exports = {
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-1 8:00:00",
+                'Verify Date': "2021-5-1 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-1 17:30:30",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-1 8:00:16",
+                'Verify Date': "2021-5-1 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-1 17:30:20",
+                'Verify Date': "2021-5-1 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1394,27 +1394,27 @@ module.exports = {
             // 02 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-2 8:00:00",
+                'Verify Date': "2021-5-2 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-2 17:30:30",
+                'Verify Date': "2021-5-2 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-2 8:00:16",
+                'Verify Date': "2021-5-2 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-2 17:30:20",
+                'Verify Date': "2021-5-2 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1422,27 +1422,27 @@ module.exports = {
             // 03 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-3 8:00:00",
+                'Verify Date': "2021-5-3 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-3 17:30:30",
+                'Verify Date': "2021-5-3 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-3 8:00:16",
+                'Verify Date': "2021-5-3 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-3 16:00:20",
+                'Verify Date': "2021-5-3 16:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1450,27 +1450,27 @@ module.exports = {
             // 04 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-4 8:00:00",
+                'Verify Date': "2021-5-4 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-4 17:30:30",
+                'Verify Date': "2021-5-4 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-4 8:00:16",
+                'Verify Date': "2021-5-4 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-4 17:30:20",
+                'Verify Date': "2021-5-4 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1478,27 +1478,27 @@ module.exports = {
             // 05 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-5 8:00:00",
+                'Verify Date': "2021-5-5 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-5 17:30:30",
+                'Verify Date': "2021-5-5 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-5 8:00:16",
+                'Verify Date': "2021-5-5 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-5 17:30:20",
+                'Verify Date': "2021-5-5 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1506,27 +1506,27 @@ module.exports = {
             // 06 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-6 8:00:00",
+                'Verify Date': "2021-5-6 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-6 17:30:30",
+                'Verify Date': "2021-5-6 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-6 8:00:16",
+                'Verify Date': "2021-5-6 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-6 17:30:20",
+                'Verify Date': "2021-5-6 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1534,27 +1534,27 @@ module.exports = {
             // 07 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-7 8:00:00",
+                'Verify Date': "2021-5-7 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-7 17:30:30",
+                'Verify Date': "2021-5-7 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-7 8:00:16",
+                'Verify Date': "2021-5-7 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-7 17:30:20",
+                'Verify Date': "2021-5-7 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1562,27 +1562,27 @@ module.exports = {
             // 08 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-8 8:00:00",
+                'Verify Date': "2021-5-8 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-1 17:30:30",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-8 8:00:16",
+                'Verify Date': "2021-5-8 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-8 17:30:20",
+                'Verify Date': "2021-5-8 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1590,27 +1590,27 @@ module.exports = {
             // 10 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-10 8:00:00",
+                'Verify Date': "2021-5-10 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-10 17:30:30",
+                'Verify Date': "2021-5-10 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-10 8:00:16",
+                'Verify Date': "2021-5-10 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-10 17:30:20",
+                'Verify Date': "2021-5-10 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1618,27 +1618,27 @@ module.exports = {
             // 11 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-11 8:30:00",
+                'Verify Date': "2021-5-11 8:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-1 17:30:30",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-11 8:00:16",
+                'Verify Date': "2021-5-11 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-11 17:30:20",
+                'Verify Date': "2021-5-11 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1646,27 +1646,27 @@ module.exports = {
             // 12 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-12 8:00:00",
+                'Verify Date': "2021-5-12 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-12 17:30:30",
+                'Verify Date': "2021-5-12 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-12 8:00:16",
+                'Verify Date': "2021-5-12 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-12 17:30:20",
+                'Verify Date': "2021-5-12 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1674,27 +1674,27 @@ module.exports = {
             // 13 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-13 8:00:00",
+                'Verify Date': "2021-5-13 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-13 17:30:30",
+                'Verify Date': "2021-5-13 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-13 8:00:16",
+                'Verify Date': "2021-5-13 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-13 17:00:20",
+                'Verify Date': "2021-5-13 17:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1703,27 +1703,27 @@ module.exports = {
             // 14 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-14 8:00:00",
+                'Verify Date': "2021-5-14 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-14 17:30:30",
+                'Verify Date': "2021-5-14 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-14 8:00:16",
+                'Verify Date': "2021-5-14 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-14 17:30:20",
+                'Verify Date': "2021-5-14 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1731,27 +1731,27 @@ module.exports = {
             // 15 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-15 8:00:00",
+                'Verify Date': "2021-5-15 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-15 17:30:30",
+                'Verify Date': "2021-5-15 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-15 8:00:16",
+                'Verify Date': "2021-5-15 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-15 17:30:20",
+                'Verify Date': "2021-5-15 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1760,27 +1760,27 @@ module.exports = {
             // 16 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-16 8:00:00",
+                'Verify Date': "2021-5-16 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-16 17:30:30",
+                'Verify Date': "2021-5-16 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-16 8:00:16",
+                'Verify Date': "2021-5-16 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-16 17:30:20",
+                'Verify Date': "2021-5-16 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1789,27 +1789,27 @@ module.exports = {
             // 17 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-17 8:00:00",
+                'Verify Date': "2021-5-17 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-17 17:30:30",
+                'Verify Date': "2021-5-17 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-17 8:00:16",
+                'Verify Date': "2021-5-17 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-17 17:30:20",
+                'Verify Date': "2021-5-17 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1817,27 +1817,27 @@ module.exports = {
             // 18 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-18 8:00:00",
+                'Verify Date': "2021-5-18 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-18 17:30:30",
+                'Verify Date': "2021-5-18 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-18 8:00:16",
+                'Verify Date': "2021-5-18 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-18 17:00:20",
+                'Verify Date': "2021-5-18 17:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1846,27 +1846,27 @@ module.exports = {
             // 19 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-19 8:00:00",
+                'Verify Date': "2021-5-19 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-19 17:30:30",
+                'Verify Date': "2021-5-19 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-19 8:30:16",
+                'Verify Date': "2021-5-19 8:30:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-19 17:30:20",
+                'Verify Date': "2021-5-19 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1875,27 +1875,27 @@ module.exports = {
             // 20 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-20 8:00:00",
+                'Verify Date': "2021-5-20 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-20 17:30:30",
+                'Verify Date': "2021-5-20 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-20 8:00:16",
+                'Verify Date': "2021-5-20 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-20 17:30:20",
+                'Verify Date': "2021-5-20 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1903,27 +1903,27 @@ module.exports = {
             // 21 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-21 8:00:00",
+                'Verify Date': "2021-5-21 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-21 17:30:30",
+                'Verify Date': "2021-5-21 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-21 8:00:16",
+                'Verify Date': "2021-5-21 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-21 17:30:20",
+                'Verify Date': "2021-5-21 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1932,27 +1932,27 @@ module.exports = {
             // 24 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-24 8:00:00",
+                'Verify Date': "2021-5-24 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-14 17:30:30",
+                'Verify Date': "2021-5-14 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-24 10:00:16",
+                'Verify Date': "2021-5-24 10:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-24 17:30:20",
+                'Verify Date': "2021-5-24 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1961,27 +1961,27 @@ module.exports = {
             // 25----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-25 8:00:00",
+                'Verify Date': "2021-5-25 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-25 17:30:30",
+                'Verify Date': "2021-5-25 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-25 8:00:16",
+                'Verify Date': "2021-5-25 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-25 17:30:20",
+                'Verify Date': "2021-5-25 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1989,27 +1989,27 @@ module.exports = {
             // 26 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-26 8:00:00",
+                'Verify Date': "2021-5-26 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-14 17:30:30",
+                'Verify Date': "2021-5-14 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-26 8:00:16",
+                'Verify Date': "2021-5-26 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-26 17:30:20",
+                'Verify Date': "2021-5-26 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2018,27 +2018,27 @@ module.exports = {
             // 27 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-27 8:00:00",
+                'Verify Date': "2021-5-27 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-27 17:30:30",
+                'Verify Date': "2021-5-27 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-27 8:00:16",
+                'Verify Date': "2021-5-27 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-27 17:30:20",
+                'Verify Date': "2021-5-27 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2047,27 +2047,27 @@ module.exports = {
             // 28 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-28 8:00:00",
+                'Verify Date': "2021-5-28 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-28 17:30:30",
+                'Verify Date': "2021-5-28 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-28 8:00:16",
+                'Verify Date': "2021-5-28 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-28 17:30:20",
+                'Verify Date': "2021-5-28 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2075,27 +2075,27 @@ module.exports = {
             // 31 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-31 8:00:00",
+                'Verify Date': "2021-5-31 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-4-31 17:30:30",
+                'Verify Date': "2021-5-31 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-4-31 8:30:16",
+                'Verify Date': "2021-5-31 8:30:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-4-31 17:30:20",
+                'Verify Date': "2021-5-31 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2154,6 +2154,7 @@ module.exports = {
                                             await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
                                         } else {
                                             // check xem có trong ngày nghỉ phép không ?
+                                            console.log(arrayLeaveDay);
                                             if (checkDuplicate(arrayLeaveDay.array, j)) {
                                                 for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
                                                     if (arrayLeaveDay.arrayObj[i].date == j) {
@@ -2548,7 +2549,6 @@ module.exports = {
                 try {
                     let arrayStaff = []
                     let array = []
-                        // await createTimeAttendanceSummary()
                     let where = []
                     if (body.departmentID) {
                         await mtblDMNhanvien(db).findAll({
