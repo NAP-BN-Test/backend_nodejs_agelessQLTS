@@ -323,7 +323,7 @@ module.exports = {
                 let dbnameKH;
                 let dbnameNX;
                 if (keyConnectKH) {
-                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + keyConnectKH
+                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = '" + keyConnectKH + "'"
                     dbnameKH = await dbMaster.query(dbMasterQuery)
                     if (dbnameKH[0][0] && dbnameKH[0][0].NameDatabase) {
                         dbnameKH = dbnameKH[0][0].NameDatabase
@@ -340,7 +340,7 @@ module.exports = {
                     dbnameKH = null
                 }
                 if (keyConnectNX) {
-                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = " + keyConnectNX
+                    let dbMasterQuery = "SELECT NameDatabase FROM CustomerDB WHERE KeyConnect = '" + keyConnectNX + "'"
                     dbnameNX = await dbMaster.query(dbMasterQuery)
                     if (dbnameNX[0][0] && dbnameNX[0][0].NameDatabase) {
                         dbnameNX = dbnameNX[0][0].NameDatabase

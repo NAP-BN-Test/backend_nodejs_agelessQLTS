@@ -392,7 +392,9 @@ module.exports = {
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
                             }
-                            res.json(result);
+                            setTimeout(() => {
+                                res.json(result);
+                            }, 500);
                         } else {
                             var result = {
                                 status: Constant.STATUS.FAIL,
