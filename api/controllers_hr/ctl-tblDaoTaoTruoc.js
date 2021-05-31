@@ -7,6 +7,7 @@ var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+var mtblDaoTaoSau = require('../tables/hrmanage/tblDaoTaoSau')
 
 async function deleteRelationshiptblDaoTaoTruoc(db, listID) {
     await mtblDaoTaoTruoc(db).destroy({
@@ -346,10 +347,11 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    console.log(body);
                     let obj = {}
-                    let tblDaoTaoTruoc = mtblDaoTaoTruoc(db);
-                    tblDaoTaoTruoc.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
-                    await tblDaoTaoTruoc.findOne({
+                    let tblDaoTaoSau = mtblDaoTaoSau(db);
+                    tblDaoTaoSau.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
+                    await tblDaoTaoSau.findOne({
                         where: { ID: body.id },
                         include: [{
                             model: mtblDMNhanvien(db),
