@@ -1,9 +1,10 @@
 const axios = require('axios');
 const Result = require('../constants/result');
 const Constant = require('../constants/constant');
+var mtblInvoice = require('../tables/financemanage/tblInvoice')
+
 // data model invoice của KH
-data = [
-    {
+data = [{
         id: 1,
         createdDate: '01/05/2020',
         refNumber: 'REF0001',
@@ -144,8 +145,7 @@ data = [
         departmentName: 'Hà Nội',
     },
 ];
-totalMoney = [
-    {
+totalMoney = [{
         total: 1000000000,
         type: 'VND',
     },
@@ -154,8 +154,7 @@ totalMoney = [
         type: 'USD',
     }
 ];
-dataCredit = [
-    {
+dataCredit = [{
         id: 1,
         createdDate: '01/05/2020',
         invoiceNumber: 'INV0001',
@@ -439,10 +438,42 @@ dataStaff = [
         branchName: 'Việt Nam',
     },
 ]
+
+function checkDuplicate(array, elm) {
+    var check = false;
+    array.forEach(item => {
+        if (item === elm) check = true;
+    })
+    return check;
+}
+var database = require('../database');
+
+async function calculateTheTotalAmountOfEachCurrency(array) {
+    let arrayResult = []
+    let arrayCheck = []
+    for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < array[i].arrayMoney.length; j++) {
+            if (!checkDuplicate(arrayCheck, array[i].arrayMoney[j].typeMoney)) {
+                arrayCheck.push(array[i].arrayMoney[j].typeMoney)
+                arrayResult.push({
+                    total: Number(array[i].arrayMoney[j].total),
+                    type: array[i].arrayMoney[j].typeMoney
+                })
+            } else {
+                arrayResult.forEach(element => {
+                    if (element.type == array[i].arrayMoney[j].typeMoney) {
+                        element.total += Number(array[i].arrayMoney[j].total)
+                    }
+                })
+            }
+        }
+    }
+    return arrayResult
+}
 // data
 module.exports = {
     // get_list_department
-    getListDepartment: async (req, res) => {
+    getListDepartment: async(req, res) => {
         await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/department/share`).then(data => {
             if (data) {
                 var result = {
@@ -452,110 +483,108 @@ module.exports = {
                     all: data.data.data.length
                 }
                 res.json(result);
-            }
-            else {
+            } else {
                 res.json(Result.SYS_ERROR_RESULT)
             }
             // console.log(data.data);
         })
     },
     // get_list_partner
-    getListPartner: async (req, res) => {
-        dataPartner = [
-            {
-                id: "2",
-                partnerCode: "LOCK LOCK",
-                name: "Công ty TNHH Lock & Lock",
-                tax: "01245782110",
-                address: "Số 72A Nguyễn Trãi phường Thượng Đỉnh Thanh Xuân Hà Nội",
-                mobile: "0823145678",
-                fax: "045784124",
-                email: "locklockvn@gmail",
-            },
-            {
-                id: "3",
-                partnerCode: "HOA PHAT",
-                name: "Công ty TNHH Hòa Phát ",
-                tax: "012345678",
-                address: "Số 12 Bạch Mai Hà Nội",
-                mobile: "089745120",
-                fax: "023145216",
-                email: "hoaphat123@gmail.com",
-            },
-            {
-                id: "4",
-                partnerCode: "MEDIA MART",
-                name: "Siêu thị điện máy xanh media mart",
-                tax: "012345801",
-                address: "Số 1 Trương Định Hà Nội",
-                mobile: "089724152",
-                fax: "021465741",
-                email: "mediamart4546@gmail.com",
-            },
-            {
-                id: "5",
-                partnerCode: "GLOMED",
-                name: "Công ty dược phẩm Glomed  ",
-                tax: "012465563",
-                address: "Số 34 Huỳnh Thúc Kháng Hà Nội",
-                mobile: "012568523",
-                fax: "012457821",
-                email: "glomeddp@gmail.com",
-            },
-            {
-                id: "6",
-                partnerCode: "THUONG ĐINH",
-                name: "Công ty giầy Thượng Đỉnh",
-                tax: "012489660",
-                address: "Số 2 Kim Ngưu Hà Nội",
-                mobile: "021565635",
-                fax: "014653225",
-                email: "thuongdinhgiay@gmail.com",
-            },
-            {
-                id: "7",
-                partnerCode: "GIAY THANG LONG",
-                name: "Công ty TNHH giày Thăng Long",
-                tax: "012457821",
-                address: "Số 2A Phường Khương Trung Thanh Xuân Hà Nội",
-                mobile: "012465623",
-                fax: "01774125",
-                email: "giaytot@gmail.com",
-            },
-            {
-                id: "8",
-                partnerCode: "VINH DOAN",
-                name: "Công ty cổ phần Vĩnh Đoàn",
-                tax: "012458990",
-                address: "Số 60 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-                mobile: "021565650",
-                fax: "0158555245",
-                email: "vinhdoan123@gmail.com",
-            },
-            {
-                id: "9",
-                partnerCode: "SINO VANLOCK",
-                name: "Công ty sản xuất thiết bị điện Sino vanlock",
-                tax: "0124456685",
-                address: "SỐ 10 nguyễn Văn Cừ Long Biên Hà Nội",
-                mobile: "0154878741",
-                fax: "0157878865",
-                email: "sinovanlock@gmail.com",
-            },
-            {
-                id: "10",
-                partnerCode: "TRUNG NGUYEN",
-                name: "Tập đoàn cà phê Trung Nguyên",
-                tax: "0125748546",
-                address: "Thị Cấm Phường Xuân Phương Nam Từ Liêm Hà Nội",
-                mobile: "045654565",
-                fax: "013245422",
-                email: "trugnnguyen@gmail.com",
-            },
+    getListPartner: async(req, res) => {
+        dataPartner = [{
+                    id: "2",
+                    partnerCode: "LOCK LOCK",
+                    name: "Công ty TNHH Lock & Lock",
+                    tax: "01245782110",
+                    address: "Số 72A Nguyễn Trãi phường Thượng Đỉnh Thanh Xuân Hà Nội",
+                    mobile: "0823145678",
+                    fax: "045784124",
+                    email: "locklockvn@gmail",
+                },
+                {
+                    id: "3",
+                    partnerCode: "HOA PHAT",
+                    name: "Công ty TNHH Hòa Phát ",
+                    tax: "012345678",
+                    address: "Số 12 Bạch Mai Hà Nội",
+                    mobile: "089745120",
+                    fax: "023145216",
+                    email: "hoaphat123@gmail.com",
+                },
+                {
+                    id: "4",
+                    partnerCode: "MEDIA MART",
+                    name: "Siêu thị điện máy xanh media mart",
+                    tax: "012345801",
+                    address: "Số 1 Trương Định Hà Nội",
+                    mobile: "089724152",
+                    fax: "021465741",
+                    email: "mediamart4546@gmail.com",
+                },
+                {
+                    id: "5",
+                    partnerCode: "GLOMED",
+                    name: "Công ty dược phẩm Glomed  ",
+                    tax: "012465563",
+                    address: "Số 34 Huỳnh Thúc Kháng Hà Nội",
+                    mobile: "012568523",
+                    fax: "012457821",
+                    email: "glomeddp@gmail.com",
+                },
+                {
+                    id: "6",
+                    partnerCode: "THUONG ĐINH",
+                    name: "Công ty giầy Thượng Đỉnh",
+                    tax: "012489660",
+                    address: "Số 2 Kim Ngưu Hà Nội",
+                    mobile: "021565635",
+                    fax: "014653225",
+                    email: "thuongdinhgiay@gmail.com",
+                },
+                {
+                    id: "7",
+                    partnerCode: "GIAY THANG LONG",
+                    name: "Công ty TNHH giày Thăng Long",
+                    tax: "012457821",
+                    address: "Số 2A Phường Khương Trung Thanh Xuân Hà Nội",
+                    mobile: "012465623",
+                    fax: "01774125",
+                    email: "giaytot@gmail.com",
+                },
+                {
+                    id: "8",
+                    partnerCode: "VINH DOAN",
+                    name: "Công ty cổ phần Vĩnh Đoàn",
+                    tax: "012458990",
+                    address: "Số 60 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+                    mobile: "021565650",
+                    fax: "0158555245",
+                    email: "vinhdoan123@gmail.com",
+                },
+                {
+                    id: "9",
+                    partnerCode: "SINO VANLOCK",
+                    name: "Công ty sản xuất thiết bị điện Sino vanlock",
+                    tax: "0124456685",
+                    address: "SỐ 10 nguyễn Văn Cừ Long Biên Hà Nội",
+                    mobile: "0154878741",
+                    fax: "0157878865",
+                    email: "sinovanlock@gmail.com",
+                },
+                {
+                    id: "10",
+                    partnerCode: "TRUNG NGUYEN",
+                    name: "Tập đoàn cà phê Trung Nguyên",
+                    tax: "0125748546",
+                    address: "Thị Cấm Phường Xuân Phương Nam Từ Liêm Hà Nội",
+                    mobile: "045654565",
+                    fax: "013245422",
+                    email: "trugnnguyen@gmail.com",
+                },
 
-        ]
-        // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/share`).then(data => {
-        // console.log(data.data);
+            ]
+            // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/share`).then(data => {
+            // console.log(data.data);
         if (dataPartner) {
             var result = {
                 array: dataPartner,
@@ -566,138 +595,136 @@ module.exports = {
                 all: 10
             }
             res.json(result);
-        }
-        else {
+        } else {
             res.json(Result.SYS_ERROR_RESULT)
         }
         // console.log(data.data);
         // })
     },
     // get_list_customer
-    getListCustomer: async (req, res) => {
-        dataCustomer = [
-            {
-                "customerCode": "KH0001",
-                "name": "Công ty tnhh An Phú",
-                "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
-                "tax": "123456789",
-                "countryName": "Việt Nam",
-                "address": "Số 2 Hoàng Mai Hà Nội",
-                "mobile": "098705124",
-                "fax": "01234567",
-                "email": "anphu@gmail.com",
-                "id": 1,
-            },
-            {
-                "customerCode": "KH0002",
-                "name": "Công ty tnhh Is Tech Vina",
-                "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
-                "tax": "01245870",
-                "countryName": "Việt Nam",
-                "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
-                "mobile": "082457145",
-                "fax": "0241368451",
-                "email": "istech@gmail.com",
-                "id": 2,
-            },
-            {
-                "customerCode": "KH0003",
-                "name": "Công ty cổ phần Orion Việt Nam",
-                "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
-                "tax": "012341250",
-                "countryName": "Việt nam",
-                "address": "Số 12 Bạch Mai Hà Nội",
-                "mobile": "0315456554",
-                "fax": "132456545",
-                "email": "orion13@gmail.com",
-                "id": 3,
-            },
-            {
-                "customerCode": "KH0004",
-                "name": "Công ty TNHH Rồng Việt",
-                "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
-                "tax": "01323255",
-                "countryName": "Việt Nam",
-                "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-                "mobile": "0445445474",
-                "fax": "1135635",
-                "email": "rongviet@gmail.com",
-                "id": 4,
-            },
-            {
-                "customerCode": "KH0005",
-                "name": "Công ty cổ phần và thương mại Đức Việt",
-                "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
-                "tax": "017654124",
-                "countryName": "Việt Nam",
-                "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
-                "mobile": "0444545401",
-                "fax": "75241241241",
-                "email": "ducviet0209@gmail.com",
-                "id": 5,
-            },
-            {
-                "customerCode": "KH0006",
-                "name": "Công ty TNHH 1 thành viên Bảo Minh",
-                "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
-                "tax": "154654565",
-                "countryName": "Việt Nam",
-                "address": "Số 25 Ba Đình Hà Nội",
-                "mobile": "045102474",
-                "fax": "02137244",
-                "email": "baominh56@gmail.com",
-                "id": 6,
-            },
-            {
-                "customerCode": "KH0007",
-                "name": "Công ty Sx và Tm Minh Hòa",
-                "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
-                "tax": "04785635432",
-                "countryName": "Việt Nam",
-                "address": "Số 21 Hàng Mã Hà Nội",
-                "mobile": "0045454510",
-                "fax": "415265654",
-                "email": "minhhoa1212@gmail.com",
-                "id": 7,
-            },
-            {
-                "customerCode": "KH0008",
-                "name": "Công ty cổ phần EC",
-                "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
-                "tax": "45454545",
-                "countryName": "Việt Nam",
-                "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
-                "mobile": "012345474",
-                "fax": "012244635",
-                "email": "ec1312@gmail.com",
-                "id": 8,
-            },
-            {
-                "customerCode": "KH0009",
-                "name": "Công ty cổ phần Thu Hương",
-                "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
-                "tax": "012546565",
-                "countryName": "Việt Nam",
-                "address": "Số 24 Bạch Mai Hà Nội",
-                "mobile": "015245454",
-                "fax": "45552478",
-                "email": "thuhuong34@gmail.com",
-                "id": 9,
-            },
-            {
-                "customerCode": "KH0010",
-                "name": "Công ty tnhh Hòa Phát",
-                "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
-                "tax": "014775745",
-                "countryName": "Việt Nam",
-                "address": "Số 2 Phố Huế Hà Nội",
-                "mobile": "045245401",
-                "fax": "021455235",
-                "email": "hoaphat0102@gmail.com",
-                "id": 10,
-            },
-        ]
-        // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(data => {
+    getListCustomer: async(req, res) => {
+        dataCustomer = [{
+                    "customerCode": "KH0001",
+                    "name": "Công ty tnhh An Phú",
+                    "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+                    "tax": "123456789",
+                    "countryName": "Việt Nam",
+                    "address": "Số 2 Hoàng Mai Hà Nội",
+                    "mobile": "098705124",
+                    "fax": "01234567",
+                    "email": "anphu@gmail.com",
+                    "id": 1,
+                },
+                {
+                    "customerCode": "KH0002",
+                    "name": "Công ty tnhh Is Tech Vina",
+                    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
+                    "tax": "01245870",
+                    "countryName": "Việt Nam",
+                    "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
+                    "mobile": "082457145",
+                    "fax": "0241368451",
+                    "email": "istech@gmail.com",
+                    "id": 2,
+                },
+                {
+                    "customerCode": "KH0003",
+                    "name": "Công ty cổ phần Orion Việt Nam",
+                    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
+                    "tax": "012341250",
+                    "countryName": "Việt nam",
+                    "address": "Số 12 Bạch Mai Hà Nội",
+                    "mobile": "0315456554",
+                    "fax": "132456545",
+                    "email": "orion13@gmail.com",
+                    "id": 3,
+                },
+                {
+                    "customerCode": "KH0004",
+                    "name": "Công ty TNHH Rồng Việt",
+                    "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
+                    "tax": "01323255",
+                    "countryName": "Việt Nam",
+                    "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+                    "mobile": "0445445474",
+                    "fax": "1135635",
+                    "email": "rongviet@gmail.com",
+                    "id": 4,
+                },
+                {
+                    "customerCode": "KH0005",
+                    "name": "Công ty cổ phần và thương mại Đức Việt",
+                    "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
+                    "tax": "017654124",
+                    "countryName": "Việt Nam",
+                    "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
+                    "mobile": "0444545401",
+                    "fax": "75241241241",
+                    "email": "ducviet0209@gmail.com",
+                    "id": 5,
+                },
+                {
+                    "customerCode": "KH0006",
+                    "name": "Công ty TNHH 1 thành viên Bảo Minh",
+                    "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
+                    "tax": "154654565",
+                    "countryName": "Việt Nam",
+                    "address": "Số 25 Ba Đình Hà Nội",
+                    "mobile": "045102474",
+                    "fax": "02137244",
+                    "email": "baominh56@gmail.com",
+                    "id": 6,
+                },
+                {
+                    "customerCode": "KH0007",
+                    "name": "Công ty Sx và Tm Minh Hòa",
+                    "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
+                    "tax": "04785635432",
+                    "countryName": "Việt Nam",
+                    "address": "Số 21 Hàng Mã Hà Nội",
+                    "mobile": "0045454510",
+                    "fax": "415265654",
+                    "email": "minhhoa1212@gmail.com",
+                    "id": 7,
+                },
+                {
+                    "customerCode": "KH0008",
+                    "name": "Công ty cổ phần EC",
+                    "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
+                    "tax": "45454545",
+                    "countryName": "Việt Nam",
+                    "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
+                    "mobile": "012345474",
+                    "fax": "012244635",
+                    "email": "ec1312@gmail.com",
+                    "id": 8,
+                },
+                {
+                    "customerCode": "KH0009",
+                    "name": "Công ty cổ phần Thu Hương",
+                    "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
+                    "tax": "012546565",
+                    "countryName": "Việt Nam",
+                    "address": "Số 24 Bạch Mai Hà Nội",
+                    "mobile": "015245454",
+                    "fax": "45552478",
+                    "email": "thuhuong34@gmail.com",
+                    "id": 9,
+                },
+                {
+                    "customerCode": "KH0010",
+                    "name": "Công ty tnhh Hòa Phát",
+                    "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
+                    "tax": "014775745",
+                    "countryName": "Việt Nam",
+                    "address": "Số 2 Phố Huế Hà Nội",
+                    "mobile": "045245401",
+                    "fax": "021455235",
+                    "email": "hoaphat0102@gmail.com",
+                    "id": 10,
+                },
+            ]
+            // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(data => {
         if (dataCustomer) {
             var result = {
                 // array: data.data.data,
@@ -705,18 +732,17 @@ module.exports = {
                 status: Constant.STATUS.SUCCESS,
                 message: Constant.MESSAGE.ACTION_SUCCESS,
                 all: 10
-                // all: data.data.data.length
+                    // all: data.data.data.length
             }
             res.json(result);
-        }
-        else {
+        } else {
             res.json(Result.SYS_ERROR_RESULT)
         }
         // console.log(data.data);
         // })
     },
     // get_list_user
-    getListUser: async (req, res) => {
+    getListUser: async(req, res) => {
         // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/user/share`).then(data => {
         //     if (data) {
         var result = {
@@ -738,18 +764,17 @@ module.exports = {
 
     // Invoice follow customer ------------------------------------------------------------------------------------------------------------------
     // get_list_invoice_from_customer
-    getListInvoiceFromCustomer: async (req, res) => {
+    getListInvoiceFromCustomer: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": 10,
-                "currentPage": 1,
-            },
-            "type": body.type
-        }
-        // console.log(body);
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+                "paging": {
+                    "pageSize": 10,
+                    "currentPage": 1,
+                },
+                "type": body.type
+            }
+            // console.log(body);
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         if (data) {
             // if (data.data.status_code == 200) {
             if (body.idCustomer != '1') {
@@ -775,24 +800,23 @@ module.exports = {
             // } else {
             //     res.json(Result.SYS_ERROR_RESULT)
             // }
-        }
-        else {
+        } else {
             res.json(Result.SYS_ERROR_RESULT)
         }
         // })
     },
     // get_list_invoice_wait_for_pay_from_customer
-    getListInvoiceWaitForPayFromCustomer: async (req, res) => {
+    getListInvoiceWaitForPayFromCustomer: async(req, res) => {
         var body = req.body
-        // var obj = {
-        //     "paging":
-        //     {
-        //         "pageSize": 10,
-        //         "currentPage": 1,
-        //     },
-        //     "type": body.type
-        // }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            // var obj = {
+            //     "paging":
+            //     {
+            //         "pageSize": 10,
+            //         "currentPage": 1,
+            //     },
+            //     "type": body.type
+            // }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         if (data) {
             var array = [];
             // if (data.data.status_code == 200) {
@@ -815,25 +839,23 @@ module.exports = {
             // } else {
             //     res.json(Result.SYS_ERROR_RESULT)
             // }
-        }
-        else {
+        } else {
             res.json(Result.SYS_ERROR_RESULT)
         }
         // })
     },
     // get_list_invoice_paid_from_customer
-    getListInvoicePaidFromCustomer: async (req, res) => {
+    getListInvoicePaidFromCustomer: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": 10,
-                "currentPage": 1,
-            },
-            "type": body.type
-        }
-        // console.log(body);
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+                "paging": {
+                    "pageSize": 10,
+                    "currentPage": 1,
+                },
+                "type": body.type
+            }
+            // console.log(body);
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         if (data) {
             // if (data.data.status_code == 200) {
             var array = [];
@@ -864,8 +886,7 @@ module.exports = {
             // } else {
             //     res.json(Result.SYS_ERROR_RESULT)
             // }
-        }
-        else {
+        } else {
             res.json(Result.SYS_ERROR_RESULT)
         }
         // })
@@ -873,19 +894,18 @@ module.exports = {
 
     // Credit follow customer ------------------------------------------------------------------------------------------------------------------
     // get_list_credit_from_customer
-    getListCreditFromCustomer: async (req, res) => {
+    getListCreditFromCustomer: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": 10,
-                "currentPage": 1,
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
+                "paging": {
+                    "pageSize": 10,
+                    "currentPage": 1,
+                },
+                "type": body.type
+            }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
         if (body.idCustomer == '1') {
             var result = {
                 array: dataCredit,
@@ -918,19 +938,18 @@ module.exports = {
         // })
     },
     // get_list_credit_wait_for_pay_from_customer
-    getListCreditWaitForPayFromCustomer: async (req, res) => {
+    getListCreditWaitForPayFromCustomer: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": 10,
-                "currentPage": 1,
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        // if (data.data.status_code == 200) {
+                "paging": {
+                    "pageSize": 10,
+                    "currentPage": 1,
+                },
+                "type": body.type
+            }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            // if (data.data.status_code == 200) {
         if (body.idCustomer == '1') {
             var array = []
             for (var i = 0; i < dataCredit.length; i++) {
@@ -970,19 +989,18 @@ module.exports = {
         // })
     },
     // get_list_credit_paid_from_customer
-    getListCreditPaidFromCustomer: async (req, res) => {
+    getListCreditPaidFromCustomer: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": 10,
-                "currentPage": 1,
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        // if (data.data.status_code == 200) {
+                "paging": {
+                    "pageSize": 10,
+                    "currentPage": 1,
+                },
+                "type": body.type
+            }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            // if (data.data.status_code == 200) {
         if (body.idCustomer == '1') {
             var array = []
             for (var i = 0; i < dataCredit.length; i++) {
@@ -1025,11 +1043,10 @@ module.exports = {
 
     // ------------------------------------------------------------------------------------------------------------------------------------------
     // get_list_invoice_from_partner
-    getListInvoiceFromPartner: async (req, res) => {
+    getListInvoiceFromPartner: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
+            "paging": {
                 "pageSize": 10,
                 "currentPage": 1,
             },
@@ -1048,228 +1065,241 @@ module.exports = {
                 } else {
                     res.json(Result.SYS_ERROR_RESULT)
                 }
-            }
-            else {
+            } else {
                 res.json(Result.SYS_ERROR_RESULT)
             }
         })
     },
     // invoice-------------------------------------------------------------------------------------------------------------------------------------
     // get_list_invoice_wait_for_pay
-    getListInvoiceWaitForPay: async (req, res) => {
+    getListInvoiceWaitForPay: async(req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
-        var array = []
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].statusName == 'Chờ thanh toán')
-                array.push(data[i])
-        }
-        let totalMoney = [
-            {
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
             }
-        ];
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                var array = []
+                let totalMoney = []
+                for (var i = 0; i < data.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: data[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: data[i].id,
+                            Status: data[i].statusName
+                        })
+                        if (data[i].statusName == 'Chờ thanh toán')
+                            array.push(data[i])
+                    } else {
+                        console.log(check.Status);
+                        if (check.Status == 'Chờ thanh toán')
+                            array.push(data[i])
+                    }
+                }
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                var result = {
+                    array: array,
+                    // array: data.data.data.list,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
 
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
+                    // all: data.data.data.pager.rowsCount
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
 
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+            }
+        })
     },
     // get_list_invoice_paid
-    getListInvoicePaid: async (req, res) => {
+    getListInvoicePaid: async(req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
-        let totalMoney = [
-            {
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
             }
-        ];
-        var array = []
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].statusName == 'Đã thanh toán')
-                array.push(data[i])
-        }
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                var array = []
+                let totalMoney = []
+                for (var i = 0; i < data.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: data[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: data[i].id,
+                            Status: data[i].statusName
+                        })
+                        if (data[i].statusName == 'Đã thanh toán')
+                            array.push(data[i])
+                    } else {
+                        console.log(check.Status);
+                        if (check.Status == 'Đã thanh toán')
+                            array.push(data[i])
+                    }
+                }
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                var result = {
+                    array: array,
+                    // array: data.data.data.list,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
 
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+                    // all: data.data.data.pager.rowsCount
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+
+            }
+        })
     },
     // get_list_invoice_edit_request
-    getListInvoiceEditRequest: async (req, res) => {
+    getListInvoiceEditRequest: async(req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
-        var array = []
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].request == 'Yêu cầu sửa')
-                array.push(data[i])
-        }
-        let totalMoney = [
-            {
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
             }
-        ];
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                var array = []
+                let totalMoney = []
+                for (var i = 0; i < data.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: data[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: data[i].id,
+                            Status: data[i].statusName
+                        })
+                        if (data[i].request == 'Yêu cầu sửa')
+                            array.push(data[i])
+                    } else {
+                        console.log(check.Status);
+                        if (check.Request == 'Yêu cầu sửa')
+                            array.push(data[i])
+                    }
+                }
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                var result = {
+                    array: array,
+                    // array: data.data.data.list,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
 
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+                    // all: data.data.data.pager.rowsCount
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+
+            }
+        })
     },
     // get_list_invoice_delete_request
-    getListInvoiceDeleteRequest: async (req, res) => {
+    getListInvoiceDeleteRequest: async(req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
-        var array = []
-        let totalMoney = [
-            {
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
             }
-        ];
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].request == 'Yêu cầu xóa')
-                array.push(data[i])
-        }
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                var array = []
+                let totalMoney = []
+                for (var i = 0; i < data.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: data[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: data[i].id,
+                            Status: data[i].statusName
+                        })
+                        if (data[i].request == 'Yêu cầu xóa')
+                            array.push(data[i])
+                    } else {
+                        console.log(check.Status);
+                        if (check.Request == 'Yêu cầu xóa')
+                            array.push(data[i])
+                    }
+                }
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                var result = {
+                    array: array,
+                    // array: data.data.data.list,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
 
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+                    // all: data.data.data.pager.rowsCount
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+
+            }
+        })
     },
 
 
     // credit-------------------------------------------------------------------------------------------------------------------------------------
     // get_list_credit
-    getListCredit: async (req, res) => {
+    getListCredit: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // console.log(body);
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
+            }
+            // console.log(body);
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
         var result = {
             array: dataCredit,
             status: Constant.STATUS.SUCCESS,
@@ -1289,26 +1319,24 @@ module.exports = {
         // })
     },
     // get_list_credit_wait_for_pay
-    getListCreditWaitForPay: async (req, res) => {
+    getListCreditWaitForPay: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
+            }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
         var array = []
         for (var i = 0; i < dataCredit.length; i++) {
             if (dataCredit[i].statusName == 'Chờ thanh toán')
                 array.push(dataCredit[i])
         }
-        let totalMoney = [
-            {
+        let totalMoney = [{
                 total: 1000000000,
                 type: 'VND',
             },
@@ -1338,22 +1366,20 @@ module.exports = {
         // })
     },
     // get_list_credit_paid
-    getListCreditPaid: async (req, res) => {
+    getListCreditPaid: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
+            }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
         var array = []
-        let totalMoney = [
-            {
+        let totalMoney = [{
                 total: 1000000000,
                 type: 'VND',
             },
@@ -1386,21 +1412,19 @@ module.exports = {
         // })
     },
     // get_list_credit_edit_request
-    getListCreditEditRequest: async (req, res) => {
+    getListCreditEditRequest: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
-        let totalMoney = [
-            {
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
+            }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
+        let totalMoney = [{
                 total: 1000000000,
                 type: 'VND',
             },
@@ -1435,26 +1459,24 @@ module.exports = {
         // })
     },
     // get_list_Credit_delete_request
-    getListCreditDeleteRequest: async (req, res) => {
+    getListCreditDeleteRequest: async(req, res) => {
         var body = req.body
         var obj = {
-            "paging":
-            {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
+            }
+            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
         var array = []
         for (var i = 0; i < dataCredit.length; i++) {
             if (dataCredit[i].request == 'Yêu cầu xóa')
                 array.push(dataCredit[i])
         }
-        let totalMoney = [
-            {
+        let totalMoney = [{
                 total: 1000000000,
                 type: 'VND',
             },
@@ -1488,7 +1510,7 @@ module.exports = {
     //  api waiting SoftWare
     // -----------------------------------------------------------------------------------INVOICE-------------------------------------------------------------------------------
     // approval_invoice_and_credit
-    approvalInvoiceAndCredit: async (req, res) => {
+    approvalInvoiceAndCredit: async(req, res) => {
         var body = req.body
         console.log(body);
         var result = {
@@ -1498,7 +1520,7 @@ module.exports = {
         res.json(result);
     },
     // refuse_invoice_and_credit
-    refuseInvoiceAndCredit: async (req, res) => {
+    refuseInvoiceAndCredit: async(req, res) => {
         var body = req.body
         console.log(body);
         var result = {

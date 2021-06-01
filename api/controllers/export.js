@@ -699,6 +699,7 @@ module.exports = {
                         ws.cell(5 + i, 15).number(data[i].realField ? data[i].realField : 0).style(stylecellNumber)
                     }
                     // Tổng cộng
+                    console.log(totalFooter);
                     ws.cell(5 + data.length, 1, 5 + data.length, 4, true)
                         .string('TỔNG CỘNG')
                         .style(styleHearder);
@@ -754,6 +755,27 @@ module.exports = {
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
+        var styleHearderNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            // fill: {
+            //     type: 'pattern', // the only one implemented so far.
+            //     patternType: 'solid', // most common.
+            //     // fgColor: '2172d7', // you can add two extra characters to serve as alpha, i.e. '2172d7aa'.
+            //     // bgColor: 'ffffff' // bgColor only applies on patternTypes other than solid.
+            // },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
         var stylecell = wb.createStyle({
             font: {
                 // color: '#FF0800',
@@ -787,6 +809,7 @@ module.exports = {
         let body = req.body;
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
+        let totalFooter = JSON.parse(body.totalFooter);
         let arrayHeader = [
             'STT',
             'MÃ NHÂN VIÊN',
@@ -857,7 +880,6 @@ module.exports = {
                         row += 1
                         ws.column(row).setWidth(20);
                     }
-                    console.log(data);
                     for (var i = 0; i < data.length; i++) {
                         let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
                         ws.cell(5 + i, 1).number(data[i].stt).style(stylecellNumber)
@@ -875,6 +897,19 @@ module.exports = {
                         ws.cell(5 + i, 13).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellNumber)
                         ws.cell(5 + i, 14).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
                     }
+                    // Tổng cộng
+                    ws.cell(5 + data.length, 1, 5 + data.length, 4, true)
+                        .string('TỔNG CỘNG')
+                        .style(styleHearder);
+                    ws.cell(5 + data.length, 6).number(totalFooter.bhxhSalaryTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 7).number(totalFooter.bhxhCTTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 8).number(totalFooter.bhxhNVTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 9).number(totalFooter.bhytCTTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 10).number(totalFooter.bhytNVTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 11).number(totalFooter.bhtnCTTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 12).number(totalFooter.bhtnNVTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 13).number(totalFooter.bhtnldTotal).style(styleHearderNumber)
+                    ws.cell(5 + data.length, 14).number(totalFooter.tongTotal).style(styleHearderNumber)
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
                     setTimeout(() => {
                         var result = {

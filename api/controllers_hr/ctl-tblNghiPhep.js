@@ -103,25 +103,28 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
         subtractHalfDay = 0.5
     }
     let plus = 0
-    if (checkDateStart < 12 && checkDateEnd >= 16) {
-        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
-            plus += 2
-        else
-            plus += 1
-    }
-    if (days.length < 1)
+        // console.log(Number(dateStart.slice(8, 10)), Number(dateEnd.slice(8, 10)));
+        // if (checkDateStart < 12 && checkDateEnd >= 16) {
+        //     if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
+        //         plus += 2
+        //     else
+        //         plus += 1
+        // }
+    if (days.length < 1) {
         if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
             if (checkDateEnd < 17)
                 result = 1.5
             else
                 result = 2
-    else if (checkDateEnd < 17)
-        result = 0.5
-    else
-        result = 1
-    else
+        else {
+            if (checkDateEnd < 17)
+                result = 0.5
+            else
+                result = 1
+        }
+    } else
         result = days.length + 2 - array7th.length - subtractHalfDay
-    console.log(result + plus);
+    console.log(result, plus);
     return result + plus
 }
 async function handleCalculatePreviousYear(db, idStaff, currentYear) {
@@ -208,8 +211,10 @@ module.exports = {
                                 if (!arrayRespone[i].timeEnd)
                                     arrayRespone[i].timeEnd = "17:30"
                                 numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                                console.log(numberHolidayArray);
                                 numberHoliday += numberHolidayArray
                             }
+                        console.log(numberHoliday);
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
                         let currentYear = Number(moment().format('YYYY'))
                         let currentMonth = Number(moment().format('MM'))

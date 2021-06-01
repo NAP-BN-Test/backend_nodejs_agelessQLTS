@@ -334,10 +334,8 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
     }).then(async leave => {
         for (let i = 0; i < leave.length; i++) {
             if (leave[i].Status == '1') {
-                console.log(1);
                 leaveFree += 1
             } else if (leave[i].Status == '0.5') {
-                console.log(2);
                 leaveFree += 1
             }
         }
@@ -352,6 +350,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
             sunSta += 1
         }
     }
+    console.log((dateFinal - sunSta), (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB)), numberHoliday, leaveFree);
     result = productivityWages / (dateFinal - sunSta) * (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB))
     return result
 }
@@ -2410,6 +2409,7 @@ module.exports = {
     // data_export_excel
     dataExportExcel: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             try {
                 var array = [];
@@ -2423,8 +2423,8 @@ module.exports = {
                 var count = 0;
                 let checkFor = 0;
                 var obj = [];
-                if (body.idNhanVien) {
-                    obj.push({ ID: body.idNhanVien })
+                if (body.departmentID) {
+                    obj.push({ IDBoPhan: body.departmentID })
                 }
                 let tblDMNhanvien = mtblDMNhanvien(db);
                 tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })

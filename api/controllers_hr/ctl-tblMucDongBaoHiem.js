@@ -9,7 +9,9 @@ var mtblMinWageConfig = require('../tables/hrmanage/tblMinWageConfig')
 async function deleteRelationshiptblMucDongBaoHiem(db, listID) {
     await mtblMucDongBaoHiem(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -282,7 +284,11 @@ module.exports = {
                 await mtblMucDongBaoHiem(db).update({
                     MinimumWage: body.minimumWage ? body.minimumWage : null,
                 }, {
-                    where: { ID: { [Op.ne]: null } }
+                    where: {
+                        ID: {
+                            [Op.ne]: null
+                        }
+                    }
                 })
                 var result = {
                     status: Constant.STATUS.SUCCESS,
