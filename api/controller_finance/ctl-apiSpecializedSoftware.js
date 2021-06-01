@@ -2,6 +2,7 @@ const axios = require('axios');
 const Result = require('../constants/result');
 const Constant = require('../constants/constant');
 var mtblInvoice = require('../tables/financemanage/tblInvoice')
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 
 // data model invoice của KH
 data = [{
@@ -607,7 +608,220 @@ async function calculateTheTotalAmountOfEachCurrency(array) {
     }
     return arrayResult
 }
-// data
+dataCustomer = [{
+            "customerCode": "KH0001",
+            "name": "Công ty tnhh An Phú",
+            "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+            "tax": "123456789",
+            "countryName": "Việt Nam",
+            "address": "Số 2 Hoàng Mai Hà Nội",
+            "mobile": "098705124",
+            "fax": "01234567",
+            "email": "anphu@gmail.com",
+            "id": 1,
+        },
+        {
+            "customerCode": "KH0002",
+            "name": "Công ty tnhh Is Tech Vina",
+            "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
+            "tax": "01245870",
+            "countryName": "Việt Nam",
+            "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
+            "mobile": "082457145",
+            "fax": "0241368451",
+            "email": "istech@gmail.com",
+            "id": 2,
+        },
+        {
+            "customerCode": "KH0003",
+            "name": "Công ty cổ phần Orion Việt Nam",
+            "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
+            "tax": "012341250",
+            "countryName": "Việt nam",
+            "address": "Số 12 Bạch Mai Hà Nội",
+            "mobile": "0315456554",
+            "fax": "132456545",
+            "email": "orion13@gmail.com",
+            "id": 3,
+        },
+        {
+            "customerCode": "KH0004",
+            "name": "Công ty TNHH Rồng Việt",
+            "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
+            "tax": "01323255",
+            "countryName": "Việt Nam",
+            "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+            "mobile": "0445445474",
+            "fax": "1135635",
+            "email": "rongviet@gmail.com",
+            "id": 4,
+        },
+        {
+            "customerCode": "KH0005",
+            "name": "Công ty cổ phần và thương mại Đức Việt",
+            "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
+            "tax": "017654124",
+            "countryName": "Việt Nam",
+            "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
+            "mobile": "0444545401",
+            "fax": "75241241241",
+            "email": "ducviet0209@gmail.com",
+            "id": 5,
+        },
+        {
+            "customerCode": "KH0006",
+            "name": "Công ty TNHH 1 thành viên Bảo Minh",
+            "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
+            "tax": "154654565",
+            "countryName": "Việt Nam",
+            "address": "Số 25 Ba Đình Hà Nội",
+            "mobile": "045102474",
+            "fax": "02137244",
+            "email": "baominh56@gmail.com",
+            "id": 6,
+        },
+        {
+            "customerCode": "KH0007",
+            "name": "Công ty Sx và Tm Minh Hòa",
+            "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
+            "tax": "04785635432",
+            "countryName": "Việt Nam",
+            "address": "Số 21 Hàng Mã Hà Nội",
+            "mobile": "0045454510",
+            "fax": "415265654",
+            "email": "minhhoa1212@gmail.com",
+            "id": 7,
+        },
+        {
+            "customerCode": "KH0008",
+            "name": "Công ty cổ phần EC",
+            "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
+            "tax": "45454545",
+            "countryName": "Việt Nam",
+            "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
+            "mobile": "012345474",
+            "fax": "012244635",
+            "email": "ec1312@gmail.com",
+            "id": 8,
+        },
+        {
+            "customerCode": "KH0009",
+            "name": "Công ty cổ phần Thu Hương",
+            "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
+            "tax": "012546565",
+            "countryName": "Việt Nam",
+            "address": "Số 24 Bạch Mai Hà Nội",
+            "mobile": "015245454",
+            "fax": "45552478",
+            "email": "thuhuong34@gmail.com",
+            "id": 9,
+        },
+        {
+            "customerCode": "KH0010",
+            "name": "Công ty tnhh Hòa Phát",
+            "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
+            "tax": "014775745",
+            "countryName": "Việt Nam",
+            "address": "Số 2 Phố Huế Hà Nội",
+            "mobile": "045245401",
+            "fax": "021455235",
+            "email": "hoaphat0102@gmail.com",
+            "id": 10,
+        },
+    ]
+    // data
+dataPartner = [{
+        id: "2",
+        partnerCode: "LOCK LOCK",
+        name: "Công ty TNHH Lock & Lock",
+        tax: "01245782110",
+        address: "Số 72A Nguyễn Trãi phường Thượng Đỉnh Thanh Xuân Hà Nội",
+        mobile: "0823145678",
+        fax: "045784124",
+        email: "locklockvn@gmail",
+    },
+    {
+        id: "3",
+        partnerCode: "HOA PHAT",
+        name: "Công ty TNHH Hòa Phát ",
+        tax: "012345678",
+        address: "Số 12 Bạch Mai Hà Nội",
+        mobile: "089745120",
+        fax: "023145216",
+        email: "hoaphat123@gmail.com",
+    },
+    {
+        id: "4",
+        partnerCode: "MEDIA MART",
+        name: "Siêu thị điện máy xanh media mart",
+        tax: "012345801",
+        address: "Số 1 Trương Định Hà Nội",
+        mobile: "089724152",
+        fax: "021465741",
+        email: "mediamart4546@gmail.com",
+    },
+    {
+        id: "5",
+        partnerCode: "GLOMED",
+        name: "Công ty dược phẩm Glomed  ",
+        tax: "012465563",
+        address: "Số 34 Huỳnh Thúc Kháng Hà Nội",
+        mobile: "012568523",
+        fax: "012457821",
+        email: "glomeddp@gmail.com",
+    },
+    {
+        id: "6",
+        partnerCode: "THUONG ĐINH",
+        name: "Công ty giầy Thượng Đỉnh",
+        tax: "012489660",
+        address: "Số 2 Kim Ngưu Hà Nội",
+        mobile: "021565635",
+        fax: "014653225",
+        email: "thuongdinhgiay@gmail.com",
+    },
+    {
+        id: "7",
+        partnerCode: "GIAY THANG LONG",
+        name: "Công ty TNHH giày Thăng Long",
+        tax: "012457821",
+        address: "Số 2A Phường Khương Trung Thanh Xuân Hà Nội",
+        mobile: "012465623",
+        fax: "01774125",
+        email: "giaytot@gmail.com",
+    },
+    {
+        id: "8",
+        partnerCode: "VINH DOAN",
+        name: "Công ty cổ phần Vĩnh Đoàn",
+        tax: "012458990",
+        address: "Số 60 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+        mobile: "021565650",
+        fax: "0158555245",
+        email: "vinhdoan123@gmail.com",
+    },
+    {
+        id: "9",
+        partnerCode: "SINO VANLOCK",
+        name: "Công ty sản xuất thiết bị điện Sino vanlock",
+        tax: "0124456685",
+        address: "SỐ 10 nguyễn Văn Cừ Long Biên Hà Nội",
+        mobile: "0154878741",
+        fax: "0157878865",
+        email: "sinovanlock@gmail.com",
+    },
+    {
+        id: "10",
+        partnerCode: "TRUNG NGUYEN",
+        name: "Tập đoàn cà phê Trung Nguyên",
+        tax: "0125748546",
+        address: "Thị Cấm Phường Xuân Phương Nam Từ Liêm Hà Nội",
+        mobile: "045654565",
+        fax: "013245422",
+        email: "trugnnguyen@gmail.com",
+    },
+
+]
 module.exports = {
     // get_list_department
     getListDepartment: async(req, res) => {
@@ -740,128 +954,7 @@ module.exports = {
     },
     // get_list_customer
     getListCustomer: async(req, res) => {
-        dataCustomer = [{
-                    "customerCode": "KH0001",
-                    "name": "Công ty tnhh An Phú",
-                    "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
-                    "tax": "123456789",
-                    "countryName": "Việt Nam",
-                    "address": "Số 2 Hoàng Mai Hà Nội",
-                    "mobile": "098705124",
-                    "fax": "01234567",
-                    "email": "anphu@gmail.com",
-                    "id": 1,
-                },
-                {
-                    "customerCode": "KH0002",
-                    "name": "Công ty tnhh Is Tech Vina",
-                    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
-                    "tax": "01245870",
-                    "countryName": "Việt Nam",
-                    "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
-                    "mobile": "082457145",
-                    "fax": "0241368451",
-                    "email": "istech@gmail.com",
-                    "id": 2,
-                },
-                {
-                    "customerCode": "KH0003",
-                    "name": "Công ty cổ phần Orion Việt Nam",
-                    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
-                    "tax": "012341250",
-                    "countryName": "Việt nam",
-                    "address": "Số 12 Bạch Mai Hà Nội",
-                    "mobile": "0315456554",
-                    "fax": "132456545",
-                    "email": "orion13@gmail.com",
-                    "id": 3,
-                },
-                {
-                    "customerCode": "KH0004",
-                    "name": "Công ty TNHH Rồng Việt",
-                    "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
-                    "tax": "01323255",
-                    "countryName": "Việt Nam",
-                    "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-                    "mobile": "0445445474",
-                    "fax": "1135635",
-                    "email": "rongviet@gmail.com",
-                    "id": 4,
-                },
-                {
-                    "customerCode": "KH0005",
-                    "name": "Công ty cổ phần và thương mại Đức Việt",
-                    "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
-                    "tax": "017654124",
-                    "countryName": "Việt Nam",
-                    "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
-                    "mobile": "0444545401",
-                    "fax": "75241241241",
-                    "email": "ducviet0209@gmail.com",
-                    "id": 5,
-                },
-                {
-                    "customerCode": "KH0006",
-                    "name": "Công ty TNHH 1 thành viên Bảo Minh",
-                    "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
-                    "tax": "154654565",
-                    "countryName": "Việt Nam",
-                    "address": "Số 25 Ba Đình Hà Nội",
-                    "mobile": "045102474",
-                    "fax": "02137244",
-                    "email": "baominh56@gmail.com",
-                    "id": 6,
-                },
-                {
-                    "customerCode": "KH0007",
-                    "name": "Công ty Sx và Tm Minh Hòa",
-                    "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
-                    "tax": "04785635432",
-                    "countryName": "Việt Nam",
-                    "address": "Số 21 Hàng Mã Hà Nội",
-                    "mobile": "0045454510",
-                    "fax": "415265654",
-                    "email": "minhhoa1212@gmail.com",
-                    "id": 7,
-                },
-                {
-                    "customerCode": "KH0008",
-                    "name": "Công ty cổ phần EC",
-                    "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
-                    "tax": "45454545",
-                    "countryName": "Việt Nam",
-                    "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
-                    "mobile": "012345474",
-                    "fax": "012244635",
-                    "email": "ec1312@gmail.com",
-                    "id": 8,
-                },
-                {
-                    "customerCode": "KH0009",
-                    "name": "Công ty cổ phần Thu Hương",
-                    "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
-                    "tax": "012546565",
-                    "countryName": "Việt Nam",
-                    "address": "Số 24 Bạch Mai Hà Nội",
-                    "mobile": "015245454",
-                    "fax": "45552478",
-                    "email": "thuhuong34@gmail.com",
-                    "id": 9,
-                },
-                {
-                    "customerCode": "KH0010",
-                    "name": "Công ty tnhh Hòa Phát",
-                    "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
-                    "tax": "014775745",
-                    "countryName": "Việt Nam",
-                    "address": "Số 2 Phố Huế Hà Nội",
-                    "mobile": "045245401",
-                    "fax": "021455235",
-                    "email": "hoaphat0102@gmail.com",
-                    "id": 10,
-                },
-            ]
-            // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(data => {
+        // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(data => {
         if (dataCustomer) {
             var result = {
                 // array: data.data.data,
@@ -897,6 +990,50 @@ module.exports = {
         // }
         // console.log(data.data);
         // })
+    },
+    // get_all_object
+    getAllObject: async(req, res) => {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                let array = []
+                for (c = 0; c < dataCustomer.length; c++) {
+                    array.push({
+                        name: dataCustomer[c].name,
+                        code: dataCustomer[c].customerCode,
+                        id: dataCustomer[c].id,
+                        type: 'customer',
+                    })
+                }
+                for (p = 0; p < dataPartner.length; p++) {
+                    array.push({
+                        name: dataPartner[p].name,
+                        code: dataPartner[p].partnerCode,
+                        id: dataPartner[p].id,
+                        type: 'partner',
+                    })
+                }
+                await mtblDMNhanvien(db).findAll().then(data => {
+                    data.forEach(element => {
+                        array.push({
+                            name: element.StaffName,
+                            code: element.StaffCode,
+                            id: element.ID,
+                            type: 'staff',
+                        })
+                    })
+                })
+                var result = {
+                    array: array,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+
     },
 
     // Invoice follow customer ------------------------------------------------------------------------------------------------------------------

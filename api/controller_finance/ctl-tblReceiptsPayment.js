@@ -22,7 +22,9 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
     // Trả lại tiền
     var payment = await mtblPaymentRPayment(db).findAll({
         where: {
-            IDPayment: { [Op.in]: listID }
+            IDPayment: {
+                [Op.in]: listID
+            }
         }
     })
     if (payment) {
@@ -44,18 +46,30 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
     }
     await mtblPaymentRPayment(db).destroy({
         where: {
-            IDPayment: { [Op.in]: listID }
+            IDPayment: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblPaymentRPayment(db).destroy({
         where: {
-            IDPaymentR: { [Op.in]: listID }
+            IDPaymentR: {
+                [Op.in]: listID
+            }
         }
     })
-    await mtblAccountingBooks(db).destroy({ where: { IDPayment: { [Op.in]: listID } } })
+    await mtblAccountingBooks(db).destroy({
+        where: {
+            IDPayment: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblReceiptsPayment(db).findAll({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     }).then(async data => {
         for (var i = 0; i < data.length; i++) {
@@ -81,19 +95,31 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
     })
     await mtblPaymentRInvoice(db).destroy({
         where: {
-            IDPayment: { [Op.in]: listID }
+            IDPayment: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblPaymentRPayment(db).destroy({
         where: {
-            IDPayment: { [Op.in]: listID }
+            IDPayment: {
+                [Op.in]: listID
+            }
         }
     })
-    await mtblPaymentAccounting(db).destroy({ where: { IDReceiptsPayment: { [Op.in]: listID } } })
+    await mtblPaymentAccounting(db).destroy({
+        where: {
+            IDReceiptsPayment: {
+                [Op.in]: listID
+            }
+        }
+    })
 
     await mtblReceiptsPayment(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -117,7 +143,9 @@ async function createRate(db, exchangeRate, idCurrency) {
     if (idCurrency)
         check = await mtblRate(db).findOne({
             where: {
-                Date: { [Op.substring]: searchNow },
+                Date: {
+                    [Op.substring]: searchNow
+                },
                 IDCurrency: idCurrency,
             }
         })
@@ -182,8 +210,7 @@ async function deleteAndCreateAllPayment(db, id, listUndefinedID, withdrawalMone
                             ID: listUndefinedID[i]
                         }
                     })
-                }
-                else {
+                } else {
                     await mtblPaymentRPayment(db).create({
                         IDPayment: id,
                         IDPaymentR: listUndefinedID[i],
@@ -208,11 +235,11 @@ async function deleteAndCreateAllPayment(db, id, listUndefinedID, withdrawalMone
 async function deleteAndCreateAllInvoice(db, id, listInvoiceID) {
     // Xóa dữ liệu cũ sau đó thêm mới
     await mtblPaymentRInvoice(db).destroy({
-        where: {
-            IDPayment: id
-        }
-    })
-    // await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { IDSpecializedSoftware: { [Op.in]: listInvoiceID } } })
+            where: {
+                IDPayment: id
+            }
+        })
+        // await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { IDSpecializedSoftware: { [Op.in]: listInvoiceID } } })
 
     // Thêm mới
     for (var i = 0; i < listInvoiceID.length; i++) {
@@ -220,12 +247,9 @@ async function deleteAndCreateAllInvoice(db, id, listInvoiceID) {
             IDPayment: id,
             IDSpecializedSoftware: listInvoiceID[i]
         })
-        await mtblInvoice(db).update(
-            {
-                Status: 'paid'
-            },
-            { where: { IDSpecializedSoftware: listInvoiceID[i] } }
-        )
+        await mtblInvoice(db).update({
+            Status: 'paid'
+        }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
     }
 
     // Cập nhật mới
@@ -337,8 +361,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
     }
 }
 async function getDetailCustomer(id) {
-    dataCustomer = [
-        {
+    dataCustomer = [{
             "customerCode": "KH0001",
             "name": "Công ty tnhh An Phú",
             "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
@@ -614,7 +637,7 @@ async function getDetailStaff(id) {
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
-    detailtblReceiptsPayment: async (req, res) => {
+    detailtblReceiptsPayment: async(req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
@@ -686,13 +709,11 @@ module.exports = {
                             let tblPaymentAccounting = mtblPaymentAccounting(db);
                             tblPaymentAccounting.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'acc' })
                             await tblPaymentAccounting.findAll({
-                                include: [
-                                    {
-                                        model: mtblDMTaiKhoanKeToan(db),
-                                        required: false,
-                                        as: 'acc'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMTaiKhoanKeToan(db),
+                                    required: false,
+                                    as: 'acc'
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data.ID,
                                     type: "CREDIT"
@@ -710,13 +731,11 @@ module.exports = {
                                 })
                             })
                             await tblPaymentAccounting.findAll({
-                                include: [
-                                    {
-                                        model: mtblDMTaiKhoanKeToan(db),
-                                        required: false,
-                                        as: 'acc'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMTaiKhoanKeToan(db),
+                                    required: false,
+                                    as: 'acc'
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data.ID,
                                     type: "DEBIT"
@@ -765,7 +784,7 @@ module.exports = {
         })
     },
     // add_tbl_receipts_payment
-    addtblReceiptsPayment: async (req, res) => {
+    addtblReceiptsPayment: async(req, res) => {
         let body = req.body;
         console.log(body);
         var listUndefinedID = []
@@ -809,14 +828,12 @@ module.exports = {
                     } else {
                         automaticCode = await handleCodeNumber(check.CodeNumber)
                     }
-                    mtblReceiptsPayment(db).create({
+                    let objCreate = {
                         Type: body.type ? body.type : '',
                         RPType: body.rpType ? body.rpType : '',
                         CodeNumber: automaticCode,
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
-                        IDCustomer: body.staffID ? null : body.idCustomer ? body.idCustomer : null,
-                        IDStaff: body.staffID ? body.staffID : null,
                         Address: body.address ? body.address : '',
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',
@@ -834,7 +851,15 @@ module.exports = {
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
                         Unknown: body.isUndefined ? body.isUndefined : null,
                         ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
-                    }).then(async data => {
+                    }
+                    body.object = JSON.parse(body.object)
+                    if (body.object.type == 'staff')
+                        objCreate['IDStaff'] = body.object.id
+                    else if (body.object.type == 'partner')
+                        objCreate['IDPartner'] = body.object.id
+                    else
+                        objCreate['IDCustomer'] = body.object.id
+                    mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         if (body.assetLiquidationIDs) {
                             body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)
                             for (var i = 0; i < body.assetLiquidationIDs.length; i++) {
@@ -865,12 +890,9 @@ module.exports = {
                                 IDPayment: data.ID,
                                 IDSpecializedSoftware: listInvoiceID[i]
                             })
-                            await mtblInvoice(db).update(
-                                {
-                                    Status: 'paid'
-                                },
-                                { where: { IDSpecializedSoftware: listInvoiceID[i] } }
-                            )
+                            await mtblInvoice(db).update({
+                                Status: 'paid'
+                            }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
                         }
                         var withdrawalMoney = Number(body.withdrawal);
                         for (var i = 0; i < listUndefinedID.length; i++) {
@@ -883,13 +905,13 @@ module.exports = {
                                     // Trường hợp nếu tiền rút lớn hơn hoặc bằng số tiền chưa thanh toán
                                     if (withdrawalMoney > paymentR.UnpaidAmount) {
                                         withdrawalMoney = withdrawalMoney - paymentR.UnpaidAmount
-                                        // Tạo trước khi update
+                                            // Tạo trước khi update
                                         await mtblPaymentRPayment(db).create({
-                                            IDPayment: data.ID,
-                                            IDPaymentR: paymentR.ID,
-                                            Amount: paymentR.UnpaidAmount,
-                                        })
-                                        // Cập nhật số tiền thanh toán và không thanh toán của phiếu
+                                                IDPayment: data.ID,
+                                                IDPaymentR: paymentR.ID,
+                                                Amount: paymentR.UnpaidAmount,
+                                            })
+                                            // Cập nhật số tiền thanh toán và không thanh toán của phiếu
                                         await mtblReceiptsPayment(db).update({
                                             UnpaidAmount: 0,
                                             PaidAmount: paymentR.InitialAmount,
@@ -1052,8 +1074,7 @@ module.exports = {
                         if (body.amount === '') {
                             update.push({ key: 'Amount', value: null });
                             update.push({ key: 'InitialAmount', value: null });
-                        }
-                        else {
+                        } else {
                             update.push({ key: 'Amount', value: body.amount });
                             update.push({ key: 'InitialAmount', value: body.amount });
                         }
@@ -1088,6 +1109,13 @@ module.exports = {
                         else
                             update.push({ key: 'IDSubmitter', value: body.idSubmitter });
                     }
+                    body.object = JSON.parse(body.object)
+                    if (body.object.type == 'staff')
+                        update.push({ key: 'IDStaff', value: body.object.id });
+                    else if (body.object.type == 'partner')
+                        update.push({ key: 'IDPartner', value: body.object.id });
+                    else
+                        update.push({ key: 'IDCustomer', value: body.object.id });
                     database.updateTable(update, mtblReceiptsPayment(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -1238,13 +1266,11 @@ module.exports = {
                             let tblPaymentAccounting = mtblPaymentAccounting(db);
                             tblPaymentAccounting.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'acc' })
                             await tblPaymentAccounting.findAll({
-                                include: [
-                                    {
-                                        model: mtblDMTaiKhoanKeToan(db),
-                                        required: false,
-                                        as: 'acc'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMTaiKhoanKeToan(db),
+                                    required: false,
+                                    as: 'acc'
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data[i].ID,
                                     type: "CREDIT"
@@ -1259,13 +1285,11 @@ module.exports = {
                                 })
                             })
                             await tblPaymentAccounting.findAll({
-                                include: [
-                                    {
-                                        model: mtblDMTaiKhoanKeToan(db),
-                                        required: false,
-                                        as: 'acc'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMTaiKhoanKeToan(db),
+                                    required: false,
+                                    as: 'acc'
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data[i].ID,
                                     type: "DEBIT"
@@ -1352,8 +1376,7 @@ module.exports = {
                     tblReceiptsPayment.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
                     tblReceiptsPayment.findAll({
                         where: {
-                            [Op.or]: [
-                                {
+                            [Op.or]: [{
                                     [Op.and]: {
                                         IDCustomer: body.idCustomer,
                                         Unknown: true,
@@ -1369,13 +1392,11 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
-                                model: mtblCurrency(db),
-                                required: false,
-                                as: 'currency'
-                            },
-                        ],
+                        include: [{
+                            model: mtblCurrency(db),
+                            required: false,
+                            as: 'currency'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -1463,13 +1484,11 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
-                                model: mtblCurrency(db),
-                                required: false,
-                                as: 'currency'
-                            },
-                        ],
+                        include: [{
+                            model: mtblCurrency(db),
+                            required: false,
+                            as: 'currency'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {

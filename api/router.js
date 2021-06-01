@@ -512,6 +512,7 @@ module.exports = function(app) {
     app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
     app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);
+    app.route('/qlnb/get_all_object').post(apiSpecializedSoftware.getAllObject);
     app.route('/qlnb/get_list_user').post(apiSpecializedSoftware.getListUser);
 
     app.route('/qlnb/get_list_invoice_from_partner').post(apiSpecializedSoftware.getListInvoiceFromPartner);

@@ -17,6 +17,7 @@ var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mModules = require('../constants/modules');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var ctlReceiptsPayment = require('../controller_finance/ctl-tblReceiptsPayment')
+var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     let arrayReceiptsPayment = []
@@ -196,7 +197,6 @@ module.exports = {
     // add_tbl_denghi_thanhtoan
     addtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -208,7 +208,8 @@ module.exports = {
                         CostText: body.costText ? body.costText : null,
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
-                        IDNhanVienLDPD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
+                        IDNhanVienLDPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
+                        IDSupplier: body.idNhaCungCap ? body.idNhaCungCap : null,
                         Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                     }).then(async data => {
@@ -228,8 +229,18 @@ module.exports = {
                                 for (var i = 0; i < body.listID.length; i++)
                                     await mtblYeuCauMuaSam(db).update({
                                         Status: 'Đang thanh toán',
-                                        IDPaymentOrder: data.ID
+                                        IDPaymentOrder: data.ID,
+                                        IDSupplier: body.idNhaCungCap,
                                     }, { where: { ID: body.listID[i] } })
+                        }
+                        if (body.idNhaCungCap) {
+                            await mtblYeuCauMuaSam(db).update({
+                                IDSupplier: body.idNhaCungCap,
+                            }, {
+                                where: {
+                                    IDPaymentOrder: data.ID
+                                }
+                            })
                         }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -260,6 +271,21 @@ module.exports = {
                             update.push({ key: 'IDNhanVien', value: null });
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
+                    }
+                    if (body.idNhaCungCap || body.idNhaCungCap === '') {
+                        if (body.idNhaCungCap) {
+                            await mtblYeuCauMuaSam(db).update({
+                                IDSupplier: body.idNhaCungCap,
+                            }, {
+                                where: {
+                                    IDPaymentOrder: body.id
+                                }
+                            })
+                        }
+                        if (body.idNhaCungCap === '')
+                            update.push({ key: 'IDSupplier', value: null });
+                        else
+                            update.push({ key: 'IDSupplier', value: body.idNhaCungCap });
                     }
                     if (body.contents || body.contents === '')
                         update.push({ key: 'Contents', value: body.contents });
@@ -445,6 +471,7 @@ module.exports = {
                     tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
                     tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDSupplier', sourceKey: 'IDSupplier', as: 'supplier' })
                     tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
                     tblDeNghiThanhToan.findAll({
                         order: [
@@ -472,6 +499,11 @@ module.exports = {
                                 model: tblDMNhanvien,
                                 required: false,
                                 as: 'LDPD'
+                            },
+                            {
+                                model: mtblDMNhaCungCap(db),
+                                required: false,
+                                as: 'supplier'
                             },
                         ],
                     }).then(async data => {
@@ -507,7 +539,9 @@ module.exports = {
                                 nameNhanVienLDPD: element.LDPD ? element.LDPD.StaffName : '',
                                 paymentOrderCode: element.PaymentOrderCode ? element.PaymentOrderCode : '',
                                 trangThaiPheDuyetLD: statusLD,
-                                isCreatePayment: element.IDReceiptsPayment ? true : false
+                                isCreatePayment: element.IDReceiptsPayment ? true : false,
+                                supplierName: element.supplier ? element.supplier.SupplierName : '',
+                                idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
                             }
                             array.push(obj);
                             stt += 1;
@@ -563,7 +597,7 @@ module.exports = {
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMNhanvien.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
-
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDSupplier', sourceKey: 'IDSupplier', as: 'supplier' })
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
@@ -599,6 +633,11 @@ module.exports = {
                                 required: false,
                                 as: 'LDPD'
                             },
+                            {
+                                model: mtblDMNhaCungCap(db),
+                                required: false,
+                                as: 'supplier'
+                            },
                         ],
                     }).then(async data => {
                         var obj = {
@@ -625,6 +664,8 @@ module.exports = {
                             branchID: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? Number(data.NhanVien.bophan.chinhanh.ID) : null : null : null,
                             branchName: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchName : '' : '' : '',
                             branchCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchCode : '' : '' : '',
+                            supplierName: data.supplier ? data.supplier.SupplierName : '',
+                            idNhaCungCap: data.IDSupplier ? Number(data.IDSupplier) : null,
                         }
                         stt += 1;
                         var arrayFile = []
@@ -641,6 +682,7 @@ module.exports = {
                         })
                         var arrayObj = await getDetailYCMS(db, data.ID)
                         obj['arrayFile'] = arrayFile;
+                        console.log(obj);
                         var result = {
                             obj: obj,
                             arrayRequest: await getDetailYCMS(db, data.ID),

@@ -818,6 +818,7 @@ module.exports = {
                                 status: element.Status ? element.Status : '',
                                 assetName: element.AssetName ? element.AssetName : '',
                                 idPheDuyet1: element.IDPheDuyet1 ? element.IDPheDuyet1 : null,
+                                idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
                                 namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
                                 idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
                                 namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
@@ -959,6 +960,7 @@ module.exports = {
                             idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
                             nameNhanVien: data.NhanVien ? data.NhanVien.StaffName : null,
                             requestCode: data.RequestCode ? data.RequestCode : null,
+                            idNhaCungCap: data.IDSupplier ? data.IDSupplier : null,
                             idPhongBan: data.IDPhongBan ? data.IDPhongBan : null,
                             codePhongBan: data.phongban ? data.phongban.DepartmentCode : null,
                             namePhongBan: data.phongban ? data.phongban.DepartmentName : null,
@@ -971,12 +973,13 @@ module.exports = {
                             idPheDuyet2: data.IDPheDuyet2 ? data.IDPheDuyet2 : null,
                             namePheDuyet2: data.PheDuyet2 ? data.PheDuyet2.StaffName : null,
                             type: data.Type ? data.Type : '',
-                            line: data.line
+                            line: data.line,
                         }
                         var arrayTaiSan = []
                         var arrayVPP = []
                         var arrayFile = []
                         var total = 0;
+                        // let idSupplier = null;
                         for (var j = 0; j < obj.line.length; j++) {
                             if (data.Type == 'Tài sản') {
                                 var price = obj.line[j].Price ? obj.line[j].Price : 0
@@ -1008,7 +1011,11 @@ module.exports = {
                                         })
                                 })
                             } else {
-                                await mtblVanPhongPham(db).findOne({ where: { ID: obj.line[j].IDVanPhongPham } }).then(data => {
+                                await mtblVanPhongPham(db).findOne({
+                                    where: {
+                                        ID: obj.line[j].IDVanPhongPham
+                                    }
+                                }).then(data => {
                                     var price = obj.line[j].Price ? obj.line[j].Price : 0
                                     var amount = obj.line[j].Amount ? obj.line[j].Amount : 0
 
@@ -1028,6 +1035,7 @@ module.exports = {
                             }
                         }
                         obj['price'] = total;
+                        // obj['idNhaCungCap'] = idSupplier;
                         await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: obj.id } }).then(file => {
                             if (file.length > 0) {
                                 for (var e = 0; e < file.length; e++) {
