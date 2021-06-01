@@ -227,9 +227,9 @@ module.exports = {
                     console.log(query, 1234);
                     db.query(query)
                     io.sockets.emit("sendrequest", data.id);
+                } else {
+                    io.sockets.emit("sendrequest", []);
                 }
-                io.sockets.emit("sendrequest", []);
-
             });
             socket.on("notification-zalo", async function(data) {
                 io.sockets.emit("notification-zalo", { dbname: data.dbname });
@@ -247,10 +247,9 @@ module.exports = {
                     dbMaster = await connectDatabase('Customer_VTNAP')
                     IDCustomerDB = await dbMaster.query(dbMasterQuery)
                 }
-                let strGetCus = 'SELECt ID FROM tblKhachHang WHERE IDCustomer = ' + IDCustomerDB[0][0].ID
-                let IDCus = await dbName1.query(strGetCus)
-                console.log(IDCus);
-                let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ NHẬN', NgayGui = '" + now + "', IDNhaXe = " + IDCus[0][0].ID + " where ID = " + data.id
+                let query1 = "DELETE FROM dbo.tblDauGia WHERE IDYeuCau = '" + data.id + "' AND IDCustomer = '" + IDCustomerDB[0][0].ID + "'"
+                dbName1.query(query1)
+                let query = "INSERT INTO dbo.tblDauGia (IDYeuCau, IDCustomer, ChiPhi) VALUES ('" + data.id + "', '" + IDCustomerDB[0][0].ID + "', '" + data.chiphi + "')"
                 console.log(query);
                 dbName1.query(query)
                 io.sockets.emit("sendrequest", []);
@@ -628,5 +627,8 @@ module.exports = {
     },
     socketEmitNotifiCost: async(io, dbname) => {
         io.sockets.emit("notification-chiphi", { dbname: dbname });
+    },
+    socketEmitNotifiRequest: async(io, dbname) => {
+        io.sockets.emit("sendrequest", { dbname: dbname });
     },
 }

@@ -405,3 +405,12 @@ app.post('/notification-chiphi', async function(req, res) {
     }
     res.json(result);
 })
+app.post('/notification-yeucau', async function(req, res) {
+    let body = req.body;
+    await socket.socketEmitNotifiRequest(io, body.dbname)
+    var result = {
+        status: 1,
+        message: '',
+    }
+    res.json(result);
+})

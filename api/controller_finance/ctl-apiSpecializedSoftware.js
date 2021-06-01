@@ -9,8 +9,27 @@ data = [{
         createdDate: '01/05/2020',
         refNumber: 'REF0001',
         invoiceNumber: 'INV0001',
-        total: '1000000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '1000000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '100',
+                typeMoney: 'USD',
+            },
+            {
+                total: '100',
+                typeMoney: 'NDT',
+            },
+            {
+                total: '100',
+                typeMoney: 'JPY',
+            },
+            {
+                total: '100',
+                typeMoney: 'FRA',
+            },
+        ],
         statusName: 'Đã thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
@@ -23,13 +42,24 @@ data = [{
         createdDate: '02/05/2020',
         refNumber: 'REF0002',
         invoiceNumber: 'INV0002',
-        total: '1100000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '1100000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '10',
+                typeMoney: 'USD',
+            },
+            {
+                total: '15',
+                typeMoney: 'NDT',
+            },
+        ],
         statusName: 'Đã thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
         content: 'Demo 2',
-        request: 'Chờ thanh toám',
+        request: 'Yêu cầu xóa',
         departmentName: 'Hà Nội',
     },
     {
@@ -37,8 +67,19 @@ data = [{
         createdDate: '03/05/2020',
         refNumber: 'REF0003',
         invoiceNumber: 'INV0003',
-        total: '1200000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '1200000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '120',
+                typeMoney: 'JPY',
+            },
+            {
+                total: '150',
+                typeMoney: 'FRA',
+            },
+        ],
         statusName: 'Đã thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
@@ -51,8 +92,27 @@ data = [{
         createdDate: '04/05/2020',
         refNumber: 'REF0004',
         invoiceNumber: 'INV0004',
-        total: '1300000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '1300000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '100',
+                typeMoney: 'USD',
+            },
+            {
+                total: '100',
+                typeMoney: 'NDT',
+            },
+            {
+                total: '100',
+                typeMoney: 'JPY',
+            },
+            {
+                total: '120',
+                typeMoney: 'FRA',
+            },
+        ],
         statusName: 'Đã thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
@@ -65,8 +125,23 @@ data = [{
         createdDate: '05/05/2020',
         refNumber: 'REF0005',
         invoiceNumber: 'INV0005',
-        total: '1400000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '1400000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '150',
+                typeMoney: 'USD',
+            },
+            {
+                total: '170',
+                typeMoney: 'NDT',
+            },
+            {
+                total: '10',
+                typeMoney: 'JPY',
+            },
+        ],
         statusName: 'Đã thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
@@ -79,13 +154,20 @@ data = [{
         createdDate: '06/05/2020',
         refNumber: 'REF0006',
         invoiceNumber: 'INV0006',
-        total: '1500000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '1500000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '100',
+                typeMoney: 'USD',
+            },
+        ],
         statusName: 'Đã thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
         content: 'Demo 6',
-        request: 'Chờ thanh toám',
+        request: 'Yêu cầu xóa',
         departmentName: 'Hà Nội',
     },
     {
@@ -93,13 +175,24 @@ data = [{
         createdDate: '07/05/2020',
         refNumber: 'REF0007',
         invoiceNumber: 'INV0007',
-        total: '1600000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '1600000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '100',
+                typeMoney: 'USD',
+            },
+            {
+                total: '170',
+                typeMoney: 'FRA',
+            },
+        ],
         statusName: 'Chờ thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
         content: 'Demo 7',
-        request: 'Chờ thanh toám',
+        request: 'Yêu cầu xóa',
         departmentName: 'Hà Nội',
     },
     {
@@ -107,8 +200,19 @@ data = [{
         createdDate: '08/05/2020',
         refNumber: 'REF0008',
         invoiceNumber: 'INV0008',
-        total: '1700000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '100',
+                typeMoney: 'USD',
+            },
+            {
+                total: '100',
+                typeMoney: 'NDT',
+            },
+            {
+                total: '100',
+                typeMoney: 'JPY',
+            },
+        ],
         statusName: 'Chờ thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
@@ -121,8 +225,27 @@ data = [{
         createdDate: '09/05/2020',
         refNumber: 'REF0009',
         invoiceNumber: 'INV0009',
-        total: '1800000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+                total: '2000000',
+                typeMoney: 'VND',
+            },
+            {
+                total: '100',
+                typeMoney: 'USD',
+            },
+            {
+                total: '100',
+                typeMoney: 'NDT',
+            },
+            {
+                total: '100',
+                typeMoney: 'JPY',
+            },
+            {
+                total: '100',
+                typeMoney: 'FRA',
+            },
+        ],
         statusName: 'Chờ thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
@@ -135,8 +258,10 @@ data = [{
         createdDate: '10/05/2020',
         refNumber: 'REF0010',
         invoiceNumber: 'INV0010',
-        total: '100000',
-        typeMoney: 'VND',
+        arrayMoney: [{
+            total: '1000000',
+            typeMoney: 'VND',
+        }, ],
         statusName: 'Chờ thanh toán',
         idCustomer: 1,
         customerName: 'Công ty tnhh An Phú',
@@ -155,7 +280,7 @@ totalMoney = [{
     }
 ];
 dataCredit = [{
-        id: 1,
+        id: 100,
         createdDate: '01/05/2020',
         invoiceNumber: 'INV0001',
         total: '1000000',
@@ -170,7 +295,7 @@ dataCredit = [{
         request: 'Yêu cầu Xóa',
     },
     {
-        id: 2,
+        id: 102,
         createdDate: '01/05/2020',
         invoiceNumber: 'INV0002',
         total: '1200000',
@@ -185,7 +310,7 @@ dataCredit = [{
         request: '',
     },
     {
-        id: 3,
+        id: 103,
         createdDate: '03/05/2020',
         invoiceNumber: 'INV0003',
         total: '1300000',
@@ -200,7 +325,7 @@ dataCredit = [{
         request: 'Yêu cầu xóa',
     },
     {
-        id: 4,
+        id: 104,
         createdDate: '04/05/2020',
         invoiceNumber: 'INV0004',
         total: '1400000',
@@ -215,7 +340,7 @@ dataCredit = [{
         request: 'Yêu cầu sửa',
     },
     {
-        id: 5,
+        id: 105,
         createdDate: '05/05/2020',
         invoiceNumber: 'INV0005',
         total: '1500000',
@@ -230,7 +355,7 @@ dataCredit = [{
         request: '',
     },
     {
-        id: 6,
+        id: 106,
         createdDate: '06/05/2020',
         invoiceNumber: 'INV0006',
         total: '1600000',
@@ -245,7 +370,7 @@ dataCredit = [{
         request: '',
     },
     {
-        id: 7,
+        id: 107,
         createdDate: '07/05/2020',
         invoiceNumber: 'INV0007',
         total: '1700000',
@@ -260,7 +385,7 @@ dataCredit = [{
         request: 'Yêu cầu xóa',
     },
     {
-        id: 8,
+        id: 108,
         createdDate: '08/05/2020',
         invoiceNumber: 'INV0008',
         total: '1800000',
@@ -275,7 +400,7 @@ dataCredit = [{
         request: '',
     },
     {
-        id: 9,
+        id: 109,
         createdDate: '10/05/2020',
         invoiceNumber: 'INV0009',
         total: '1900000',
@@ -290,7 +415,7 @@ dataCredit = [{
         request: '',
     },
     {
-        id: 10,
+        id: 110,
         createdDate: '12/05/2020',
         invoiceNumber: 'INV0010',
         total: '12000000',
@@ -448,6 +573,18 @@ function checkDuplicate(array, elm) {
 }
 var database = require('../database');
 
+async function calculateTheTotalForCredit(array) {
+    let arrayResult = []
+    let total = 0
+    for (let i = 0; i < array.length; i++) {
+        total += Number(array[i].total)
+    }
+    arrayResult.push({
+        type: 'VND',
+        total: total
+    })
+    return arrayResult
+}
 async function calculateTheTotalAmountOfEachCurrency(array) {
     let arrayResult = []
     let arrayCheck = []
@@ -775,121 +912,162 @@ module.exports = {
             }
             // console.log(body);
             // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        if (data) {
-            // if (data.data.status_code == 200) {
-            if (body.idCustomer != '1') {
-                var result = {
-                    array: [],
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: [],
-                    // all: data.data.data.pager.rowsCount
+        database.connectDatabase().then(async db => {
+            if (db) {
+                if (data) {
+                    // if (data.data.status_code == 200) {
+                    if (body.idCustomer != '1') {
+                        var result = {
+                            array: [],
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: [],
+                            // all: data.data.data.pager.rowsCount
+                        }
+                    } else {
+                        let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
+                        for (let i = 0; i < data.length; i++) {
+                            let check = await mtblInvoice(db).findOne({
+                                where: { IDSpecializedSoftware: data[i].id }
+                            })
+                            if (!check) {
+                                await mtblInvoice(db).create({
+                                    IDSpecializedSoftware: data[i].id,
+                                    Status: data[i].statusName,
+                                    Request: data[i].request
+                                })
+                            } else {
+                                data[i].statusName = check.Status
+                                data[i].request = check.Request
+                            }
+                        }
+                        var result = {
+                            array: data,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: totalMoney,
+                            // all: data.data.data.pager.rowsCount
+                        }
+                    }
+                    res.json(result);
+                    // } else {
+                    //     res.json(Result.SYS_ERROR_RESULT)
+                    // }
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
                 }
             } else {
-                var result = {
-                    array: data,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                    // all: data.data.data.pager.rowsCount
-                }
+                res.json(Result.SYS_ERROR_RESULT)
             }
-            res.json(result);
-            // } else {
-            //     res.json(Result.SYS_ERROR_RESULT)
-            // }
-        } else {
-            res.json(Result.SYS_ERROR_RESULT)
-        }
-        // })
+        })
     },
     // get_list_invoice_wait_for_pay_from_customer
     getListInvoiceWaitForPayFromCustomer: async(req, res) => {
         var body = req.body
-            // var obj = {
-            //     "paging":
-            //     {
-            //         "pageSize": 10,
-            //         "currentPage": 1,
-            //     },
-            //     "type": body.type
-            // }
+        console.log(body);
+        var obj = {
+                "paging": {
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
+                },
+                "type": body.type
+            }
             // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        if (data) {
-            var array = [];
-            // if (data.data.status_code == 200) {
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].statusName == "Chờ thanh toán") {
-                    data[i]['invoice'] = data[i].invoiceNumber
-                    array.push(data[i])
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                var array = []
+                let totalMoney = []
+                for (var i = 0; i < data.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: data[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: data[i].id,
+                            Status: data[i].statusName
+                        })
+                        if (data[i].statusName == 'Chờ thanh toán')
+                            array.push(data[i])
+                    } else {
+                        console.log(check.Status);
+                        if (check.Status == 'Chờ thanh toán')
+                            array.push(data[i])
+                    }
                 }
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                var result = {
+                    array: array,
+                    // array: data.data.data.list,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+
+                    // all: data.data.data.pager.rowsCount
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+
             }
-            var result = {
-                // array: data.data.data.list,
-                array: array,
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                // all: data.data.data.pager.rowsCount,
-                all: 2,
-                totalMoney: totalMoney,
-            }
-            res.json(result);
-            // } else {
-            //     res.json(Result.SYS_ERROR_RESULT)
-            // }
-        } else {
-            res.json(Result.SYS_ERROR_RESULT)
-        }
-        // })
+        })
     },
     // get_list_invoice_paid_from_customer
     getListInvoicePaidFromCustomer: async(req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
                 "paging": {
-                    "pageSize": 10,
-                    "currentPage": 1,
+                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                    "currentPage": body.page ? body.page : 0
                 },
                 "type": body.type
             }
-            // console.log(body);
             // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        if (data) {
-            // if (data.data.status_code == 200) {
-            var array = [];
-            // if (data.data.status_code == 200) {
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].statusName == "Đã thanh toán") {
-                    data[i]['invoice'] = data[i].invoiceNumber
-                    array.push(data[i])
+            //     if (data) {
+            //         if (data.data.status_code == 200) {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                var array = []
+                let totalMoney = []
+                for (var i = 0; i < data.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: data[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: data[i].id,
+                            Status: data[i].statusName
+                        })
+                        if (data[i].statusName == 'Đã thanh toán')
+                            array.push(data[i])
+                    } else {
+                        console.log(check.Status);
+                        if (check.Status == 'Đã thanh toán')
+                            array.push(data[i])
+                    }
                 }
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                var result = {
+                    array: array,
+                    // array: data.data.data.list,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+
+                    // all: data.data.data.pager.rowsCount
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+
             }
-            var result = {
-                // array: data.data.data.list,
-                array: array,
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                // all: data.data.data.pager.rowsCount,
-                all: 2,
-                totalMoney: totalMoney,
-            }
-            res.json(result);
-            // var result = {
-            //     array: data.data.data.list,
-            //     status: Constant.STATUS.SUCCESS,
-            //     message: Constant.MESSAGE.ACTION_SUCCESS,
-            //     all: data.data.data.pager.rowsCount
-            // }
-            // res.json(result);
-            // } else {
-            //     res.json(Result.SYS_ERROR_RESULT)
-            // }
-        } else {
-            res.json(Result.SYS_ERROR_RESULT)
-        }
-        // })
+        })
     },
 
     // Credit follow customer ------------------------------------------------------------------------------------------------------------------
@@ -903,39 +1081,56 @@ module.exports = {
                 },
                 "type": body.type
             }
+            // console.log(body);
             // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-        if (body.idCustomer == '1') {
-            var result = {
-                array: dataCredit,
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: 10,
-                totalMoney: totalMoney,
-                // all: data.data.data.pager.rowsCount
+        database.connectDatabase().then(async db => {
+            if (db) {
+                if (dataCredit) {
+                    if (body.idCustomer != '1') {
+                        var result = {
+                            array: [],
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: [],
+                        }
+                    } else {
+                        let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                        for (let i = 0; i < dataCredit.length; i++) {
+                            let check = await mtblInvoice(db).findOne({
+                                where: { IDSpecializedSoftware: dataCredit[i].id }
+                            })
+                            if (!check) {
+                                await mtblInvoice(db).create({
+                                    IDSpecializedSoftware: dataCredit[i].id,
+                                    Status: dataCredit[i].statusName,
+                                    Request: dataCredit[i].request
+                                })
+                            } else {
+                                dataCredit[i].statusName = check.Status
+                                dataCredit[i].request = check.Request
+                            }
+                        }
+                        var result = {
+                            array: dataCredit,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: totalMoney,
+                            // all: data.data.data.pager.rowsCount
+                        }
+                    }
+                    res.json(result);
+                    // } else {
+                    //     res.json(Result.SYS_ERROR_RESULT)
+                    // }
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
             }
-            res.json(result);
-        } else {
-            var result = {
-                // array: data.data.data.list,
-                array: [],
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: 0,
-                totalMoney: [],
-                // all: data.data.data.pager.rowsCount
-            }
-            res.json(result);
-        }
-        // } else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+        })
     },
     // get_list_credit_wait_for_pay_from_customer
     getListCreditWaitForPayFromCustomer: async(req, res) => {
@@ -947,46 +1142,57 @@ module.exports = {
                 },
                 "type": body.type
             }
+            // console.log(body);
             // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            // if (data.data.status_code == 200) {
-        if (body.idCustomer == '1') {
-            var array = []
-            for (var i = 0; i < dataCredit.length; i++) {
-                if (dataCredit[i].statusName == 'Chờ thanh toán') {
-                    array.push(dataCredit[i])
+        database.connectDatabase().then(async db => {
+            if (db) {
+                let array = []
+                if (dataCredit) {
+                    if (body.idCustomer != '1') {
+                        var result = {
+                            array: [],
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: [],
+                        }
+                    } else {
+                        let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                        for (let i = 0; i < dataCredit.length; i++) {
+                            let check = await mtblInvoice(db).findOne({
+                                where: { IDSpecializedSoftware: dataCredit[i].id }
+                            })
+                            if (!check) {
+                                await mtblInvoice(db).create({
+                                    IDSpecializedSoftware: dataCredit[i].id,
+                                    Status: dataCredit[i].statusName,
+                                    Request: dataCredit[i].request
+                                })
+                                if (dataCredit[i].statusName == 'Chờ thanh toán')
+                                    array.push(dataCredit[i])
+                            } else {
+                                dataCredit[i].statusName = check.Status
+                                dataCredit[i].request = check.Request
+                                if (dataCredit[i].statusName == 'Chờ thanh toán')
+                                    array.push(dataCredit[i])
+                            }
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: totalMoney,
+                        }
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
                 }
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
             }
-            var result = {
-                // array: data.data.data.list,
-                array: array,
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: 10,
-                totalMoney: totalMoney,
-                // all: data.data.data.pager.rowsCount
-            }
-            res.json(result);
-        } else {
-            var result = {
-                // array: data.data.data.list,
-                array: [],
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: 0,
-                totalMoney: [],
-                // all: data.data.data.pager.rowsCount
-            }
-            res.json(result);
-        }
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+        })
     },
     // get_list_credit_paid_from_customer
     getListCreditPaidFromCustomer: async(req, res) => {
@@ -998,46 +1204,57 @@ module.exports = {
                 },
                 "type": body.type
             }
+            // console.log(body);
             // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            // if (data.data.status_code == 200) {
-        if (body.idCustomer == '1') {
-            var array = []
-            for (var i = 0; i < dataCredit.length; i++) {
-                if (dataCredit[i].statusName == 'Đã thanh toán') {
-                    array.push(dataCredit[i])
+        database.connectDatabase().then(async db => {
+            if (db) {
+                let array = []
+                if (dataCredit) {
+                    if (body.idCustomer != '1') {
+                        var result = {
+                            array: [],
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: [],
+                        }
+                    } else {
+                        let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                        for (let i = 0; i < dataCredit.length; i++) {
+                            let check = await mtblInvoice(db).findOne({
+                                where: { IDSpecializedSoftware: dataCredit[i].id }
+                            })
+                            if (!check) {
+                                await mtblInvoice(db).create({
+                                    IDSpecializedSoftware: dataCredit[i].id,
+                                    Status: dataCredit[i].statusName,
+                                    Request: dataCredit[i].request
+                                })
+                                if (dataCredit[i].statusName == 'Đã thanh toán')
+                                    array.push(dataCredit[i])
+                            } else {
+                                dataCredit[i].statusName = check.Status
+                                dataCredit[i].request = check.Request
+                                if (dataCredit[i].statusName == 'Đã thanh toán')
+                                    array.push(dataCredit[i])
+                            }
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: 10,
+                            totalMoney: totalMoney,
+                        }
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
                 }
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
             }
-            var result = {
-                // array: data.data.data.list,
-                array: array,
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: 10,
-                totalMoney: totalMoney,
-                // all: data.data.data.pager.rowsCount
-            }
-            res.json(result);
-        } else {
-            var result = {
-                // array: data.data.data.list,
-                array: [],
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: 0,
-                totalMoney: [],
-                // all: data.data.data.pager.rowsCount
-            }
-            res.json(result);
-        }
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+        })
     },
 
 
@@ -1154,7 +1371,6 @@ module.exports = {
                         if (data[i].statusName == 'Đã thanh toán')
                             array.push(data[i])
                     } else {
-                        console.log(check.Status);
                         if (check.Status == 'Đã thanh toán')
                             array.push(data[i])
                     }
@@ -1289,221 +1505,247 @@ module.exports = {
     // get_list_credit
     getListCredit: async(req, res) => {
         var body = req.body
-        var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
+        database.connectDatabase().then(async db => {
+            var obj = {
+                    "paging": {
+                        "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                        "currentPage": body.page ? body.page : 0
+                    },
+                    "type": body.type
+                }
+                // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
+                //     if (data) {
+                //         if (data.data.status_code == 200) {
+            if (dataCredit) {
+                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                for (let i = 0; i < dataCredit.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: dataCredit[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: dataCredit[i].id,
+                            Status: dataCredit[i].statusName,
+                            Request: dataCredit[i].request
+                        })
+                    } else {
+                        dataCredit[i].statusName = check.Status
+                        dataCredit[i].request = check.Request
+                    }
+                }
+                var result = {
+                    array: dataCredit,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+                }
+
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
             }
-            // console.log(body);
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-        var result = {
-            array: dataCredit,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //         } else {
-        //             res.json(Result.SYS_ERROR_RESULT)
-        //         }
-        //     }
-        //     else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // })
+        }, )
     },
     // get_list_credit_wait_for_pay
     getListCreditWaitForPay: async(req, res) => {
         var body = req.body
-        var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-        var array = []
-        for (var i = 0; i < dataCredit.length; i++) {
-            if (dataCredit[i].statusName == 'Chờ thanh toán')
-                array.push(dataCredit[i])
-        }
-        let totalMoney = [{
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
-            }
-        ];
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
+        database.connectDatabase().then(async db => {
+            let array = []
+            var obj = {
+                    "paging": {
+                        "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                        "currentPage": body.page ? body.page : 0
+                    },
+                    "type": body.type
+                }
+                // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
+                //     if (data) {
+                //         if (data.data.status_code == 200) {
+            if (dataCredit) {
+                for (let i = 0; i < dataCredit.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: dataCredit[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: dataCredit[i].id,
+                            Status: dataCredit[i].statusName,
+                            Request: dataCredit[i].request
+                        })
+                        if (dataCredit[i].statusName == 'Chờ thanh toán')
+                            array.push(data[i])
+                    } else {
+                        dataCredit[i].statusName = check.Status
+                        dataCredit[i].request = check.Request
+                        if (check.Status == 'Chờ thanh toán')
+                            array.push(dataCredit[i])
+                    }
+                }
+                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                var result = {
+                    array: array,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+                }
 
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        }, )
     },
     // get_list_credit_paid
     getListCreditPaid: async(req, res) => {
         var body = req.body
-        var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
+        database.connectDatabase().then(async db => {
+            let array = []
+            var obj = {
+                    "paging": {
+                        "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                        "currentPage": body.page ? body.page : 0
+                    },
+                    "type": body.type
+                }
+                // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
+                //     if (data) {
+                //         if (data.data.status_code == 200) {
+            if (dataCredit) {
+                for (let i = 0; i < dataCredit.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: dataCredit[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: dataCredit[i].id,
+                            Status: dataCredit[i].statusName,
+                            Request: dataCredit[i].request
+                        })
+                        if (dataCredit[i].statusName == 'Đã thanh toán')
+                            array.push(data[i])
+                    } else {
+                        dataCredit[i].statusName = check.Status
+                        dataCredit[i].request = check.Request
+                        if (check.Status == 'Đã thanh toán')
+                            array.push(dataCredit[i])
+                    }
+                }
+                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                var result = {
+                    array: array,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+                }
+
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
             }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-        var array = []
-        let totalMoney = [{
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
-            }
-        ];
-        for (var i = 0; i < dataCredit.length; i++) {
-            if (dataCredit[i].statusName == 'Đã thanh toán')
-                array.push(dataCredit[i])
-        }
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+        }, )
     },
     // get_list_credit_edit_request
     getListCreditEditRequest: async(req, res) => {
         var body = req.body
-        var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-        let totalMoney = [{
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
-            }
-        ];
-        var array = []
-        for (var i = 0; i < dataCredit.length; i++) {
-            if (dataCredit[i].request == 'Yêu cầu sửa')
-                array.push(dataCredit[i])
-        }
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
+        database.connectDatabase().then(async db => {
+            let array = []
+            var obj = {
+                    "paging": {
+                        "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                        "currentPage": body.page ? body.page : 0
+                    },
+                    "type": body.type
+                }
+                // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
+                //     if (data) {
+                //         if (data.data.status_code == 200) {
+            if (dataCredit) {
+                for (let i = 0; i < dataCredit.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: dataCredit[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: dataCredit[i].id,
+                            Status: dataCredit[i].statusName,
+                            Request: dataCredit[i].request
+                        })
+                        if (dataCredit[i].request == 'Yêu cầu sửa')
+                            array.push(data[i])
+                    } else {
+                        dataCredit[i].statusName = check.Status
+                        dataCredit[i].request = check.Request
+                        if (check.Request == 'Yêu cầu sửa')
+                            array.push(dataCredit[i])
+                    }
+                }
+                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                var result = {
+                    array: array,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+                }
 
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        }, )
     },
     // get_list_Credit_delete_request
     getListCreditDeleteRequest: async(req, res) => {
         var body = req.body
-        var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-        var array = []
-        for (var i = 0; i < dataCredit.length; i++) {
-            if (dataCredit[i].request == 'Yêu cầu xóa')
-                array.push(dataCredit[i])
-        }
-        let totalMoney = [{
-                total: 1000000000,
-                type: 'VND',
-            },
-            {
-                total: 1000,
-                type: 'USD',
-            }
-        ];
-        var result = {
-            array: array,
-            // array: data.data.data.list,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            all: 10,
-            totalMoney: totalMoney,
+        database.connectDatabase().then(async db => {
+            let array = []
+            var obj = {
+                    "paging": {
+                        "pageSize": body.itemPerPage ? body.itemPerPage : 0,
+                        "currentPage": body.page ? body.page : 0
+                    },
+                    "type": body.type
+                }
+                // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
+                //     if (data) {
+                //         if (data.data.status_code == 200) {
+            if (dataCredit) {
+                for (let i = 0; i < dataCredit.length; i++) {
+                    let check = await mtblInvoice(db).findOne({
+                        where: { IDSpecializedSoftware: dataCredit[i].id }
+                    })
+                    if (!check) {
+                        await mtblInvoice(db).create({
+                            IDSpecializedSoftware: dataCredit[i].id,
+                            Status: dataCredit[i].statusName,
+                            Request: dataCredit[i].request
+                        })
+                        if (dataCredit[i].request == 'Yêu cầu xóa')
+                            array.push(data[i])
+                    } else {
+                        dataCredit[i].statusName = check.Status
+                        dataCredit[i].request = check.Request
+                        if (check.Request == 'Yêu cầu xóa')
+                            array.push(dataCredit[i])
+                    }
+                }
+                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                var result = {
+                    array: array,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+                }
 
-            // all: data.data.data.pager.rowsCount
-        }
-        res.json(result);
-        //     } else {
-        //         res.json(Result.SYS_ERROR_RESULT)
-        //     }
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // })
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        }, )
     },
 
 
@@ -1512,21 +1754,45 @@ module.exports = {
     // approval_invoice_and_credit
     approvalInvoiceAndCredit: async(req, res) => {
         var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                await mtblInvoice(db).update({
+                    Status: 'Chờ thanh toán',
+                    Request: ''
+                }, {
+                    where: { IDSpecializedSoftware: body.id }
+                })
+                var result = {
+                    status: Constant.STATUS.SUCCESS,
+                    message: 'Đã phê duyệt thành công',
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
     },
     // refuse_invoice_and_credit
     refuseInvoiceAndCredit: async(req, res) => {
         var body = req.body
-        console.log(body);
-        var result = {
-            status: Constant.STATUS.SUCCESS,
-            message: 'Đã phê duyệt thành công',
-        }
-        res.json(result);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                await mtblInvoice(db).update({
+                    Status: 'Chờ thanh toán',
+                    Request: ''
+                }, {
+                    where: { IDSpecializedSoftware: body.id }
+                })
+                var result = {
+                    status: Constant.STATUS.SUCCESS,
+                    message: 'Đã phê duyệt thành công',
+                }
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+
+            }
+        })
+
     },
 }
