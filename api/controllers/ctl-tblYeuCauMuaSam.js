@@ -386,6 +386,19 @@ module.exports = {
                             IDNhaCungCap: data.IDSupplier ? data.IDSupplier : null,
                             Date: now,
                         })
+                        await mtblFileAttach(db).findAll({
+                            where: {
+                                IDYeuCauMuaSam: body.id
+                            }
+                        }).then(async ycms => {
+                            for (let y = 0; y < ycms.length; y++) {
+                                await mtblFileAttach(db).create({
+                                    Link: ycms[y].Link,
+                                    Name: ycms[y].Name,
+                                    IDVanPhongPham: addVPP.ID,
+                                })
+                            }
+                        })
                         await mtblYeuCauMuaSamDetail(db).findAll({ where: { IDYeuCauMuaSam: data.ID } }).then(async detail => {
                             for (var i = 0; i < detail.length; i++) {
                                 await mThemVPPChiTiet(db).create({

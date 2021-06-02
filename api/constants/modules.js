@@ -97,9 +97,14 @@ module.exports = {
             else if (Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 2)))
                 codeBetween = Number(check[fieldCode].slice((codeBefore).length + 1, (codeBefore).length + 2)) + 1
             if (check[fieldCode]) {
-                if (Number(check[fieldCode].slice(check[fieldCode].length - 4, check[fieldCode].length + 6)) == year)
-                    automaticCode = codeBefore + '_' + codeBetween + '_' + month + year
-                else
+                let checkMonth = Number(check[fieldCode].slice(Number(check[fieldCode].length - 6), Number(check[fieldCode].length - 4)))
+                console.log(checkMonth);
+                if (Number(check[fieldCode].slice(check[fieldCode].length - 4, check[fieldCode].length + 6)) == year) {
+                    if (month != checkMonth)
+                        automaticCode = codeBefore + '_' + 1 + '_' + month + year
+                    else
+                        automaticCode = codeBefore + '_' + codeBetween + '_' + month + year
+                } else
                     automaticCode = codeBefore + '_' + 1 + '_' + month + year
             } else {
                 automaticCode = codeBefore + '_' + 1 + '_' + month + year

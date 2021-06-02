@@ -999,7 +999,9 @@ module.exports = {
                 for (c = 0; c < dataCustomer.length; c++) {
                     array.push({
                         name: dataCustomer[c].name,
+                        address: dataCustomer[c].address,
                         code: dataCustomer[c].customerCode,
+                        displayName: '[' + dataCustomer[c].customerCode + '] ' + dataCustomer[c].name,
                         id: dataCustomer[c].id,
                         type: 'customer',
                     })
@@ -1008,6 +1010,8 @@ module.exports = {
                     array.push({
                         name: dataPartner[p].name,
                         code: dataPartner[p].partnerCode,
+                        displayName: '[' + dataPartner[p].partnerCode + '] ' + dataPartner[p].name,
+                        address: dataPartner[p].address,
                         id: dataPartner[p].id,
                         type: 'partner',
                     })
@@ -1017,6 +1021,8 @@ module.exports = {
                         array.push({
                             name: element.StaffName,
                             code: element.StaffCode,
+                            displayName: '[' + element.StaffCode + '] ' + element.StaffName,
+                            address: element.Address,
                             id: element.ID,
                             type: 'staff',
                         })
@@ -1294,7 +1300,6 @@ module.exports = {
                             totalMoney: [],
                         }
                     } else {
-                        let totalMoney = await calculateTheTotalForCredit(dataCredit)
                         for (let i = 0; i < dataCredit.length; i++) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: dataCredit[i].id }
@@ -1314,6 +1319,7 @@ module.exports = {
                                     array.push(dataCredit[i])
                             }
                         }
+                        let totalMoney = await calculateTheTotalForCredit(array)
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

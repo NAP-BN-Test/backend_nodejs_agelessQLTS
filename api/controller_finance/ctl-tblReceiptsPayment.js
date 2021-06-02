@@ -17,6 +17,7 @@ var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
 var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
 var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     // Trả lại tiền
@@ -627,6 +628,108 @@ async function getDetailStaff(id) {
     ]
     var obj = {}
     dataStaff.forEach(item => {
+        if (item.id == id) {
+            obj = item
+        }
+    })
+    return obj
+
+}
+async function getDetailPartner(id) {
+    dataPartner = [{
+            id: "2",
+            partnerCode: "LOCK LOCK",
+            name: "Công ty TNHH Lock & Lock",
+            tax: "01245782110",
+            address: "Số 72A Nguyễn Trãi phường Thượng Đỉnh Thanh Xuân Hà Nội",
+            mobile: "0823145678",
+            fax: "045784124",
+            email: "locklockvn@gmail",
+        },
+        {
+            id: "3",
+            partnerCode: "HOA PHAT",
+            name: "Công ty TNHH Hòa Phát ",
+            tax: "012345678",
+            address: "Số 12 Bạch Mai Hà Nội",
+            mobile: "089745120",
+            fax: "023145216",
+            email: "hoaphat123@gmail.com",
+        },
+        {
+            id: "4",
+            partnerCode: "MEDIA MART",
+            name: "Siêu thị điện máy xanh media mart",
+            tax: "012345801",
+            address: "Số 1 Trương Định Hà Nội",
+            mobile: "089724152",
+            fax: "021465741",
+            email: "mediamart4546@gmail.com",
+        },
+        {
+            id: "5",
+            partnerCode: "GLOMED",
+            name: "Công ty dược phẩm Glomed  ",
+            tax: "012465563",
+            address: "Số 34 Huỳnh Thúc Kháng Hà Nội",
+            mobile: "012568523",
+            fax: "012457821",
+            email: "glomeddp@gmail.com",
+        },
+        {
+            id: "6",
+            partnerCode: "THUONG ĐINH",
+            name: "Công ty giầy Thượng Đỉnh",
+            tax: "012489660",
+            address: "Số 2 Kim Ngưu Hà Nội",
+            mobile: "021565635",
+            fax: "014653225",
+            email: "thuongdinhgiay@gmail.com",
+        },
+        {
+            id: "7",
+            partnerCode: "GIAY THANG LONG",
+            name: "Công ty TNHH giày Thăng Long",
+            tax: "012457821",
+            address: "Số 2A Phường Khương Trung Thanh Xuân Hà Nội",
+            mobile: "012465623",
+            fax: "01774125",
+            email: "giaytot@gmail.com",
+        },
+        {
+            id: "8",
+            partnerCode: "VINH DOAN",
+            name: "Công ty cổ phần Vĩnh Đoàn",
+            tax: "012458990",
+            address: "Số 60 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+            mobile: "021565650",
+            fax: "0158555245",
+            email: "vinhdoan123@gmail.com",
+        },
+        {
+            id: "9",
+            partnerCode: "SINO VANLOCK",
+            name: "Công ty sản xuất thiết bị điện Sino vanlock",
+            tax: "0124456685",
+            address: "SỐ 10 nguyễn Văn Cừ Long Biên Hà Nội",
+            mobile: "0154878741",
+            fax: "0157878865",
+            email: "sinovanlock@gmail.com",
+        },
+        {
+            id: "10",
+            partnerCode: "TRUNG NGUYEN",
+            name: "Tập đoàn cà phê Trung Nguyên",
+            tax: "0125748546",
+            address: "Thị Cấm Phường Xuân Phương Nam Từ Liêm Hà Nội",
+            mobile: "045654565",
+            fax: "013245422",
+            email: "trugnnguyen@gmail.com",
+        },
+
+    ]
+    var obj = {}
+    dataPartner.forEach(item => {
         if (item.id == id) {
             obj = item
         }
@@ -1261,6 +1364,37 @@ module.exports = {
                                 idSubmitter: data[i].IDSubmitter ? data[i].IDSubmitter : null,
                                 nameSubmitter: '',
                             }
+                            if (data[i].IDStaff) {
+                                let staff = await mtblDMNhanvien(db).findOne({
+                                    where: { ID: data[i].IDStaff }
+                                })
+                                obj['object'] = {
+                                    name: staff ? staff.StaffName : '',
+                                    code: staff ? staff.StaffCode : '',
+                                    address: staff ? staff.Address : '',
+                                    id: data[i].IDStaff,
+                                    displayName: '[' + staff.StaffCode + '] ' + staff.StaffName,
+                                    type: 'staff',
+                                }
+                            } else if (data[i].IDPartner) {
+                                let dataPartner = await getDetailPartner(data[i].IDPartner)
+                                obj['object'] = {
+                                    name: dataPartner ? dataPartner.name : '',
+                                    code: dataPartner ? dataPartner.partnerCode : '',
+                                    address: dataPartner ? dataPartner.address : '',
+                                    displayName: '[' + dataPartner.partnerCode + '] ' + dataPartner.name,
+                                    id: data[i].IDPartner,
+                                    type: 'partner',
+                                }
+                            } else
+                                obj['object'] = {
+                                    name: dataCus ? dataCus.name : '',
+                                    code: dataCus ? dataCus.customerCode : '',
+                                    displayName: '[' + dataCus.partnerCode + '] ' + dataCus.name,
+                                    address: dataCus ? dataCus.address : '',
+                                    id: data[i].IDCustomer,
+                                    type: 'customer',
+                                }
                             let arrayCredit = []
                             let arraydebit = []
                             let tblPaymentAccounting = mtblPaymentAccounting(db);
