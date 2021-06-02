@@ -16,8 +16,7 @@ async function deleteRelationshiptblVayTamUng(db, listID) {
         }
     })
 }
-dataStaff = [
-    {
+dataStaff = [{
         id: '1',
         staffCode: 'NV001',
         fullName: 'NGUYỄN THỊ THU',
@@ -207,13 +206,11 @@ module.exports = {
                     tblVayTamUng.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDTaiKhoanKeToanCost', sourceKey: 'IDTaiKhoanKeToanCost', as: 'tkkt' })
                     tblVayTamUng.findOne({
                         where: { ID: body.id },
-                        include: [
-                            {
-                                model: mtblDMTaiKhoanKeToan(db),
-                                required: false,
-                                as: 'tkkt'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMTaiKhoanKeToan(db),
+                            required: false,
+                            as: 'tkkt'
+                        }, ],
                     }).then(async data => {
                         if (data) {
                             var obj = {
@@ -468,8 +465,10 @@ module.exports = {
                     //  }
                     whereOjb = {
                         [Op.and]: [
-                            { Status: { [Op.ne]: 'Chờ hoàn ứng' } },
-                            { Status: { [Op.ne]: 'Đã hoàn ứng' } }
+                            { Status: {
+                                    [Op.ne]: 'Chờ hoàn ứng' } },
+                            { Status: {
+                                    [Op.ne]: 'Đã hoàn ứng' } }
                         ]
                     }
                     let stt = 1;
@@ -482,13 +481,11 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
-                                model: mtblDMTaiKhoanKeToan(db),
-                                required: false,
-                                as: 'tkkt'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMTaiKhoanKeToan(db),
+                            required: false,
+                            as: 'tkkt'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -498,6 +495,7 @@ module.exports = {
                                 advanceCode: data[i].AdvanceCode ? data[i].AdvanceCode : '',
                                 idNhanVienCreate: data[i].IDNhanVienCreate ? data[i].IDNhanVienCreate : null,
                                 nameNhanVienCreate: await getDetailStaff(data[i].IDNhanVienCreate),
+                                // codeNhanVienCreate: await getDetailStaff(data[i].IDNhanVienCreate),
                                 idBoPhanNVCreate: data[i].IDBoPhanNVCreate ? data[i].IDBoPhanNVCreate : null,
                                 nameBoPhanNVCreate: await getDepartmentFromStaff(data[i].IDNhanVienCreate),
                                 nameChiNhanhCreate: 'chưa có dữ liệu',
@@ -602,13 +600,11 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
-                                model: mtblDMTaiKhoanKeToan(db),
-                                required: false,
-                                as: 'tkkt'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMTaiKhoanKeToan(db),
+                            required: false,
+                            as: 'tkkt'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -849,9 +845,9 @@ module.exports = {
                         });
                     })
                     await mtblVayTamUng(db).findAll({
-                        where:
-                        {
-                            Status: { [Op.ne]: 'Đã hoàn ứng' },
+                        where: {
+                            Status: {
+                                [Op.ne]: 'Đã hoàn ứng' },
                             IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
@@ -912,8 +908,7 @@ module.exports = {
                     })
                     await mtblVayTamUng(db).findAll({
                         where: {
-                            [Op.or]: [
-                                {
+                            [Op.or]: [{
                                     Status: 'Chờ hoàn ứng',
                                     IDNhanVienAdvance: body.staffID,
                                 },

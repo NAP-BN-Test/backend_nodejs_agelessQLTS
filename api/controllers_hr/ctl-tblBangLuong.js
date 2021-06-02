@@ -708,14 +708,14 @@ async function calculateOvertime(db, staffID, date) {
                     minuteDateEnd = Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateEnd).subtract(7, 'hours').format('mm'))
                 }
                 if (minuteDateEnd >= thirteenH && minuteDateStart <= twelveH) {
-                    result = (minuteDateEnd - minuteDateStart) / 60 - 0.1875
+                    result += (minuteDateEnd - minuteDateStart) / 60 - 1.5
                 } else {
-                    result = (minuteDateEnd - minuteDateStart)
+                    result += (minuteDateEnd - minuteDateStart) / 60
                 }
             }
         }
     })
-    return result.toFixed(2)
+    return Number(result.toFixed(2))
 }
 // tính thời gian nghỉ phép
 async function calculateNumberLeave(db, staffID, date) {
@@ -870,7 +870,7 @@ async function aggregateTimekeepingForEachMonth(db, staff, date) {
         staffName: staff.StaffName ? staff.StaffName : '',
         staffCode: staff.StaffCode ? staff.StaffCode : '',
         departmentName: staff.department ? staff.department.DepartmentName : '',
-        overtime: overtime / 8,
+        overtime: Number((overtime / 8).toFixed(2)),
         numberHoliday: numberHoliday,
         freeBreak: Math.round(freeBreak / 2),
         lateDay: lateDay,
@@ -965,20 +965,6 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
                         let remaining = Number(remainingPreviousYear) + Number(objResult.overtime) - Number(objResult.lateDay) - Number(objResult.numberHoliday) - Number(objResult.freeBreak)
                         objResult['remaining'] = remaining.toFixed(2)
                         objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
-                        console.log(123456);
-                        console.log({
-                            StaffID: objResult.staffID,
-                            StaffName: objResult.staffName,
-                            StaffCode: objResult.staffCode,
-                            DepartmentName: objResult.departmentName,
-                            Overtime: objResult.overtime,
-                            NumberHoliday: objResult.numberHoliday,
-                            FreeBreak: objResult.freeBreak,
-                            LateDay: objResult.lateDay,
-                            Remaining: objResult.remaining,
-                            RemainingPreviousYear: objResult.remainingPreviousYear,
-                            Month: year + '-' + await convertNumber(month)
-                        });
                         await mtblTimeAttendanceSummary(db).create({
                             StaffID: objResult.staffID,
                             StaffName: objResult.staffName,

@@ -834,7 +834,7 @@ module.exports = {
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
-                                    displayName: '[' + (dataCus ? dataCus.partnerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
+                                    displayName: '[' + (dataCus ? dataCus.customerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
                                     address: dataCus ? dataCus.address : '',
                                     id: data.IDCustomer,
                                     type: 'customer',
