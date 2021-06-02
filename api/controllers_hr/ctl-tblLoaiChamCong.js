@@ -77,6 +77,7 @@ module.exports = {
     // add_tbl_loaichamcong
     addtblLoaiChamCong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

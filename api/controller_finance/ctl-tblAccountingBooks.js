@@ -5,13 +5,26 @@ var moment = require('moment');
 var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 var database = require('../database');
 var mModules = require('../constants/modules');
+var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
+var mtblCreditDebtnotices = require('../tables/financemanage/tblCreditDebtnotices')
+
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 async function deleteRelationshiptblAccountingBooks(db, listID) {
     await mtblAccountingBooks(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
+}
+
+function checkDuplicate(array, elm) {
+    var check = false;
+    array.forEach(item => {
+        if (item === elm) check = true;
+    })
+    return check;
 }
 module.exports = {
     deleteRelationshiptblAccountingBooks,
@@ -202,54 +215,87 @@ module.exports = {
         if (dataSearch.accountSystemOtherID)
             arrayIDAccount.push(dataSearch.accountSystemOtherID)
         const currentYear = new Date().getFullYear()
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var whereOjb = [];
                     if (arrayIDAccount.length > 0)
-                        whereOjb.push({ IDAccounting: { [Op.in]: arrayIDAccount } })
+                        whereOjb.push({
+                            IDAccounting: {
+                                [Op.in]: arrayIDAccount
+                            }
+                        })
                     if (dataSearch.selection == 'first_six_months') {
                         const startedDate = new Date(currentYear + "-01-01 14:00:00");
                         const endDate = new Date(currentYear + "-06-30 14:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.selection == 'last_six_months') {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'last_six_months') {
                         let startedDate = new Date(currentYear + "-06-01 07:00:00");
                         let endDate = new Date(currentYear + "-12-30 24:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.selection == 'one_quarter') {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'one_quarter') {
                         let startedDate = new Date(currentYear + "-01-01 07:00:00");
                         let endDate = new Date(currentYear + "-04-01 00:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.selection == 'two_quarter') {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'two_quarter') {
                         let startedDate = new Date(currentYear + "-04-01 07:00:00");
                         let endDate = new Date(currentYear + "-07-01 00:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.selection == 'three_quarter') {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'three_quarter') {
                         let startedDate = new Date(currentYear + "-07-01 07:00:00");
                         let endDate = new Date(currentYear + "-10-01 00:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.selection == 'four_quarter') {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'four_quarter') {
                         let startedDate = new Date(currentYear + "-10-01 07:00:00");
                         let endDate = new Date(currentYear + "-12-30 24:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.selection == 'last_year') {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'last_year') {
                         let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
                         let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.selection == 'this_year') {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'this_year') {
                         let startedDate = new Date(currentYear + "-01-01 07:00:00");
                         let endDate = new Date(currentYear + "-12-30 24:00:00");
-                        whereOjb.push({ CreateDate: { [Op.between]: [startedDate, endDate] } })
-                    }
-                    else if (dataSearch.dateFrom && dataSearch.dateTo) {
-                        whereOjb.push({ CreateDate: { [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo] } })
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.dateFrom && dataSearch.dateTo) {
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
+                            }
+                        })
                     }
                     let stt = 1;
                     let tblAccountingBooks = mtblAccountingBooks(db);
@@ -261,13 +307,11 @@ module.exports = {
                         order: [
                             ['ID', 'ASC']
                         ],
-                        include: [
-                            {
-                                model: mtblDMTaiKhoanKeToan(db),
-                                required: false,
-                                as: 'accounting'
-                            },
-                        ],
+                        include: [{
+                            model: mtblDMTaiKhoanKeToan(db),
+                            required: false,
+                            as: 'accounting'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -282,30 +326,31 @@ module.exports = {
                                 })
                             } else {
                                 arrayWhere.push({
-                                    IDPayment: { [Op.ne]: null }
+                                    IDPayment: {
+                                        [Op.ne]: null
+                                    }
                                 })
                             }
                             await tblAccountingBooks.findAll({
                                 where: {
-                                    [Op.and]: [
-                                        {
+                                    [Op.and]: [{
                                             [Op.or]: arrayWhere
                                         },
                                         {
-                                            ID: { [Op.ne]: data[i].ID }
+                                            ID: {
+                                                [Op.ne]: data[i].ID
+                                            }
                                         }
                                     ]
                                 },
                                 order: [
                                     ['ID', 'ASC']
                                 ],
-                                include: [
-                                    {
-                                        model: mtblDMTaiKhoanKeToan(db),
-                                        required: false,
-                                        as: 'accounting'
-                                    },
-                                ],
+                                include: [{
+                                    model: mtblDMTaiKhoanKeToan(db),
+                                    required: false,
+                                    as: 'accounting'
+                                }, ],
                             }).then(accounting => {
                                 if (accounting) {
                                     accounting.forEach(item => {
@@ -327,8 +372,15 @@ module.exports = {
                                             debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
                                             creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
                                         }
-                                        array.push(obj);
-                                        stt += 1;
+                                        if (arrayIDAccount.length <= 1) {
+                                            array.push(obj);
+                                            stt += 1;
+                                        } else {
+                                            if (checkDuplicate(arrayIDAccount, Number(data[i].IDAccounting)) && checkDuplicate(arrayIDAccount, Number(item.IDAccounting))) {
+                                                array.push(obj);
+                                                stt += 1;
+                                            }
+                                        }
                                     })
                                 }
                             })
