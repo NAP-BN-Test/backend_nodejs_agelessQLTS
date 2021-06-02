@@ -7,7 +7,9 @@ var database = require('../database');
 async function deleteRelationshiptblDMTinhTrangNV(db, listID) {
     await mtblDMTinhTrangNV(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -65,7 +67,7 @@ module.exports = {
                         mtblDMTinhTrangNV(db).create({
                             StatusName: body.statusName ? body.statusName : '',
                             StatusCode: body.statusCode ? body.statusCode : '',
-                            Describe: body.describe ? body.describe : '',
+                            Describe: body.description ? body.description : '',
                         }).then(data => {
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
@@ -102,8 +104,8 @@ module.exports = {
                         update.push({ key: 'StatusCode', value: body.statusCode });
                     if (body.statusName || body.statusName === '')
                         update.push({ key: 'StatusName', value: body.statusName });
-                    if (body.describe || body.describe === '')
-                        update.push({ key: 'Describe', value: body.describe });
+                    if (body.description || body.description === '')
+                        update.push({ key: 'Describe', value: body.description });
                     database.updateTable(update, mtblDMTinhTrangNV(db), body.id).then(response => {
                         if (response == 1) {
                             res.json(Result.ACTION_SUCCESS);
@@ -153,24 +155,41 @@ module.exports = {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
-                            where = [
-                                { StatusName: { [Op.like]: '%' + data.search + '%' } },
-                                { StatusCode: { [Op.like]: '%' + data.search + '%' } },
+                            where = [{
+                                    StatusName: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    StatusCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
                             ];
                         } else {
-                            where = [
-                                { StatusCode: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                StatusCode: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÊN TÌNH TRẠNG') {
-                                    userFind['StatusName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['StatusName'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -182,7 +201,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ TÌNH TRẠNG') {
-                                    userFind['StatusCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['StatusCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -215,7 +236,7 @@ module.exports = {
                                 id: Number(element.ID),
                                 statusName: element.StatusName ? element.StatusName : '',
                                 statusCode: element.StatusCode ? element.StatusCode : '',
-                                describe: element.Describe ? element.Describe : '',
+                                description: element.Describe ? element.Describe : '',
                             }
                             array.push(obj);
                             stt += 1;

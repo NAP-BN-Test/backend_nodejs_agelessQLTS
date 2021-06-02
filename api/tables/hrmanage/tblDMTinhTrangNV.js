@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = function (db) {
+module.exports = function(db) {
     var table = db.define('tblDMTinhTrangNV', {
         ID: {
             type: Sequelize.BIGINT,
@@ -8,7 +8,8 @@ module.exports = function (db) {
             autoIncrement: true
         },
         StatusCode: Sequelize.STRING,
-        StatusName: Sequelize.STRING
+        StatusName: Sequelize.STRING,
+        Describe: Sequelize.STRING
 
     });
 

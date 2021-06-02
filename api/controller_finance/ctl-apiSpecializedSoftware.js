@@ -1362,7 +1362,6 @@ module.exports = {
                             totalMoney: [],
                         }
                     } else {
-                        let totalMoney = await calculateTheTotalForCredit(dataCredit)
                         for (let i = 0; i < dataCredit.length; i++) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: dataCredit[i].id }
@@ -1382,6 +1381,7 @@ module.exports = {
                                     array.push(dataCredit[i])
                             }
                         }
+                        let totalMoney = await calculateTheTotalForCredit(array)
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
