@@ -57,6 +57,7 @@ module.exports = {
     // add_tbl_dm_tinhtrangnv
     addtblDMTinhTrangNV: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

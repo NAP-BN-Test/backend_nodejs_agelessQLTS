@@ -807,6 +807,39 @@ module.exports = {
                                 staffID: data.IDStaff ? data.IDStaff : null,
                                 staffName: 'Chưa có dữ liệu' ? 'Chưa có dữ liệu' : null,
                             }
+                            if (data.IDStaff) {
+                                let staff = await mtblDMNhanvien(db).findOne({
+                                    where: { ID: data.IDStaff }
+                                })
+                                obj['object'] = {
+                                    name: staff ? staff.StaffName : '',
+                                    code: staff ? staff.StaffCode : '',
+                                    address: staff ? staff.Address : '',
+                                    id: data.IDStaff,
+                                    displayName: '[' + (staff ? staff.StaffCode : '') + '] ' + (staff ? staff.StaffName : ''),
+                                    type: 'staff',
+                                }
+                            } else if (data.IDPartner) {
+                                let dataPartner = await getDetailPartner(data.IDPartner)
+                                obj['object'] = {
+                                    name: dataPartner ? dataPartner.name : '',
+                                    code: dataPartner ? dataPartner.partnerCode : '',
+                                    address: dataPartner ? dataPartner.address : '',
+                                    displayName: '[' + (dataPartner ? dataPartner.partnerCode : '') + '] ' + (dataPartner ? dataPartner.name : ''),
+                                    id: data.IDPartner,
+                                    type: 'partner',
+                                }
+                            } else {
+                                let dataCus = await getDetailCustomer(data.IDCustomer)
+                                obj['object'] = {
+                                    name: dataCus ? dataCus.name : '',
+                                    code: dataCus ? dataCus.customerCode : '',
+                                    displayName: '[' + (dataCus ? dataCus.partnerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
+                                    address: dataCus ? dataCus.address : '',
+                                    id: data.IDCustomer,
+                                    type: 'customer',
+                                }
+                            }
                             let arrayCredit = []
                             let arraydebit = []
                             let tblPaymentAccounting = mtblPaymentAccounting(db);
@@ -1373,7 +1406,7 @@ module.exports = {
                                     code: staff ? staff.StaffCode : '',
                                     address: staff ? staff.Address : '',
                                     id: data[i].IDStaff,
-                                    displayName: '[' + staff.StaffCode + '] ' + staff.StaffName,
+                                    displayName: '[' + (staff ? staff.StaffCode : '') + '] ' + (staff ? staff.StaffName : ''),
                                     type: 'staff',
                                 }
                             } else if (data[i].IDPartner) {
@@ -1382,7 +1415,7 @@ module.exports = {
                                     name: dataPartner ? dataPartner.name : '',
                                     code: dataPartner ? dataPartner.partnerCode : '',
                                     address: dataPartner ? dataPartner.address : '',
-                                    displayName: '[' + dataPartner.partnerCode + '] ' + dataPartner.name,
+                                    displayName: '[' + (dataPartner ? dataPartner.partnerCode : '') + '] ' + (dataPartner ? dataPartner.name : ''),
                                     id: data[i].IDPartner,
                                     type: 'partner',
                                 }
@@ -1390,7 +1423,7 @@ module.exports = {
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
-                                    displayName: '[' + dataCus.partnerCode + '] ' + dataCus.name,
+                                    displayName: '[' + (dataCus ? dataCus.partnerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
                                     address: dataCus ? dataCus.address : '',
                                     id: data[i].IDCustomer,
                                     type: 'customer',

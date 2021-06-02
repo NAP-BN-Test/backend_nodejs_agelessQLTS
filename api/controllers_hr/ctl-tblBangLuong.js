@@ -707,13 +707,15 @@ async function calculateOvertime(db, staffID, date) {
                     minuteDateStart = Number(moment(date[i].DateStart).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateStart).subtract(7, 'hours').format('mm'))
                     minuteDateEnd = Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateEnd).subtract(7, 'hours').format('mm'))
                 }
-                if (minuteDateEnd > minuteDateStart) {
-                    result = (minuteDateEnd - minuteDateStart) / 60
+                if (minuteDateEnd >= thirteenH && minuteDateStart <= twelveH) {
+                    result = (minuteDateEnd - minuteDateStart) / 60 - 0.1875
+                } else {
+                    result = (minuteDateEnd - minuteDateStart)
                 }
             }
         }
     })
-    return result
+    return result.toFixed(2)
 }
 // tính thời gian nghỉ phép
 async function calculateNumberLeave(db, staffID, date) {
