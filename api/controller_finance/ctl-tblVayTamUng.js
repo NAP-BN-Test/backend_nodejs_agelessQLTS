@@ -521,6 +521,7 @@ module.exports = {
                                 idNhanVienCreate: data[i].IDNhanVienCreate ? data[i].IDNhanVienCreate : null,
                                 nameNhanVienCreate: staff ? staff.StaffName : '',
                                 codeNhanVienCreate: staff ? staff.StaffCode : '',
+                                address: staff ? staff.Address : '',
                                 idBoPhanNVCreate: data[i].IDBoPhan ? data[i].IDBoPhan : null,
                                 nameBoPhanNVCreate: staff ? staff.department ? staff.department.DepartmentName : '' : '',
                                 nameChiNhanhCreate: 'chưa có dữ liệu',
