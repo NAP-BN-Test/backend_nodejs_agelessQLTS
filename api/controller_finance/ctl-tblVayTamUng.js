@@ -160,16 +160,24 @@ dataStaff = [{
         branchName: '',
     }
 ]
-async function getDetailStaff(id) {
-    var nameStaff;
-    for (var i = 0; i < dataStaff.length; i++) {
-        if (id == dataStaff[i].id) {
-            nameStaff = dataStaff[i].fullName
-            break
-        }
-    }
-    // console.log(nameStaff);
-    return nameStaff
+async function getDetailStaff(db, id) {
+    var staffResult;
+    let tblDMNhanvien = mtblDMNhanvien(db);
+    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
+
+    await tblDMNhanvien.findOne({
+        where: {
+            ID: id
+        },
+        include: [{
+            model: mtblDMBoPhan(db),
+            required: false,
+            as: 'department'
+        }, ],
+    }).then(data => {
+        staffResult = data
+    })
+    return staffResult
 }
 async function getDepartmentFromStaff(id) {
     var departmentStaff;
@@ -213,32 +221,40 @@ module.exports = {
                         }, ],
                     }).then(async data => {
                         if (data) {
+                            let staff = await getDetailStaff(db, data.IDNhanVienCreate)
+                            let staffAdvance = await getDetailStaff(db, data.IDNhanVienAdvance)
+                            let staffLDPD = await getDetailStaff(db, data.IDNhanVienLD)
+                            let staffKTPD = await getDetailStaff(db, data.IDNhanVienPD)
                             var obj = {
                                 id: Number(data.ID),
                                 advanceCode: data.AdvanceCode ? data.AdvanceCode : '',
                                 idNhanVienCreate: data.IDNhanVienCreate ? data.IDNhanVienCreate : null,
-                                nameNhanVienCreate: await getDetailStaff(data.IDNhanVienCreate),
-                                idBoPhanNVCreate: data.IDBoPhanNVCreate ? data.IDBoPhanNVCreate : null,
-                                nameBoPhanNVCreate: await getDepartmentFromStaff(data.IDNhanVienCreate),
-                                nameChiNhanhCreate: await getBranchFromStaff(data.IDNhanVienCreate),
+                                nameNhanVienCreate: staff ? staff.StaffName : '',
+                                codeNhanVienCreate: staff ? staff.StaffCode : '',
+                                idBoPhanNVCreate: data.IDBoPhan ? data.IDBoPhan : null,
+                                nameBoPhanNVCreate: staff ? staff.department ? staff.department.DepartmentName : '' : '',
+                                nameChiNhanhCreate: 'chưa có dữ liệu',
                                 idNhanVienAdvance: data.IDNhanVienAdvance ? data.IDNhanVienAdvance : null,
-                                nameNhanVienAdvance: await getDetailStaff(data.IDNhanVienAdvance),
+                                nameNhanVienAdvance: staffAdvance ? staffAdvance.StaffName : '',
+                                codeNhanVienAdvance: staffAdvance ? staffAdvance.StaffCode : '',
                                 idBoPhanNVAdvance: data.IDBoPhanNVAdvance ? data.IDBoPhanNVAdvance : null,
-                                nameBoPhanNVAdvance: await getDepartmentFromStaff(data.IDNhanVienAdvance),
-                                date: data.Date ? data.Date : null,
+                                nameBoPhanNVAdvance: staff ? staff.department ? staff.department.DepartmentName : '' : '',
+                                date: data.Date ? moment(data.Date).format('YYYY-MM-DD') : null,
                                 contents: data.Contents ? data.Contents : '',
                                 cost: data.Cost ? data.Cost : null,
                                 idTaiKhoanKeToanCost: data.IDTaiKhoanKeToanCost ? data.IDTaiKhoanKeToanCost : null,
                                 nameTaiKhoanKeToanCost: data.tkkt ? data.tkkt.AccountingName : '',
                                 idNhanVienLDPD: data.IDNhanVienLD ? data.IDNhanVienLD : null,
-                                nameNhanVienLDPD: await getDetailStaff(data.IDNhanVienLD),
-                                trangThaiPheDuyetPDLD: data.TrangThaiPheDuyetLD ? data.TrangThaiPheDuyetLD : '',
+                                nameNhanVienLDPD: staffLDPD ? staffLDPD.StaffName : '',
+                                codeNhanVienLDPD: staffLDPD ? staffLDPD.StaffCode : '',
+                                trangThaiPheDuyetLD: data.TrangThaiPheDuyetLD ? data.TrangThaiPheDuyetLD : '',
                                 idNhanVienKTPD: data.IDNhanVienPD ? data.IDNhanVienPD : null,
-                                nameNhanVienKTPD: await getDetailStaff(data.IDNhanVienPD),
-                                trangThaiPheDuyetKTPD: data.TrangThaiPheDuyetPD ? data.TrangThaiPheDuyetPD : '',
+                                nameNhanVienKTPD: staffKTPD ? staffKTPD.StaffName : '',
+                                codeNhanVienKTPD: staffKTPD ? staffKTPD.StaffCode : '',
+                                trangThaiPheDuyetKT: data.TrangThaiPheDuyetPD ? data.TrangThaiPheDuyetPD : '',
                                 reason: data.Reason ? data.Reason : '',
                                 refunds: data.Refunds ? data.Refunds : true,
-                                status: data.Status ? data.Status : true,
+                                status: data.Status ? data.Status : '',
                             }
                             var result = {
                                 obj: obj,
@@ -464,11 +480,16 @@ module.exports = {
                     //     }
                     //  }
                     whereOjb = {
-                        [Op.and]: [
-                            { Status: {
-                                    [Op.ne]: 'Chờ hoàn ứng' } },
-                            { Status: {
-                                    [Op.ne]: 'Đã hoàn ứng' } }
+                        [Op.and]: [{
+                                Status: {
+                                    [Op.ne]: 'Chờ hoàn ứng'
+                                }
+                            },
+                            {
+                                Status: {
+                                    [Op.ne]: 'Đã hoàn ứng'
+                                }
+                            }
                         ]
                     }
                     let stt = 1;
@@ -489,30 +510,37 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
+                            let staff = await getDetailStaff(db, data[i].IDNhanVienCreate)
+                            let staffAdvance = await getDetailStaff(db, data[i].IDNhanVienAdvance)
+                            let staffLDPD = await getDetailStaff(db, data[i].IDNhanVienLD)
+                            let staffKTPD = await getDetailStaff(db, data[i].IDNhanVienPD)
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
                                 advanceCode: data[i].AdvanceCode ? data[i].AdvanceCode : '',
                                 idNhanVienCreate: data[i].IDNhanVienCreate ? data[i].IDNhanVienCreate : null,
-                                nameNhanVienCreate: await getDetailStaff(data[i].IDNhanVienCreate),
-                                // codeNhanVienCreate: await getDetailStaff(data[i].IDNhanVienCreate),
-                                idBoPhanNVCreate: data[i].IDBoPhanNVCreate ? data[i].IDBoPhanNVCreate : null,
-                                nameBoPhanNVCreate: await getDepartmentFromStaff(data[i].IDNhanVienCreate),
+                                nameNhanVienCreate: staff ? staff.StaffName : '',
+                                codeNhanVienCreate: staff ? staff.StaffCode : '',
+                                idBoPhanNVCreate: data[i].IDBoPhan ? data[i].IDBoPhan : null,
+                                nameBoPhanNVCreate: staff ? staff.department ? staff.department.DepartmentName : '' : '',
                                 nameChiNhanhCreate: 'chưa có dữ liệu',
                                 idNhanVienAdvance: data[i].IDNhanVienAdvance ? data[i].IDNhanVienAdvance : null,
-                                nameNhanVienAdvance: await getDetailStaff(data[i].IDNhanVienAdvance),
+                                nameNhanVienAdvance: staffAdvance ? staffAdvance.StaffName : '',
+                                codeNhanVienAdvance: staffAdvance ? staffAdvance.StaffCode : '',
                                 idBoPhanNVAdvance: data[i].IDBoPhanNVAdvance ? data[i].IDBoPhanNVAdvance : null,
-                                nameBoPhanNVAdvance: 'chưa có dữ liệu',
+                                nameBoPhanNVAdvance: staff ? staff.department ? staff.department.DepartmentName : '' : '',
                                 date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 contents: data[i].Contents ? data[i].Contents : '',
                                 cost: data[i].Cost ? data[i].Cost : null,
                                 idTaiKhoanKeToanCost: data[i].IDTaiKhoanKeToanCost ? data[i].IDTaiKhoanKeToanCost : null,
                                 nameTaiKhoanKeToanCost: data[i].tkkt ? data[i].tkkt.AccountingName : '',
                                 idNhanVienLDPD: data[i].IDNhanVienLD ? data[i].IDNhanVienLD : null,
-                                nameNhanVienLDPD: await getDetailStaff(data[i].IDNhanVienLD),
+                                nameNhanVienLDPD: staffLDPD ? staffLDPD.StaffName : '',
+                                codeNhanVienLDPD: staffLDPD ? staffLDPD.StaffCode : '',
                                 trangThaiPheDuyetLD: data[i].TrangThaiPheDuyetLD ? data[i].TrangThaiPheDuyetLD : '',
                                 idNhanVienKTPD: data[i].IDNhanVienPD ? data[i].IDNhanVienPD : null,
-                                nameNhanVienKTPD: await getDetailStaff(data[i].IDNhanVienPD),
+                                nameNhanVienKTPD: staffKTPD ? staffKTPD.StaffName : '',
+                                codeNhanVienKTPD: staffKTPD ? staffKTPD.StaffCode : '',
                                 trangThaiPheDuyetKT: data[i].TrangThaiPheDuyetPD ? data[i].TrangThaiPheDuyetPD : '',
                                 reason: data[i].Reason ? data[i].Reason : '',
                                 refunds: data[i].Refunds ? data[i].Refunds : true,
@@ -521,6 +549,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
+                        console.log(array);
                         var count = await mtblVayTamUng(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
@@ -847,7 +876,8 @@ module.exports = {
                     await mtblVayTamUng(db).findAll({
                         where: {
                             Status: {
-                                [Op.ne]: 'Đã hoàn ứng' },
+                                [Op.ne]: 'Đã hoàn ứng'
+                            },
                             IDNhanVienAdvance: body.staffID,
                         }
                     }).then(data => {
