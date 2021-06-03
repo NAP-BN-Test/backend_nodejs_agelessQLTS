@@ -3,6 +3,7 @@ const Result = require('../constants/result');
 const Constant = require('../constants/constant');
 var mtblInvoice = require('../tables/financemanage/tblInvoice')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
 // data model invoice của KH
 data = [{
@@ -973,23 +974,46 @@ module.exports = {
     },
     // get_list_user
     getListUser: async(req, res) => {
-        // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/user/share`).then(data => {
-        //     if (data) {
-        var result = {
-            // array: data.data.data,
-            array: dataStaff,
-            status: Constant.STATUS.SUCCESS,
-            message: Constant.MESSAGE.ACTION_SUCCESS,
-            // all: data.data.data.length
-            all: 10
-        }
-        res.json(result);
-        // }
-        // else {
-        //     res.json(Result.SYS_ERROR_RESULT)
-        // }
-        // console.log(data.data);
-        // })
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+
+                    tblDMNhanvien.findAll({
+                        include: [{
+                            model: mtblDMBoPhan(db),
+                            required: false,
+                            as: 'bp'
+                        }, ],
+                    }).then(data => {
+                        var array = [];
+                        data.forEach(element => {
+                            var obj = {
+                                id: Number(element.ID),
+                                staffCode: element.StaffCode ? element.StaffCode : '',
+                                fullName: element.StaffName ? element.StaffName : '',
+                                departmentName: element.bp ? element.bp.DepartmentName : '',
+                            }
+                            array.push(obj);
+                        });
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
     },
     // get_all_object
     getAllObject: async(req, res) => {
