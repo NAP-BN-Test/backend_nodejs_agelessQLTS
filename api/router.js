@@ -577,6 +577,8 @@ module.exports = function(app) {
     var tblRole = require('./controllers/ctl-tblRole')
     app.route('/qlnb/add_tbl_role').post(checkToken.checkToken, tblRole.addtblRole);
     app.route('/qlnb/update_tbl_role').post(checkToken.checkToken, tblRole.updatetblRole);
+    app.route('/qlnb/update_permission_of_role').post(checkToken.checkToken, tblRole.updatePermissionRole);
+    app.route('/qlnb/get_detail_tbl_role').post(tblRole.detailtblRole);
     app.route('/qlnb/delete_tbl_role').post(checkToken.checkToken, tblRole.deletetblRole);
     app.route('/qlnb/get_list_tbl_role').post(tblRole.getListtblRole);
     app.route('/qlnb/get_list_name_tbl_role').post(checkToken.checkToken, tblRole.getListNametblRole);

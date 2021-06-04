@@ -499,24 +499,24 @@ module.exports = {
                 'qltsArray': array,
                 'qlnsArray': arrayContract,
             });
-            // await database.connectDatabase().then(async db => {
-            //     if (db) {
-            //         var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
-            //             order: [
-            //                 Sequelize.literal('max(DateEnd) DESC'),
-            //             ],
-            //             group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
-            //             where: {
-            //                 DateEnd: {
-            //                     [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
-            //                 }
-            //             }
-            //         })
-            //         if (insurancePremiums) {
-            //             socket.emit("check-insurance-premiums", 1);
-            //         }
-            //     }
-            // })
+            await database.connectDatabase().then(async db => {
+                if (db) {
+                    var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
+                        order: [
+                            Sequelize.literal('max(DateEnd) DESC'),
+                        ],
+                        group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
+                        where: {
+                            DateEnd: {
+                                [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
+                            }
+                        }
+                    })
+                    if (insurancePremiums) {
+                        socket.emit("check-insurance-premiums", 1);
+                    }
+                }
+            })
             clients[socket.id] = socket;
 
             socket.on('disconnect', function() {

@@ -8,8 +8,8 @@ module.exports = function(db) {
             autoIncrement: true
         },
         Code: Sequelize.STRING,
-        Name: Sequelize.STRING
-
+        Name: Sequelize.STRING,
+        Permissions: Sequelize.STRING
     });
 
     return table;

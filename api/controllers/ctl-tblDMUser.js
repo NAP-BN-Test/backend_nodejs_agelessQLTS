@@ -39,7 +39,7 @@ module.exports = {
                             Password: body.password ? body.password : '123456a$',
                             IDNhanvien: body.idNhanvien ? body.idNhanvien : null,
                             Active: body.active ? body.active : '',
-                            IDPermission: body.idPermission ? body.idPermission : null,
+                            // IDPermission: body.idPermission ? body.idPermission : null,
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                             NameSpecializedSoftware: body.specializedSoftwareName ? body.specializedSoftwareName : '',
                         }).then(async data => {
@@ -74,12 +74,16 @@ module.exports = {
     // update_tbl_dmuser
     updatetblDMUser: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
                     let roleIDs = JSON.parse(body.roleIDs)
+                    await mtblRRoleUser(db).destroy({
+                        where: {
+                            UserID: body.id,
+                        }
+                    })
                     for (let i = 0; i < roleIDs.length; i++) {
                         await mtblRRoleUser(db).create({
                             RoleID: roleIDs[i].id,
@@ -100,12 +104,12 @@ module.exports = {
                         else
                             update.push({ key: 'IDNhanvien', value: body.idNhanvien });
                     }
-                    if (body.idPermission || body.idPermission === '') {
-                        if (body.idPermission === '')
-                            update.push({ key: 'IDPermission', value: null });
-                        else
-                            update.push({ key: 'IDPermission', value: body.idPermission });
-                    }
+                    // if (body.idPermission || body.idPermission === '') {
+                    //     if (body.idPermission === '')
+                    //         update.push({ key: 'IDPermission', value: null });
+                    //     else
+                    //         update.push({ key: 'IDPermission', value: body.idPermission });
+                    // }
                     if (body.active || body.active === '')
                         update.push({ key: 'Active', value: body.active });
                     database.updateTable(update, mtblDMUser(db), body.id).then(response => {
@@ -423,7 +427,7 @@ module.exports = {
                                 for (let u = 0; u < user.length; u++) {
                                     users.push({
                                         id: user[u].RoleID,
-                                        permissionName: user[u].RoleID ? user[u].role.Name : '',
+                                        name: user[u].RoleID ? user[u].role.Name : '',
                                     })
                                 }
                                 obj['roleIDs'] = users

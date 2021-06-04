@@ -37,6 +37,7 @@ module.exports = {
                             var obj = {
                                 id: data.ID,
                                 name: data.Name,
+                                permissions: data.Permissions ? JSON.parse(data.Permissions) : '',
                                 code: data.Code,
                             }
                             var result = {
@@ -63,7 +64,7 @@ module.exports = {
     addtblRole: (req, res) => {
         let body = req.body;
         console.log(body);
-        let permissionIDs = JSON.parse(body.permissionIDs)
+        // let permissionIDs = JSON.parse(body.permissionIDs)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -75,12 +76,12 @@ module.exports = {
                             Code: body.code ? body.code : '',
                             Name: body.name ? body.name : '',
                         }).then(async data => {
-                            for (let i = 0; i < permissionIDs.length; i++) {
-                                await mtbltblRPermissionRole({
-                                    RoleID: data.ID,
-                                    PermissionID: permissionIDs[i],
-                                })
-                            }
+                            // for (let i = 0; i < permissionIDs.length; i++) {
+                            //     await mtbltblRPermissionRole({
+                            //         RoleID: data.ID,
+                            //         PermissionID: permissionIDs[i],
+                            //     })
+                            // }
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -113,13 +114,6 @@ module.exports = {
                     let check = await mtblRole(db).findOne({
                         Code: body.code
                     })
-                    let permissionIDs = JSON.parse(body.permissionIDs)
-                    for (let i = 0; i < permissionIDs.length; i++) {
-                        await mtbltblRPermissionRole({
-                            RoleID: body.id,
-                            PermissionID: permissionIDs[i],
-                        })
-                    }
                     if (!check) {
                         if (body.code || body.code === '')
                             update.push({ key: 'Code', value: body.code });
@@ -140,6 +134,26 @@ module.exports = {
                         res.json(result);
                     }
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // update_permission_of_role
+    updatePermissionRole: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblRole(db).update({
+                        Permissions: body.permissions
+                    }, { where: { ID: body.id } })
+                    res.json(Result.ACTION_SUCCESS);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
