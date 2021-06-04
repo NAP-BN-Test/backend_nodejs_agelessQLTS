@@ -45,7 +45,7 @@ module.exports = {
                         }).then(async data => {
                             for (let i = 0; i < roleIDs.length; i++) {
                                 await mtblRRoleUser({
-                                    RoleID: roleIDs[i],
+                                    RoleID: roleIDs[i].id,
                                     UserID: data.ID,
                                 })
                             }
@@ -81,8 +81,8 @@ module.exports = {
                     let update = [];
                     let roleIDs = JSON.parse(body.roleIDs)
                     for (let i = 0; i < roleIDs.length; i++) {
-                        await mtblRRoleUser({
-                            RoleID: roleIDs[i],
+                        await mtblRRoleUser(db).create({
+                            RoleID: roleIDs[i].id,
                             UserID: body.id,
                         })
                     }

@@ -8,7 +8,8 @@ async function deleteRelationshiptblDMPermission(db, listID) {
     await mtblDMPermission(db).destroy({
         where: {
             ID: {
-                [Op.in]: listID }
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -95,24 +96,28 @@ module.exports = {
                     var data = JSON.parse(body.dataSearch)
 
                     if (data.search) {
-                        where = [
-                            { PermissionName: {
-                                    [Op.like]: '%' + data.search + '%' } },
-                        ];
+                        where = [{
+                            PermissionName: {
+                                [Op.like]: '%' + data.search + '%'
+                            }
+                        }, ];
                     } else {
-                        where = [
-                            { PermissionName: {
-                                    [Op.ne]: '%%' } },
-                        ];
+                        where = [{
+                            PermissionName: {
+                                [Op.ne]: '%%'
+                            }
+                        }, ];
                     }
                     let whereOjb = {
-                        [Op.or]: where };
+                        [Op.or]: where
+                    };
                     if (data.items) {
                         for (var i = 0; i < data.items.length; i++) {
                             let userFind = {};
                             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
                                 userFind['PermissionName'] = {
-                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                }
                                 if (data.items[i].conditionFields['name'] == 'And') {
                                     whereOjb[Op.and] = userFind
                                 }
@@ -138,6 +143,8 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 permissionName: element.PermissionName ? element.PermissionName : '',
+                                permissionCode: element.PermissionCode ? element.PermissionCode : '',
+                                type: element.Type ? element.Type : '',
                             }
                             array.push(obj);
                         });
@@ -170,6 +177,8 @@ module.exports = {
                             var obj = {
                                 id: Number(element.ID),
                                 permissionName: element.PermissionName ? element.PermissionName : '',
+                                permissionCode: element.PermissionCode ? element.PermissionCode : '',
+                                type: element.Type ? element.Type : '',
                             }
                             array.push(obj);
                         });

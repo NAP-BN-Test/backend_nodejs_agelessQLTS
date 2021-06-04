@@ -32,9 +32,33 @@ var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
+var mtblIncreaseSalariesAndStaff = require('../tables/hrmanage/tblIncreaseSalariesAndStaff')
+var mtblDecidedInsuranceSalary = require('../tables/hrmanage/tblDecidedInsuranceSalary')
+var mtblRewardPunishmentRStaff = require('../tables/hrmanage/tblRewardPunishmentRStaff')
 
 var database = require('../database');
 async function deleteRelationshiptblDMNhanvien(db, listID) {
+    await mtblIncreaseSalariesAndStaff(db).destroy({
+        where: {
+            StaffID: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblRewardPunishmentRStaff(db).destroy({
+        where: {
+            StaffID: {
+                [Op.in]: listID
+            }
+        }
+    })
+    await mtblDecidedInsuranceSalary(db).destroy({
+        where: {
+            IDStaff: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblPhanPhoiVPP(db).update({
         IDNhanVienBanGiao: null,
     }, {
@@ -450,7 +474,6 @@ module.exports = {
     // add_tbl_dmnhanvien
     addtblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {

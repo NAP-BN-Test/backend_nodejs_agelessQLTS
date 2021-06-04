@@ -62,6 +62,7 @@ module.exports = {
     // add_tbl_role
     addtblRole: (req, res) => {
         let body = req.body;
+        console.log(body);
         let permissionIDs = JSON.parse(body.permissionIDs)
         database.connectDatabase().then(async db => {
             if (db) {

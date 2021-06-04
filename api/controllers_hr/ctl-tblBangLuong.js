@@ -860,13 +860,16 @@ async function aggregateTimekeepingForEachMonth(db, staff, date) {
                 if (item.Status == '1') {
                     freeBreak += 1
                 } else if (item.Status != '+') {
-                    if (item.Status && item.Status != '0.5') {
-                        lateDay += (Number(item.Status.slice(1, 10)) / 60 / 8)
+                    if (item.Status && item.Status != '0.5' && item.Status != 'Sat' && item.Status != 'Sun') {
+                        if (Number(item.Status.slice(1, 10)))
+                            lateDay += (Number(item.Status.slice(1, 10)) / 60 / 8)
                     }
                 }
             })
     })
-    lateDay = lateDay.toFixed(2)
+    if (lateDay)
+        lateDay = lateDay.toFixed(2)
+
     objResult = {
         staffID: staff.ID,
         staffName: staff.StaffName ? staff.StaffName : '',
@@ -909,7 +912,19 @@ async function createTimeAttendanceSummary() {
                         let remaining = Number(remainingPreviousYear) + Number(objResult.overtime) - Number(objResult.lateDay) - Number(objResult.numberHoliday) - Number(objResult.freeBreak)
                         objResult['remaining'] = remaining.toFixed(2)
                         objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
-
+                        console.log({
+                            StaffID: objResult.staffID,
+                            StaffName: objResult.staffName,
+                            StaffCode: objResult.staffCode,
+                            DepartmentName: objResult.departmentName,
+                            Overtime: objResult.overtime,
+                            NumberHoliday: objResult.numberHoliday,
+                            FreeBreak: objResult.freeBreak,
+                            LateDay: objResult.lateDay,
+                            Remaining: objResult.remaining,
+                            RemainingPreviousYear: objResult.remainingPreviousYear,
+                            Month: year + '-' + await convertNumber(month)
+                        });
                         await mtblTimeAttendanceSummary(db).create({
                             StaffID: objResult.staffID,
                             StaffName: objResult.staffName,
