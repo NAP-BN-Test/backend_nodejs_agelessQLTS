@@ -550,7 +550,6 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        console.log(array);
                         var count = await mtblVayTamUng(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
@@ -638,29 +637,38 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
+                            let staff = await getDetailStaff(db, data[i].IDNhanVienCreate)
+                            let staffAdvance = await getDetailStaff(db, data[i].IDNhanVienAdvance)
+                            let staffLDPD = await getDetailStaff(db, data[i].IDNhanVienLD)
+                            let staffKTPD = await getDetailStaff(db, data[i].IDNhanVienPD)
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
                                 advanceCode: data[i].AdvanceCode ? data[i].AdvanceCode : '',
                                 idNhanVienCreate: data[i].IDNhanVienCreate ? data[i].IDNhanVienCreate : null,
-                                nameNhanVienCreate: await getDetailStaff(data[i].IDNhanVienCreate),
-                                idBoPhanNVCreate: data[i].IDBoPhanNVCreate ? data[i].IDBoPhanNVCreate : null,
-                                nameBoPhanNVCreate: await getDepartmentFromStaff(data.IDNhanVienCreate),
-                                nameChiNhanhCreate: await getBranchFromStaff(data.IDNhanVienCreate),
+                                nameNhanVienCreate: staff ? staff.StaffName : '',
+                                codeNhanVienCreate: staff ? staff.StaffCode : '',
+                                address: staff ? staff.Address : '',
+                                idBoPhanNVCreate: data[i].IDBoPhan ? data[i].IDBoPhan : null,
+                                nameBoPhanNVCreate: staff ? staff.department ? staff.department.DepartmentName : '' : '',
+                                nameChiNhanhCreate: 'chưa có dữ liệu',
                                 idNhanVienAdvance: data[i].IDNhanVienAdvance ? data[i].IDNhanVienAdvance : null,
-                                nameNhanVienAdvance: await getDetailStaff(data[i].IDNhanVienAdvance),
+                                nameNhanVienAdvance: staffAdvance ? staffAdvance.StaffName : '',
+                                codeNhanVienAdvance: staffAdvance ? staffAdvance.StaffCode : '',
                                 idBoPhanNVAdvance: data[i].IDBoPhanNVAdvance ? data[i].IDBoPhanNVAdvance : null,
-                                nameBoPhanNVAdvance: await getDepartmentFromStaff(data.IDNhanVienAdvance),
+                                nameBoPhanNVAdvance: staff ? staff.department ? staff.department.DepartmentName : '' : '',
                                 date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 contents: data[i].Contents ? data[i].Contents : '',
                                 cost: data[i].Cost ? data[i].Cost : null,
                                 idTaiKhoanKeToanCost: data[i].IDTaiKhoanKeToanCost ? data[i].IDTaiKhoanKeToanCost : null,
                                 nameTaiKhoanKeToanCost: data[i].tkkt ? data[i].tkkt.AccountingName : '',
                                 idNhanVienLDPD: data[i].IDNhanVienLD ? data[i].IDNhanVienLD : null,
-                                nameNhanVienLDPD: await getDetailStaff(data[i].IDNhanVienLD),
+                                nameNhanVienLDPD: staffLDPD ? staffLDPD.StaffName : '',
+                                codeNhanVienLDPD: staffLDPD ? staffLDPD.StaffCode : '',
                                 trangThaiPheDuyetLD: data[i].TrangThaiPheDuyetLD ? data[i].TrangThaiPheDuyetLD : '',
                                 idNhanVienKTPD: data[i].IDNhanVienPD ? data[i].IDNhanVienPD : null,
-                                nameNhanVienKTPD: await getDetailStaff(data[i].IDNhanVienPD),
+                                nameNhanVienKTPD: staffKTPD ? staffKTPD.StaffName : '',
+                                codeNhanVienKTPD: staffKTPD ? staffKTPD.StaffCode : '',
                                 trangThaiPheDuyetKT: data[i].TrangThaiPheDuyetPD ? data[i].TrangThaiPheDuyetPD : '',
                                 reason: data[i].Reason ? data[i].Reason : '',
                                 refunds: data[i].Refunds ? data[i].Refunds : true,
@@ -669,7 +677,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        var count = await mtblVayTamUng(db).count({ where: { Status: 'Hoàn ứng' }, })
+                        var count = await mtblVayTamUng(db).count({ where: whereOjb, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

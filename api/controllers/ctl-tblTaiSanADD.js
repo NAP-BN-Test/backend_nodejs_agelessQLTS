@@ -957,7 +957,7 @@ module.exports = {
                                 status: element.Status ? element.Status : 0,
                                 date: element.taisan ? element.taisan.Date ? moment(element.taisan.Date).format('DD/MM/YYYY') : '' : '',
                                 guaranteDate: guaranteDate,
-                                warrantyRemaining: warrantyRemaining,
+                                warrantyRemaining: warrantyRemaining > 0 ? warrantyRemaining : 0,
                                 isCreateReceipt: element.IDReceiptsPayment ? true : false
                             }
                             array.push(obj);

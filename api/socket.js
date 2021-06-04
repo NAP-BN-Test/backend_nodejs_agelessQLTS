@@ -187,6 +187,7 @@ module.exports = {
     sockketIO: async(io) => {
         var array = await getPaymentAndREquest()
         var arrayContract = await getStaffContractExpirationData();
+        var clients = {}
         io.on("connection", async function(socket) {
             socket.on("sendrequest", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
@@ -492,33 +493,39 @@ module.exports = {
 
             });
             console.log('The user is connecting : ' + socket.id);
-            io.sockets.emit("Server-send-data", array);
+            socket.emit("Server-send-data", array);
             socket.emit("Server-send-contract-notification-schedule", arrayContract);
-            io.sockets.emit("Server-send-all-the-messages", {
+            socket.emit("Server-send-all-the-messages", {
                 'qltsArray': array,
                 'qlnsArray': arrayContract,
             });
-            await database.connectDatabase().then(async db => {
-                if (db) {
-                    var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
-                        order: [
-                            Sequelize.literal('max(DateEnd) DESC'),
-                        ],
-                        group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
-                        where: {
-                            DateEnd: {
-                                [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
-                            }
-                        }
-                    })
-                    if (insurancePremiums) {
-                        socket.emit("check-insurance-premiums", 1);
-                    }
-                }
-            })
-            socket.on("disconnect", function() {
+            // await database.connectDatabase().then(async db => {
+            //     if (db) {
+            //         var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
+            //             order: [
+            //                 Sequelize.literal('max(DateEnd) DESC'),
+            //             ],
+            //             group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
+            //             where: {
+            //                 DateEnd: {
+            //                     [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
+            //                 }
+            //             }
+            //         })
+            //         if (insurancePremiums) {
+            //             socket.emit("check-insurance-premiums", 1);
+            //         }
+            //     }
+            // })
+            clients[socket.id] = socket;
+
+            socket.on('disconnect', function() {
                 console.log(socket.id + " disconnected!");
+                delete clients[socket.id];
             });
+            // socket.on("disconnect", function() {
+            //     console.log(socket.id + " disconnected!");
+            // });
             socket.on("Client-send-data", async function(data) {
                 console.log(socket.id + " just sent: " + data);
                 var array = [];

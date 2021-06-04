@@ -945,7 +945,6 @@ module.exports = {
                                     min = Number(moment(element.DateStart).format('MM'))
                             })
                         })
-                        await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
                     }
 
                     var result = {

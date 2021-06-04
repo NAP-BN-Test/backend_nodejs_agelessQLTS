@@ -445,7 +445,7 @@ module.exports = function(app) {
     app.route('/qlnb/reimbursement').post(checkToken.checkToken, tblVayTamUng.reimbursement);
     app.route('/qlnb/get_list_loan_advance_from_staff').post(tblVayTamUng.getListLoanAdvanceFromStaff);
     app.route('/qlnb/get_list_reimbursement_from_staff').post(checkToken.checkToken, tblVayTamUng.getListReimbursementFromStaff);
-    app.route('/qlnb/get_list_reimbursement').post(checkToken.checkToken, tblVayTamUng.getListReimbursement);
+    app.route('/qlnb/get_list_reimbursement').post(tblVayTamUng.getListReimbursement);
     app.route('/qlnb/get_list_name_tbl_vaytamung').post(tblVayTamUng.getListNametblVayTamUng);
     app.route('/qlnb/approval_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienKTPD);
     // Điều khoản thanh toán
@@ -572,4 +572,13 @@ module.exports = function(app) {
     var tblStateAgencies = require('./controller_finance/ctl-tblCoQuanNhaNuoc')
     app.route('/qlnb/get_list_tbl_state_agencies').post(tblStateAgencies.getListtblCoQuanNhaNuoc);
     app.route('/qlnb/track_receipts').post(tblStateAgencies.trackReceipts);
+
+    // thêm mới quyền
+    var tblRole = require('./controllers/ctl-tblRole')
+    app.route('/qlnb/add_tbl_role').post(checkToken.checkToken, tblRole.addtblRole);
+    app.route('/qlnb/update_tbl_role').post(checkToken.checkToken, tblRole.updatetblRole);
+    app.route('/qlnb/delete_tbl_role').post(checkToken.checkToken, tblRole.deletetblRole);
+    app.route('/qlnb/get_list_tbl_role').post(checkToken.checkToken, tblRole.getListtblRole);
+    app.route('/qlnb/get_list_name_tbl_role').post(checkToken.checkToken, tblRole.getListNametblRole);
+
 }
