@@ -7,7 +7,8 @@ var database = require('../database');
 async function deleteRelationshiptblDMPermission(db, listID) {
     await mtblDMPermission(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID }
         }
     })
 }
@@ -95,19 +96,23 @@ module.exports = {
 
                     if (data.search) {
                         where = [
-                            { PermissionName: { [Op.like]: '%' + data.search + '%' } },
+                            { PermissionName: {
+                                    [Op.like]: '%' + data.search + '%' } },
                         ];
                     } else {
                         where = [
-                            { PermissionName: { [Op.ne]: '%%' } },
+                            { PermissionName: {
+                                    [Op.ne]: '%%' } },
                         ];
                     }
-                    let whereOjb = { [Op.or]: where };
+                    let whereOjb = {
+                        [Op.or]: where };
                     if (data.items) {
                         for (var i = 0; i < data.items.length; i++) {
                             let userFind = {};
                             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                                userFind['PermissionName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                userFind['PermissionName'] = {
+                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                 if (data.items[i].conditionFields['name'] == 'And') {
                                     whereOjb[Op.and] = userFind
                                 }

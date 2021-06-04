@@ -5,6 +5,9 @@ var moment = require('moment');
 var mtblRole = require('../tables/constants/tblRole')
 var mtblRRoleUser = require('../tables/constants/tblRRoleUser')
 var database = require('../database');
+var mtbltblRPermissionRole = require('../tables/constants/tblRPermissionRole');
+var mtblDMPermission = require('../tables/constants/tblDMPermission');
+
 async function deleteRelationshiptblRole(db, listID) {
     await mtblRRoleUser(db).destroy({
         where: {
@@ -59,6 +62,7 @@ module.exports = {
     // add_tbl_role
     addtblRole: (req, res) => {
         let body = req.body;
+        let permissionIDs = JSON.parse(body.permissionIDs)
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -69,7 +73,13 @@ module.exports = {
                         mtblRole(db).create({
                             Code: body.code ? body.code : '',
                             Name: body.name ? body.name : '',
-                        }).then(data => {
+                        }).then(async data => {
+                            for (let i = 0; i < permissionIDs.length; i++) {
+                                await mtbltblRPermissionRole({
+                                    RoleID: data.ID,
+                                    PermissionID: permissionIDs[i],
+                                })
+                            }
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -102,6 +112,13 @@ module.exports = {
                     let check = await mtblRole(db).findOne({
                         Code: body.code
                     })
+                    let permissionIDs = JSON.parse(body.permissionIDs)
+                    for (let i = 0; i < permissionIDs.length; i++) {
+                        await mtbltblRPermissionRole({
+                            RoleID: body.id,
+                            PermissionID: permissionIDs[i],
+                        })
+                    }
                     if (!check) {
                         if (body.code || body.code === '')
                             update.push({ key: 'Code', value: body.code });
@@ -232,16 +249,35 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (let i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                name: element.Name ? element.Name : '',
-                                code: element.Code ? element.Code : '',
+                                id: Number(data[i].ID),
+                                name: data[i].Name ? data[i].Name : '',
+                                code: data[i].Code ? data[i].Code : '',
                             }
+                            let tbltblRPermissionRole = mtbltblRPermissionRole(db);
+                            tbltblRPermissionRole.belongsTo(mtblDMPermission(db), { foreignKey: 'PermissionID', sourceKey: 'PermissionID', as: 'permission' })
+                            await tbltblRPermissionRole.findAll({
+                                where: { RoleID: data[i].ID },
+                                include: [{
+                                    model: mtblDMPermission(db),
+                                    required: false,
+                                    as: 'permission'
+                                }, ],
+                            }).then(per => {
+                                let pers = []
+                                for (let p = 0; p < per.length; p++) {
+                                    pers.push({
+                                        id: per[p].PermissionID,
+                                        permissionName: per[p].PermissionID ? per[p].permission.PermissionName : '',
+                                    })
+                                }
+                                obj['permissionIDs'] = pers
+                            })
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         var count = await mtblRole(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

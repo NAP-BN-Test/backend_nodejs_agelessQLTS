@@ -9,6 +9,8 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 var database = require('../database');
 let jwt = require('jsonwebtoken');
+var mtblRRoleUser = require('../tables/constants/tblRRoleUser');
+var mtblRole = require('../tables/constants/tblRole')
 
 async function deleteRelationshiptblDMUser(db, listID) {
     await mtblDMUser(db).destroy({
@@ -25,6 +27,8 @@ module.exports = {
     addtblDMUser: (req, res) => {
         let body = req.body;
         console.log(body);
+        let roleIDs = JSON.parse(body.roleIDs)
+
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -38,7 +42,13 @@ module.exports = {
                             IDPermission: body.idPermission ? body.idPermission : null,
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                             NameSpecializedSoftware: body.specializedSoftwareName ? body.specializedSoftwareName : '',
-                        }).then(data => {
+                        }).then(async data => {
+                            for (let i = 0; i < roleIDs.length; i++) {
+                                await mtblRRoleUser({
+                                    RoleID: roleIDs[i],
+                                    UserID: data.ID,
+                                })
+                            }
                             var result = {
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -69,6 +79,13 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    let roleIDs = JSON.parse(body.roleIDs)
+                    for (let i = 0; i < roleIDs.length; i++) {
+                        await mtblRRoleUser({
+                            RoleID: roleIDs[i],
+                            UserID: body.id,
+                        })
+                    }
                     if (body.username || body.username === '')
                         update.push({ key: 'Username', value: body.username });
                     if (body.idSpecializedSoftware || body.idSpecializedSoftware === '')
@@ -374,27 +391,46 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                    }).then(data => {
+                    }).then(async data => {
                         var array = [];
                         let stt = 1
-                        data.forEach(element => {
+                        for (let i = 0; i < data.length; i++) {
                             var obj = {
                                 stt: stt,
-                                id: Number(element.ID),
-                                userName: element.Username ? element.Username : '',
-                                password: element.Password ? element.Password : '',
-                                idNhanvien: element.IDNhanvien ? element.IDNhanvien : null,
-                                staffName: element.tblDMNhanvien ? element.tblDMNhanvien.StaffName : '',
-                                staffCode: element.tblDMNhanvien ? element.tblDMNhanvien.StaffCode : '',
-                                idSpecializedSoftware: element.IDSpecializedSoftware ? element.IDSpecializedSoftware : null,
-                                nameSpecializedSoftware: element.NameSpecializedSoftware ? element.NameSpecializedSoftware : null,
-                                active: element.Active ? 'Có hiệu lực' : 'Vô hiệu hóa',
-                                idPermission: element.IDPermission ? element.IDPermission : null,
-                                permissionName: element.tblDMPermission ? element.tblDMPermission.PermissionName : '',
+                                id: Number(data[i].ID),
+                                userName: data[i].Username ? data[i].Username : '',
+                                password: data[i].Password ? data[i].Password : '',
+                                idNhanvien: data[i].IDNhanvien ? data[i].IDNhanvien : null,
+                                staffName: data[i].tblDMNhanvien ? data[i].tblDMNhanvien.StaffName : '',
+                                staffCode: data[i].tblDMNhanvien ? data[i].tblDMNhanvien.StaffCode : '',
+                                idSpecializedSoftware: data[i].IDSpecializedSoftware ? data[i].IDSpecializedSoftware : null,
+                                nameSpecializedSoftware: data[i].NameSpecializedSoftware ? data[i].NameSpecializedSoftware : null,
+                                active: data[i].Active ? 'Có hiệu lực' : 'Vô hiệu hóa',
+                                idPermission: data[i].IDPermission ? data[i].IDPermission : null,
+                                permissionName: data[i].tblDMPermission ? data[i].tblDMPermission.PermissionName : '',
                             }
+                            let tblRRoleUser = mtblRRoleUser(db);
+                            tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
+                            await tblRRoleUser.findAll({
+                                where: { UserID: data[i].ID },
+                                include: [{
+                                    model: mtblRole(db),
+                                    required: false,
+                                    as: 'role'
+                                }, ],
+                            }).then(user => {
+                                let users = []
+                                for (let u = 0; u < user.length; u++) {
+                                    users.push({
+                                        id: user[u].RoleID,
+                                        permissionName: user[u].RoleID ? user[u].role.Name : '',
+                                    })
+                                }
+                                obj['roleIDs'] = users
+                            })
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         var result = {
                             array: array,
                             count: count,

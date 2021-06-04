@@ -54,7 +54,7 @@ module.exports = function(app) {
     app.route('/qlnb/add_tbl_dmuser').post(checkToken.checkToken, tblDMUser.addtblDMUser);
     app.route('/qlnb/update_tbl_dmuser').post(checkToken.checkToken, tblDMUser.updatetblDMUser);
     app.route('/qlnb/delete_tbl_dmuser').post(checkToken.checkToken, tblDMUser.deletetblDMUser);
-    app.route('/qlnb/get_list_tbl_dmuser').post(checkToken.checkToken, tblDMUser.getListtblDMUser);
+    app.route('/qlnb/get_list_tbl_dmuser').post(tblDMUser.getListtblDMUser);
     app.route('/qlnb/get_list_name_tbl_dmuser').post(tblDMUser.getListNametblDMUser);
 
     app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(tblDMNhanvien.getListNametblDMNhanvien);
@@ -578,7 +578,7 @@ module.exports = function(app) {
     app.route('/qlnb/add_tbl_role').post(checkToken.checkToken, tblRole.addtblRole);
     app.route('/qlnb/update_tbl_role').post(checkToken.checkToken, tblRole.updatetblRole);
     app.route('/qlnb/delete_tbl_role').post(checkToken.checkToken, tblRole.deletetblRole);
-    app.route('/qlnb/get_list_tbl_role').post(checkToken.checkToken, tblRole.getListtblRole);
+    app.route('/qlnb/get_list_tbl_role').post(tblRole.getListtblRole);
     app.route('/qlnb/get_list_name_tbl_role').post(checkToken.checkToken, tblRole.getListNametblRole);
 
 }
