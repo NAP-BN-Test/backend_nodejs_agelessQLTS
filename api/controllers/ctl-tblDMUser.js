@@ -35,7 +35,7 @@ module.exports = {
                     tblDMUser.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien' })
                     tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission' })
                     let count = await tblDMUser.count({ where: whereOjb })
-                    tblDMUser.findAll({
+                    tblDMUser.findOne({
                         include: [{
                                 model: mtblDMNhanvien(db),
                                 required: false,
@@ -52,48 +52,41 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                     }).then(async data => {
-                        var array = [];
-                        let stt = 1
-                        for (let i = 0; i < data.length; i++) {
-                            var obj = {
-                                stt: stt,
-                                id: Number(data[i].ID),
-                                userName: data[i].Username ? data[i].Username : '',
-                                password: data[i].Password ? data[i].Password : '',
-                                idNhanvien: data[i].IDNhanvien ? data[i].IDNhanvien : null,
-                                staffName: data[i].tblDMNhanvien ? data[i].tblDMNhanvien.StaffName : '',
-                                staffCode: data[i].tblDMNhanvien ? data[i].tblDMNhanvien.StaffCode : '',
-                                idSpecializedSoftware: data[i].IDSpecializedSoftware ? data[i].IDSpecializedSoftware : null,
-                                nameSpecializedSoftware: data[i].NameSpecializedSoftware ? data[i].NameSpecializedSoftware : null,
-                                active: data[i].Active ? 'Có hiệu lực' : 'Vô hiệu hóa',
-                                idPermission: data[i].IDPermission ? data[i].IDPermission : null,
-                                permissionName: data[i].tblDMPermission ? data[i].tblDMPermission.PermissionName : '',
-                                permissions: data[i].Permissions ? JSON.parse(data[i].Permissions) : '',
-                            }
-                            let tblRRoleUser = mtblRRoleUser(db);
-                            tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
-                            await tblRRoleUser.findAll({
-                                where: { UserID: data[i].ID },
-                                include: [{
-                                    model: mtblRole(db),
-                                    required: false,
-                                    as: 'role'
-                                }, ],
-                            }).then(user => {
-                                let users = []
-                                for (let u = 0; u < user.length; u++) {
-                                    users.push({
-                                        id: user[u].RoleID,
-                                        name: user[u].RoleID ? user[u].role.Name : '',
-                                    })
-                                }
-                                obj['roleIDs'] = users
-                            })
-                            array.push(obj);
-                            stt += 1;
+                        var obj = {
+                            id: Number(data.ID),
+                            userName: data.Username ? data.Username : '',
+                            password: data.Password ? data.Password : '',
+                            idNhanvien: data.IDNhanvien ? data.IDNhanvien : null,
+                            staffName: data.tblDMNhanvien ? data.tblDMNhanvien.StaffName : '',
+                            staffCode: data.tblDMNhanvien ? data.tblDMNhanvien.StaffCode : '',
+                            idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : null,
+                            nameSpecializedSoftware: data.NameSpecializedSoftware ? data.NameSpecializedSoftware : null,
+                            active: data.Active ? 'Có hiệu lực' : 'Vô hiệu hóa',
+                            idPermission: data.IDPermission ? data.IDPermission : null,
+                            permissionName: data.tblDMPermission ? data.tblDMPermission.PermissionName : '',
+                            permissions: data.Permissions ? JSON.parse(data.Permissions) : '',
                         }
+                        let tblRRoleUser = mtblRRoleUser(db);
+                        tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
+                        await tblRRoleUser.findAll({
+                            where: { UserID: data.ID },
+                            include: [{
+                                model: mtblRole(db),
+                                required: false,
+                                as: 'role'
+                            }, ],
+                        }).then(user => {
+                            let users = []
+                            for (let u = 0; u < user.length; u++) {
+                                users.push({
+                                    id: user[u].RoleID,
+                                    name: user[u].RoleID ? user[u].role.Name : '',
+                                })
+                            }
+                            obj['roleIDs'] = users
+                        })
                         var result = {
-                            array: array,
+                            obj: obj,
                             count: count,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

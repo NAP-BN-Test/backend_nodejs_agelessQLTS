@@ -52,8 +52,9 @@ module.exports = function(app) {
     // Quản lý account
     app.route('/qlnb/login').post(tblDMUser.login);
     app.route('/qlnb/add_tbl_dmuser').post(checkToken.checkToken, tblDMUser.addtblDMUser);
-    app.route('/qlnb/get_detail_tbl_dmuser').post(checkToken.checkToken, tblDMUser.getDetailtblDMUser);
+    app.route('/qlnb/get_detail_tbl_dmuser').post(tblDMUser.getDetailtblDMUser);
     app.route('/qlnb/update_tbl_dmuser').post(checkToken.checkToken, tblDMUser.updatetblDMUser);
+    app.route('/qlnb/update_permission_for_tbl_dmuser').post(checkToken.checkToken, tblDMUser.updatePermissionFortblDMUser);
     app.route('/qlnb/delete_tbl_dmuser').post(checkToken.checkToken, tblDMUser.deletetblDMUser);
     app.route('/qlnb/get_list_tbl_dmuser').post(tblDMUser.getListtblDMUser);
     app.route('/qlnb/get_list_name_tbl_dmuser').post(tblDMUser.getListNametblDMUser);
