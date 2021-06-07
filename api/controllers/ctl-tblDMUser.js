@@ -13,6 +13,13 @@ var mtblRRoleUser = require('../tables/constants/tblRRoleUser');
 var mtblRole = require('../tables/constants/tblRole')
 
 async function deleteRelationshiptblDMUser(db, listID) {
+    await mtblRRoleUser(db).destroy({
+        where: {
+            UserID: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblDMUser(db).destroy({
         where: {
             ID: {
@@ -717,6 +724,7 @@ module.exports = {
                         branchCode: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.BranchCode : '' : '' : '',
                         branchName: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.BranchName : '' : '' : '',
                         branchID: data.nv ? data.nv.bp ? data.nv.bp.chinhanh ? data.nv.bp.chinhanh.ID : null : null : null,
+                        permissions: data.Permissions ? data.Permissions : '',
                     }
                     payload = {
                             "Username": req.body.userName,

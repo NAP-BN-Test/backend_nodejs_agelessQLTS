@@ -69,7 +69,7 @@ module.exports = {
             if (db) {
                 try {
                     let check = await mtblRole(db).findOne({
-                        Code: body.code
+                        where: { Code: body.code }
                     })
                     if (!check)
                         mtblRole(db).create({
