@@ -288,6 +288,29 @@ module.exports = {
             }
         })
     },
+    // update_permission_for_tbl_dmuser
+    updatePermissionFortblDMUser: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblDMUser(db).update({
+                        Permissions: body.permissions ? body.permissions : '',
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // delete_tbl_dmuser
     deletetblDMUser: (req, res) => {
         let body = req.body;
