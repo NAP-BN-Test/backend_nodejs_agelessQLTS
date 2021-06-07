@@ -23,16 +23,139 @@ async function deleteRelationshiptblDMUser(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblDMUser,
+    // get_detail_tbl_dmuser
+    getDetailtblDMUser: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let whereOjb = [];
+                    // Một nhiều
+                    let tblDMUser = mtblDMUser(db); // bắt buộc
+                    tblDMUser.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien' })
+                    tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission' })
+                    let count = await tblDMUser.count({ where: whereOjb })
+                    tblDMUser.findAll({
+                        include: [{
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                            },
+                            {
+                                model: mtblDMPermission(db),
+                                required: false,
+                            }
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { ID: body.id },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        let stt = 1
+                        for (let i = 0; i < data.length; i++) {
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                userName: data[i].Username ? data[i].Username : '',
+                                password: data[i].Password ? data[i].Password : '',
+                                idNhanvien: data[i].IDNhanvien ? data[i].IDNhanvien : null,
+                                staffName: data[i].tblDMNhanvien ? data[i].tblDMNhanvien.StaffName : '',
+                                staffCode: data[i].tblDMNhanvien ? data[i].tblDMNhanvien.StaffCode : '',
+                                idSpecializedSoftware: data[i].IDSpecializedSoftware ? data[i].IDSpecializedSoftware : null,
+                                nameSpecializedSoftware: data[i].NameSpecializedSoftware ? data[i].NameSpecializedSoftware : null,
+                                active: data[i].Active ? 'Có hiệu lực' : 'Vô hiệu hóa',
+                                idPermission: data[i].IDPermission ? data[i].IDPermission : null,
+                                permissionName: data[i].tblDMPermission ? data[i].tblDMPermission.PermissionName : '',
+                                permissions: data[i].Permissions ? JSON.parse(data[i].Permissions) : '',
+                            }
+                            let tblRRoleUser = mtblRRoleUser(db);
+                            tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
+                            await tblRRoleUser.findAll({
+                                where: { UserID: data[i].ID },
+                                include: [{
+                                    model: mtblRole(db),
+                                    required: false,
+                                    as: 'role'
+                                }, ],
+                            }).then(user => {
+                                let users = []
+                                for (let u = 0; u < user.length; u++) {
+                                    users.push({
+                                        id: user[u].RoleID,
+                                        name: user[u].RoleID ? user[u].role.Name : '',
+                                    })
+                                }
+                                obj['roleIDs'] = users
+                            })
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        var result = {
+                            array: array,
+                            count: count,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // add_tbl_dmuser
     addtblDMUser: (req, res) => {
         let body = req.body;
         console.log(body);
         let roleIDs = JSON.parse(body.roleIDs)
-
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var check = await mtblDMUser(db).findOne({ where: { Username: body.username } })
+                    let permissions = {}
+                    if (roleIDs.length > 0) {
+                        await mtblRole(db).findOne({
+                            where: { ID: roleIDs[0].id }
+                        }).then(role => {
+                            if (role && role.Permissions) {
+                                let permissionsData = JSON.parse(role.Permissions)
+                                permissions = permissionsData
+                            }
+                        })
+                    }
+                    for (let i = 0; i < roleIDs.length; i++) {
+                        await mtblRole(db).findOne({
+                            where: { ID: roleIDs[i].id }
+                        }).then(role => {
+                            if (role && role.Permissions) {
+                                let permissionsData = JSON.parse(role.Permissions)
+                                for (let ts = 0; ts < permissionsData.permissionTS.length; ts++) {
+                                    if (permissionsData.permissionTS[ts].completed) {
+                                        permissions.permissionTS[ts].completed == true
+                                    }
+                                }
+                                for (let ns = 0; ns < permissionsData.permissionNS.length; ns++) {
+                                    if (permissionsData.permissionNS[ns].completed) {
+                                        permissions.permissionNS[ns].completed == true
+                                    }
+                                }
+                                for (let tc = 0; tc < permissionsData.permissionTC.length; tc++) {
+                                    if (permissionsData.permissionTC[tc].completed) {
+                                        permissions.permissionTC[tc].completed == true
+                                    }
+                                }
+                            }
+                        })
+                    }
+                    console.log(permissions);
+                    permissions = JSON.stringify(permissions)
                     if (!check) {
                         mtblDMUser(db).create({
                             Username: body.username ? body.username : '',
@@ -42,9 +165,10 @@ module.exports = {
                             // IDPermission: body.idPermission ? body.idPermission : null,
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                             NameSpecializedSoftware: body.specializedSoftwareName ? body.specializedSoftwareName : '',
+                            Permissions: permissions,
                         }).then(async data => {
                             for (let i = 0; i < roleIDs.length; i++) {
-                                await mtblRRoleUser({
+                                await mtblRRoleUser(db).create({
                                     RoleID: roleIDs[i].id,
                                     UserID: data.ID,
                                 })
@@ -79,6 +203,42 @@ module.exports = {
                 try {
                     let update = [];
                     let roleIDs = JSON.parse(body.roleIDs)
+                    if (roleIDs.length > 0) {
+                        await mtblRole(db).findOne({
+                            where: { ID: roleIDs[0].id }
+                        }).then(role => {
+                            if (role && role.Permissions) {
+                                let permissionsData = JSON.parse(role.Permissions)
+                                permissions = permissionsData
+                            }
+                        })
+                    }
+                    for (let i = 0; i < roleIDs.length; i++) {
+                        await mtblRole(db).findOne({
+                            where: { ID: roleIDs[i].id }
+                        }).then(role => {
+                            if (role && role.Permissions) {
+                                let permissionsData = JSON.parse(role.Permissions)
+                                for (let ts = 0; ts < permissionsData.permissionTS.length; ts++) {
+                                    if (permissionsData.permissionTS[ts].completed) {
+                                        permissions.permissionTS[ts].completed == true
+                                    }
+                                }
+                                for (let ns = 0; ns < permissionsData.permissionNS.length; ns++) {
+                                    if (permissionsData.permissionNS[ns].completed) {
+                                        permissions.permissionNS[ns].completed == true
+                                    }
+                                }
+                                for (let tc = 0; tc < permissionsData.permissionTC.length; tc++) {
+                                    if (permissionsData.permissionTC[tc].completed) {
+                                        permissions.permissionTC[tc].completed == true
+                                    }
+                                }
+                            }
+                        })
+                    }
+                    permissions = JSON.stringify(permissions)
+                    update.push({ key: 'Permissions', value: permissions });
                     await mtblRRoleUser(db).destroy({
                         where: {
                             UserID: body.id,

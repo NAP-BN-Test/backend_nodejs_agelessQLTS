@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = function (db) {
+module.exports = function(db) {
     var table = db.define('tblDMUser', {
         ID: {
             type: Sequelize.BIGINT,
@@ -15,6 +15,7 @@ module.exports = function (db) {
         IDSpecializedSoftware: Sequelize.INTEGER,
         NameSpecializedSoftware: Sequelize.STRING,
         ListIP: Sequelize.STRING,
+        Permissions: Sequelize.STRING
 
     });
 
