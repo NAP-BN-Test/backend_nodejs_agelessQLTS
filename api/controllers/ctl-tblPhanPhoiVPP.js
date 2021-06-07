@@ -18,7 +18,9 @@ async function deleteRelationshipTBLPhanPhoiVPP(db, listID) {
     // })
     await mtblPhanPhoiVPP(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -57,8 +59,8 @@ module.exports = {
                                         message: Constant.MESSAGE.ACTION_SUCCESS,
                                     }
                                     res.json(result);
-                                }
-                                else {
+                                    return
+                                } else {
                                     var result = {
                                         status: Constant.STATUS.FAIL,
                                         message: "Số lượng bàn giao lớn hơn số lượng tồn. Vui lòng kiểm tra lại!",
@@ -176,9 +178,16 @@ module.exports = {
                             var listVPP = [];
                             await mtblVanPhongPham(db).findAll({
                                 where: {
-                                    [Op.or]: [
-                                        { VPPCode: { [Op.like]: '%' + data.search + '%' } },
-                                        { VPPName: { [Op.like]: '%' + data.search + '%' } }
+                                    [Op.or]: [{
+                                            VPPCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            VPPName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
                                     ]
                                 }
                             }).then(data => {
@@ -189,28 +198,38 @@ module.exports = {
                             var list = [];
                             await mtblPhanPhoiVPPChiTiet(db).findAll({
                                 where: {
-                                    IDVanPhongPham: { [Op.in]: listVPP }
+                                    IDVanPhongPham: {
+                                        [Op.in]: listVPP
+                                    }
                                 }
                             }).then(data => {
                                 data.forEach(item => {
                                     list.push(item.IDPhanPhoiVPP);
                                 })
                             })
-                            where = [
-                                { ID: { [Op.in]: list } },
-                            ];
+                            where = [{
+                                ID: {
+                                    [Op.in]: list
+                                }
+                            }, ];
                         } else {
-                            where = [
-                                { ID: { [Op.ne]: null } },
-                            ];
+                            where = [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }, ];
                         }
-                        whereOjb = { [Op.or]: where };
+                        whereOjb = {
+                            [Op.or]: where
+                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGÀY TIẾP NHẬN') {
                                     let date = moment(data.items[i]['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
-                                    userFind['Date'] = { [Op.substring]: date }
+                                    userFind['Date'] = {
+                                        [Op.substring]: date
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -223,7 +242,9 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'NGƯỜI SỞ HỮU') {
                                     var list = [];
-                                    userFind['IDNhanVienSoHuu'] = { [Op.eq]: data.items[i]['searchFields'] }
+                                    userFind['IDNhanVienSoHuu'] = {
+                                        [Op.eq]: data.items[i]['searchFields']
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -244,7 +265,9 @@ module.exports = {
                                             list.push(item.IDPhanPhoiVPP);
                                         })
                                     })
-                                    userFind['ID'] = { [Op.in]: list }
+                                    userFind['ID'] = {
+                                        [Op.in]: list
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -259,9 +282,11 @@ module.exports = {
                                     var listVPP = [];
                                     await mtblVanPhongPham(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { Unit: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
+                                            [Op.or]: [{
+                                                Unit: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -271,14 +296,18 @@ module.exports = {
                                     var list = [];
                                     await mtblPhanPhoiVPPChiTiet(db).findAll({
                                         where: {
-                                            IDVanPhongPham: { [Op.in]: listVPP }
+                                            IDVanPhongPham: {
+                                                [Op.in]: listVPP
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
                                             list.push(item.IDPhanPhoiVPP);
                                         })
                                     })
-                                    userFind['ID'] = { [Op.in]: list }
+                                    userFind['ID'] = {
+                                        [Op.in]: list
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -293,9 +322,11 @@ module.exports = {
                                     var listVPP = [];
                                     await mtblVanPhongPham(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { VPPCode: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
+                                            [Op.or]: [{
+                                                VPPCode: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -305,14 +336,18 @@ module.exports = {
                                     var list = [];
                                     await mtblPhanPhoiVPPChiTiet(db).findAll({
                                         where: {
-                                            IDVanPhongPham: { [Op.in]: listVPP }
+                                            IDVanPhongPham: {
+                                                [Op.in]: listVPP
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
                                             list.push(item.IDPhanPhoiVPP);
                                         })
                                     })
-                                    userFind['ID'] = { [Op.in]: list }
+                                    userFind['ID'] = {
+                                        [Op.in]: list
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -327,9 +362,11 @@ module.exports = {
                                     var listVPP = [];
                                     await mtblVanPhongPham(db).findAll({
                                         where: {
-                                            [Op.or]: [
-                                                { VPPName: { [Op.like]: '%' + data.items[i]['searchFields'] + '%' } },
-                                            ]
+                                            [Op.or]: [{
+                                                VPPName: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -339,14 +376,18 @@ module.exports = {
                                     var list = [];
                                     await mtblPhanPhoiVPPChiTiet(db).findAll({
                                         where: {
-                                            IDVanPhongPham: { [Op.in]: listVPP }
+                                            IDVanPhongPham: {
+                                                [Op.in]: listVPP
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
                                             list.push(item.IDPhanPhoiVPP);
                                         })
                                     })
-                                    userFind['ID'] = { [Op.in]: list }
+                                    userFind['ID'] = {
+                                        [Op.in]: list
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -376,18 +417,15 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
-                        include: [
-                            {
+                        include: [{
                                 model: tblPhanPhoiVPPChiTiet,
                                 required: false,
                                 as: 'line',
-                                include: [
-                                    {
-                                        model: mtblVanPhongPham(db),
-                                        required: false,
-                                        as: 'vpp'
-                                    },
-                                ]
+                                include: [{
+                                    model: mtblVanPhongPham(db),
+                                    required: false,
+                                    as: 'vpp'
+                                }, ]
                             },
                             {
                                 model: mtblDMNhanvien(db),
@@ -408,6 +446,7 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
+                            var arrayLine = [];
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -418,14 +457,22 @@ module.exports = {
                                 idBoPhanSoHuu: element.IDBoPhanSoHuu ? element.IDBoPhanSoHuu : null,
                                 nameBoPhanSoHuu: element.bp ? element.bp.DepartmentName : null,
                                 date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
-                                vppName: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPName : '' : '',
-                                vppCode: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPCode : '' : '',
-                                unit: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.Unit : '' : '',
-                                amount: element.line[0] ? element.line[0].Amount : '',
+                                // vppName: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPName : '' : '',
+                                // vppCode: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPCode : '' : '',
+                                // unit: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.Unit : '' : '',
+                                // amount: element.line[0] ? element.line[0].Amount : '',
                                 status: element.Status ? element.Status : '',
-                                // line: element.line,
                             }
+                            element.line.forEach(item => {
+                                arrayLine.push({
+                                    vppName: item ? item.vpp ? item.vpp.VPPName : '' : '',
+                                    vppCode: item ? item.vpp ? item.vpp.VPPCode : '' : '',
+                                    unit: item ? item.vpp ? item.vpp.Unit : '' : '',
+                                    amount: item ? item.Amount : '',
+                                })
+                            })
                             stt += 1;
+                            obj['line'] = arrayLine
                             array.push(obj);
                         });
                         var count = await mtblPhanPhoiVPP(db).count({ where: whereOjb, })
