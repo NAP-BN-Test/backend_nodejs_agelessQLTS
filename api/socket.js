@@ -453,7 +453,7 @@ module.exports = {
                         let GioTra = objOrder.GioTra;
                         let NoiDong = objOrder.NoiDong;
                         let NoiTra = objOrder.NoiTra;
-                        let GiaCuocThu = objOrder.GiaCuocChi;
+                        let CuocVanChuyen = objOrder.GiaCuocChi;
                         let SoContainer = objOrder.SoContainer;
                         let SoChi = objOrder.SoChi;
                         let DiaDiemDong = objOrder.DiaDiemDong;
@@ -493,21 +493,29 @@ module.exports = {
                             TypeLoaiHinhVanChuyen = loaihinhvanchuyen2[0][0].TenVietTat
                         }
                         let SoDonHang = TypeLoaiHinhVanChuyen + "." + date + month + year + "." + (getdonghang[0].length + 1).toString()
-                        let loaivo2 = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
-                        if (!loaivo2[0][0]) {
-                            await db2.query("INSERT INTO tblLoaiVo (TenLoaiVo, GhiChu, TrangThai) values ('" + loaivo[0][0].TenLoaiVo + "', '" + loaivo[0][0].GhiChu + "', 0 )")
-                            let create_lv = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
-                            IDLoaiVo = create_lv[0][0].ID
+                        if (!loaivo[0][0]) {
+                            IDLoaiVo = null
                         } else {
-                            IDLoaiVo = loaivo2[0][0].ID
+                            let loaivo2 = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
+                            if (!loaivo2[0][0]) {
+                                await db2.query("INSERT INTO tblLoaiVo (TenLoaiVo, GhiChu, TrangThai) values ('" + loaivo[0][0].TenLoaiVo + "', '" + loaivo[0][0].GhiChu + "', 0 )")
+                                let create_lv = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
+                                IDLoaiVo = create_lv[0][0].ID
+                            } else {
+                                IDLoaiVo = loaivo2[0][0].ID
+                            }
                         }
-                        let hangtau2 = await db2.query("SELECT * FROM tblHangTau WHERE BaiContainer = '" + hangtau[0][0].BaiContainer + "'")
-                        if (!hangtau2[0][0]) {
-                            await db2.query("INSERT INTO tblHangTau (BaiContainer, TenHangTau, GhiChu, TrangThai) values (N'" + hangtau[0][0].BaiContainer + "', N'" + hangtau[0][0].TenHangTau + "', N'" + hangtau[0][0].GhiChu + "', 0)")
-                            let create_ht = await db2.query("SELECT * FROM tblHangTau WHERE TenHangTau = '" + hangtau[0][0].TenHangTau + "'")
-                            IDHangTau = create_ht[0][0].ID
+                        if (!hangtau[0][0]) {
+                            IDHangTau = null
                         } else {
-                            IDHangTau = hangtau2[0][0].ID
+                            let hangtau2 = await db2.query("SELECT * FROM tblHangTau WHERE BaiContainer = '" + hangtau[0][0].BaiContainer + "'")
+                            if (!hangtau2[0][0]) {
+                                await db2.query("INSERT INTO tblHangTau (BaiContainer, TenHangTau, GhiChu, TrangThai) values (N'" + hangtau[0][0].BaiContainer + "', N'" + hangtau[0][0].TenHangTau + "', N'" + hangtau[0][0].GhiChu + "', 0)")
+                                let create_ht = await db2.query("SELECT * FROM tblHangTau WHERE TenHangTau = '" + hangtau[0][0].TenHangTau + "'")
+                                IDHangTau = create_ht[0][0].ID
+                            } else {
+                                IDHangTau = hangtau2[0][0].ID
+                            }
                         }
                         let diadiemdong = await db.query("SELECT * FROM tblKho WHERE ID= " + objOrder.IDDiaDiemDong)
                         if (diadiemdong[0][0]) {
@@ -534,8 +542,8 @@ module.exports = {
                         chiphiphatsinhchi[0].forEach(value => {
                             ChiPhiPhatSinhThu = ChiPhiPhatSinhThu + value.ChiPhiPhatSinhChi
                         })
-                        let TongTienThu = GiaCuocThu + ChiPhiPhatSinhThu
-                        let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, IDDMXeCongTy, SoDonHang, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienCSKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + "," + IDDMXeCongTy + ",'" + SoDonHang + "'," + GiaCuocThu + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
+                        let TongTienThu = CuocVanChuyen + ChiPhiPhatSinhThu
+                        let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, IDDMXeCongTy, SoDonHang, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienCSKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + "," + IDDMXeCongTy + ",'" + SoDonHang + "'," + CuocVanChuyen + "," + TongTienThu + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
                         await db2.query(CreateOrderQuery)
                         let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")
                         let IDDonHang = NewOrder[0][0].ID
@@ -627,24 +635,24 @@ module.exports = {
                 'qltsArray': array,
                 'qlnsArray': arrayContract,
             });
-            await database.connectDatabase().then(async db => {
-                if (db) {
-                    var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
-                        order: [
-                            Sequelize.literal('max(DateEnd) DESC'),
-                        ],
-                        group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
-                        where: {
-                            DateEnd: {
-                                [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
-                            }
-                        }
-                    })
-                    if (insurancePremiums) {
-                        socket.emit("check-insurance-premiums", 1);
-                    }
-                }
-            })
+            // await database.connectDatabase().then(async db => {
+            //     if (db) {
+            //         var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
+            //             order: [
+            //                 Sequelize.literal('max(DateEnd) DESC'),
+            //             ],
+            //             group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
+            //             where: {
+            //                 DateEnd: {
+            //                     [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
+            //                 }
+            //             }
+            //         })
+            //         if (insurancePremiums) {
+            //             socket.emit("check-insurance-premiums", 1);
+            //         }
+            //     }
+            // })
             clients[socket.id] = socket;
 
             socket.on('disconnect', function() {
