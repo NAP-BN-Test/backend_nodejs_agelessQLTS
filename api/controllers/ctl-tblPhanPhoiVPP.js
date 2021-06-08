@@ -56,11 +56,6 @@ module.exports = {
                                     await mtblVanPhongPham(db).update({
                                         RemainingAmount: Number(amount) - Number(body.line[i].amount),
                                     }, { where: { ID: body.line[i].idVanPhongPham.id } })
-                                    var result = {
-                                        status: Constant.STATUS.SUCCESS,
-                                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                                    }
-                                    res.json(result);
                                 } else {
                                     var result = {
                                         status: Constant.STATUS.FAIL,
@@ -70,6 +65,11 @@ module.exports = {
                                     res.json(result);
                                 }
                             }
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
                         }
 
                     })
@@ -230,7 +230,7 @@ module.exports = {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGÀY TIẾP NHẬN') {
-                                    let date = moment(data.items[i]['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
+                                    let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
                                     userFind['Date'] = {
                                         [Op.substring]: date
                                     }
@@ -479,7 +479,6 @@ module.exports = {
                             obj['line'] = arrayLine
                             array.push(obj);
                         });
-                        console.log(array);
                         var count = await mtblPhanPhoiVPP(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

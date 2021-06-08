@@ -12,7 +12,104 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mModules = require('../constants/modules');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
+// / Covert Tiền chữ từ số
+async function readGroup(group) {
+    let readDigit = [
+        ' Không',
+        ' Một',
+        ' Hai',
+        ' Ba',
+        ' Bốn',
+        ' Năm',
+        ' Sáu',
+        ' Bảy',
+        ' Tám',
+        ' Chín',
+    ];
+    let temp = '';
+    if (group == '000') return '';
+    //read number hundreds
+    temp = readDigit[parseInt(group.substring(0, 1))] + ' Trăm';
+    //read number tens
+    if (group.substring(1, 2) == '0')
+        if (group.substring(2, 3) == '0') return temp;
+        else {
+            temp += ' Lẻ' + readDigit[parseInt(group.substring(2, 3))];
+            return temp;
+        }
+    else temp += readDigit[parseInt(group.substring(1, 2))] + ' Mươi';
+    //read number
+    if (group.substring(2, 3) == '5') temp += ' Lăm';
+    else if (group.substring(2, 3) != '0')
+        temp += readDigit[parseInt(group.substring(2, 3))];
+    return temp;
+}
+async function readMoney(num, endingText = ' đồng chẵn.') {
+    if (num == null || num == '') return '';
+    let temp = '';
+    //length <= 18
 
+    while (num.length < 18) {
+        num = '0' + num;
+    }
+    let g1 = num.substring(0, 3);
+    let g2 = num.substring(3, 6);
+    let g3 = num.substring(6, 9);
+    let g4 = num.substring(9, 12);
+    let g5 = num.substring(12, 15);
+    let g6 = num.substring(15, 18);
+    //read group1 ---------------------
+    if (g1 != '000') {
+        temp = await readGroup(g1);
+        temp += ' Triệu';
+    }
+    //read group2-----------------------
+    if (g2 != '000') {
+        temp += await readGroup(g2);
+        temp += ' Nghìn';
+    }
+    //read group3 ---------------------
+    if (g3 != '000') {
+        temp += await readGroup(g3);
+        temp += ' Tỷ';
+    }
+
+    //read group2-----------------------
+    if (g4 != '000') {
+        temp += await readGroup(g4);
+        temp += ' Triệu';
+    }
+    //---------------------------------
+    if (g5 != '000') {
+        temp += await readGroup(g5);
+        temp += ' Nghìn';
+    }
+    //-----------------------------------
+    temp = temp + await readGroup(g6);
+    //---------------------------------
+    // Refine
+    temp = temp.replace('Một Mươi', 'Mười');
+    temp = temp.trim();
+    temp = temp.replace('Không Trăm', '');
+    //        if (temp.indexOf("Không Trăm") == 0) temp = temp.substring(10);
+    temp = temp.trim();
+    temp = temp.replace('Mười Không', 'Mười');
+    temp = temp.trim();
+    temp = temp.replace('Mươi Không', 'Mươi');
+    temp = temp.trim();
+    if (temp.indexOf('Lẻ') == 0) temp = temp.substring(2);
+    temp = temp.trim();
+    temp = temp.replace('Mươi Một', 'Mươi Mốt');
+    temp = temp.trim();
+
+    //Change Case
+    return (
+        '' +
+        temp.substring(0, 1).toUpperCase() +
+        temp.substring(1).toLowerCase() +
+        endingText.toLowerCase()
+    );
+}
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblFileAttach(db).destroy({
         where: {
@@ -81,6 +178,8 @@ async function inWordContact(db, id) {
         'CMT': '',
         'NGÀY CẤP': '',
         'NƠI CẤP': '',
+        'MỨC LƯƠNG': '',
+        'MỨC LƯƠNG BẰNG CHỮ': '',
     }
     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
@@ -130,6 +229,8 @@ async function inWordContact(db, id) {
                 'ĐẾN NGÀY': data.ContractDateEnd ? moment(data.ContractDateEnd).format('DD/MM/YYYY') : '',
                 'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
                 'CHỨC VỤ': staff.position ? staff.position.PositionName ? staff.position.PositionName : '' : '',
+                'MỨC LƯƠNG': data.SalaryNumber ? data.SalaryNumber : '',
+                'MỨC LƯƠNG BẰNG CHỮ': data.SalaryNumber ? await readMoney(data.SalaryNumber.toString()) : '',
             }
         }
     })
@@ -230,7 +331,7 @@ module.exports = {
                             Date: body.signDate ? body.signDate : null,
                             IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
                             SalaryNumber: body.salaryNumber ? body.salaryNumber : '',
-                            SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                            SalaryText: body.salaryNumber ? await readMoney(body.salaryNumber) : '',
                             ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
                             ContractDateStart: body.signDate ? body.signDate : null,
                             UnitSalary: 'VND',
@@ -277,6 +378,8 @@ module.exports = {
                                 'ĐẾN NGÀY': contract.ContractDateEnd ? moment(contract.ContractDateEnd).format('DD/MM/YYYY') : '',
                                 'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
                                 'CHỨC VỤ': staff.position ? staff.position ? staff.position.PositionName : '' : '',
+                                'MỨC LƯƠNG': body.salaryNumber ? body.salaryNumber : '',
+                                'MỨC LƯƠNG BẰNG CHỮ': body.salaryNumber ? await readMoney(body.salaryNumber) : '',
                             }
                             await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                             await mtblFileAttach(db).create({
@@ -343,7 +446,6 @@ module.exports = {
     // update_tbl_hopdong_nhansu
     updatetblHopDongNhanSu: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -367,6 +469,7 @@ module.exports = {
                             update.push({ key: 'SalaryNumber', value: null });
                         else
                             update.push({ key: 'SalaryNumber', value: body.salaryNumber });
+                        update.push({ key: 'SalaryText', value: await readMoney(body.salaryNumber) });
                     }
                     if (body.contractDateEnd || body.contractDateEnd === '') {
                         if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))

@@ -74,8 +74,9 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
 }
 
 async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
-    // dateFrom = moment(dateFrom).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
-    dateTo = moment(dateTo).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    dateTo = moment(dateTo).add(30, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS');
+    dateFrom = moment(dateFrom).add(7, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS');
+    console.log(dateTo, dateFrom);
     var result = 0;
     var array = [];
     await mtblThemVPP(db).findAll({
@@ -109,7 +110,9 @@ async function getDuringBalance(db, idVPP, dateFrom, dateTo) {
 }
 async function getOutputPeriod(db, idVPP, dateFrom, dateTo) {
     // dateFrom = moment(dateFrom).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
-    dateTo = moment(dateTo).add(31, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    dateTo = moment(dateTo).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    dateFrom = moment(dateFrom).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+    console.log(dateFrom, dateTo);
     var result = 0;
     var array = [];
     await mtblPhanPhoiVPP(db).findAll({
