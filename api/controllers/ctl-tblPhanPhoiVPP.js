@@ -40,7 +40,7 @@ module.exports = {
                         Status: body.status ? body.status : '',
                     }).then(async data => {
                         body.line = JSON.parse(body.line);
-                        if (data)
+                        if (data) {
                             for (var i = 0; i < body.line.length; i++) {
                                 let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: body.line[i].idVanPhongPham.id } })
                                 let amount = vpp.RemainingAmount ? vpp.RemainingAmount : 0;
@@ -50,6 +50,8 @@ module.exports = {
                                         IDVanPhongPham: body.line[i].idVanPhongPham.id ? body.line[i].idVanPhongPham.id : null,
                                         Amount: body.line[i].amount ? body.line[i].amount : null,
                                         Describe: body.line[i].describe ? body.line[i].describe : '',
+                                    }).then(data => {
+                                        console.log(data.ID);
                                     })
                                     await mtblVanPhongPham(db).update({
                                         RemainingAmount: Number(amount) - Number(body.line[i].amount),
@@ -59,15 +61,17 @@ module.exports = {
                                         message: Constant.MESSAGE.ACTION_SUCCESS,
                                     }
                                     res.json(result);
-                                    return
                                 } else {
                                     var result = {
                                         status: Constant.STATUS.FAIL,
                                         message: "Số lượng bàn giao lớn hơn số lượng tồn. Vui lòng kiểm tra lại!",
                                     }
+
                                     res.json(result);
                                 }
                             }
+                        }
+
                     })
                 } catch (error) {
                     console.log(error);
@@ -475,6 +479,7 @@ module.exports = {
                             obj['line'] = arrayLine
                             array.push(obj);
                         });
+                        console.log(array);
                         var count = await mtblPhanPhoiVPP(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

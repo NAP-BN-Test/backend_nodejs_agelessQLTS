@@ -220,18 +220,18 @@ module.exports = {
                             if (role && role.Permissions) {
                                 let permissionsData = JSON.parse(role.Permissions)
                                 for (let ts = 0; ts < permissionsData.permissionTS.length; ts++) {
-                                    if (permissionsData.permissionTS[ts].completed) {
-                                        permissions.permissionTS[ts].completed == true
+                                    if (permissionsData.permissionTS[ts].completed == true) {
+                                        permissions.permissionTS[ts].completed = true
                                     }
                                 }
                                 for (let ns = 0; ns < permissionsData.permissionNS.length; ns++) {
                                     if (permissionsData.permissionNS[ns].completed) {
-                                        permissions.permissionNS[ns].completed == true
+                                        permissions.permissionNS[ns].completed = true
                                     }
                                 }
                                 for (let tc = 0; tc < permissionsData.permissionTC.length; tc++) {
                                     if (permissionsData.permissionTC[tc].completed) {
-                                        permissions.permissionTC[tc].completed == true
+                                        permissions.permissionTC[tc].completed = true
                                     }
                                 }
                             }

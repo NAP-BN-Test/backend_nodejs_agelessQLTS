@@ -112,7 +112,7 @@ module.exports = {
                 try {
                     let update = [];
                     let check = await mtblRole(db).findOne({
-                        Code: body.code
+                        where: { Code: body.code }
                     })
                     if (!check) {
                         if (body.code || body.code === '')
