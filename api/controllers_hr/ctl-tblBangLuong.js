@@ -1013,8 +1013,10 @@ module.exports = {
                 try {
                     let stt = 1;
                     let tblBangLuong = mtblBangLuong(db);
-                    // let tblDMNhanvien = mtblDMNhanvien(db)
-                    var date = body.date + '-01 17:00:00.000'
+                    var date = body.date + '-01 07:00:00.000'
+                    var month = Number(body.date.slice(5, 7)); // January
+                    var year = Number(body.date.slice(0, 4));
+                    var dateFrom = year + '-' + await convertNumber(month)
                     let tblDMNhanvien = mtblDMNhanvien(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
                     tblBangLuong.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
@@ -1037,7 +1039,19 @@ module.exports = {
                         where: {
                             [Op.or]: [{
                                     Date: {
+                                        [Op.substring]: dateFrom
+                                    },
+                                    DateEnd: null,
+                                },
+                                {
+                                    Date: {
                                         [Op.lte]: date
+                                    },
+                                    DateEnd: null,
+                                },
+                                {
+                                    Date: {
+                                        [Op.substring]: dateFrom
                                     },
                                     DateEnd: {
                                         [Op.gte]: date
@@ -1047,8 +1061,10 @@ module.exports = {
                                     Date: {
                                         [Op.lte]: date
                                     },
-                                    DateEnd: null,
-                                }
+                                    DateEnd: {
+                                        [Op.gte]: date
+                                    },
+                                },
                             ]
                         },
                     }).then(async data => {
