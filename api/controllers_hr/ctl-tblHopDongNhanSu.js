@@ -110,6 +110,28 @@ async function readMoney(num, endingText = ' đồng chẵn.') {
         endingText.toLowerCase()
     );
 }
+
+function transform(amount, decimalCount = 2, decimal = '.', thousands = ',') {
+    if (amount >= 100) {
+        decimalCount = Math.abs(decimalCount);
+        decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
+
+        const negativeSign = amount < 0 ? '-' : '';
+
+        let i = parseInt(
+            (amount = Math.abs(Number(amount) || 0).toFixed(decimalCount))
+        ).toString();
+        let j = i.length > 3 ? i.length % 3 : 0;
+
+        return (
+            negativeSign +
+            (j ? i.substr(0, j) + thousands : '') +
+            i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + thousands)
+        );
+    } else {
+        return amount.toString();
+    }
+}
 async function deleteRelationshiptblHopDongNhanSu(db, listID) {
     await mtblFileAttach(db).destroy({
         where: {
@@ -160,6 +182,8 @@ async function detailContract(db, id) {
                 'CMT': data.nv ? data.nv.CMNDNumber ? data.nv.CMNDNumber : '' : '',
                 'NGÀY CẤP': data.nv ? data.nv.CMNDDate ? data.nv.CMNDDate : '' : '',
                 'NƠI CẤP': data.nv ? data.nv.CMNDPlace ? data.nv.CMNDPlace : '' : '',
+                'MỨC LƯƠNG': data.SalaryNumber ? await transform(data.SalaryNumber) : '',
+                'MỨC LƯƠNG BẰNG CHỮ': data.SalaryNumber ? await readMoney(data.SalaryNumber.toString()) : '',
             }
         }
     })
@@ -229,7 +253,7 @@ async function inWordContact(db, id) {
                 'ĐẾN NGÀY': data.ContractDateEnd ? moment(data.ContractDateEnd).format('DD/MM/YYYY') : '',
                 'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
                 'CHỨC VỤ': staff.position ? staff.position.PositionName ? staff.position.PositionName : '' : '',
-                'MỨC LƯƠNG': data.SalaryNumber ? data.SalaryNumber : '',
+                'MỨC LƯƠNG': data.SalaryNumber ? await transform(data.SalaryNumber) : '',
                 'MỨC LƯƠNG BẰNG CHỮ': data.SalaryNumber ? await readMoney(data.SalaryNumber.toString()) : '',
             }
         }
@@ -237,6 +261,7 @@ async function inWordContact(db, id) {
     await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx')
     return (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx'
 }
+
 module.exports = {
     deleteRelationshiptblHopDongNhanSu,
     //  get_detail_tbl_hopdong_nhansu
@@ -378,7 +403,7 @@ module.exports = {
                                 'ĐẾN NGÀY': contract.ContractDateEnd ? moment(contract.ContractDateEnd).format('DD/MM/YYYY') : '',
                                 'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
                                 'CHỨC VỤ': staff.position ? staff.position ? staff.position.PositionName : '' : '',
-                                'MỨC LƯƠNG': body.salaryNumber ? body.salaryNumber : '',
+                                'MỨC LƯƠNG': body.salaryNumber ? await transform(data.SalaryNumber) : '',
                                 'MỨC LƯƠNG BẰNG CHỮ': body.salaryNumber ? await readMoney(body.salaryNumber) : '',
                             }
                             await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
@@ -935,6 +960,7 @@ module.exports = {
     inWordContract: (req, res) => {
         let body = req.body;
         // ngày 20 tháng 10 năm 2020
+        console.log(123456);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -949,6 +975,8 @@ module.exports = {
                         'CMT': '',
                         'NGÀY CẤP': '',
                         'NƠI CẤP': '',
+                        'MỨC LƯƠNG': '',
+                        'MỨC LƯƠNG BẰNG CHỮ': '',
                     }
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
@@ -997,6 +1025,8 @@ module.exports = {
                                 'ĐẾN NGÀY': data.ContractDateEnd ? moment(data.ContractDateEnd).format('DD/MM/YYYY') : '',
                                 'TRÌNH ĐỘ HỌC VẤN': staff.Degree ? staff.Degree : '',
                                 'CHỨC VỤ': staff.position ? staff.position.PositionName ? staff.position.PositionName : '' : '',
+                                'MỨC LƯƠNG': data.SalaryNumber ? await transform(data.SalaryNumber) : '',
+                                'MỨC LƯƠNG BẰNG CHỮ': data.SalaryNumber ? await readMoney(data.SalaryNumber.toString()) : '',
                             }
                         }
                     })
