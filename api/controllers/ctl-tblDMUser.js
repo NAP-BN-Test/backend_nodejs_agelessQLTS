@@ -291,6 +291,7 @@ module.exports = {
     // update_permission_for_tbl_dmuser
     updatePermissionFortblDMUser: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -315,7 +316,6 @@ module.exports = {
     deletetblDMUser: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
