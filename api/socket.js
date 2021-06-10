@@ -92,23 +92,56 @@ async function connectDatabase(dbname) {
     });
     return db
 }
-
-function checkDuplicate(array, elm) {
-    var check = false;
-    array.forEach(item => {
-        if (item === elm) check = true;
-    })
-    return check;
-}
-
-
-async function getPaymentAll() {
+async function getPaymentAndREquest() {
     var array = [];
     await database.connectDatabase().then(async db => {
         if (db) {
             var user = await mtblDMUser(db).findAll();
+            let count = 0;
             for (var i = 0; i < user.length; i++) {
                 if (user[i]) {
+                    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db);
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    await tblYeuCauMuaSam.findAll({
+                        where: [
+                            { IDPheDuyet1: user[i].IDNhanvien },
+                            { Status: 'Chờ phê duyệt' }
+                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'nv'
+                        }, ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'shopping_cart',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
+                    await tblYeuCauMuaSam.findAll({
+                        where: [
+                            { IDPheDuyet2: user[i].IDNhanvien },
+                            { Status: 'Đang phê duyệt' }
+                        ],
+                        include: [{
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'nv'
+                        }, ],
+                    }).then(data => {
+                        data.forEach(item => {
+                            array.push({
+                                name: item.nv ? item.nv.StaffName : 'admin',
+                                type: 'shopping_cart',
+                                userID: user[i].ID,
+                            })
+                            count += 1;
+                        })
+                    })
                     let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
                     tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
                     await tblDeNghiThanhToan.findAll({
@@ -140,6 +173,7 @@ async function getPaymentAll() {
                                 type: 'payment',
                                 userID: user[i].ID,
                             })
+                            count += 1;
                         })
                     })
                 }
@@ -150,11 +184,22 @@ async function getPaymentAll() {
     })
     return array
 }
-async function getPaymentOfUser(userID) {
+
+function checkDuplicate(array, elm) {
+    var check = false;
+    array.forEach(item => {
+        if (item === elm) check = true;
+    })
+    return check;
+}
+
+
+async function getPaymentApproval(userID) {
     var array = [];
     await database.connectDatabase().then(async db => {
         if (db) {
             var user = await mtblDMUser(db).findOne({ where: { ID: userID } });
+
             let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
             tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
             await tblDeNghiThanhToan.findAll({
@@ -179,14 +224,18 @@ async function getPaymentOfUser(userID) {
                     required: false,
                     as: 'nv'
                 }, ],
-            }).then(data => {
-                data.forEach(item => {
+            }).then(async data => {
+                for (let i = 0; i < data.length; i++) {
+                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVien } });
                     array.push({
-                        name: item.nv ? item.nv.StaffName : 'admin',
+                        name: data[i].nv ? data[i].nv.StaffName : 'admin',
                         type: 'payment',
-                        userID: userID,
+                        userID: userID.ID,
+                        status: 'Yêu cầu duyệt',
+                        code: data[i].PaymentOrderCode,
+                        id: data[i].ID,
                     })
-                })
+                }
             })
         } else {
             array = []
@@ -194,42 +243,81 @@ async function getPaymentOfUser(userID) {
     })
     return array
 }
-async function getRequestAll() {
+async function getPaymentOfUser(userID) {
     var array = [];
     await database.connectDatabase().then(async db => {
         if (db) {
-            var user = await mtblDMUser(db).findAll();
-            for (var i = 0; i < user.length; i++) {
-                if (user[i]) {
-                    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db);
-                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
-                    await tblYeuCauMuaSam.findAll({
-                        where: {
-                            [Op.or]: [{
-                                IDPheDuyet1: user[i].IDNhanvien,
-                                Status: 'Chờ phê duyệt'
-                            }, {
-                                IDPheDuyet2: user[i].IDNhanvien,
-                                Status: 'Đang phê duyệt'
-                            }],
-                        },
-                        include: [{
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'nv'
-                        }, ],
-                    }).then(data => {
-                        console.log(data.length);
-                        data.forEach(item => {
-                            array.push({
-                                name: item.nv ? item.nv.StaffName : 'admin',
-                                type: 'shopping_cart',
-                                userID: user[i].ID,
-                            })
-                        })
+            var user = await mtblDMUser(db).findOne({ where: { ID: userID } });
+
+            let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
+            tblDeNghiThanhToan.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+            await tblDeNghiThanhToan.findAll({
+                where: {
+                    TrangThaiPheDuyetKT: {
+                        [Op.ne]: 'Chờ phê duyệt'
+                    },
+                    TrangThaiPheDuyetLD: {
+                        [Op.ne]: 'Chờ phê duyệt'
+                    },
+                },
+                include: [{
+                    model: mtblDMNhanvien(db),
+                    required: false,
+                    as: 'nv'
+                }, ],
+            }).then(async data => {
+                for (let i = 0; i < data.length; i++) {
+                    array.push({
+                        name: '',
+                        type: 'payment',
+                        userID: '',
+                        status: 'Đã được cầu duyệt',
+                        code: data[i].PaymentOrderCode,
+                        id: data[i].ID,
                     })
                 }
-            }
+            })
+        } else {
+            array = []
+        }
+    })
+    return array
+}
+async function getRequestApproval(userID) {
+    var array = [];
+    await database.connectDatabase().then(async db => {
+        if (db) {
+            var user = await mtblDMUser(db).findOne({ where: { ID: userID } });
+            let tblYeuCauMuaSam = mtblYeuCauMuaSam(db);
+            tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+            await tblYeuCauMuaSam.findAll({
+                where: {
+                    [Op.or]: [{
+                        IDPheDuyet1: user.IDNhanvien,
+                        Status: 'Chờ phê duyệt'
+                    }, {
+                        IDPheDuyet2: user.IDNhanvien,
+                        Status: 'Đang phê duyệt'
+                    }, ],
+                },
+                include: [{
+                    model: mtblDMNhanvien(db),
+                    required: false,
+                    as: 'nv'
+                }, ],
+            }).then(async data => {
+                for (let i = 0; i < data.length; i++) {
+                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVien } });
+                    array.push({
+                        name: data[i].nv ? data[i].nv.StaffName : 'admin',
+                        type: 'shopping_cart',
+                        userID: userID.ID,
+                        status: 'Yêu cầu duyệt',
+                        code: data[i].RequestCode,
+                        id: data[i].ID,
+                    })
+                }
+            })
         } else {
             array = []
         }
@@ -245,27 +333,30 @@ async function getRequestOfUser(userID) {
             tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
             await tblYeuCauMuaSam.findAll({
                 where: {
-                    [Op.or]: [{
-                        IDPheDuyet1: user.IDNhanvien,
-                        Status: 'Chờ phê duyệt'
-                    }, {
-                        IDPheDuyet2: user.IDNhanvien,
-                        Status: 'Đang phê duyệt'
-                    }],
+                    IDNhanVien: user.IDNhanvien,
+                    Status: {
+                        [Op.ne]: 'Chờ phê duyệt'
+                    },
+                    Status: {
+                        [Op.ne]: 'Đang phê duyệt'
+                    }
                 },
                 include: [{
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
                 }, ],
-            }).then(data => {
-                data.forEach(item => {
+            }).then(async data => {
+                for (let i = 0; i < data.length; i++) {
                     array.push({
-                        name: item.nv ? item.nv.StaffName : 'admin',
+                        name: '',
                         type: 'shopping_cart',
-                        userID: userID,
+                        userID: null,
+                        status: 'Đã được cầu duyệt',
+                        code: data[i].RequestCode,
+                        id: data[i].ID,
                     })
-                })
+                }
             })
         } else {
             array = []
@@ -290,21 +381,15 @@ async function getDetailRequestShopping(id) {
                 }, ],
             }).then(async data => {
                 if (data) {
-                    if (data.Status == 'Chờ phê duyệt') {
-                        var user = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet1 } });
-                        objResult = {
-                            name: data.nv ? data.nv.StaffName : 'admin',
-                            type: 'payment',
-                            userID: user.ID,
-                        }
-                    } else if (data.Status == 'Đang phê duyệt') {
-                        var user = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet2 } });
-                        objResult = {
-                            name: data.nv ? data.nv.StaffName : 'admin',
-                            type: 'payment',
-                            userID: user.ID,
-                        }
-                    }
+                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet1 } });
+                    array.push({
+                        name: data.nv ? data.nv.StaffName : 'admin',
+                        type: 'shopping_cart',
+                        userID: userID.ID,
+                        status: 'Yêu cầu duyệt',
+                        code: data.RequestCode,
+                        id: data.ID,
+                    })
                 }
             })
         }
@@ -328,21 +413,15 @@ async function getDetailPeymentOrder(id) {
                 }, ],
             }).then(async data => {
                 if (data) {
-                    if (data.TrangThaiPheDuyetKT == 'Chờ phê duyệt') {
-                        var user = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDNhanVienKTPD } });
-                        objResult = {
-                            name: data.nv ? data.nv.StaffName : 'admin',
-                            type: 'payment',
-                            userID: user.ID,
-                        }
-                    } else if (data.TrangThaiPheDuyetLD == 'Chờ phê duyệt') {
-                        var user = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDNhanVienLDPD } });
-                        objResult = {
-                            name: data.nv ? data.nv.StaffName : 'admin',
-                            type: 'payment',
-                            userID: user.ID,
-                        }
-                    }
+                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVienKTPD } });
+                    array.push({
+                        name: data[i].nv ? data[i].nv.StaffName : 'admin',
+                        type: 'payment',
+                        userID: userID.ID,
+                        status: 'Yêu cầu duyệt',
+                        code: data[i].PaymentOrderCode,
+                        id: data[i].ID,
+                    })
 
                 }
             })
@@ -359,39 +438,26 @@ async function getRequestOrderAndPaymentOfUser(userID) {
             })
             if (user) {
                 let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
+                console.log(permissions);
                 if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
-                    let checkYCMS = false;
-                    let checkDNTT = false;
                     for (let ts = 0; ts < permissions.notiTS.length; ts++) {
-                        if (checkYCMS == false)
-                            if (permissions.notiTS[ts].key == 'isNotiApprovalYCMS' && permissions.notiTS[ts].completed == true) {
-                                array = await getRequestAll()
-                                checkYCMS = true
-                            } else if (permissions.notiTS[ts].key == 'isNotiPersonalYCMS' && permissions.notiTS[ts].completed == true) {
-                            array = await getRequestOfUser(userID)
-                            checkYCMS = true
+                        console.log(permissions.notiTS[ts].key);
+                        if (permissions.notiTS[ts].key == 'isNotiApprovalYCMS' && permissions.notiTS[ts].completed == true) {
+                            array = await getRequestApproval(userID)
                         }
-                        if (checkDNTT == false)
-                            if (permissions.notiTS[ts].key == 'isNotiApprovalDNTT' && permissions.notiTS[ts].completed == true) {
-                                let arrayPayment = await getPaymentAll()
-                                Array.prototype.push.apply(array, arrayPayment);
-                                checkYCMS = true
-                            } else if (permissions.notiTS[ts].key == 'isNotiPersonalDNTT' && permissions.notiTS[ts].completed == true) {
-                            checkYCMS = true
+                        if (permissions.notiTS[ts].key == 'isNotiPersonalYCMS' && permissions.notiTS[ts].completed == true) {
+                            let arrayUser = await getRequestOfUser(userID)
+                            Array.prototype.push.apply(array, arrayUser);
+                        }
+                        if (permissions.notiTS[ts].key == 'isNotiApprovalDNTT' && permissions.notiTS[ts].completed == true) {
+                            let arrayPayment = await getPaymentApproval(userID)
+                            Array.prototype.push.apply(array, arrayPayment);
+                        }
+                        if (permissions.notiTS[ts].key == 'isNotiPersonalDNTT' && permissions.notiTS[ts].completed == true) {
                             let arrayPayment = await getPaymentOfUser(userID)
                             Array.prototype.push.apply(array, arrayPayment);
                         }
                     }
-                    // for (let ns = 0; ns < permissions.notiNS.length; ns++) {
-                    //     if (permissions.notiNS[ns].completed == true) {
-                    //         socket.join(permissions.notiNS[ns].key);
-                    //     }
-                    // }
-                    // for (let tc = 0; tc < permissions.notiTC.length; tc++) {
-                    //     if (permissions.notiTC[tc].completed == true) {
-                    //         socket.join(permissions.notiTC[tc].key);
-                    //     }
-                    // }
                 }
             }
         } else {
@@ -402,6 +468,8 @@ async function getRequestOrderAndPaymentOfUser(userID) {
 }
 module.exports = {
     sockketIO: async(io) => {
+        var array = await getPaymentAndREquest()
+        var arrayContract = await getStaffContractExpirationData();
         io.on("connection", async function(socket) {
             socket.on("sendrequest", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
@@ -846,10 +914,10 @@ module.exports = {
             console.log('The user is connecting : ' + socket.id);
             // socket.emit("Server-send-data", array);
             // socket.emit("Server-send-contract-notification-schedule", arrayContract);
-            // socket.emit("Server-send-all-the-messages", {
-            //     'qltsArray': array,
-            //     'qlnsArray': arrayContract,
-            // });
+            socket.emit("Server-send-all-the-messages", {
+                'qltsArray': array,
+                'qlnsArray': arrayContract,
+            });
             // socket.on("check-insurance-premiums", async function(data) {
             //     await database.connectDatabase().then(async db => {
             //         if (db) {
@@ -879,9 +947,10 @@ module.exports = {
                 console.log(socket.id + " disconnected!");
             });
             socket.on("join-room", async(data) => {
+                    socket.userID = data;
                     await database.connectDatabase().then(async db => {
                         if (db) {
-                            console.log(data);
+                            console.log(data, '--------------------------- Join zoom ---------------------------');
                             let user = await mtblDMUser(db).findOne({
                                 where: { ID: data }
                             })
@@ -904,7 +973,6 @@ module.exports = {
                                         }
                                     }
                                 }
-                                socket.userID = data;
                             }
                         } else {
                             res.json(Constant.MESSAGE.USER_FAIL)
@@ -913,7 +981,7 @@ module.exports = {
                 })
                 //  gửi cho chính socket đang đăng nhập check quyền
             socket.on("system-wide-notification-ts", async(data) => {
-                    console.log(socket.userID);
+                    console.log(socket.userID, '----------------- get data -------------------');
                     if (socket.userID) {
                         let array = await getRequestOrderAndPaymentOfUser(socket.userID);
                         socket.emit("system-wide-notification-ts", array)
@@ -923,35 +991,29 @@ module.exports = {
             socket.on("notice-create-request-shoping", async(data) => {
                 let obj = await getDetailRequestShopping(data)
                 console.log(obj);
-                io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
-                var clients = io.sockets.adapter.rooms['isNotiPersonalYCMS'].sockets
-                    //  chuyển từ obj client thành array client
-                clients = Object.keys(clients)
+                // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalYCMS'].sockets
+                    //  Laays danh sách socket trong room
                 clientsApproval = Object.keys(clientsApproval)
-                for (let s = 0; s < clients.length; s++) {
-                    let socketGet = io.sockets.connected[clients[s]]
+                for (let s = 0; s < clientsApproval.length; s++) {
+                    let socketGet = io.sockets.connected[clientsApproval[s]]
                     console.log(socketGet.id);
                     // gửi cá nhân
-                    if (obj.userID == socket.userID && !checkDuplicate(clientsApproval, clients[s]))
-                        socket.broadcast.to(socket.id).emit('personal-data', obj)
-                    console.log(io.sockets.adapter.rooms);
+                    if (obj.userID == socketGet.userID)
+                        socket.broadcast.to(socketGet.id).emit('personal-data', obj)
                 }
             })
             socket.on("notice-create-payment-order", async(data) => {
                 let obj = await getDetailPeymentOrder(data)
                 console.log(obj);
                 io.sockets.in('isNotiApprovalDNTT').emit("send-data-for-room", obj)
-                var clients = io.sockets.adapter.rooms['isNotiPersonalDNTT'].sockets
-                    //  chuyển từ obj client thành array client
-                clients = Object.keys(clients)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalDNTT'].sockets
                 clientsApproval = Object.keys(clientsApproval)
-                for (let s = 0; s < clients.length; s++) {
-                    let socketGet = io.sockets.connected[clients[s]]
+                for (let s = 0; s < clientsApproval.length; s++) {
+                    let socketGet = io.sockets.connected[clientsApproval[s]]
                     console.log(socketGet.id);
                     // gửi cá nhân
-                    if (obj.userID == socket.userID && !checkDuplicate(clientsApproval, clients[s]))
+                    if (obj.userID == socket.userID)
                         socket.broadcast.to(socket.id).emit('personal-data', obj)
                     console.log(io.sockets.adapter.rooms);
                 }

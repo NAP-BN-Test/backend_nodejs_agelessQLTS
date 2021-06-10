@@ -245,6 +245,7 @@ module.exports = {
                             })
                         }
                         var result = {
+                            id: data.ID,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

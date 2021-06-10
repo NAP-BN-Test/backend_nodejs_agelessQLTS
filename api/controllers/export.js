@@ -1110,5 +1110,95 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+    exportToFileExcelVPP: async(req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        let body = req.body;
+        let data = JSON.parse(body.array);
+        let arrayHeader = [
+                'MÃ VPP',
+                'TÊN VPP',
+                'ĐƠN VỊ TÍNH',
+                'SỐ LƯỢNG',
+                'TRẠNG THÁI',
+                'NGƯỜI SỞ HỮU',
+                'NGÀY TIẾP NHẬN',
+                // 'NGƯỜI PHÊ DUYỆT TRƯỚC',
+                // 'NGƯỜI PHÊ DUYỆT SAU',
+            ]
+            // Add Worksheets to the workbook
+        var ws = wb.addWorksheet('Sheet 1');
+        var row = 1
+        ws.column(row).setWidth(5);
+        arrayHeader.forEach(element => {
+            ws.cell(1, row)
+                .string(element)
+                .style(styleHearder);
+            row += 1
+            ws.column(row).setWidth(20);
+        });
+        var row = 0;
+        // dùng để check bản ghi chiếm nhiều nhất bao nhiêu dòng
+        var checkMaxRow = 1;
+        for (let i = 0; i < data.length; i++) {
+            data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
+
+        }
+        await wb.write('C:/images_services/ageless_sendmail/export_excel_handing_over_vpp.xlsx');
+        setTimeout(() => {
+            var result = {
+                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_handing_over_vpp.xlsx',
+                status: Constant.STATUS.SUCCESS,
+                message: Constant.MESSAGE.ACTION_SUCCESS,
+            }
+            res.json(result);
+        }, 500);
+
+    },
 }

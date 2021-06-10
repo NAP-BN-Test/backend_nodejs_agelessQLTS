@@ -92,6 +92,7 @@ module.exports = {
                             }
                             obj['roleIDs'] = users
                         })
+                        console.log(obj);
                         var result = {
                             obj: obj,
                             count: count,
@@ -113,7 +114,6 @@ module.exports = {
     // add_tbl_dmuser
     addtblDMUser: (req, res) => {
         let body = req.body;
-        console.log(body);
         let roleIDs = JSON.parse(body.roleIDs)
         database.connectDatabase().then(async db => {
             if (db) {
@@ -291,7 +291,6 @@ module.exports = {
     // update_permission_for_tbl_dmuser
     updatePermissionFortblDMUser: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
