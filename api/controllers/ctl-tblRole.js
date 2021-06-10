@@ -300,6 +300,7 @@ module.exports = {
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: count
                         }
+                        console.log(result);
                         res.json(result);
                     })
 
