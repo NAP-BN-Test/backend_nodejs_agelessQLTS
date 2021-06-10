@@ -184,16 +184,6 @@ async function getPaymentAndREquest() {
     })
     return array
 }
-
-function checkDuplicate(array, elm) {
-    var check = false;
-    array.forEach(item => {
-        if (item === elm) check = true;
-    })
-    return check;
-}
-
-
 async function getPaymentApproval(userID) {
     var array = [];
     await database.connectDatabase().then(async db => {
@@ -382,14 +372,14 @@ async function getDetailRequestShopping(id) {
             }).then(async data => {
                 if (data) {
                     var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet1 } });
-                    array.push({
+                    objResult = {
                         name: data.nv ? data.nv.StaffName : 'admin',
                         type: 'shopping_cart',
                         userID: userID.ID,
                         status: 'Yêu cầu duyệt',
                         code: data.RequestCode,
                         id: data.ID,
-                    })
+                    }
                 }
             })
         }
@@ -413,15 +403,15 @@ async function getDetailPeymentOrder(id) {
                 }, ],
             }).then(async data => {
                 if (data) {
-                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVienKTPD } });
-                    array.push({
-                        name: data[i].nv ? data[i].nv.StaffName : 'admin',
+                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDNhanVienKTPD } });
+                    objResult = {
+                        name: data.nv ? data.nv.StaffName : 'admin',
                         type: 'payment',
                         userID: userID.ID,
                         status: 'Yêu cầu duyệt',
-                        code: data[i].PaymentOrderCode,
-                        id: data[i].ID,
-                    })
+                        code: data.PaymentOrderCode,
+                        id: data.ID,
+                    }
 
                 }
             })
@@ -990,8 +980,7 @@ module.exports = {
                 //  khi tạo yêu cầu mua sắm
             socket.on("notice-create-request-shoping", async(data) => {
                 let obj = await getDetailRequestShopping(data)
-                console.log(obj);
-                // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
+                    // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalYCMS'].sockets
                     //  Laays danh sách socket trong room
                 clientsApproval = Object.keys(clientsApproval)
@@ -1000,12 +989,11 @@ module.exports = {
                     console.log(socketGet.id);
                     // gửi cá nhân
                     if (obj.userID == socketGet.userID)
-                        socket.broadcast.to(socketGet.id).emit('personal-data', obj)
+                        io.sockets.in(socket.id).emit('personal-data', obj)
                 }
             })
             socket.on("notice-create-payment-order", async(data) => {
                 let obj = await getDetailPeymentOrder(data)
-                console.log(obj);
                 io.sockets.in('isNotiApprovalDNTT').emit("send-data-for-room", obj)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalDNTT'].sockets
                 clientsApproval = Object.keys(clientsApproval)
@@ -1013,8 +1001,9 @@ module.exports = {
                     let socketGet = io.sockets.connected[clientsApproval[s]]
                     console.log(socketGet.id);
                     // gửi cá nhân
-                    if (obj.userID == socket.userID)
-                        socket.broadcast.to(socket.id).emit('personal-data', obj)
+                    if (obj.userID == socket.userID) {
+                        io.sockets.in(socket.id).emit('personal-data', obj)
+                    }
                     console.log(io.sockets.adapter.rooms);
                 }
             })
