@@ -731,126 +731,126 @@ module.exports = {
                         let queryUpdate = "UPDATE tblDonHang SET ConfirmNX = 0, TrangThaiCho = N'Nhà Xe Từ Chối' WHERE ID = " + data.id
                         await db.query(queryUpdate)
                     } else {
-                        //lấy dữ liệu đơn gốc
-                        let loaihinhvanchuyen = await db.query("SELECT * FROM tblLoaiHinhVanChuyen WHERE ID = " + objOrder.IDLoaiHinhVanChuyen)
-                        let loaivo = await db.query("SELECT * FROM tblLoaiVo WHERE ID = " + objOrder.IDLoaiVo)
-                        let hangtau = await db.query("SELECT * FROM tblHangTau WHERE ID = " + objOrder.IDHangTau)
-
-                        //dữ liệu mới
-                        let IDLoaiHinhVanChuyen;
-                        let TypeLoaiHinhVanChuyen;
-                        let IDKhachHang;
-                        let IDDMXeCongTy = data.xecongty.id;
-                        let SoLuongVo = objOrder.SoLuongVo;
-                        let IDLoaiVo;
-                        let IDHangTau;
-                        let TrongLuong = objOrder.TrongLuong;
-                        let NgayDong = objOrder.NgayDong;
-                        let GioDong = objOrder.GioDong;
-                        let NgayTra = objOrder.NgayTra;
-                        let GioTra = objOrder.GioTra;
-                        let NoiDong = objOrder.NoiDong;
-                        let NoiTra = objOrder.NoiTra;
-                        let CuocVanChuyen = objOrder.GiaCuocChi;
-                        let SoContainer = objOrder.SoContainer;
-                        let SoChi = objOrder.SoChi;
-                        let DiaDiemDong = objOrder.DiaDiemDong;
-                        let NguoiLayHang = objOrder.NguoiLayHang;
-                        let SDTNguoiLay = objOrder.SDTNguoiLay;
-                        let GhiChuLay = objOrder.GhiChuLay;
-                        let DiaDiemTra = objOrder.DiaDiemTra;
-                        let NguoiTraHang = objOrder.NguoiTraHang;
-                        let SDTNguoiTra = objOrder.SDTNguoiTra;
-                        let GhiChuTra = objOrder.GhiChuTra;
-                        let GhiChuChiPhi = objOrder.GhiChuChiPhi;
-                        let TrangThai = "MỚI";
-                        let PheDuyet = "ĐÃ DUYỆT";
-                        let IDNhanVienKH = data.idnhanvienkh;
-                        let MaDoiChieu = objOrder.SoDonHang;
-                        let ts = Date.now();
-
-                        let date_ob = new Date(ts);
-                        let date = ("0" + date_ob.getDate()).slice(-2);
-                        let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
-                        let year = date_ob.getFullYear();
-                        let hours = date_ob.getHours();
-                        let minutes = date_ob.getMinutes();
-                        let seconds = date_ob.getSeconds();
-
-                        let CreateDate = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
-                        let EditDate = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
-
-                        let getdonghang = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang like '%" + date + month + year + "%' AND SoDonHang not like '%-%'")
-
-                        let loaihinhvanchuyen2 = await db2.query("SELECT * FROM tblLoaiHinhVanChuyen WHERE TenVietTat = '" + loaihinhvanchuyen[0][0].TenVietTat + "'")
-                        if (!loaihinhvanchuyen2[0][0]) {
-                            let create_lhvc = await db2.query("INSERT INTO tblLoaiHinhVanChuyen (TenVietTat, TenLoaiHinh) values ('" + loaihinhvanchuyen[0][0].TenVietTat + "', '" + loaihinhvanchuyen[0][0].TenLoaiHinh + "')")
-                            IDLoaiHinhVanChuyen = create_lhvc[0][0].ID
-                            TypeLoaiHinhVanChuyen = create_lhvc[0][0].TenVietTat
-                        } else {
-                            IDLoaiHinhVanChuyen = loaihinhvanchuyen2[0][0].ID
-                            TypeLoaiHinhVanChuyen = loaihinhvanchuyen2[0][0].TenVietTat
-                        }
-                        let SoDonHang = TypeLoaiHinhVanChuyen + "." + date + month + year + "." + (getdonghang[0].length + 1).toString()
-                        if (!loaivo[0][0]) {
-                            IDLoaiVo = null
-                        } else {
-                            let loaivo2 = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
-                            if (!loaivo2[0][0]) {
-                                await db2.query("INSERT INTO tblLoaiVo (TenLoaiVo, GhiChu, TrangThai) values ('" + loaivo[0][0].TenLoaiVo + "', '" + loaivo[0][0].GhiChu + "', 0 )")
-                                let create_lv = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
-                                IDLoaiVo = create_lv[0][0].ID
-                            } else {
-                                IDLoaiVo = loaivo2[0][0].ID
-                            }
-                        }
-                        if (!hangtau[0][0]) {
-                            IDHangTau = null
-                        } else {
-                            let hangtau2 = await db2.query("SELECT * FROM tblHangTau WHERE BaiContainer = '" + hangtau[0][0].BaiContainer + "'")
-                            if (!hangtau2[0][0]) {
-                                await db2.query("INSERT INTO tblHangTau (BaiContainer, TenHangTau, GhiChu, TrangThai) values (N'" + hangtau[0][0].BaiContainer + "', N'" + hangtau[0][0].TenHangTau + "', N'" + hangtau[0][0].GhiChu + "', 0)")
-                                let create_ht = await db2.query("SELECT * FROM tblHangTau WHERE TenHangTau = '" + hangtau[0][0].TenHangTau + "'")
-                                IDHangTau = create_ht[0][0].ID
-                            } else {
-                                IDHangTau = hangtau2[0][0].ID
-                            }
-                        }
-                        let diadiemdong = await db.query("SELECT * FROM tblKho WHERE ID= " + objOrder.IDDiaDiemDong)
-                        if (diadiemdong[0][0]) {
-                            DiaDiemDong = diadiemdong[0][0].Address
-                            NguoiLayHang = diadiemdong[0][0].TenThuKho
-                            SDTNguoiLay = diadiemdong[0][0].PhoneNumber
-                        }
-                        let diadiemtra = await db.query("SELECT * FROM tblKho WHERE ID= " + objOrder.IDDiaDiemTra)
-                        if (diadiemtra[0][0]) {
-                            DiaDiemTra = diadiemtra[0][0].Address
-                            NguoiTraHang = diadiemtra[0][0].TenThuKho
-                            SDTNguoiTra = diadiemtra[0][0].PhoneNumber
-                        }
-                        let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
-                        let dbMasterQuery = await dbMaster.query("SELECT KeyConnect FROM CustomerDB WHERE NameDatabase = '" + data.dbname + "'")
-                        if (!dbMasterQuery[0][0]) {
-                            dbMaster = await connectDatabase('Customer_VTNAP')
-                            dbMasterQuery = await dbMaster.query("SELECT KeyConnect FROM CustomerDB WHERE NameDatabase = '" + data.dbname + "'")
-                        }
-                        let khachhang = await db2.query("SELECT * FROM tblKhachHang WHERE KeyConnect = '" + dbMasterQuery[0][0].KeyConnect + "'")
-                        IDKhachHang = khachhang[0][0].ID
-                        let chiphiphatsinhchi = await db.query("SELECT * FROM tblChiPhiChiDonHang WHERE IDDonHang = " + data.id + " AND (ISCOM = 0 or ISCOM is null)")
-                        let ChiPhiPhatSinhThu = 0
-                        chiphiphatsinhchi[0].forEach(value => {
-                            ChiPhiPhatSinhThu = ChiPhiPhatSinhThu + value.ChiPhiPhatSinhChi
-                        })
-                        let TongTienThu = CuocVanChuyen + ChiPhiPhatSinhThu
-                        let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, IDDMXeCongTy, SoDonHang, MaDoiChieu, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienCSKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + "," + IDDMXeCongTy + ",'" + SoDonHang + "','" + MaDoiChieu + "'," + CuocVanChuyen + "," + TongTienThu + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
-                        await db2.query(CreateOrderQuery)
-                        let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")
-                        let IDDonHang = NewOrder[0][0].ID
-                        chiphiphatsinhchi[0].forEach(value => {
-                            db2.query("INSERT INTO tblDoanhThuKhacChoXeCT (IDDonHang, TenDoanhThuKhac, ChiPhi) values ('" + IDDonHang + "', '" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
-                        })
                         if (objOrder.ConfirmKH == 1) {
                             if (data.type.toUpperCase() == 'KEHOACH') {
+                                //lấy dữ liệu đơn gốc
+                                let loaihinhvanchuyen = await db.query("SELECT * FROM tblLoaiHinhVanChuyen WHERE ID = " + objOrder.IDLoaiHinhVanChuyen)
+                                let loaivo = await db.query("SELECT * FROM tblLoaiVo WHERE ID = " + objOrder.IDLoaiVo)
+                                let hangtau = await db.query("SELECT * FROM tblHangTau WHERE ID = " + objOrder.IDHangTau)
+
+                                //dữ liệu mới
+                                let IDLoaiHinhVanChuyen;
+                                let TypeLoaiHinhVanChuyen;
+                                let IDKhachHang;
+                                let IDDMXeCongTy = data.xecongty.id;
+                                let SoLuongVo = objOrder.SoLuongVo;
+                                let IDLoaiVo;
+                                let IDHangTau;
+                                let TrongLuong = objOrder.TrongLuong;
+                                let NgayDong = objOrder.NgayDong;
+                                let GioDong = objOrder.GioDong;
+                                let NgayTra = objOrder.NgayTra;
+                                let GioTra = objOrder.GioTra;
+                                let NoiDong = objOrder.NoiDong;
+                                let NoiTra = objOrder.NoiTra;
+                                let CuocVanChuyen = objOrder.GiaCuocChi;
+                                let SoContainer = objOrder.SoContainer;
+                                let SoChi = objOrder.SoChi;
+                                let DiaDiemDong = objOrder.DiaDiemDong;
+                                let NguoiLayHang = objOrder.NguoiLayHang;
+                                let SDTNguoiLay = objOrder.SDTNguoiLay;
+                                let GhiChuLay = objOrder.GhiChuLay;
+                                let DiaDiemTra = objOrder.DiaDiemTra;
+                                let NguoiTraHang = objOrder.NguoiTraHang;
+                                let SDTNguoiTra = objOrder.SDTNguoiTra;
+                                let GhiChuTra = objOrder.GhiChuTra;
+                                let GhiChuChiPhi = objOrder.GhiChuChiPhi;
+                                let TrangThai = "MỚI";
+                                let PheDuyet = "ĐÃ DUYỆT";
+                                let IDNhanVienKH = data.idnhanvienkh;
+                                let MaDoiChieu = objOrder.SoDonHang;
+                                let ts = Date.now();
+
+                                let date_ob = new Date(ts);
+                                let date = ("0" + date_ob.getDate()).slice(-2);
+                                let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+                                let year = date_ob.getFullYear();
+                                let hours = date_ob.getHours();
+                                let minutes = date_ob.getMinutes();
+                                let seconds = date_ob.getSeconds();
+
+                                let CreateDate = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
+                                let EditDate = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
+
+                                let getdonghang = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang like '%" + date + month + year + "%' AND SoDonHang not like '%-%'")
+
+                                let loaihinhvanchuyen2 = await db2.query("SELECT * FROM tblLoaiHinhVanChuyen WHERE TenVietTat = '" + loaihinhvanchuyen[0][0].TenVietTat + "'")
+                                if (!loaihinhvanchuyen2[0][0]) {
+                                    let create_lhvc = await db2.query("INSERT INTO tblLoaiHinhVanChuyen (TenVietTat, TenLoaiHinh) values ('" + loaihinhvanchuyen[0][0].TenVietTat + "', '" + loaihinhvanchuyen[0][0].TenLoaiHinh + "')")
+                                    IDLoaiHinhVanChuyen = create_lhvc[0][0].ID
+                                    TypeLoaiHinhVanChuyen = create_lhvc[0][0].TenVietTat
+                                } else {
+                                    IDLoaiHinhVanChuyen = loaihinhvanchuyen2[0][0].ID
+                                    TypeLoaiHinhVanChuyen = loaihinhvanchuyen2[0][0].TenVietTat
+                                }
+                                let SoDonHang = TypeLoaiHinhVanChuyen + "." + date + month + year + "." + (getdonghang[0].length + 1).toString()
+                                if (!loaivo[0][0]) {
+                                    IDLoaiVo = null
+                                } else {
+                                    let loaivo2 = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
+                                    if (!loaivo2[0][0]) {
+                                        await db2.query("INSERT INTO tblLoaiVo (TenLoaiVo, GhiChu, TrangThai) values ('" + loaivo[0][0].TenLoaiVo + "', '" + loaivo[0][0].GhiChu + "', 0 )")
+                                        let create_lv = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
+                                        IDLoaiVo = create_lv[0][0].ID
+                                    } else {
+                                        IDLoaiVo = loaivo2[0][0].ID
+                                    }
+                                }
+                                if (!hangtau[0][0]) {
+                                    IDHangTau = null
+                                } else {
+                                    let hangtau2 = await db2.query("SELECT * FROM tblHangTau WHERE BaiContainer = '" + hangtau[0][0].BaiContainer + "'")
+                                    if (!hangtau2[0][0]) {
+                                        await db2.query("INSERT INTO tblHangTau (BaiContainer, TenHangTau, GhiChu, TrangThai) values (N'" + hangtau[0][0].BaiContainer + "', N'" + hangtau[0][0].TenHangTau + "', N'" + hangtau[0][0].GhiChu + "', 0)")
+                                        let create_ht = await db2.query("SELECT * FROM tblHangTau WHERE TenHangTau = '" + hangtau[0][0].TenHangTau + "'")
+                                        IDHangTau = create_ht[0][0].ID
+                                    } else {
+                                        IDHangTau = hangtau2[0][0].ID
+                                    }
+                                }
+                                let diadiemdong = await db.query("SELECT * FROM tblKho WHERE ID= " + objOrder.IDDiaDiemDong)
+                                if (diadiemdong[0][0]) {
+                                    DiaDiemDong = diadiemdong[0][0].Address
+                                    NguoiLayHang = diadiemdong[0][0].TenThuKho
+                                    SDTNguoiLay = diadiemdong[0][0].PhoneNumber
+                                }
+                                let diadiemtra = await db.query("SELECT * FROM tblKho WHERE ID= " + objOrder.IDDiaDiemTra)
+                                if (diadiemtra[0][0]) {
+                                    DiaDiemTra = diadiemtra[0][0].Address
+                                    NguoiTraHang = diadiemtra[0][0].TenThuKho
+                                    SDTNguoiTra = diadiemtra[0][0].PhoneNumber
+                                }
+                                let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
+                                let dbMasterQuery = await dbMaster.query("SELECT KeyConnect FROM CustomerDB WHERE NameDatabase = '" + data.dbname + "'")
+                                if (!dbMasterQuery[0][0]) {
+                                    dbMaster = await connectDatabase('Customer_VTNAP')
+                                    dbMasterQuery = await dbMaster.query("SELECT KeyConnect FROM CustomerDB WHERE NameDatabase = '" + data.dbname + "'")
+                                }
+                                let khachhang = await db2.query("SELECT * FROM tblKhachHang WHERE KeyConnect = '" + dbMasterQuery[0][0].KeyConnect + "'")
+                                IDKhachHang = khachhang[0][0].ID
+                                let chiphiphatsinhchi = await db.query("SELECT * FROM tblChiPhiChiDonHang WHERE IDDonHang = " + data.id + " AND (ISCOM = 0 or ISCOM is null)")
+                                let ChiPhiPhatSinhThu = 0
+                                chiphiphatsinhchi[0].forEach(value => {
+                                    ChiPhiPhatSinhThu = ChiPhiPhatSinhThu + value.ChiPhiPhatSinhChi
+                                })
+                                let TongTienThu = CuocVanChuyen + ChiPhiPhatSinhThu
+                                let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, IDDMXeCongTy, SoDonHang, MaDoiChieu, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienCSKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + "," + IDDMXeCongTy + ",'" + SoDonHang + "','" + MaDoiChieu + "'," + CuocVanChuyen + "," + TongTienThu + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
+                                await db2.query(CreateOrderQuery)
+                                let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")
+                                let IDDonHang = NewOrder[0][0].ID
+                                chiphiphatsinhchi[0].forEach(value => {
+                                    db2.query("INSERT INTO tblDoanhThuKhacChoXeCT (IDDonHang, TenDoanhThuKhac, ChiPhi) values ('" + IDDonHang + "', '" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
+                                })
                                 await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH', IDDMXeCongTy = NULL, BienSoXe = '" + data.xecongty.biensoxe + "', TenLaiXe = N'" + data.xecongty.tenlaixe + "', SDTLaiXe = '" + data.xecongty.sodienthoai + "' WHERE ID = " + data.id)
                             } else {
                                 await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'CHI PHÍ HOÀN THÀNH' WHERE ID = " + data.id)
