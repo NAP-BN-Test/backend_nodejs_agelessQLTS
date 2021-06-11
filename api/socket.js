@@ -451,7 +451,6 @@ async function getRequestOrderAndPaymentOfUser(userID) {
             })
             if (user) {
                 let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
-                console.log(permissions);
                 if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
                     console.log(permissions.notiTS);
                     for (let ts = 0; ts < permissions.notiTS.length; ts++) {
@@ -1004,7 +1003,7 @@ module.exports = {
                     }
                 })
                 //  khi tạo yêu cầu mua sắm
-            socket.on("notice-create-request-shoping", async(data) => {
+            socket.on("notice-create-request-shopping", async(data) => {
                 let obj = await getDetailRequestShopping(data)
                     // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalYCMS'].sockets

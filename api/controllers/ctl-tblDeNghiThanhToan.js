@@ -781,49 +781,51 @@ module.exports = {
                         where: { ID: body.id }
                     })
                     let ycmsSearch = await mtblYeuCauMuaSam(db).findOne({ where: { IDPaymentOrder: body.id } })
-                    if (ycmsSearch.Type == 'Tài sản') {
-                        await mtblYeuCauMuaSam(db).update({
-                            Status: 'Đã thanh toán',
-                        }, { where: { IDPaymentOrder: body.id } })
-                    } else {
-                        await mtblYeuCauMuaSam(db).update({
-                            Status: 'Đã nhập văn phòng phẩm',
-                        }, { where: { IDPaymentOrder: body.id } })
-                        let now = moment().format('MM-DD-YYYY HH:mm:ss.SSS');
-                        await mtblYeuCauMuaSam(db).findOne({ where: { ID: ycmsSearch.ID } }).then(async data => {
-                            var addVPP = await mtblThemVPP(db).create({
-                                IDNhaCungCap: data.IDSupplier ? data.IDSupplier : null,
-                                Date: now,
+                    if (ycmsSearch) {
+                        if (ycmsSearch.Type == 'Tài sản') {
+                            await mtblYeuCauMuaSam(db).update({
+                                Status: 'Đã thanh toán',
+                            }, { where: { IDPaymentOrder: body.id } })
+                        } else {
+                            await mtblYeuCauMuaSam(db).update({
+                                Status: 'Đã nhập văn phòng phẩm',
+                            }, { where: { IDPaymentOrder: body.id } })
+                            let now = moment().format('MM-DD-YYYY HH:mm:ss.SSS');
+                            await mtblYeuCauMuaSam(db).findOne({ where: { ID: ycmsSearch.ID } }).then(async data => {
+                                var addVPP = await mtblThemVPP(db).create({
+                                    IDNhaCungCap: data.IDSupplier ? data.IDSupplier : null,
+                                    Date: now,
+                                })
+                                await mtblFileAttach(db).findAll({
+                                    where: {
+                                        IDYeuCauMuaSam: ycmsSearch.ID
+                                    }
+                                }).then(async ycms => {
+                                    for (let y = 0; y < ycms.length; y++) {
+                                        await mtblFileAttach(db).create({
+                                            Link: ycms[y].Link,
+                                            Name: ycms[y].Name,
+                                            IDVanPhongPham: addVPP.ID,
+                                        })
+                                    }
+                                })
+                                await mtblYeuCauMuaSamDetail(db).findAll({ where: { IDYeuCauMuaSam: data.ID } }).then(async detail => {
+                                    for (var i = 0; i < detail.length; i++) {
+                                        await mThemVPPChiTiet(db).create({
+                                            IDVanPhongPham: detail[i].IDVanPhongPham,
+                                            IDThemVPP: addVPP.ID,
+                                            Amount: detail[i].Amount ? detail[i].Amount : 0,
+                                            Describe: data.Reason ? data.Reason : '',
+                                        })
+                                        let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: detail[i].IDVanPhongPham } })
+                                        let amount = vpp ? vpp.RemainingAmount : 0;
+                                        await mtblVanPhongPham(db).update({
+                                            RemainingAmount: Number(detail[i].Amount) + Number(amount),
+                                        }, { where: { ID: detail[i].IDVanPhongPham } })
+                                    }
+                                })
                             })
-                            await mtblFileAttach(db).findAll({
-                                where: {
-                                    IDYeuCauMuaSam: ycmsSearch.ID
-                                }
-                            }).then(async ycms => {
-                                for (let y = 0; y < ycms.length; y++) {
-                                    await mtblFileAttach(db).create({
-                                        Link: ycms[y].Link,
-                                        Name: ycms[y].Name,
-                                        IDVanPhongPham: addVPP.ID,
-                                    })
-                                }
-                            })
-                            await mtblYeuCauMuaSamDetail(db).findAll({ where: { IDYeuCauMuaSam: data.ID } }).then(async detail => {
-                                for (var i = 0; i < detail.length; i++) {
-                                    await mThemVPPChiTiet(db).create({
-                                        IDVanPhongPham: detail[i].IDVanPhongPham,
-                                        IDThemVPP: addVPP.ID,
-                                        Amount: detail[i].Amount ? detail[i].Amount : 0,
-                                        Describe: data.Reason ? data.Reason : '',
-                                    })
-                                    let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: detail[i].IDVanPhongPham } })
-                                    let amount = vpp ? vpp.RemainingAmount : 0;
-                                    await mtblVanPhongPham(db).update({
-                                        RemainingAmount: Number(detail[i].Amount) + Number(amount),
-                                    }, { where: { ID: detail[i].IDVanPhongPham } })
-                                }
-                            })
-                        })
+                        }
                     }
                     var result = {
                         status: Constant.STATUS.SUCCESS,

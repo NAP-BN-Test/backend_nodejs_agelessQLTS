@@ -441,9 +441,7 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
-        console.log(body);
         let arrayPermission = []
-
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -765,7 +763,7 @@ module.exports = {
                     }
                     if (arraySearchOr.length > 0)
                         whereObj[Op.or] = arraySearchOr
-                    if (arraySearchAnd.length > 0) {
+                    if (arraySearchAnd.length >= 0) {
                         if (checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && !checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
                             arraySearchAnd.push({
                                 Type: 'Tài sản'
@@ -775,15 +773,41 @@ module.exports = {
                                 Type: 'Văn phòng phẩm'
                             })
                         } else if (!checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && !checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
-                            arraySearchAnd.push({
-                                Type: 'Văn phòng phẩm'
-                            })
-                            arraySearchAnd.push({
-                                Type: 'Tài sản'
-                            })
+                            var user = await mtblDMUser(db).findOne({ where: { ID: body.userID } });
+
+                            if (checkDuplicate(arrayPermission, 'isCreateEditPersonalYCMS')) {
+
+                                if (checkDuplicate(arrayPermission, 'isApprovalYCMS')) {
+                                    arraySearchAnd.push({
+                                        [Op.or]: [
+                                            { IDPheDuyet1: user.IDNhanvien },
+                                            { IDPheDuyet2: user.IDNhanvien },
+                                            { IDNhanVien: user.IDNhanvien },
+                                        ]
+                                    })
+                                } else {
+                                    arraySearchAnd.push({
+                                        IDNhanVien: user.IDNhanvien
+                                    })
+                                }
+                            } else {
+                                if (checkDuplicate(arrayPermission, 'isApprovalYCMS')) {
+                                    arraySearchAnd.push({
+                                        [Op.or]: [
+                                            { IDPheDuyet1: user.IDNhanvien },
+                                            { IDPheDuyet2: user.IDNhanvien },
+                                        ]
+                                    })
+                                } else {
+                                    arraySearchAnd.push({
+                                        IDNhanVien: 0
+                                    })
+                                }
+                            }
                         }
                         whereObj[Op.and] = arraySearchAnd
                     }
+                    console.log(arraySearchAnd);
                     if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
                     let stt = 1;
