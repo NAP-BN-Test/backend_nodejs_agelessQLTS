@@ -28,7 +28,31 @@ async function deleteRelationshiptblDMUser(db, listID) {
         }
     })
 }
+async function getPermissionForUser(userID) {
+    let array = []
+    await database.connectDatabase().then(async db => {
+        if (db) {
+            await mtblDMUser(db).findOne({
+                where: { ID: userID },
+            }).then(async data => {
+                if (data) {
+                    let permissions = data.Permissions ? JSON.parse(data.Permissions) : {}
+                    if (permissions.permissionTS) {
+                        for (let ts = 0; ts < permissions.permissionTS.length; ts++) {
+                            if (permissions.permissionTS[ts].completed == true) {
+                                array.push(permissions.permissionTS[ts].key)
+                            }
+                        }
+                    }
+                }
+
+            })
+        }
+    })
+    return array
+}
 module.exports = {
+    getPermissionForUser,
     deleteRelationshiptblDMUser,
     // get_detail_tbl_dmuser
     getDetailtblDMUser: (req, res) => {

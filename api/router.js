@@ -37,6 +37,8 @@ module.exports = function(app) {
 
     app.route('/qlnb/convert_base64_img').post(exportPDF.converBase64ToImg);
 
+    app.route('/qlnb/export_to_file_excel_VPP').post(exportPDF.exportToFileExcelVPP);
+
     app.route('/qlnb/export_to_file_excel_timekeeping').post(exportPDF.exportToFileExcelTimekeeping);
 
 

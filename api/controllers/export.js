@@ -1173,6 +1173,7 @@ module.exports = {
                 // 'NGƯỜI PHÊ DUYỆT SAU',
             ]
             // Add Worksheets to the workbook
+            // Add Worksheets to the workbook
         var ws = wb.addWorksheet('Sheet 1');
         var row = 1
         ws.column(row).setWidth(5);
@@ -1187,13 +1188,47 @@ module.exports = {
         // dùng để check bản ghi chiếm nhiều nhất bao nhiêu dòng
         var checkMaxRow = 1;
         for (let i = 0; i < data.length; i++) {
-            data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
+            data[i].line = JSON.parse(data[i].line)
+            var max = 0;
+            // Hàng lớn nhất của bản ghi trước
+            if (i > 0)
+                row = checkMaxRow + 1
+                // bản ghi đầu tiên
+            else
+                row = i + 2
+            if (data[i].line.length) {
+                checkMaxRow += data[i].line.length;
+                // max dùng để đánh dầu hàng tiếp theo
+                max = data[i].line.length;
+            } else {
+                checkMaxRow += 1;
+            }
+            console.log(data[i].line);
+            if (data[i].line.length > 0) {
+                for (var file = 0; file < data[i].line.length; file++) {
 
+                }
+            }
+            if (data[i].line.length > 0) {
+                ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
+                ws.cell(row, 3, row + max - 1, 3, true).string(data[i].departmentName).style(stylecell);
+                ws.cell(row, 4, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
+                ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
+                ws.cell(row, 2, row + max - 1, 2, true).string(transform(data[i].paymentOrderCode ? data[i].paymentOrderCode : 0)).style(stylecell);
+                ws.cell(row, 6, row + max - 1, 6, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
+            } else {
+                ws.cell(row, 1).number(data[i].stt).style(stylecell)
+                ws.cell(row, 3).string(data[i].departmentName).style(stylecell)
+                ws.cell(row, 4).string(data[i].nameNhanVien).style(stylecell)
+                ws.cell(row, 5).string(data[i].contents).style(stylecell)
+                ws.cell(row, 2).string(data[i].paymentOrderCode).style(stylecell)
+                ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
+            }
         }
-        await wb.write('C:/images_services/ageless_sendmail/export_excel_handing_over_vpp.xlsx');
+        await wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
         setTimeout(() => {
             var result = {
-                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_handing_over_vpp.xlsx',
+                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_payment_request.xlsx',
                 status: Constant.STATUS.SUCCESS,
                 message: Constant.MESSAGE.ACTION_SUCCESS,
             }

@@ -261,7 +261,7 @@ async function getPaymentOfUser(userID) {
                         name: '',
                         type: 'payment',
                         userID: '',
-                        status: 'Đã được cầu duyệt',
+                        status: 'Đã được duyệt',
                         code: data[i].PaymentOrderCode,
                         id: data[i].ID,
                     })
@@ -342,7 +342,7 @@ async function getRequestOfUser(userID) {
                         name: '',
                         type: 'shopping_cart',
                         userID: null,
-                        status: 'Đã được cầu duyệt',
+                        status: 'Đã được duyệt',
                         code: data[i].RequestCode,
                         id: data[i].ID,
                     })
@@ -998,7 +998,6 @@ module.exports = {
                     console.log(socket.userID, '----------------- get data -------------------');
                     if (socket.userID) {
                         let array = await getRequestOrderAndPaymentOfUser(socket.userID);
-                        console.log(array);
                         socket.emit("system-wide-notification-ts", array)
                     }
                 })

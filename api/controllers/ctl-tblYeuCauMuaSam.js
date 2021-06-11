@@ -15,7 +15,15 @@ var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
 var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 var mModules = require('../constants/modules');
+var ctltblDMUser = require('../controllers/ctl-tblDMUser');
 
+function checkDuplicate(array, elm) {
+    var check = false;
+    array.forEach(item => {
+        if (item === elm) check = true;
+    })
+    return check;
+}
 var database = require('../database');
 async function deleteRelationshiptblYeuCauMuaSam(db, listID) {
     await mtblYeuCauMuaSamDetail(db).destroy({
@@ -433,9 +441,15 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
+        let arrayPermission = []
+
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (body.userID)
+                        arrayPermission = await ctltblDMUser.getPermissionForUser(body.userID)
+                    console.log(arrayPermission);
                     let whereObj = []
                     let where = []
                     let whereSecond = []
@@ -751,8 +765,26 @@ module.exports = {
                     }
                     if (arraySearchOr.length > 0)
                         whereObj[Op.or] = arraySearchOr
-                    if (arraySearchAnd.length > 0)
+                    if (arraySearchAnd.length > 0) {
+                        if (checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && !checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
+                            arraySearchAnd.push({
+                                Type: 'Tài sản'
+                            })
+                        } else if (!checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
+                            arraySearchAnd.push({
+                                Type: 'Văn phòng phẩm'
+                            })
+                        } else if (!checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && !checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
+                            arraySearchAnd.push({
+                                Type: 'Văn phòng phẩm'
+                            })
+                            arraySearchAnd.push({
+                                Type: 'Tài sản'
+                            })
+                        }
+                        console.log(arraySearchAnd);
                         whereObj[Op.and] = arraySearchAnd
+                    }
                     if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
                     let stt = 1;

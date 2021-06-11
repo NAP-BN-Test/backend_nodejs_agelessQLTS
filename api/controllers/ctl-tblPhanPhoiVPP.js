@@ -479,6 +479,7 @@ module.exports = {
                             obj['line'] = arrayLine
                             array.push(obj);
                         });
+                        console.log(array);
                         var count = await mtblPhanPhoiVPP(db).count({ where: whereOjb, })
                         var result = {
                             array: array,

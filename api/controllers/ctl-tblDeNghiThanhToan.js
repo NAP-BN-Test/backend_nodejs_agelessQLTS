@@ -403,11 +403,19 @@ module.exports = {
                                     list.push(item.ID);
                                 })
                             })
-                            where = [{
-                                IDNhanVien: {
-                                    [Op.in]: list
-                                }
-                            }, ];
+                            where = {
+                                [Op.or]: [{
+                                        IDNhanVien: {
+                                            [Op.in]: list
+                                        }
+                                    },
+                                    {
+                                        PaymentOrderCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
+                                ]
+                            };
                         } else {
                             where = [{
                                 Contents: {
