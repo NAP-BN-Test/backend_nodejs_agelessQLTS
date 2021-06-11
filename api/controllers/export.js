@@ -1218,7 +1218,7 @@ module.exports = {
                 ws.cell(row, 7, row + max - 1, 7, true).string(data[i].date).style(stylecell);
             }
         }
-        await wb.write('D:/images_services/ageless_sendmail/export_excel_handing_over_vpp.xlsx');
+        await wb.write('C:/images_services/ageless_sendmail/export_excel_handing_over_vpp.xlsx');
         setTimeout(() => {
             var result = {
                 link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_handing_over_vpp.xlsx',

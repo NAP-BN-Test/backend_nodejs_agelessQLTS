@@ -451,7 +451,9 @@ async function getRequestOrderAndPaymentOfUser(userID) {
             })
             if (user) {
                 let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
+                console.log(permissions);
                 if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
+                    console.log(permissions.notiTS);
                     for (let ts = 0; ts < permissions.notiTS.length; ts++) {
                         if (permissions.notiTS[ts].key == 'isNotiApprovalYCMS' && permissions.notiTS[ts].completed == true) {
                             array = await getRequestApproval(userID)

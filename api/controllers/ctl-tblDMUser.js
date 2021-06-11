@@ -222,9 +222,12 @@ module.exports = {
     // update_tbl_dmuser
     updatetblDMUser: (req, res) => {
         let body = req.body;
+        console.log(body);
+
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let permissions = '';
                     let update = [];
                     let roleIDs = JSON.parse(body.roleIDs)
                     if (roleIDs.length > 0) {
