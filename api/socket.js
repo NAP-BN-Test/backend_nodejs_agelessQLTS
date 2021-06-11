@@ -1018,7 +1018,6 @@ module.exports = {
             })
             socket.on("notice-create-payment-order", async(data) => {
                 let obj = await getDetailPeymentOrder(data)
-                io.sockets.in('isNotiApprovalDNTT').emit("send-data-for-room", obj)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalDNTT'].sockets
                 clientsApproval = Object.keys(clientsApproval)
                 for (let s = 0; s < clientsApproval.length; s++) {
