@@ -1160,7 +1160,7 @@ module.exports = {
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         let body = req.body;
-        let data = JSON.parse(body.array);
+        let data = JSON.parse(body.data)
         let arrayHeader = [
                 'MÃ VPP',
                 'TÊN VPP',
@@ -1188,7 +1188,6 @@ module.exports = {
         // dùng để check bản ghi chiếm nhiều nhất bao nhiêu dòng
         var checkMaxRow = 1;
         for (let i = 0; i < data.length; i++) {
-            data[i].line = JSON.parse(data[i].line)
             var max = 0;
             // Hàng lớn nhất của bản ghi trước
             if (i > 0)
@@ -1203,32 +1202,26 @@ module.exports = {
             } else {
                 checkMaxRow += 1;
             }
-            console.log(data[i].line);
             if (data[i].line.length > 0) {
-                for (var file = 0; file < data[i].line.length; file++) {
-
+                //  nơi những trường không cần merge
+                for (var l = 0; l < data[i].line.length; l++) {
+                    ws.cell(l + row, 1).string(data[i].line[l].vppCode).style(stylecell)
+                    ws.cell(l + row, 2).string(data[i].line[l].vppName).style(stylecell)
+                    ws.cell(l + row, 3).string(data[i].line[l].unit).style(stylecell)
+                    ws.cell(l + row, 4).number(data[i].line[l].amount).style(stylecellNumber)
                 }
             }
+            //  nói những trường cần merger
             if (data[i].line.length > 0) {
-                ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
-                ws.cell(row, 3, row + max - 1, 3, true).string(data[i].departmentName).style(stylecell);
-                ws.cell(row, 4, row + max - 1, 4, true).string(data[i].nameNhanVien).style(stylecell);
-                ws.cell(row, 5, row + max - 1, 5, true).string(data[i].contents).style(stylecell);
-                ws.cell(row, 2, row + max - 1, 2, true).string(transform(data[i].paymentOrderCode ? data[i].paymentOrderCode : 0)).style(stylecell);
-                ws.cell(row, 6, row + max - 1, 6, true).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
-            } else {
-                ws.cell(row, 1).number(data[i].stt).style(stylecell)
-                ws.cell(row, 3).string(data[i].departmentName).style(stylecell)
-                ws.cell(row, 4).string(data[i].nameNhanVien).style(stylecell)
-                ws.cell(row, 5).string(data[i].contents).style(stylecell)
-                ws.cell(row, 2).string(data[i].paymentOrderCode).style(stylecell)
-                ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
+                ws.cell(row, 5, row + max - 1, 5, true).string(data[i].status).style(stylecell);
+                ws.cell(row, 6, row + max - 1, 6, true).string(data[i].nameNhanVienSoHuu).style(stylecell);
+                ws.cell(row, 7, row + max - 1, 7, true).string(data[i].date).style(stylecell);
             }
         }
-        await wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
+        await wb.write('D:/images_services/ageless_sendmail/export_excel_handing_over_vpp.xlsx');
         setTimeout(() => {
             var result = {
-                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_payment_request.xlsx',
+                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_handing_over_vpp.xlsx',
                 status: Constant.STATUS.SUCCESS,
                 message: Constant.MESSAGE.ACTION_SUCCESS,
             }

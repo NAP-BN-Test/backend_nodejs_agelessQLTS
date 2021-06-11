@@ -782,7 +782,6 @@ module.exports = {
                                 Type: 'Tài sản'
                             })
                         }
-                        console.log(arraySearchAnd);
                         whereObj[Op.and] = arraySearchAnd
                     }
                     if (arraySearchNot.length > 0)
