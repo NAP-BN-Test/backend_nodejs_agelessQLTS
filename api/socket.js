@@ -371,14 +371,26 @@ async function getDetailRequestShopping(id) {
                 }, ],
             }).then(async data => {
                 if (data) {
-                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet1 } });
-                    objResult = {
-                        name: data.nv ? data.nv.StaffName : 'admin',
-                        type: 'shopping_cart',
-                        userID: userID.ID,
-                        status: 'Yêu cầu duyệt',
-                        code: data.RequestCode,
-                        id: data.ID,
+                    if (data.Status != 'Đang phê duyệt' && data.Status != 'Chờ phê duyệt') {
+                        var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDNhanVien } });
+                        objResult = {
+                            name: '',
+                            type: 'shopping_cart',
+                            userID: userID.ID,
+                            status: 'Đã được duyệt',
+                            code: data.RequestCode,
+                            id: data.ID,
+                        }
+                    } else {
+                        var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet1 } });
+                        objResult = {
+                            name: data.nv ? data.nv.StaffName : 'admin',
+                            type: 'shopping_cart',
+                            userID: userID.ID,
+                            status: 'Yêu cầu duyệt',
+                            code: data.RequestCode,
+                            id: data.ID,
+                        }
                     }
                 }
             })
@@ -403,16 +415,27 @@ async function getDetailPeymentOrder(id) {
                 }, ],
             }).then(async data => {
                 if (data) {
-                    var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDNhanVienKTPD } });
-                    objResult = {
-                        name: data.nv ? data.nv.StaffName : 'admin',
-                        type: 'payment',
-                        userID: userID.ID,
-                        status: 'Yêu cầu duyệt',
-                        code: data.PaymentOrderCode,
-                        id: data.ID,
+                    if (data.TrangThaiPheDuyetLD != 'Chờ phê duyệt' && data.TrangThaiPheDuyetLD != 'Chờ phê duyệt') {
+                        var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDNhanVien } });
+                        objResult = {
+                            name: '',
+                            type: 'payment',
+                            userID: userID.ID,
+                            status: 'Đã được duyệt',
+                            code: data.PaymentOrderCode,
+                            id: data.ID,
+                        }
+                    } else {
+                        var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDNhanVienKTPD } });
+                        objResult = {
+                            name: data.nv ? data.nv.StaffName : 'admin',
+                            type: 'payment',
+                            userID: userID.ID,
+                            status: 'Yêu cầu duyệt',
+                            code: data.PaymentOrderCode,
+                            id: data.ID,
+                        }
                     }
-
                 }
             })
         }
