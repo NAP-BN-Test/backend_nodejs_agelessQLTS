@@ -451,10 +451,8 @@ async function getRequestOrderAndPaymentOfUser(userID) {
             })
             if (user) {
                 let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
-                console.log(permissions);
                 if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
                     for (let ts = 0; ts < permissions.notiTS.length; ts++) {
-                        console.log(permissions.notiTS[ts].key);
                         if (permissions.notiTS[ts].key == 'isNotiApprovalYCMS' && permissions.notiTS[ts].completed == true) {
                             array = await getRequestApproval(userID)
                         }
@@ -519,10 +517,13 @@ module.exports = {
                     }
                 }
                 if (data.id) {
-                    let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ GỬI', NgayGui = '" + now + "' where ID in " + str
-                    console.log(query, 1234);
-                    db.query(query)
-                    io.sockets.emit("sendrequest", data.id);
+                    let checkNhaXe = await db.query("SELECT IDNhaXe FROM tblYeuCau WHERE ID = " + data.id[0])
+                    if (!checkNhaXe[0][0].IDNhaXe) {
+                        let query = "UPDATE dbo.tblYeuCau SET TrangThai = N'ĐÃ GỬI', NgayGui = '" + now + "' where ID in " + str
+                        console.log(query, 1234);
+                        db.query(query)
+                        io.sockets.emit("sendrequest", data.id);
+                    }
                 } else {
                     io.sockets.emit("sendrequest", []);
                 }
@@ -997,6 +998,7 @@ module.exports = {
                     console.log(socket.userID, '----------------- get data -------------------');
                     if (socket.userID) {
                         let array = await getRequestOrderAndPaymentOfUser(socket.userID);
+                        console.log(array);
                         socket.emit("system-wide-notification-ts", array)
                     }
                 })
