@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = function(db) {
+module.exports = function (db) {
     var table = db.define('tblDateOfLeave', {
         ID: {
             type: Sequelize.BIGINT,
@@ -11,6 +11,9 @@ module.exports = function(db) {
         DateEnd: Sequelize.NOW,
         DateStart: Sequelize.NOW,
         WorkContent: Sequelize.STRING,
+        WorkResult: Sequelize.STRING,
+        TimeStartReal: Sequelize.NOW,
+        TimeEndReal: Sequelize.NOW,
     });
     return table;
 }

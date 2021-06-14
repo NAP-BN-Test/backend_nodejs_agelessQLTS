@@ -31,7 +31,7 @@ async function deleteRelationshiptblNghiPhep(db, listID) {
 }
 var mModules = require('../constants/modules');
 
-var enumerateDaysBetweenDates = function(startDate, endDate) {
+var enumerateDaysBetweenDates = function (startDate, endDate) {
     var dates = [];
     var currDate = moment(startDate).startOf('day');
     var lastDate = moment(endDate).startOf('day');
@@ -103,13 +103,13 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
         subtractHalfDay = 0.5
     }
     let plus = 0
-        // console.log(Number(dateStart.slice(8, 10)), Number(dateEnd.slice(8, 10)));
-        // if (checkDateStart < 12 && checkDateEnd >= 16) {
-        //     if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
-        //         plus += 2
-        //     else
-        //         plus += 1
-        // }
+    // console.log(Number(dateStart.slice(8, 10)), Number(dateEnd.slice(8, 10)));
+    // if (checkDateStart < 12 && checkDateEnd >= 16) {
+    //     if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
+    //         plus += 2
+    //     else
+    //         plus += 1
+    // }
     if (days.length < 1) {
         if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
             if (checkDateEnd < 17)
@@ -154,6 +154,7 @@ module.exports = {
     // add_tbl_nghiphep
     addtblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -185,8 +186,8 @@ module.exports = {
                     let arrayRespone = JSON.parse(body.array)
                     if (body.type == 'TakeLeave') {
                         seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
-                            // var quotient = Math.floor(y / x);  // lấy nguyên
-                            // var remainder = y % x; // lấy dư
+                        // var quotient = Math.floor(y / x);  // lấy nguyên
+                        // var remainder = y % x; // lấy dư
                         if (seniority > 12) {
                             advancePayment = 12 + Math.floor(seniority / 60)
                         } else {
@@ -203,17 +204,15 @@ module.exports = {
                                     advancePayment += 1
                             }
                         }
-                        if (body.type == 'TakeLeave')
-                            for (let i = 0; i < arrayRespone.length; i++) {
-                                let numberHolidayArray = 0
-                                if (!arrayRespone[i].timeStart)
-                                    arrayRespone[i].timeStart = "08:00"
-                                if (!arrayRespone[i].timeEnd)
-                                    arrayRespone[i].timeEnd = "17:30"
-                                numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
-                                console.log(numberHolidayArray);
-                                numberHoliday += numberHolidayArray
-                            }
+                        for (let i = 0; i < arrayRespone.length; i++) {
+                            let numberHolidayArray = 0
+                            if (!arrayRespone[i].timeStart)
+                                arrayRespone[i].timeStart = "08:00"
+                            if (!arrayRespone[i].timeEnd)
+                                arrayRespone[i].timeEnd = "17:30"
+                            numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                            numberHoliday += numberHolidayArray
+                        }
                         console.log(numberHoliday);
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
                         let currentYear = Number(moment().format('YYYY'))
@@ -265,7 +264,7 @@ module.exports = {
                                     await mtblDateOfLeave(db).create({
                                         DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                         DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
-                                        WorkContent: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                        WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
                                         LeaveID: data.ID,
                                     })
                                 }
@@ -518,7 +517,7 @@ module.exports = {
                                 model: mtblDMPermission(db),
                                 required: false,
                                 as: 'permission'
-                            }, ],
+                            },],
                         }).then(user => {
                             if (user.permission && user.permission.PermissionName != 'Admin') {
                                 arraySearchAnd.push({
@@ -543,15 +542,15 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [{
-                                            StaffCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            StaffName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        StaffCode: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        StaffName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -560,27 +559,27 @@ module.exports = {
                                 })
                             })
                             where = [{
-                                    IDNhanVien: {
-                                        [Op.in]: list
-                                    }
-                                },
-                                {
-                                    NumberLeave: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
+                                IDNhanVien: {
+                                    [Op.in]: list
+                                }
+                            },
+                            {
+                                NumberLeave: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 NumberLeave: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
                         }
                         arraySearchAnd.push({
-                                [Op.or]: where
-                            })
-                            // arraySearchOr.push({ ID: { [Op.ne]: null } })
+                            [Op.or]: where
+                        })
+                        // arraySearchOr.push({ ID: { [Op.ne]: null } })
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -673,35 +672,35 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         include: [{
-                                model: mtblLoaiChamCong(db),
+                            model: mtblLoaiChamCong(db),
+                            required: false,
+                            as: 'loaiChamCong'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'nv',
+                            include: [{
+                                model: mtblDMBoPhan(db),
                                 required: false,
-                                as: 'loaiChamCong'
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'nv',
-                                include: [{
-                                    model: mtblDMBoPhan(db),
-                                    required: false,
-                                    as: 'bp'
-                                }, ]
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'headDepartment'
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'adminHR'
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'heads'
-                            },
+                                as: 'bp'
+                            },]
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'headDepartment'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'adminHR'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'heads'
+                        },
                         ],
                         order: [
                             ['ID', 'DESC']
@@ -770,7 +769,10 @@ module.exports = {
                                             date: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
                                             timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
                                             timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
-                                            workResult: item.WorkContent ? item.WorkContent : ''
+                                            workContent: item.WorkContent ? item.WorkContent : '',
+                                            workResult: item.WorkResult ? item.WorkResult : '',
+                                            timeStartReal: item.TimeStartReal ? item.TimeStartReal : '',
+                                            timeEndReal: item.TimeEndReal ? item.TimeEndReal : '',
                                         })
                                     })
                                 }

@@ -24,23 +24,23 @@ async function getStaffContractExpirationData() {
             await tblHopDongNhanSu.findAll({
                 where: {
                     [Op.or]: [{
-                            Status: 'Có hiệu lực',
-                            Time: {
-                                [Op.eq]: null
-                            },
-                            NoticeTime: {
-                                [Op.substring]: now
-                            }
+                        Status: 'Có hiệu lực',
+                        Time: {
+                            [Op.eq]: null
                         },
-                        {
-                            Status: 'Có hiệu lực',
-                            NoticeTime: {
-                                [Op.substring]: now
-                            },
-                            Time: {
-                                [Op.lte]: nowTime
-                            },
+                        NoticeTime: {
+                            [Op.substring]: now
                         }
+                    },
+                    {
+                        Status: 'Có hiệu lực',
+                        NoticeTime: {
+                            [Op.substring]: now
+                        },
+                        Time: {
+                            [Op.lte]: nowTime
+                        },
+                    }
                     ]
                 },
                 order: [
@@ -50,7 +50,7 @@ async function getStaffContractExpirationData() {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'staff'
-                }, ],
+                },],
             }).then(contract => {
                 if (contract.length > 0) {
                     for (var i = 0; i < contract.length; i++) {
@@ -111,10 +111,10 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
-                            array.push({
+                            array.unshift({
                                 name: item.nv ? item.nv.StaffName : 'admin',
                                 type: 'shopping_cart',
                                 userID: user[i].ID,
@@ -131,7 +131,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -165,7 +165,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -213,11 +213,11 @@ async function getPaymentApproval(userID) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
                     var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVien } });
-                    array.push({
+                    array.unshift({
                         name: data[i].nv ? data[i].nv.StaffName : 'admin',
                         type: 'payment',
                         userID: userID.ID,
@@ -254,10 +254,10 @@ async function getPaymentOfUser(userID) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
-                    array.push({
+                    array.unshift({
                         name: '',
                         type: 'payment',
                         userID: '',
@@ -288,17 +288,17 @@ async function getRequestApproval(userID) {
                     }, {
                         IDPheDuyet2: user.IDNhanvien,
                         Status: 'Đang phê duyệt'
-                    }, ],
+                    },],
                 },
                 include: [{
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
                     var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVien } });
-                    array.push({
+                    array.unshift({
                         name: data[i].nv ? data[i].nv.StaffName : 'admin',
                         type: 'shopping_cart',
                         userID: userID.ID,
@@ -335,10 +335,10 @@ async function getRequestOfUser(userID) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
-                    array.push({
+                    array.unshift({
                         name: '',
                         type: 'shopping_cart',
                         userID: null,
@@ -368,7 +368,7 @@ async function getDetailRequestShopping(id) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 if (data) {
                     if (data.Status != 'Đang phê duyệt' && data.Status != 'Chờ phê duyệt') {
@@ -381,8 +381,18 @@ async function getDetailRequestShopping(id) {
                             code: data.RequestCode,
                             id: data.ID,
                         }
-                    } else {
+                    } else if (data.Status == 'Chờ phê duyệt') {
                         var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet1 } });
+                        objResult = {
+                            name: data.nv ? data.nv.StaffName : 'admin',
+                            type: 'shopping_cart',
+                            userID: userID.ID,
+                            status: 'Yêu cầu duyệt',
+                            code: data.RequestCode,
+                            id: data.ID,
+                        }
+                    } else if (data.Status == 'Đang phê duyệt') {
+                        var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDPheDuyet2 } });
                         objResult = {
                             name: data.nv ? data.nv.StaffName : 'admin',
                             type: 'shopping_cart',
@@ -412,7 +422,7 @@ async function getDetailPeymentOrder(id) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 if (data) {
                     if (data.TrangThaiPheDuyetLD != 'Chờ phê duyệt' && data.TrangThaiPheDuyetLD != 'Chờ phê duyệt') {
@@ -479,11 +489,11 @@ async function getRequestOrderAndPaymentOfUser(userID) {
     return array
 }
 module.exports = {
-    sockketIO: async(io) => {
+    sockketIO: async (io) => {
         var array = await getPaymentAndREquest()
         var arrayContract = await getStaffContractExpirationData();
-        io.on("connection", async function(socket) {
-            socket.on("sendrequest", async function(data) {
+        io.on("connection", async function (socket) {
+            socket.on("sendrequest", async function (data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
@@ -529,11 +539,11 @@ module.exports = {
                     io.sockets.emit("sendrequest", []);
                 }
             });
-            socket.on("notification-zalo", async function(data) {
+            socket.on("notification-zalo", async function (data) {
                 io.sockets.emit("notification-zalo", { dbname: data.dbname });
 
             });
-            socket.on("change-received-status", async function(data) {
+            socket.on("change-received-status", async function (data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                 let dbName1 = await connectDatabase(data.dbname1)
@@ -553,7 +563,7 @@ module.exports = {
                 io.sockets.emit("sendrequest", []);
 
             });
-            socket.on("send-plan-cost", async function(data) {
+            socket.on("send-plan-cost", async function (data) {
                 let status = 'XÁC NHẬN KẾ HOẠCH'
                 if (data.type == 'CHIPHI')
                     status = 'XÁC NHẬN CHI PHÍ'
@@ -665,7 +675,7 @@ module.exports = {
                 io.sockets.emit("send-plan-cost", objResult);
 
             });
-            socket.on("confirm-plan-cost", async function(data) {
+            socket.on("confirm-plan-cost", async function (data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
@@ -847,15 +857,21 @@ module.exports = {
                                 await db2.query(CreateOrderQuery)
                                 let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")
                                 let IDDonHang = NewOrder[0][0].ID
-                                chiphiphatsinhchi[0].forEach(value => {
+                                await chiphiphatsinhchi[0].forEach(value => {
                                     db2.query("INSERT INTO tblDoanhThuKhacChoXeCT (IDDonHang, TenDoanhThuKhac, ChiPhi) values ('" + IDDonHang + "', '" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
                                 })
-                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH', IDDMXeCongTy = NULL, BienSoXe = '" + data.xecongty.biensoxe + "', TenLaiXe = N'" + data.xecongty.tenlaixe + "', SDTLaiXe = '" + data.xecongty.sodienthoai + "' WHERE ID = " + data.id)
+                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'KẾ HOẠCH HOÀN THÀNH', IDDMXeCongTy = NULL, BienSoXe = '" + data.xecongty == null ? '' : data.xecongty.biensoxe + "', TenLaiXe = N'" + data.xecongty == null ? '' : data.xecongty.tenlaixe + "', SDTLaiXe = '" + data.xecongty == null ? '' : data.xecongty.sodienthoai + "' WHERE ID = " + data.id)
                             } else {
                                 await db.query("UPDATE tblDonHang SET ConfirmNX = 1, TrangThaiCho = N'CHI PHÍ HOÀN THÀNH' WHERE ID = " + data.id)
+                                await db2.query("UPDATE tblDonHang SET TrangThai = N'HOÀN THÀNH' WHERE MaDoiChieu = '" + objOrder.MaDoiChieu + "'")
                             }
                         } else {
-                            await db.query("UPDATE tblDonHang SET ConfirmNX = 1, IDDMXeCongTy = NULL, BienSoXe = '" + data.xecongty.biensoxe + "', TenLaiXe = N'" + data.xecongty.tenlaixe + "', SDTLaiXe = '" + data.xecongty.sodienthoai + "' WHERE ID = " + data.id)
+                            if (data.type.toUpperCase() == 'CHIPHI') {
+                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1 WHERE ID = " + data.id)
+                                await db2.query("UPDATE tblDonHang SET TrangThai = N'HOÀN THÀNH' WHERE MaDoiChieu = '" + objOrder.MaDoiChieu + "'")
+                            } else {
+                                await db.query("UPDATE tblDonHang SET ConfirmNX = 1, IDDMXeCongTy = NULL, BienSoXe = '" + data.xecongty == null ? '' : data.xecongty.biensoxe + "', TenLaiXe = N'" + data.xecongty == null ? '' : data.xecongty.tenlaixe + "', SDTLaiXe = '" + data.xecongty == null ? '' : data.xecongty.sodienthoai + "' WHERE ID = " + data.id)
+                            }
                         }
                     }
                 }
@@ -864,7 +880,7 @@ module.exports = {
                 let KeyConnect;
                 let IDNhaXe;
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
-                    // check dbname khách hàng
+                // check dbname khách hàng
                 if (!objOrder.IDKhachHang) {
                     dbnameKH = null
                 } else {
@@ -958,91 +974,100 @@ module.exports = {
 
             //     io.sockets.emit("Server-send-contract-notification-schedule", arrayContractClient);
             // });
-            socket.on("disconnect", function() {
+            socket.on("disconnect", function () {
                 console.log(socket.id + " disconnected!");
             });
-            socket.on("join-room", async(data) => {
-                    socket.userID = data;
-                    await database.connectDatabase().then(async db => {
-                        if (db) {
-                            console.log(data, '--------------------------- Join zoom ---------------------------');
-                            let user = await mtblDMUser(db).findOne({
-                                where: { ID: data }
-                            })
-                            if (user) {
-                                let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
-                                if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
-                                    for (let ts = 0; ts < permissions.notiTS.length; ts++) {
-                                        if (permissions.notiTS[ts].completed == true) {
-                                            socket.join(permissions.notiTS[ts].key);
-                                        }
+            socket.on("join-room", async (data) => {
+                socket.userID = data;
+                await database.connectDatabase().then(async db => {
+                    if (db) {
+                        console.log(data, '--------------------------- Join zoom ---------------------------');
+                        let user = await mtblDMUser(db).findOne({
+                            where: { ID: data }
+                        })
+                        if (user) {
+                            let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
+                            if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
+                                for (let ts = 0; ts < permissions.notiTS.length; ts++) {
+                                    if (permissions.notiTS[ts].completed == true) {
+                                        socket.join(permissions.notiTS[ts].key);
                                     }
-                                    for (let ns = 0; ns < permissions.notiNS.length; ns++) {
-                                        if (permissions.notiNS[ns].completed == true) {
-                                            socket.join(permissions.notiNS[ns].key);
-                                        }
+                                }
+                                for (let ns = 0; ns < permissions.notiNS.length; ns++) {
+                                    if (permissions.notiNS[ns].completed == true) {
+                                        socket.join(permissions.notiNS[ns].key);
                                     }
-                                    for (let tc = 0; tc < permissions.notiTC.length; tc++) {
-                                        if (permissions.notiTC[tc].completed == true) {
-                                            socket.join(permissions.notiTC[tc].key);
-                                        }
+                                }
+                                for (let tc = 0; tc < permissions.notiTC.length; tc++) {
+                                    if (permissions.notiTC[tc].completed == true) {
+                                        socket.join(permissions.notiTC[tc].key);
                                     }
                                 }
                             }
-                        } else {
-                            res.json(Constant.MESSAGE.USER_FAIL)
                         }
-                    })
-                })
-                //  gửi cho chính socket đang đăng nhập check quyền
-            socket.on("system-wide-notification-ts", async(data) => {
-                    console.log(socket.userID, '----------------- get data -------------------');
-                    if (socket.userID) {
-                        let array = await getRequestOrderAndPaymentOfUser(socket.userID);
-                        socket.emit("system-wide-notification-ts", array)
+                    } else {
+                        res.json(Constant.MESSAGE.USER_FAIL)
                     }
                 })
-                //  khi tạo yêu cầu mua sắm
-            socket.on("notice-create-request-shopping", async(data) => {
-                let obj = await getDetailRequestShopping(data)
-                    // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
-                let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalYCMS'].sockets
-                    //  Laays danh sách socket trong room
-                clientsApproval = Object.keys(clientsApproval)
-                for (let s = 0; s < clientsApproval.length; s++) {
-                    let socketGet = io.sockets.connected[clientsApproval[s]]
-                    console.log(socketGet.id);
-                    // gửi cá nhân
-                    if (obj.userID == socketGet.userID)
-                        io.sockets.in(socket.id).emit('personal-data', obj)
+            })
+            //  gửi cho chính socket đang đăng nhập check quyền
+            socket.on("system-wide-notification-ts", async (data) => {
+                console.log(socket.userID, '----------------- get data -------------------');
+                if (socket.userID) {
+                    let array = await getRequestOrderAndPaymentOfUser(socket.userID);
+                    socket.emit("system-wide-notification-ts", array)
                 }
             })
-            socket.on("notice-create-payment-order", async(data) => {
+            //  khi tạo yêu cầu mua sắm
+            socket.on("notice-create-request-shopping", async (data) => {
+                let obj = await getDetailRequestShopping(data)
+                // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
+                let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalYCMS'].sockets
+                if (obj.status == 'Đã được duyệt') {
+                    clientsApproval = io.sockets.adapter.rooms['isNotiPersonalYCMS'].sockets
+                }
+                //  Laays danh sách socket trong room
+                clientsApproval = Object.keys(clientsApproval)
+                for (let s = 0; s < clientsApproval.length; s++) {
+                    let socketGet = io.sockets.connected[clientsApproval[s]]
+                    console.log(socketGet.id);
+                    if (obj.userID == socketGet.userID)
+                        io.sockets.in(socketGet.id).emit('personal-data', obj)
+                }
+                socket.emit('personal-data', null)
+                console.log(io.sockets.adapter.rooms);
+
+            })
+            socket.on("notice-create-payment-order", async (data) => {
                 let obj = await getDetailPeymentOrder(data)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalDNTT'].sockets
+                if (obj.status == 'Đã được duyệt') {
+                    clientsApproval = io.sockets.adapter.rooms['isNotiPersonalDNTT'].sockets
+                }
                 clientsApproval = Object.keys(clientsApproval)
                 for (let s = 0; s < clientsApproval.length; s++) {
                     let socketGet = io.sockets.connected[clientsApproval[s]]
                     console.log(socketGet.id);
                     // gửi cá nhân
-                    if (obj.userID == socket.userID) {
-                        io.sockets.in(socket.id).emit('personal-data', obj)
+                    if (obj.userID == socketGet.userID) {
+                        io.sockets.in(socketGet.id).emit('personal-data', obj)
                     }
                     console.log(io.sockets.adapter.rooms);
                 }
+                socket.emit('personal-data', null)
             })
         })
     },
-    socketEmit: async(io, dbname) => {
+    socketEmit: async (io, dbname) => {
         io.sockets.emit("notification-zalo", { dbname: dbname });
     },
-    socketEmitNotifiPlan: async(io, dbname) => {
+    socketEmitNotifiPlan: async (io, dbname) => {
         io.sockets.emit("notification-kehoach", { dbname: dbname });
     },
-    socketEmitNotifiCost: async(io, dbname) => {
+    socketEmitNotifiCost: async (io, dbname) => {
         io.sockets.emit("notification-chiphi", { dbname: dbname });
     },
-    socketEmitNotifiRequest: async(io, dbname) => {
+    socketEmitNotifiRequest: async (io, dbname) => {
         io.sockets.emit("sendrequest", { dbname: dbname });
     },
 }
