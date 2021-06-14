@@ -456,15 +456,15 @@ module.exports = {
                     let arraySearchNot = [];
                     if (body.type == 'end') {
                         arraySearchOr.push({ Status: 'Từ chối' })
-                            // arraySearchOr.push({ Status: 'Đã thanh toán' })
+                        // arraySearchOr.push({ Status: 'Đã thanh toán' })
                         arraySearchOr.push({ Status: 'Đã thêm mới tài sản' })
                     } else {
                         arraySearchAnd.push({
-                                Status: {
-                                    [Op.ne]: 'Từ chối'
-                                }
-                            })
-                            // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
+                            Status: {
+                                [Op.ne]: 'Từ chối'
+                            }
+                        })
+                        // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
                         arraySearchAnd.push({
                             Status: {
                                 [Op.ne]: 'Đã thêm mới tài sản'
@@ -479,15 +479,15 @@ module.exports = {
                             await mtblDMNhanvien(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            StaffName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            StaffCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        StaffName: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        StaffCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -499,15 +499,15 @@ module.exports = {
                             await mtblDMBoPhan(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            DepartmentCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            DepartmentName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        DepartmentCode: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        DepartmentName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -520,15 +520,15 @@ module.exports = {
                             await mtblDMHangHoa(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            Name: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            Code: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        Name: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        Code: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -551,37 +551,37 @@ module.exports = {
                             })
                             if (data.search) {
                                 where = [{
-                                        Status: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    },
-                                    {
-                                        RequestCode: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    },
-                                    {
-                                        IDNhanVien: {
-                                            [Op.in]: listStaff
-                                        }
-                                    },
-                                    {
-                                        IDPhongBan: {
-                                            [Op.in]: listDepartment
-                                        }
-                                    },
-                                    {
-                                        ID: {
-                                            [Op.in]: listYCMS
-                                        }
-                                    },
+                                    Status: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    RequestCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    IDNhanVien: {
+                                        [Op.in]: listStaff
+                                    }
+                                },
+                                {
+                                    IDPhongBan: {
+                                        [Op.in]: listDepartment
+                                    }
+                                },
+                                {
+                                    ID: {
+                                        [Op.in]: listYCMS
+                                    }
+                                },
                                 ];
                             } else {
                                 where = [{
-                                        RequestCode: {
-                                            [Op.ne]: '%%'
-                                        }
-                                    },
+                                    RequestCode: {
+                                        [Op.ne]: '%%'
+                                    }
+                                },
 
                                 ];
                             }
@@ -725,7 +725,7 @@ module.exports = {
                                                 Name: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            }, ]
+                                            },]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -825,35 +825,35 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [{
-                                model: tblDMBoPhan,
+                            model: tblDMBoPhan,
+                            required: false,
+                            as: 'phongban',
+                            include: [{
+                                model: mtblDMChiNhanh(db),
                                 required: false,
-                                as: 'phongban',
-                                include: [{
-                                    model: mtblDMChiNhanh(db),
-                                    required: false,
-                                    as: 'chinhanh',
-                                }]
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'NhanVien'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'PheDuyet1',
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'PheDuyet2',
-                            },
-                            {
-                                model: tblYeuCauMuaSamDetail,
-                                required: false,
-                                as: 'line'
-                            },
+                                as: 'chinhanh',
+                            }]
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'NhanVien'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'PheDuyet1',
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'PheDuyet2',
+                        },
+                        {
+                            model: tblYeuCauMuaSamDetail,
+                            required: false,
+                            as: 'line'
+                        },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -994,30 +994,30 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [{
-                                model: mtblDMBoPhan(db),
-                                required: false,
-                                as: 'phongban'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'NhanVien'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'PheDuyet1',
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'PheDuyet2',
-                            },
-                            {
-                                model: tblYeuCauMuaSamDetail,
-                                required: false,
-                                as: 'line'
-                            },
+                            model: mtblDMBoPhan(db),
+                            required: false,
+                            as: 'phongban'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'NhanVien'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'PheDuyet1',
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'PheDuyet2',
+                        },
+                        {
+                            model: tblYeuCauMuaSamDetail,
+                            required: false,
+                            as: 'line'
+                        },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -1064,7 +1064,7 @@ module.exports = {
                                         model: mtblDMLoaiTaiSan(db),
                                         required: false,
                                         as: 'loaiTaiSan'
-                                    }, ],
+                                    },],
                                 }).then(data => {
                                     if (data)
                                         arrayTaiSan.push({
@@ -1157,35 +1157,35 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [{
-                                model: tblDMBoPhan,
+                            model: tblDMBoPhan,
+                            required: false,
+                            as: 'phongban',
+                            include: [{
+                                model: mtblDMChiNhanh(db),
                                 required: false,
-                                as: 'phongban',
-                                include: [{
-                                    model: mtblDMChiNhanh(db),
-                                    required: false,
-                                    as: 'chinhanh',
-                                }]
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'NhanVien'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'PheDuyet1',
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'PheDuyet2',
-                            },
-                            {
-                                model: tblYeuCauMuaSamDetail,
-                                required: false,
-                                as: 'line'
-                            },
+                                as: 'chinhanh',
+                            }]
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'NhanVien'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'PheDuyet1',
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'PheDuyet2',
+                        },
+                        {
+                            model: tblYeuCauMuaSamDetail,
+                            required: false,
+                            as: 'line'
+                        },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),

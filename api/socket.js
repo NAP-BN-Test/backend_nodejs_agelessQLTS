@@ -1033,8 +1033,10 @@ module.exports = {
                     console.log(socketGet.id);
                     if (obj.userID == socketGet.userID)
                         io.sockets.in(socketGet.id).emit('personal-data', obj)
+                    else
+                        io.sockets.in(socketGet.id).emit('personal-data', null)
+
                 }
-                socket.emit('personal-data', null)
                 console.log(io.sockets.adapter.rooms);
 
             })
@@ -1052,9 +1054,10 @@ module.exports = {
                     if (obj.userID == socketGet.userID) {
                         io.sockets.in(socketGet.id).emit('personal-data', obj)
                     }
-                    console.log(io.sockets.adapter.rooms);
+                    else
+                        io.sockets.in(socketGet.id).emit('personal-data', null)
                 }
-                socket.emit('personal-data', null)
+                console.log(io.sockets.adapter.rooms);
             })
         })
     },

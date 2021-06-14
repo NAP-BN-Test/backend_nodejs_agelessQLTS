@@ -1,4 +1,4 @@
-module.exports = function(app) {
+module.exports = function (app) {
     var checkToken = require('./constants/token');
     var tblDMUser = require('./controllers/ctl-tblDMUser');
     var tblDMNhanvien = require('./controllers/ctl-tblDMNhanvien');
@@ -286,6 +286,7 @@ module.exports = function(app) {
     app.route('/qlnb/refuse_administration_hr').post(checkToken.checkToken, tblNghiPhep.refuseAdministrationHR);
     app.route('/qlnb/refuse_heads').post(checkToken.checkToken, tblNghiPhep.refuseHeads);
     app.route('/qlnb/handle_take_leave_day').post(tblNghiPhep.handleTakeLeaveDay);
+    app.route('/qlnb/get_the_remaining_spells').post(tblNghiPhep.getTheRemainingSpells);
 
     //  Danh mục tình trạng nhân viên
     app.route('/qlnb/add_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.addtblDMTinhTrangNV);
@@ -512,7 +513,7 @@ module.exports = function(app) {
     var apiSpecializedSoftware = require('./controller_finance/ctl-apiSpecializedSoftware')
     app.route('/qlnb/get_list_department').post(apiSpecializedSoftware.getListDepartment);
     var tblInvoice = require('./controller_finance/ctl-tblInvoice')
-        // app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
+    // app.route('/qlnb/get_list_invoice').post(apiSpecializedSoftware.getListInvoice);
     app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
     app.route('/qlnb/get_list_partner').post(apiSpecializedSoftware.getListPartner);
     app.route('/qlnb/get_list_customer').post(apiSpecializedSoftware.getListCustomer);

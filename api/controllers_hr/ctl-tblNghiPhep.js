@@ -124,7 +124,6 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
         }
     } else
         result = days.length + 2 - array7th.length - subtractHalfDay
-    console.log(result, plus);
     return result + plus
 }
 async function handleCalculatePreviousYear(db, idStaff, currentYear) {
@@ -257,6 +256,7 @@ module.exports = {
                                         DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
                                         DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
                                         LeaveID: data.ID,
+                                        IDLoaiChamCong: arrayRespone[i].idLoaiChamCong.id,
                                     })
                                 }
                             } else {
@@ -265,6 +265,9 @@ module.exports = {
                                         DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                         DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
                                         WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
+                                        WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                        TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : '08:00'),
+                                        TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : '18:00'),
                                         LeaveID: data.ID,
                                     })
                                 }
@@ -330,13 +333,16 @@ module.exports = {
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                 DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
-                                WorkContent: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
+                                WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : '08:00'),
+                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : '18:00'),
                                 LeaveID: body.id,
                             })
                         } else {
                             await mtblDateOfLeave(db).create({
-                                DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
-                                DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                                DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
+                                DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
                                 LeaveID: body.id,
                             })
                         }
@@ -750,8 +756,18 @@ module.exports = {
                                 note: data[i].Note ? data[i].Note : '',
                                 work: data[i].WorkContent ? data[i].WorkContent : '',
                             }
-                            await mtblDateOfLeave(db).findAll({
-                                where: { LeaveID: data[i].ID }
+                            let tblDateOfLeave = mtblDateOfLeave(db);
+                            tblDateOfLeave.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'lcc' })
+
+                            await tblDateOfLeave.findAll({
+                                where: { LeaveID: data[i].ID },
+                                include: [
+                                    {
+                                        model: mtblLoaiChamCong(db),
+                                        required: false,
+                                        as: 'lcc'
+                                    },
+                                ],
                             }).then(date => {
                                 let arrayDate = []
                                 if (obj.type == 'TakeLeave')
@@ -761,6 +777,7 @@ module.exports = {
                                             timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
                                             dateEnd: moment(item.DateEnd).subtract(7, 'hour').format('YYYY-MM-DD'),
                                             timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
+                                            idLoaiChamCong: item.IDLoaiChamCong ? Number(item.IDLoaiChamCong) : null
                                         })
                                     })
                                 else {
@@ -771,8 +788,8 @@ module.exports = {
                                             timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
                                             workContent: item.WorkContent ? item.WorkContent : '',
                                             workResult: item.WorkResult ? item.WorkResult : '',
-                                            timeStartReal: item.TimeStartReal ? item.TimeStartReal : '',
-                                            timeEndReal: item.TimeEndReal ? item.TimeEndReal : '',
+                                            timeStartReal: item.TimeStartReal ? moment(item.TimeStartReal).subtract(7, 'hour').format('HH:mm') : null,
+                                            timeEndReal: item.TimeEndReal ? moment(item.TimeEndReal).subtract(7, 'hour').format('HH:mm') : null,
                                         })
                                     })
                                 }
@@ -850,7 +867,6 @@ module.exports = {
     // approval_head_department
     approvalHeadDepartment: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1042,6 +1058,44 @@ module.exports = {
             if (db) {
                 try {
                     let result = await handleCalculateDayOff(body.dateStart, body.dateEnd)
+                    var resultRes = {
+                        result: result,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(resultRes);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_the_remaining_spells
+    getTheRemainingSpells: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let result = 0
+                    await mtblNghiPhep(db).findOne({
+                        where: {
+                            IDNhanVien: body.staffID,
+                            Type: 'TakeLeave',
+                        },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(data => {
+                        if (data)
+                            if (data.Status == 'Hoàn thành') {
+                                result = data.AdvancePayment - data.UsedLeave - data.NumberHoliday
+                            } else {
+                                result = data.AdvancePayment - data.UsedLeave
+                            }
+                    })
                     var resultRes = {
                         result: result,
                         status: Constant.STATUS.SUCCESS,

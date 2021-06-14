@@ -14,6 +14,8 @@ module.exports = function (db) {
         WorkResult: Sequelize.STRING,
         TimeStartReal: Sequelize.NOW,
         TimeEndReal: Sequelize.NOW,
+        IDLoaiChamCong: Sequelize.BIGINT,
+
     });
     return table;
 }
