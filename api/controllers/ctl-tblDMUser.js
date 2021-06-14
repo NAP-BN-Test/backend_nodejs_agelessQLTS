@@ -760,7 +760,24 @@ module.exports = {
                     let token = jwt.sign(payload,
                         'abcdxys', { expiresIn: '30d' }
                     );
-                    console.log(token);
+                    let tblRRoleUser = mtblRRoleUser(db);
+                    tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
+                    await tblRRoleUser.findAll({
+                        where: { UserID: data.ID },
+                        include: [{
+                            model: mtblRole(db),
+                            required: false,
+                            as: 'role'
+                        },],
+                    }).then(user => {
+                        let objRole = {}
+                        for (let u = 0; u < user.length; u++) {
+                            let key = user[u].role.Name
+                            objRole[key] = true
+                        }
+                        obj['role'] = objRole
+
+                    })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: '',

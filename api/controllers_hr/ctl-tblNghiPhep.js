@@ -229,7 +229,13 @@ module.exports = {
                         }
                     }
                     let checkErr = advancePayment - usedLeave
-                    if (checkErr > numberHoliday) {
+                    if (checkErr < numberHoliday && body.type == 'TakeLeave') {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: 'Số ngày nghỉ :' + numberHoliday + ' đã quá số phép còn lại. Vui lòng kiểm tra lại!',
+                        }
+                        res.json(result);
+                    } else {
                         await mtblNghiPhep(db).create({
                             // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                             // DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
@@ -258,7 +264,7 @@ module.exports = {
                                             DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
                                             DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
                                             LeaveID: data.ID,
-                                            IDLoaiChamCong: arrayRespone[i].idLoaiChamCong.id,
+                                            IDLoaiChamCong: arrayRespone[i].idLoaiChamCong,
                                         })
                                     }
                                 } else {
@@ -292,12 +298,6 @@ module.exports = {
                             }
                             res.json(result);
                         })
-                    } else {
-                        var result = {
-                            status: Constant.STATUS.FAIL,
-                            message: 'Số ngày nghỉ :' + numberHoliday + ' đã quá số phép còn lại. Vui lòng kiểm tra lại!',
-                        }
-                        res.json(result);
                     }
 
                 } catch (error) {
@@ -353,6 +353,7 @@ module.exports = {
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                 DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                IDLoaiChamCong: arrayRespone[i].idLoaiChamCong,
                                 LeaveID: body.id,
                             })
                         }
