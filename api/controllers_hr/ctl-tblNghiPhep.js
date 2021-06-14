@@ -228,68 +228,78 @@ module.exports = {
                             numberHoliday = 0
                         }
                     }
-                    await mtblNghiPhep(db).create({
-                        // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
-                        // DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
-                        IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
-                        IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
-                        NumberLeave: code,
-                        Type: body.type ? body.type : '',
-                        ContentLeave: body.content ? body.content : '',
-                        Date: body.date ? body.date : null,
-                        IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
-                        IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
-                        IDHeads: body.idHeads ? body.idHeads : null,
-                        Status: 'Chờ trưởng bộ phận phê duyệt',
-                        AdvancePayment: advancePayment,
-                        UsedLeave: usedLeave,
-                        RemainingPreviousYear: remainingPreviousYear,
-                        NumberHoliday: numberHoliday,
-                        Time: body.time ? body.time : '',
-                        Note: body.note ? body.note : '',
-                        WorkContent: body.work ? body.work : ''
-                    }).then(async data => {
-                        if (data)
+                    let checkErr = advancePayment - usedLeave
+                    if (checkErr > numberHoliday) {
+                        await mtblNghiPhep(db).create({
+                            // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                            // DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                            IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
+                            IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
+                            NumberLeave: code,
+                            Type: body.type ? body.type : '',
+                            ContentLeave: body.content ? body.content : '',
+                            Date: body.date ? body.date : null,
+                            IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
+                            IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
+                            IDHeads: body.idHeads ? body.idHeads : null,
+                            Status: 'Chờ trưởng bộ phận phê duyệt',
+                            AdvancePayment: advancePayment,
+                            UsedLeave: usedLeave,
+                            RemainingPreviousYear: remainingPreviousYear,
+                            NumberHoliday: numberHoliday,
+                            Time: body.time ? body.time : '',
+                            Note: body.note ? body.note : '',
+                            WorkContent: body.work ? body.work : ''
+                        }).then(async data => {
+                            if (data)
+                                if (body.type == 'TakeLeave') {
+                                    for (let i = 0; i < arrayRespone.length; i++) {
+                                        await mtblDateOfLeave(db).create({
+                                            DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                                            DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                                            LeaveID: data.ID,
+                                            IDLoaiChamCong: arrayRespone[i].idLoaiChamCong.id,
+                                        })
+                                    }
+                                } else {
+                                    for (let i = 0; i < arrayRespone.length; i++) {
+                                        await mtblDateOfLeave(db).create({
+                                            DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
+                                            DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                            WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
+                                            WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                            TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : '08:00'),
+                                            TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : '18:00'),
+                                            LeaveID: data.ID,
+                                        })
+                                    }
+                                }
                             if (body.type == 'TakeLeave') {
-                                for (let i = 0; i < arrayRespone.length; i++) {
-                                    await mtblDateOfLeave(db).create({
-                                        DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
-                                        DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
-                                        LeaveID: data.ID,
-                                        IDLoaiChamCong: arrayRespone[i].idLoaiChamCong.id,
-                                    })
-                                }
-                            } else {
-                                for (let i = 0; i < arrayRespone.length; i++) {
-                                    await mtblDateOfLeave(db).create({
-                                        DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
-                                        DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
-                                        WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
-                                        WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
-                                        TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : '08:00'),
-                                        TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : '18:00'),
-                                        LeaveID: data.ID,
-                                    })
-                                }
+                                body.fileAttach = JSON.parse(body.fileAttach)
+                                if (body.fileAttach.length > 0)
+                                    for (var j = 0; j < body.fileAttach.length; j++)
+                                        await mtblFileAttach(db).update({
+                                            IDTakeLeave: data.ID,
+                                        }, {
+                                            where: {
+                                                ID: body.fileAttach[j].id
+                                            }
+                                        })
                             }
-                        if (body.type == 'TakeLeave') {
-                            body.fileAttach = JSON.parse(body.fileAttach)
-                            if (body.fileAttach.length > 0)
-                                for (var j = 0; j < body.fileAttach.length; j++)
-                                    await mtblFileAttach(db).update({
-                                        IDTakeLeave: data.ID,
-                                    }, {
-                                        where: {
-                                            ID: body.fileAttach[j].id
-                                        }
-                                    })
-                        }
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
+                    } else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: 'Số ngày nghỉ :' + numberHoliday + ' đã quá số phép còn lại. Vui lòng kiểm tra lại!',
                         }
                         res.json(result);
-                    })
+                    }
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
