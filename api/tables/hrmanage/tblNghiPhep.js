@@ -28,6 +28,7 @@ module.exports = function(db) {
         Time: Sequelize.STRING, // HH/MM
         Note: Sequelize.STRING,
         WorkContent: Sequelize.STRING,
+        Deducted: Sequelize.FLOAT,
     });
 
     return table;

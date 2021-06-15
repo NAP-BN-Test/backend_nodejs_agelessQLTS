@@ -197,35 +197,29 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     let listID = []
     let tblNghiPhep = mtblNghiPhep(db);
     let ListSign = [];
-    tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'type' })
     await tblNghiPhep.findAll({
         where: {
             IDNhanVien: staffID,
             Status: 'Hoàn thành',
         },
-        include: [{
-            model: mtblLoaiChamCong(db),
-            required: false,
-            as: 'type'
-        }, ],
     }).then(leave => {
         leave.forEach(item => {
-            let sign = item.IDLoaiChamCong ? item.type.Code : ''
             listID.push(item.ID)
-            ListSign.push(sign)
         })
     })
     for (let i = 0; i < listID.length; i++) {
-        let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+        let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart], [IDLoaiChamCong] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
         WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + month + `) AND ([tblDateOfLeave].[LeaveID] = N'` + listID[i] + `');`
         let date = await db.query(query)
         date = date[0]
-        let signLeave = ListSign[i]
         for (let i = 0; i < date.length; i++) {
+            let signLeave = ''
             let dateStart = moment(date[i].DateStart).subtract(7, 'hours').date()
             let dateEnd = moment(date[i].DateEnd).subtract(7, 'hours').date()
             let dateEndMonth = moment(date[i].DateEnd).subtract(7, 'hours').month()
                 // lấy tháng bị trừ 1
+            let signObj = await mtblLoaiChamCong(db).findOne({ where: { ID: date[i].IDLoaiChamCong } })
+            signLeave = signObj.Code
             dateEndMonth += 1
             if (dateEndMonth != month) {
                 dateEnd = dateFinal
@@ -235,14 +229,12 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                 }
             }
             for (let d = dateStart; d <= dateEnd; d++) {
-                if (signLeave != '') {
-                    array.push(d)
-                    arrayObj.push({
-                        date: d,
-                        id: date[i].ID,
-                        sign: signLeave,
-                    })
-                }
+                array.push(d)
+                arrayObj.push({
+                    date: d,
+                    id: date[i].ID,
+                    sign: signLeave,
+                })
             }
         }
 
@@ -737,7 +729,7 @@ async function calculateNumberLeave(db, staffID, date) {
             let date = await db.query(query)
             date = date[0]
             for (let j = 0; j < date.length; j++) {
-                if (leave[i].NumberHoliday != 0)
+                if (leave[i].Deducted != 0)
                     result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
             }
         }
@@ -769,7 +761,7 @@ async function calculateRemainingPreviousYear(db, staffID, date) {
                 let date = await db.query(query)
                 date = date[0]
                 for (let j = 0; j < date.length; j++) {
-                    if (leave[i].NumberHoliday != 0)
+                    if (leave[i].Deducted != 0)
                         result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
                 }
             }
@@ -1110,30 +1102,7 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
-                            let check = false;
-                            let tblNghiPhep = mtblNghiPhep(db);
-                            tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'type' })
-
-                            await tblNghiPhep.findAll({
-                                where: { IDNhanVien: data[i].IDNhanVien },
-                                include: [{
-                                    model: mtblLoaiChamCong(db),
-                                    required: false,
-                                    as: 'type'
-                                }, ],
-                            }).then(async leave => {
-                                for (let l = 0; l < leave.length; l++) {
-                                    if (leave[l].type) {
-                                        if (!leave[l].type.SalaryIsAllowed)
-                                            check = true
-                                    }
-                                }
-                            })
-                            let productivityWages = data[i].nv ? data[i].nv.ProductivityWages : 0;
-                            // trường hợp có đơn xin nghỉ không hưởng lương sẽ tính theo công thức dưới đâu
-                            if (check) {
-                                productivityWages = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv ? data[i].nv.ProductivityWages : 0)
-                            }
+                            let productivityWages = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv ? data[i].nv.ProductivityWages : 0)
                             let salariesDecidedIncrease = await getIncreaseSalaryOfStaff(db, data[i].IDNhanVien); // quyết định tawg lương năng suất
                             productivityWages += salariesDecidedIncrease
                             var coefficientsSalary = 0;
@@ -2204,6 +2173,8 @@ module.exports = {
                                 var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
                                 if (staff) {
                                     var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
+                                    console.log(arrayLeaveDay);
+
                                     var yearMonth = year + '-' + await convertNumber(month);
                                     for (var j = 1; j <= dateFinal; j++) {
                                         var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
