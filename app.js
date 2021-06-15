@@ -16,7 +16,7 @@ var mtblDMBoPhan = require('./api/tables/constants/tblDMBoPhan')
 var mtblYeuCauMuaSamDetail = require('./api/tables/qlnb/tblYeuCauMuaSamDetail')
 
 var database = require('./api/database');
-var socket = require('./api/socket');
+var socket = require('./api/socket_io/socket');
 
 app.use(session({
     name: 'user_sid',
@@ -377,7 +377,10 @@ server.listen(port, function() {
 let scheduleJob = require('./api/scheduleJob')
 scheduleJob.editStatus24HourEveryday()
     // connect socket
+var socket = require('./api/socket_io/socket');
+var socket_ts = require('./api/socket_io/socket_ts');
 socket.sockketIO(io)
+socket_ts.sockketIO(io)
 app.post('/notification-zalo', async function(req, res) {
     let body = req.body;
     await socket.socketEmit(io, body.dbname)
