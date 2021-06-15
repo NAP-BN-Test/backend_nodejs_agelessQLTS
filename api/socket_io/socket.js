@@ -76,8 +76,8 @@ module.exports = {
             socket.on("notification-zalo", async function(data) {
                 io.sockets.emit("notification-zalo", { dbname: data.dbname });
             });
-            socket.on("notification-thaydoidiadiem", async function(data1, data2) {
-                io.sockets.emit("notification-thaydoidiadiem", { dbname: data1, donhang_thongbao: data2 });
+            socket.on("notification-thaydoidiadiem", async function(data) {
+                io.sockets.emit("notification-thaydoidiadiem", { dbname: data.dbnamenhaxe, donhang_thongbao: data.donhang_thongbao });
             });
             socket.on("change-received-status", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
