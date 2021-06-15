@@ -379,8 +379,10 @@ scheduleJob.editStatus24HourEveryday()
     // connect socket
 var socket = require('./api/socket_io/socket');
 var socket_ts = require('./api/socket_io/socket_ts');
+var socket_ns = require('./api/socket_io/socket_ns');
 socket.sockketIO(io)
 socket_ts.sockketIO(io)
+socket_ns.sockketIO(io)
 app.post('/notification-zalo', async function(req, res) {
     let body = req.body;
     await socket.socketEmit(io, body.dbname)

@@ -321,6 +321,7 @@ module.exports = {
     // update_tbl_nghiphep
     updatetblNghiPhep: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -343,29 +344,29 @@ module.exports = {
 
                         } else {
                             numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
+                            let typeTime = await mtblLoaiChamCong(db).findOne({
+                                where: { ID: arrayRespone[i].idLoaiChamCong }
+                            })
+                            if (typeTime.Compensation == false) {
+                                deducted += numberHolidayArray
+                            }
                         }
                         numberHoliday += numberHolidayArray
-                        let typeTime = await mtblLoaiChamCong(db).findOne({
-                            where: { ID: arrayRespone[i].idLoaiChamCong }
-                        })
-                        console.log(typeTime.Compensation, 12345);
-                        if (typeTime.Compensation == false) {
-                            deducted += numberHolidayArray
-                        }
-
                     }
                     update.push({ key: 'NumberHoliday', value: numberHoliday });
                     update.push({ key: 'Deducted', value: deducted });
                     await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
+                    console.log(arrayRespone);
                     for (let i = 0; i < arrayRespone.length; i++) {
                         if (body.type != 'TakeLeave') {
+                            console.log((arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : '08:00'));
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                 DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
                                 WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
                                 WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
-                                TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : '08:00'),
-                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : '18:00'),
+                                TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : '08:00'),
+                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal ? arrayRespone[i].TimeEndReal : '18:00'),
                                 LeaveID: body.id,
                             })
                         } else {
