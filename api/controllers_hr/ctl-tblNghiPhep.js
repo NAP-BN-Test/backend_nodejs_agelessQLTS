@@ -359,14 +359,13 @@ module.exports = {
                     console.log(arrayRespone);
                     for (let i = 0; i < arrayRespone.length; i++) {
                         if (body.type != 'TakeLeave') {
-                            console.log((arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : '08:00'));
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                 DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
                                 WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
                                 WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
                                 TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : '08:00'),
-                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal ? arrayRespone[i].TimeEndReal : '18:00'),
+                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeEndReal ? arrayRespone[i].timeEndReal : '18:00'),
                                 LeaveID: body.id,
                             })
                         } else {

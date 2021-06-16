@@ -24,10 +24,16 @@ module.exports = {
                             StopDate: data[i]['Ngày dừng quyết định'] ? data[i]['Ngày dừng quyết định'] : null,
                             StopReason: '',
                             IDNhanVien: staff ? staff.ID : null,
-                            SalaryIncrease: data[i]['Mức lương'] ? data[i]['Mức lương'] : null,
+                            // SalaryIncrease: data[i]['Mức lương'] ? data[i]['Mức lương'] : null,
                             StatusDecision: 'Có hiệu lực',
                             Increase: data[i]['Mức tăng'] ? data[i]['Mức tăng'] : null,
                             Status: 'Chờ phê duyệt',
+                        }).then(async data => {
+                            if (data)
+                                await mtblIncreaseSalariesAndStaff(db).create({
+                                    StaffID: staff.ID,
+                                    IncreaseSalariesID: data.ID,
+                                })
                         })
                     }
                     var result = {

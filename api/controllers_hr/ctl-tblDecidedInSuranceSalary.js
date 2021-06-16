@@ -5,6 +5,8 @@ var moment = require('moment');
 var mtblDecidedInsuranceSalary = require('../tables/hrmanage/tblDecidedInsuranceSalary')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblMinWageConfig = require('../tables/hrmanage/tblMinWageConfig')
+
 async function deleteRelationshiptblDecidedInsuranceSalary(db, listID) {
     await mtblDecidedInsuranceSalary(db).destroy({
         where: {
@@ -30,7 +32,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        }, ],
+                        },],
                     }).then(data => {
                         if (data) {
                             var array = [];
@@ -212,15 +214,15 @@ module.exports = {
                             ],
                             where: {
                                 [Op.or]: [{
-                                        StaffCode: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    },
-                                    {
-                                        StaffName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
+                                    StaffCode: {
+                                        [Op.like]: '%' + data.search + '%'
                                     }
+                                },
+                                {
+                                    StaffName: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                }
                                 ]
                             }
                         }).then(data => {
@@ -230,22 +232,22 @@ module.exports = {
                         })
                         if (data.search) {
                             where = [{
-                                    Name: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    IDStaff: {
-                                        [Op.in]: listStaff
-                                    }
-                                },
+                                Name: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                IDStaff: {
+                                    [Op.in]: listStaff
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 Name: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
                         }
                         whereOjb = {
                             [Op.and]: [{
@@ -304,6 +306,14 @@ module.exports = {
                             }
                         }
                     }
+                    var minimumWage = 0;
+                    await mtblMinWageConfig(db).findOne({
+                        order: [
+                            ['ID', 'DESC']
+                        ]
+                    }).then(data => {
+                        minimumWage = data.MinimumWage
+                    })
                     let stt = 1;
                     let tblDecidedInsuranceSalary = mtblDecidedInsuranceSalary(db);
                     tblDecidedInsuranceSalary.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })
@@ -318,10 +328,11 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
+                            let salary = (element.Coefficient ? element.Coefficient : 0) * minimumWage
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -332,6 +343,7 @@ module.exports = {
                                 endDate: element.EndDate ? moment(element.EndDate).format('DD/MM/YYYY') : null,
                                 increase: element.Increase ? element.Increase : null,
                                 coefficient: element.Coefficient ? element.Coefficient : null,
+                                salary: salary,
                             }
                             array.push(obj);
                             stt += 1;

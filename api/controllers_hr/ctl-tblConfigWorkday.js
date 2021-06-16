@@ -4,6 +4,9 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblConfigWorkday = require('../tables/hrmanage/tblConfigWorkday')
 var database = require('../database');
+var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
+var mModules = require('../constants/modules');
+
 async function deleteRelationshiptblConfigWorkday(db, listID) {
     await mtblConfigWorkday(db).destroy({
         where: {
@@ -18,6 +21,35 @@ async function convertNumber(number) {
     }
     else
         return number
+}
+async function getListHoliday(db, year, month, dateFinal) {
+    let arrayResult = []
+    await mtblNghiLe(db).findAll({
+        where: {
+            [Op.or]: {
+                DateStartHoliday: {
+                    [Op.substring]: year + '-' + await convertNumber(month)
+                },
+                DateEndHoliday: {
+                    [Op.substring]: year + '-' + await convertNumber(month)
+                },
+            },
+        }
+    }).then(data => {
+        data.forEach(element => {
+            let dateStart = moment(element.DateStartHoliday).add(7, 'hours').date()
+            let dateEnd = moment(element.DateEndHoliday).add(7, 'hours').date()
+            let dateEndMonth = moment(element.DateEndHoliday).add(7, 'hours').month()
+            dateEndMonth += 1
+            if (dateEndMonth != month) {
+                dateEnd = dateFinal
+            }
+            for (var i = dateStart; i <= dateEnd; i++) {
+                arrayResult.push(i)
+            }
+        })
+    })
+    return arrayResult
 }
 module.exports = {
     deleteRelationshiptblConfigWorkday,
@@ -155,12 +187,23 @@ module.exports = {
                                         arrayDate.push(element.Date)
                                     });
                                 })
+                                var date = new Date(year, month, 0);
+                                var dateFinal = Number(date.toISOString().slice(8, 10))
+                                dateFinal += 1
+                                let arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+                                let numberSunday = 0
+                                for (var j = 1; j <= dateFinal; j++) {
+                                    var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                    if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                        numberSunday += 1
+                                    }
+                                }
                                 array.push({
                                     stt: stt,
                                     year: year,
                                     month: month,
                                     arrayDate: arrayDate,
-                                    count: arrayDate.length,
+                                    count: dateFinal - (numberSunday - arrayDate.length) - arrayHoliday.length - numberSunday,
                                 })
                                 stt += 1;
                             }

@@ -219,7 +219,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
             let dateEndMonth = moment(date[i].DateEnd).subtract(7, 'hours').month()
                 // lấy tháng bị trừ 1
             let signObj = await mtblLoaiChamCong(db).findOne({ where: { ID: date[i].IDLoaiChamCong } })
-            signLeave = signObj.Code
+            signLeave = signObj ? signObj.Code : ''
             dateEndMonth += 1
             if (dateEndMonth != month) {
                 dateEnd = dateFinal

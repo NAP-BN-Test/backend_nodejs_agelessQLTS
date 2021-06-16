@@ -255,38 +255,40 @@ async function getInsurancePremiums(socket) {
     let isNotiInscreaseInsurance = false
     await database.connectDatabase().then(async db => {
         if (db) {
-            let user = await mtblDMUser(db).findOne({
-                where: { ID: socket.userID }
-            })
-            if (user) {
-                let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
-                if (permissions.notiNS) {
-                    for (let ts = 0; ts < permissions.notiNS.length; ts++) {
-                        if (permissions.notiNS[ts].key == 'isNotiInscreaseInsurance' && permissions.notiNS[ts].completed == true) {
-                            isNotiInscreaseInsurance = true
+            if (socket.userID) {
+                let user = await mtblDMUser(db).findOne({
+                    where: { ID: socket.userID }
+                })
+                if (user) {
+                    let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
+                    if (permissions.notiNS) {
+                        for (let ts = 0; ts < permissions.notiNS.length; ts++) {
+                            if (permissions.notiNS[ts].key == 'isNotiInscreaseInsurance' && permissions.notiNS[ts].completed == true) {
+                                isNotiInscreaseInsurance = true
+                            }
                         }
                     }
                 }
-            }
-            if (isNotiInscreaseInsurance == true) {
-                await database.connectDatabase().then(async db => {
-                    if (db) {
-                        var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
-                            order: [
-                                Sequelize.literal('max(DateEnd) DESC'),
-                            ],
-                            group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
-                            where: {
-                                DateEnd: {
-                                    [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
+                if (isNotiInscreaseInsurance == true) {
+                    await database.connectDatabase().then(async db => {
+                        if (db) {
+                            var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
+                                order: [
+                                    Sequelize.literal('max(DateEnd) DESC'),
+                                ],
+                                group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
+                                where: {
+                                    DateEnd: {
+                                        [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
+                                    }
                                 }
+                            })
+                            if (insurancePremiums) {
+                                socket.emit("check-insurance-premiums", 1);
                             }
-                        })
-                        if (insurancePremiums) {
-                            socket.emit("check-insurance-premiums", 1);
                         }
-                    }
-                })
+                    })
+                }
             }
         }
     })
@@ -414,24 +416,27 @@ async function getStaffContractExpirationData(socket) {
     var array = [];
     await database.connectDatabase().then(async db => {
         if (db) {
-            let isNotiContract = false
-            let user = await mtblDMUser(db).findOne({
-                where: { ID: socket.userID }
-            })
-            if (user) {
-                let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
-                if (permissions.notiNS) {
-                    console.log(permissions.notiNS);
-                    for (let ts = 0; ts < permissions.notiNS.length; ts++) {
-                        if (permissions.notiNS[ts].key == 'isNotiContract' && permissions.notiNS[ts].completed == true) {
-                            isNotiContract = true
+            if (socket.userID) {
+
+                let isNotiContract = false
+                let user = await mtblDMUser(db).findOne({
+                    where: { ID: socket.userID }
+                })
+                if (user) {
+                    let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
+                    if (permissions.notiNS) {
+                        console.log(permissions.notiNS);
+                        for (let ts = 0; ts < permissions.notiNS.length; ts++) {
+                            if (permissions.notiNS[ts].key == 'isNotiContract' && permissions.notiNS[ts].completed == true) {
+                                isNotiContract = true
+                            }
                         }
                     }
                 }
-            }
-            if (isNotiContract == true) {
-                array = await getListContactExpiration(db)
-                socket.emit("contract-expiration-notice", array);
+                if (isNotiContract == true) {
+                    array = await getListContactExpiration(db)
+                    socket.emit("contract-expiration-notice", array);
+                }
             }
         }
     })
