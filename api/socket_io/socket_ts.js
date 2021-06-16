@@ -22,23 +22,23 @@ async function getStaffContractExpirationData() {
             await tblHopDongNhanSu.findAll({
                 where: {
                     [Op.or]: [{
-                            Status: 'Có hiệu lực',
-                            Time: {
-                                [Op.eq]: null
-                            },
-                            NoticeTime: {
-                                [Op.substring]: now
-                            }
+                        Status: 'Có hiệu lực',
+                        Time: {
+                            [Op.eq]: null
                         },
-                        {
-                            Status: 'Có hiệu lực',
-                            NoticeTime: {
-                                [Op.substring]: now
-                            },
-                            Time: {
-                                [Op.lte]: nowTime
-                            },
+                        NoticeTime: {
+                            [Op.substring]: now
                         }
+                    },
+                    {
+                        Status: 'Có hiệu lực',
+                        NoticeTime: {
+                            [Op.substring]: now
+                        },
+                        Time: {
+                            [Op.lte]: nowTime
+                        },
+                    }
                     ]
                 },
                 order: [
@@ -48,7 +48,7 @@ async function getStaffContractExpirationData() {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'staff'
-                }, ],
+                },],
             }).then(contract => {
                 if (contract.length > 0) {
                     for (var i = 0; i < contract.length; i++) {
@@ -63,7 +63,7 @@ async function getStaffContractExpirationData() {
                 }
             })
         } else {
-            res.json(Constant.MESSAGE.USER_FAIL)
+            array = []
         }
     })
     return array
@@ -87,7 +87,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.unshift({
@@ -107,7 +107,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -141,7 +141,7 @@ async function getPaymentAndREquest() {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'nv'
-                        }, ],
+                        },],
                     }).then(data => {
                         data.forEach(item => {
                             array.push({
@@ -189,7 +189,7 @@ async function getPaymentApproval(userID) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
                     var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVien } });
@@ -230,7 +230,7 @@ async function getPaymentOfUser(userID) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
                     array.unshift({
@@ -264,13 +264,13 @@ async function getRequestApproval(userID) {
                     }, {
                         IDPheDuyet2: user.IDNhanvien,
                         Status: 'Đang phê duyệt'
-                    }, ],
+                    },],
                 },
                 include: [{
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
                     var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: data[i].IDNhanVien } });
@@ -311,7 +311,7 @@ async function getRequestOfUser(userID) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 for (let i = 0; i < data.length; i++) {
                     array.unshift({
@@ -344,7 +344,7 @@ async function getDetailRequestShopping(id) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 if (data) {
                     if (data.Status != 'Đang phê duyệt' && data.Status != 'Chờ phê duyệt') {
@@ -398,7 +398,7 @@ async function getDetailPeymentOrder(id) {
                     model: mtblDMNhanvien(db),
                     required: false,
                     as: 'nv'
-                }, ],
+                },],
             }).then(async data => {
                 if (data) {
                     if (data.TrangThaiPheDuyetLD != 'Chờ phê duyệt' && data.TrangThaiPheDuyetLD != 'Chờ phê duyệt') {
@@ -437,7 +437,7 @@ async function getRequestOrderAndPaymentOfUser(userID) {
             })
             if (user) {
                 let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
-                if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
+                if (permissions.notiTS) {
                     console.log(permissions.notiTS);
                     for (let ts = 0; ts < permissions.notiTS.length; ts++) {
                         if (permissions.notiTS[ts].key == 'isNotiApprovalYCMS' && permissions.notiTS[ts].completed == true) {
@@ -465,90 +465,63 @@ async function getRequestOrderAndPaymentOfUser(userID) {
     return array
 }
 module.exports = {
-    sockketIO: async(io) => {
+    sockketIO: async (io) => {
         var array = await getPaymentAndREquest()
         var arrayContract = await getStaffContractExpirationData();
-        io.on("connection", async function(socket) {
+        io.on("connection", async function (socket) {
             console.log('The user is connecting : ' + socket.id);
-            // socket.emit("Server-send-data", array);
-            // socket.emit("Server-send-contract-notification-schedule", arrayContract);
             socket.emit("Server-send-all-the-messages", {
                 'qltsArray': array,
                 'qlnsArray': arrayContract,
             });
-            // socket.on("check-insurance-premiums", async function(data) {
-            //     await database.connectDatabase().then(async db => {
-            //         if (db) {
-            //             var insurancePremiums = await mtblMucDongBaoHiem(db).findOne({
-            //                 order: [
-            //                     Sequelize.literal('max(DateEnd) DESC'),
-            //                 ],
-            //                 group: ['ID', 'CompanyBHXH', 'CompanyBHYT', 'CompanyBHTN', 'StaffBHXH', 'StaffBHYT', 'StaffBHTN', 'DateStart', 'StaffUnion', 'StaffBHTNLD', 'DateEnd', 'MinimumWage'],
-            //                 where: {
-            //                     DateEnd: {
-            //                         [Op.gte]: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss.SSS')
-            //                     }
-            //                 }
-            //             })
-            //             if (insurancePremiums) {
-            //                 socket.emit("check-insurance-premiums", 1);
-            //             }
-            //         }
-            //     })
-            // })
-            // socket.on("Client-send-contract-notification-schedule", async function(data) {
-            //     var arrayContractClient = await getStaffContractExpirationData();
-
-            //     io.sockets.emit("Server-send-contract-notification-schedule", arrayContractClient);
-            // });
-            socket.on("disconnect", function() {
+            socket.on("disconnect", function () {
                 console.log(socket.id + " disconnected!");
             });
-            socket.on("join-room", async(data) => {
-                    socket.userID = data;
-                    await database.connectDatabase().then(async db => {
-                        if (db) {
-                            console.log(data, '--------------------------- Join zoom ---------------------------');
-                            let user = await mtblDMUser(db).findOne({
-                                where: { ID: data }
-                            })
-                            if (user) {
-                                let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
-                                if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
-                                    for (let ts = 0; ts < permissions.notiTS.length; ts++) {
-                                        if (permissions.notiTS[ts].completed == true) {
-                                            socket.join(permissions.notiTS[ts].key);
-                                        }
+            socket.on("join-room", async (data) => {
+                socket.userID = data;
+                await database.connectDatabase().then(async db => {
+                    if (db) {
+                        console.log(data, '--------------------------- Join zoom ---------------------------');
+                        let user = await mtblDMUser(db).findOne({
+                            where: { ID: data }
+                        })
+                        if (user) {
+                            let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
+                            if (permissions.notiTS && permissions.notiNS && permissions.notiTC) {
+                                for (let ts = 0; ts < permissions.notiTS.length; ts++) {
+                                    if (permissions.notiTS[ts].completed == true) {
+                                        socket.join(permissions.notiTS[ts].key);
                                     }
-                                    for (let ns = 0; ns < permissions.notiNS.length; ns++) {
-                                        if (permissions.notiNS[ns].completed == true) {
-                                            socket.join(permissions.notiNS[ns].key);
-                                        }
+                                }
+                                for (let ns = 0; ns < permissions.notiNS.length; ns++) {
+                                    if (permissions.notiNS[ns].completed == true) {
+                                        socket.join(permissions.notiNS[ns].key);
                                     }
-                                    for (let tc = 0; tc < permissions.notiTC.length; tc++) {
-                                        if (permissions.notiTC[tc].completed == true) {
-                                            socket.join(permissions.notiTC[tc].key);
-                                        }
+                                }
+                                for (let tc = 0; tc < permissions.notiTC.length; tc++) {
+                                    if (permissions.notiTC[tc].completed == true) {
+                                        socket.join(permissions.notiTC[tc].key);
                                     }
                                 }
                             }
-                        } else {
-                            res.json(Constant.MESSAGE.USER_FAIL)
                         }
-                    })
-                })
-                //  gửi cho chính socket đang đăng nhập check quyền
-            socket.on("system-wide-notification-ts", async(data) => {
-                    console.log(socket.userID, '----------------- get data -------------------');
-                    if (socket.userID) {
-                        let array = await getRequestOrderAndPaymentOfUser(socket.userID);
-                        socket.emit("system-wide-notification-ts", array)
+                    } else {
+                        res.json(Constant.MESSAGE.USER_FAIL)
                     }
                 })
-                //  khi tạo yêu cầu mua sắm
-            socket.on("notice-create-request-shopping", async(data) => {
+            })
+            //  gửi cho chính socket đang đăng nhập check quyền
+            socket.on("system-wide-notification-ts", async (data) => {
+                console.log(socket.userID, '----------------- get data -------------------');
+                if (socket.userID) {
+                    let array = await getRequestOrderAndPaymentOfUser(socket.userID);
+                    socket.emit("system-wide-notification-ts", array)
+                }
+            })
+            //  khi tạo yêu cầu mua sắm
+            socket.on("notice-create-request-shopping", async (data) => {
                 let obj = await getDetailRequestShopping(data)
-                    // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
+                // io.sockets.in('isNotiApprovalYCMS').emit("send-data-for-room", obj)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalYCMS'].sockets
                 if (obj.status == 'Đã được duyệt') {
                     clientsApproval = io.sockets.adapter.rooms['isNotiPersonalYCMS'].sockets
@@ -567,7 +540,7 @@ module.exports = {
                 console.log(io.sockets.adapter.rooms);
 
             })
-            socket.on("notice-create-payment-order", async(data) => {
+            socket.on("notice-create-payment-order", async (data) => {
                 let obj = await getDetailPeymentOrder(data)
                 let clientsApproval = io.sockets.adapter.rooms['isNotiApprovalDNTT'].sockets
                 if (obj.status == 'Đã được duyệt') {

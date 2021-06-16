@@ -31,7 +31,7 @@ async function deleteRelationshiptblNghiPhep(db, listID) {
 }
 var mModules = require('../constants/modules');
 
-var enumerateDaysBetweenDates = function(startDate, endDate) {
+var enumerateDaysBetweenDates = function (startDate, endDate) {
     var dates = [];
     var currDate = moment(startDate).startOf('day');
     var lastDate = moment(endDate).startOf('day');
@@ -103,13 +103,13 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
         subtractHalfDay = 0.5
     }
     let plus = 0
-        // console.log(Number(dateStart.slice(8, 10)), Number(dateEnd.slice(8, 10)));
-        // if (checkDateStart < 12 && checkDateEnd >= 16) {
-        //     if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
-        //         plus += 2
-        //     else
-        //         plus += 1
-        // }
+    // console.log(Number(dateStart.slice(8, 10)), Number(dateEnd.slice(8, 10)));
+    // if (checkDateStart < 12 && checkDateEnd >= 16) {
+    //     if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
+    //         plus += 2
+    //     else
+    //         plus += 1
+    // }
     if (days.length < 1) {
         if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
             if (checkDateEnd < 17)
@@ -186,8 +186,8 @@ module.exports = {
                     let arrayRespone = JSON.parse(body.array)
                     if (body.type == 'TakeLeave') {
                         seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
-                            // var quotient = Math.floor(y / x);  // lấy nguyên
-                            // var remainder = y % x; // lấy dư
+                        // var quotient = Math.floor(y / x);  // lấy nguyên
+                        // var remainder = y % x; // lấy dư
                         if (seniority > 12) {
                             advancePayment = 12 + Math.floor(seniority / 60)
                         } else {
@@ -523,7 +523,7 @@ module.exports = {
                                 model: mtblDMPermission(db),
                                 required: false,
                                 as: 'permission'
-                            }, ],
+                            },],
                         }).then(user => {
                             if (user)
                                 if (user.permission && user.permission.PermissionName != 'Admin') {
@@ -549,15 +549,15 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [{
-                                            StaffCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            StaffName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        StaffCode: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        StaffName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -566,27 +566,27 @@ module.exports = {
                                 })
                             })
                             where = [{
-                                    IDNhanVien: {
-                                        [Op.in]: list
-                                    }
-                                },
-                                {
-                                    NumberLeave: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
+                                IDNhanVien: {
+                                    [Op.in]: list
+                                }
+                            },
+                            {
+                                NumberLeave: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 NumberLeave: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
                         }
                         arraySearchAnd.push({
-                                [Op.or]: where
-                            })
-                            // arraySearchOr.push({ ID: { [Op.ne]: null } })
+                            [Op.or]: where
+                        })
+                        // arraySearchOr.push({ ID: { [Op.ne]: null } })
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -679,35 +679,35 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         include: [{
-                                model: mtblLoaiChamCong(db),
+                            model: mtblLoaiChamCong(db),
+                            required: false,
+                            as: 'loaiChamCong'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'nv',
+                            include: [{
+                                model: mtblDMBoPhan(db),
                                 required: false,
-                                as: 'loaiChamCong'
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'nv',
-                                include: [{
-                                    model: mtblDMBoPhan(db),
-                                    required: false,
-                                    as: 'bp'
-                                }, ]
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'headDepartment'
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'adminHR'
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'heads'
-                            },
+                                as: 'bp'
+                            },]
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'headDepartment'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'adminHR'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'heads'
+                        },
                         ],
                         order: [
                             ['ID', 'DESC']
@@ -766,7 +766,7 @@ module.exports = {
                                     model: mtblLoaiChamCong(db),
                                     required: false,
                                     as: 'lcc'
-                                }, ],
+                                },],
                             }).then(date => {
                                 let arrayDate = []
                                 if (obj.type == 'TakeLeave')
@@ -962,8 +962,9 @@ module.exports = {
                                     min = Number(moment(element.DateStart).format('MM'))
                             })
                         })
+                        console.log(min, Number(moment().format('YYYY')), leave.IDNhanVien);
+                        await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
                     }
-
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
