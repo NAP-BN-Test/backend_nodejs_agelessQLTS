@@ -124,19 +124,19 @@ async function converFromSecondsToHourLate(number) {
     var result = 'M' + Math.floor(number / 60);
     if (Math.floor(number / 60) == 0)
         result = ''
-        // let h = Math.floor(number / 60)
-        // if (h > 0) {
-        //     result = 'M' + h + 'h'
-        //     var remainder = Math.floor((number - (h * 3600)) / 60)
-        //     if (remainder > 0) {
-        //         result += (Math.floor((remainder / 5)) * 5 + "'")
-        //     }
-        // } else {
-        //     var remainder = Math.floor((number - (h * 3600)) / 60)
-        //     if (remainder > 0) {
-        //         result += ('M' + Math.floor((remainder / 5)) * 5 + "'")
-        //     }
-        // }
+    // let h = Math.floor(number / 60)
+    // if (h > 0) {
+    //     result = 'M' + h + 'h'
+    //     var remainder = Math.floor((number - (h * 3600)) / 60)
+    //     if (remainder > 0) {
+    //         result += (Math.floor((remainder / 5)) * 5 + "'")
+    //     }
+    // } else {
+    //     var remainder = Math.floor((number - (h * 3600)) / 60)
+    //     if (remainder > 0) {
+    //         result += ('M' + Math.floor((remainder / 5)) * 5 + "'")
+    //     }
+    // }
 
     return result;
 }
@@ -152,14 +152,14 @@ async function converFromSecondsToHourAftersoon(number) {
     var result = "S" + Math.floor(number / 60);
     if (Math.floor(number / 60) == 0)
         result = ''
-        // let h = Math.floor(number / 3600)
-        // if (h > 0) {
-        //     result = h + 'h'
-        // }
-        // var remainder = Math.floor((number - (h * 3600)) / 60)
-        // if (remainder > 0) {
-        //     result += (Math.floor((remainder / 5)) * 5 + "'")
-        // }
+    // let h = Math.floor(number / 3600)
+    // if (h > 0) {
+    //     result = h + 'h'
+    // }
+    // var remainder = Math.floor((number - (h * 3600)) / 60)
+    // if (remainder > 0) {
+    //     result += (Math.floor((remainder / 5)) * 5 + "'")
+    // }
     return result;
 }
 async function getDateTakeLeave(db, month, year, idNhanVien) {
@@ -217,7 +217,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
             let dateStart = moment(date[i].DateStart).subtract(7, 'hours').date()
             let dateEnd = moment(date[i].DateEnd).subtract(7, 'hours').date()
             let dateEndMonth = moment(date[i].DateEnd).subtract(7, 'hours').month()
-                // lấy tháng bị trừ 1
+            // lấy tháng bị trừ 1
             let signObj = await mtblLoaiChamCong(db).findOne({ where: { ID: date[i].IDLoaiChamCong } })
             signLeave = signObj ? signObj.Code : ''
             dateEndMonth += 1
@@ -279,7 +279,7 @@ async function checkTypeContract(db, staffID, personalTax) {
             model: mtblLoaiHopDong(db),
             required: false,
             as: 'typeContract'
-        }, ],
+        },],
     })
     if (contract)
         result = await calculationPersonalUncomeTaxWay2(personalTax)
@@ -297,7 +297,7 @@ async function getIncreaseSalaryOfStaff(db, staffID) {
             model: mtblQuyetDinhTangLuong(db),
             required: false,
             as: 'IncreaseSalaries'
-        }, ],
+        },],
     }).then(Increase => {
         if (Increase)
             salariesDecidedIncrease = Increase.IncreaseSalaries ? Increase.IncreaseSalaries.Increase ? Increase.IncreaseSalaries.Increase : 0 : 0
@@ -417,7 +417,7 @@ async function take7thDataToWork(db, year, month) {
             }
     })
     return array7thDB
-        // ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 }
 
 // Tạo dữ liệu chấm công
@@ -481,7 +481,7 @@ async function checkTheStatusOfTheDay(params) {
             if (minTime >= thirteenH) {
                 statusMorning = '0.5'
                 summaryEndDateS = 0.5
-                    // check chiều
+                // check chiều
                 if (thirteenH < minTime) {
                     statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
                     summaryEndDateC = await roundNumberMinutes(minTime - thirteenH)
@@ -517,7 +517,7 @@ async function checkTheStatusOfTheDay(params) {
     }
     return objResult
 }
-var enumerateDaysBetweenDates = function(startDate, endDate) {
+var enumerateDaysBetweenDates = function (startDate, endDate) {
     var dates = [];
     var currDate = moment(startDate).startOf('day');
     var lastDate = moment(endDate).startOf('day');
@@ -585,7 +585,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
             if (minTime >= thirteenH) {
                 statusMorning = '0.5'
                 summaryEndDateS = 0.5
-                    // check chiều
+                // check chiều
                 if (thirteenH <= minTime) {
                     statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
                     summaryEndDateC = await roundNumberMinutes(minTime - thirteenH)
@@ -662,11 +662,11 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
                 result = 1.5
             else
                 result = 2
-    else
-    if (checkDateEnd < 17)
-        result = 0.5
-    else
-        result = 1
+        else
+            if (checkDateEnd < 17)
+                result = 0.5
+            else
+                result = 1
     else
         result = days.length + 2 - array7th.length - subtractHalfDay
     return result
@@ -688,17 +688,17 @@ async function calculateOvertime(db, staffID, date) {
         let twelveH = 60 * 12
 
         for (let i = 0; i < leave.length; i++) {
-            let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
-            WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + month + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
+            let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart], [TimeStartReal], [TimeEndReal] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+            WHERE (DATEPART(yy, [tblDateOfLeave].[TimeEndReal]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[TimeEndReal]) = ` + month + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
             let date = await db.query(query)
             date = date[0]
             for (let i = 0; i < date.length; i++) {
                 let minuteDateStart = 0;
                 let minuteDateEnd = 0;
 
-                if (date[i].DateEnd && date[i].DateStart) {
-                    minuteDateStart = Number(moment(date[i].DateStart).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateStart).subtract(7, 'hours').format('mm'))
-                    minuteDateEnd = Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateEnd).subtract(7, 'hours').format('mm'))
+                if (date[i].TimeEndReal && date[i].TimeStartReal) {
+                    minuteDateStart = Number(moment(date[i].TimeStartReal).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].TimeStartReal).subtract(7, 'hours').format('mm'))
+                    minuteDateEnd = Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('mm'))
                 }
                 if (minuteDateEnd >= thirteenH && minuteDateStart <= twelveH) {
                     result += (minuteDateEnd - minuteDateStart) / 60 - 1.5
@@ -803,8 +803,8 @@ async function calculateRemainingPreviousYear(db, staffID, date) {
     lateDay = lateDay.toFixed(2)
     let advancePayment = 0
     seniority = await handleCalculateAdvancePayment(db, staffID) // thâm niên
-        // var quotient = Math.floor(y / x);  // lấy nguyên
-        // var remainder = y % x; // lấy dư
+    // var quotient = Math.floor(y / x);  // lấy nguyên
+    // var remainder = y % x; // lấy dư
     if (seniority > 12) {
         advancePayment = 12 + Math.floor(seniority / 60)
     } else {
@@ -834,7 +834,7 @@ async function aggregateTimekeepingForEachMonth(db, staff, date) {
     let lateDay = 0;
     overtime = await calculateOvertime(db, staff.ID, date)
     numberHoliday = await calculateNumberLeave(db, staff.ID, date)
-        // tính số ngày đi muộn, nghỉ tự do
+    // tính số ngày đi muộn, nghỉ tự do
     await mtblChamCong(db).findAll({
         order: [
             ['ID', 'DESC']
@@ -896,7 +896,7 @@ async function createTimeAttendanceSummary() {
                         model: mtblDMBoPhan(db),
                         required: false,
                         as: 'department'
-                    }, ],
+                    },],
                 }).then(async data => {
                     for (var i = 0; i < data.length; i++) {
                         let objResult = await aggregateTimekeepingForEachMonth(db, data[i], year + '-' + await convertNumber(month))
@@ -956,7 +956,7 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
                         model: mtblDMBoPhan(db),
                         required: false,
                         as: 'department'
-                    }, ],
+                    },],
                     where: { ID: staffID }
                 }).then(async data => {
                     for (var i = 0; i < data.length; i++) {
@@ -1022,7 +1022,7 @@ module.exports = {
                                 required: false,
                                 as: 'department'
                             }]
-                        }, ],
+                        },],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -1030,33 +1030,33 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: {
                             [Op.or]: [{
-                                    Date: {
-                                        [Op.substring]: dateFrom
-                                    },
-                                    DateEnd: null,
+                                Date: {
+                                    [Op.substring]: dateFrom
                                 },
-                                {
-                                    Date: {
-                                        [Op.lte]: date
-                                    },
-                                    DateEnd: null,
+                                DateEnd: null,
+                            },
+                            {
+                                Date: {
+                                    [Op.lte]: date
                                 },
-                                {
-                                    Date: {
-                                        [Op.substring]: dateFrom
-                                    },
-                                    DateEnd: {
-                                        [Op.gte]: date
-                                    },
+                                DateEnd: null,
+                            },
+                            {
+                                Date: {
+                                    [Op.substring]: dateFrom
                                 },
-                                {
-                                    Date: {
-                                        [Op.lte]: date
-                                    },
-                                    DateEnd: {
-                                        [Op.gte]: date
-                                    },
+                                DateEnd: {
+                                    [Op.gte]: date
                                 },
+                            },
+                            {
+                                Date: {
+                                    [Op.lte]: date
+                                },
+                                DateEnd: {
+                                    [Op.gte]: date
+                                },
+                            },
                             ]
                         },
                     }).then(async data => {
@@ -1216,8 +1216,8 @@ module.exports = {
                                 model: mtblDMBoPhan(db),
                                 required: false,
                                 as: 'bp'
-                            }, ],
-                        }, ],
+                            },],
+                        },],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -1289,7 +1289,7 @@ module.exports = {
                             bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
                             bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
                             let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
-                                // tongTotal += total
+                            // tongTotal += total
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -1349,7 +1349,7 @@ module.exports = {
         })
     },
     // data_timekeeping
-    dataTimekeeping: async(req, res) => {
+    dataTimekeeping: async (req, res) => {
         let body = req.body;
         let arrayData = [
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
@@ -2122,7 +2122,7 @@ module.exports = {
                             Date: {
                                 [Op.substring]: '%' + yearMonth + '%'
                             }
-                        }, ]
+                        },]
                     })
                     var arrayDays = [];
                     let checkFor = 0;
@@ -2459,7 +2459,7 @@ module.exports = {
                         model: mtblDMBoPhan(db),
                         required: false,
                         as: 'department'
-                    }, ],
+                    },],
                 }).then(async staff => {
                     let stt = 1
                     for (var i = 0; i < staff.length; i++) {
@@ -2553,7 +2553,7 @@ module.exports = {
         })
     },
     // delete_all_timekeeping
-    deleteAllTimekeeping: async(req, res) => {
+    deleteAllTimekeeping: async (req, res) => {
         let body = req.body;
         await axios.get(`http://192.168.23.13:1333/dulieuchamcong/deleteall`).then(data => {
             if (data == 'done') {
@@ -2566,7 +2566,7 @@ module.exports = {
         })
     },
     // synthetic_information_monthly
-    syntheticInformationMonthly: async(req, res) => {
+    syntheticInformationMonthly: async (req, res) => {
         let body = req.body;
         // await createTimeAttendanceSummary()
         database.connectDatabase().then(async db => {
