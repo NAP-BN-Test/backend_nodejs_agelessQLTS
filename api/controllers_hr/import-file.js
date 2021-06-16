@@ -3,6 +3,7 @@ const Result = require('../constants/result');
 var database = require('../database');
 var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var mModules = require('../constants/modules');
+var mtblIncreaseSalariesAndStaff = require('../tables/hrmanage/tblIncreaseSalariesAndStaff')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 
 module.exports = {
@@ -17,24 +18,28 @@ module.exports = {
                         let staff = await mtblDMNhanvien(db).findOne({
                             where: { StaffCode: data[i]['Mã NV'] }
                         })
-                        await mtblQuyetDinhTangLuong(db).create({
-                            DecisionCode: await mModules.automaticCode(mtblQuyetDinhTangLuong(db), 'DecisionCode', 'QDTL'),
-                            DecisionDate: data[i]['Ngày kí'] ? data[i]['Ngày kí'] : null,
-                            IncreaseDate: data[i]['Ngày kí'] ? data[i]['Ngày kí'] : null,
-                            StopDate: data[i]['Ngày dừng quyết định'] ? data[i]['Ngày dừng quyết định'] : null,
-                            StopReason: '',
-                            IDNhanVien: staff ? staff.ID : null,
-                            // SalaryIncrease: data[i]['Mức lương'] ? data[i]['Mức lương'] : null,
-                            StatusDecision: 'Có hiệu lực',
-                            Increase: data[i]['Mức tăng'] ? data[i]['Mức tăng'] : null,
-                            Status: 'Chờ phê duyệt',
-                        }).then(async data => {
-                            if (data)
-                                await mtblIncreaseSalariesAndStaff(db).create({
-                                    StaffID: staff.ID,
-                                    IncreaseSalariesID: data.ID,
-                                })
-                        })
+                        if (staff)
+                            await mtblQuyetDinhTangLuong(db).create({
+                                DecisionCode: await mModules.automaticCode(mtblQuyetDinhTangLuong(db), 'DecisionCode', 'QDTL'),
+                                DecisionDate: data[i]['Ngày kí'] ? data[i]['Ngày kí'] : null,
+                                IncreaseDate: data[i]['Ngày kí'] ? data[i]['Ngày kí'] : null,
+                                StopDate: data[i]['Ngày dừng quyết định'] ? data[i]['Ngày dừng quyết định'] : null,
+                                StopReason: '',
+                                IDNhanVien: staff ? staff.ID : null,
+                                // SalaryIncrease: data[i]['Mức lương'] ? data[i]['Mức lương'] : null,
+                                StatusDecision: 'Có hiệu lực',
+                                Increase: data[i]['Mức tăng'] ? data[i]['Mức tăng'] : null,
+                                Status: 'Chờ phê duyệt',
+                            }).then(async data => {
+                                if (data)
+                                    await mtblIncreaseSalariesAndStaff(db).create({
+                                        StaffID: staff.ID,
+                                        IncreaseSalariesID: data.ID,
+                                    })
+                            })
+                        else {
+                            return res.json(Result.SYS_ERROR_RESULT)
+                        }
                     }
                     var result = {
                         status: Constant.STATUS.SUCCESS,
