@@ -410,7 +410,58 @@ async function getListContactExpiration(db) {
     })
     return arrayResult
 }
-async function getStaffContractExpirationDataFollowSocket(socket) {
+async function getListContactDetail(db, id) {
+    let obj = {}
+    let now = moment().format('YYYY-MM-DD');
+    let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+    tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
+    await tblHopDongNhanSu.findOne({
+        where: {
+            [Op.or]: [{
+                Status: 'Có hiệu lực',
+                Time: {
+                    [Op.eq]: null
+                },
+                NoticeTime: {
+                    [Op.substring]: now
+                },
+                ID: id
+            },
+            {
+                Status: 'Có hiệu lực',
+                NoticeTime: {
+                    [Op.substring]: now
+                },
+                Time: {
+                    [Op.lte]: nowTime
+                },
+                ID: id
+            }
+            ]
+        },
+        order: [
+            ['ID', 'DESC']
+        ],
+        include: [{
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'staff'
+        },],
+    }).then(contract => {
+        if (contract) {
+            obj = {
+                contractID: contract.ID,
+                staffName: contract.staff.StaffName,
+                staffCode: contract.staff.StaffCode,
+                contractDateEnd: contract.ContractDateEnd ? contract.ContractDateEnd : null,
+                noticeTime: contract.NoticeTime ? contract.NoticeTime : null,
+            }
+        }
+    })
+    return obj
+}
+async function getStaffContractExpirationDataFollowSocket(socket, id) {
     var array = [];
     await database.connectDatabase().then(async db => {
         if (db) {
@@ -432,7 +483,10 @@ async function getStaffContractExpirationDataFollowSocket(socket) {
                 }
                 if (isNotiContract == true) {
                     array = await getListContactExpiration(db)
-                    socket.emit("receive-data", array);
+                    socket.emit("contract-expiration", array);
+                    obj = await getListContactDetail(db, id)
+                    console.log(obj);
+                    socket.emit("contract-expiration-detail", obj);
                 }
             }
         }
@@ -564,8 +618,9 @@ module.exports = {
             socket.on("insurance-premiums", async function () {
                 await getInsurancePremiums(socket)
             });
-            socket.on("contract-expiration", async function () {
-                await getStaffContractExpirationDataFollowSocket(socket)
+            socket.on("contract-expiration", async function (data) {
+                console.log('--------------------------contract-expiration----------------------', data);
+                await getStaffContractExpirationDataFollowSocket(socket, data)
             });
             socket.on("system-wide-notification-ns", async (data) => {
                 console.log(socket.userID, '----------------- system-wide-notification-ns -------------------');
