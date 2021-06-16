@@ -486,7 +486,8 @@ async function getStaffContractExpirationDataFollowSocket(socket, id) {
                     socket.emit("contract-expiration", array);
                     obj = await getListContactDetail(db, id)
                     console.log(obj);
-                    socket.emit("contract-expiration-detail", obj);
+                    if (obj != {})
+                        socket.emit("contract-expiration-detail", obj);
                 }
             }
         }
