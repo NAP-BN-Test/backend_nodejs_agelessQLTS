@@ -302,6 +302,7 @@ module.exports = {
                                         })
                             }
                             var result = {
+                                id: data ? data.ID : null,
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
                             }
