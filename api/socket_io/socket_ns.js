@@ -319,7 +319,7 @@ async function getLeaveAndOvertimeOfUser(userID) {
     let isNotiApprovalSignUp = false
     let isNotiPersonalSignUp = false
     let isNotiContract = false
-    let arrayResult = []
+    let objResult = {}
     await database.connectDatabase().then(async db => {
         if (db) {
             let user = await mtblDMUser(db).findOne({
@@ -342,9 +342,9 @@ async function getLeaveAndOvertimeOfUser(userID) {
                         if (permissions.notiNS[ts].key == 'isNotiPersonalSignUp' && permissions.notiNS[ts].completed == true) {
                             isNotiPersonalSignUp = true
                         }
-                        // if (permissions.notiNS[ts].key == 'isNotiContract' && permissions.notiNS[ts].completed == true) {
-                        //     isNotiContract = true
-                        // }
+                        if (permissions.notiNS[ts].key == 'isNotiContract' && permissions.notiNS[ts].completed == true) {
+                            isNotiContract = true
+                        }
                     }
                 }
             }
@@ -366,16 +366,20 @@ async function getLeaveAndOvertimeOfUser(userID) {
             } else if (isNotiApprovalSignUp == false && isNotiPersonalSignUp == true) {
                 arrayOvertime = await getAllOvertimeOfUser(userID, 'approved')
             }
-            // var arrayContract = []
-            // if (isNotiContract == true) {
-            //     arrayContract = await getStaffContractExpirationData();
-            // }
-            Array.prototype.push.apply(arrayResult, arrayLeave);
-            Array.prototype.push.apply(arrayResult, arrayOvertime);
-            // Array.prototype.push.apply(arrayResult, arrayContract);
+            var arrayContract = []
+            if (isNotiContract == true) {
+                arrayContract = await getStaffContractExpirationData();
+            }
+            let array = []
+            Array.prototype.push.apply(array, arrayLeave);
+            Array.prototype.push.apply(array, arrayOvertime);
+            objResult = {
+                'array': array,
+                'arrayContract': arrayContract,
+            }
         }
     })
-    return arrayResult
+    return objResult
 }
 async function getListContactExpiration(db) {
     let arrayResult = []
@@ -646,8 +650,8 @@ module.exports = {
             socket.on("system-wide-notification-ns", async (data) => {
                 console.log(socket.userID, '----------------- system-wide-notification-ns -------------------');
                 if (socket.userID) {
-                    let array = await getLeaveAndOvertimeOfUser(socket.userID);
-                    socket.emit("system-wide-notification-ns", array)
+                    let obj = await getLeaveAndOvertimeOfUser(socket.userID);
+                    socket.emit("system-wide-notification-ns", obj)
                 }
             })
             socket.on("notice-create-leave-or-overtime", async (data) => {
