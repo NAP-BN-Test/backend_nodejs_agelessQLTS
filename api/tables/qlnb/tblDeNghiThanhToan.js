@@ -22,7 +22,7 @@ module.exports = function (db) {
         IDReceiptsPayment: Sequelize.BIGINT,
         IDSupplier: Sequelize.BIGINT,
         Link: Sequelize.STRING,
-
+        IsNotification: Sequelize.BOOLEAN,
     });
 
     return table;

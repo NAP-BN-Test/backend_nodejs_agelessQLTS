@@ -56,6 +56,7 @@ async function getAllLeaveOfUser(userID, type) {
                         let code = leave[l].NumberLeave;
                         let leaveID = leave[l].ID;
                         let status = leave[l].Status
+                        console.log(status);
                         if (type == 'both' || type == 'request') {
                             if (status == 'Chờ trưởng bộ phận phê duyệt') {
 

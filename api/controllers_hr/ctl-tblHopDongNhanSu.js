@@ -156,15 +156,15 @@ async function detailContract(db, id) {
     await tblHopDongNhanSu.findOne({
         where: { ID: id },
         include: [{
-                model: mtblLoaiHopDong(db),
-                required: false,
-                as: 'lhd'
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'nv'
-            },
+            model: mtblLoaiHopDong(db),
+            required: false,
+            as: 'lhd'
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'nv'
+        },
         ],
         order: [
             ['ID', 'DESC']
@@ -211,15 +211,15 @@ async function inWordContact(db, id) {
     await tblHopDongNhanSu.findOne({
         where: { ID: id },
         include: [{
-                model: mtblLoaiHopDong(db),
-                required: false,
-                as: 'lhd'
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'nv'
-            },
+            model: mtblLoaiHopDong(db),
+            required: false,
+            as: 'lhd'
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'nv'
+        },
         ],
         order: [
             ['ID', 'DESC']
@@ -236,7 +236,7 @@ async function inWordContact(db, id) {
                     model: mtblDMChucVu(db),
                     required: false,
                     as: 'position'
-                }, ],
+                },],
             })
             obj = {
                 'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
@@ -386,7 +386,7 @@ module.exports = {
                                     model: mtblDMChucVu(db),
                                     required: false,
                                     as: 'position'
-                                }, ],
+                                },],
                             })
                             obj = {
                                 'SỐ HỢP ĐỒNG': data.ContractCode ? data.ContractCode : '',
@@ -408,20 +408,20 @@ module.exports = {
                             }
                             await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx')
                             await mtblFileAttach(db).create({
-                                    Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
-                                    Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
-                                    IDContract: data.ID
-                                })
-                                // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
-                                //     order: [
-                                //         Sequelize.literal('max(DecisionDate) DESC'),
-                                //     ],
-                                //     group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
-                                //     where: {
-                                //         IDNhanVien: body.idNhanVien,
-                                //     }
-                                // })
-                                // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
+                                Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
+                                Name: body.contractCode ? body.contractCode : 'HD' + '-HĐLĐ-TX2021.docx',
+                                IDContract: data.ID
+                            })
+                            // var qdtl = await mtblQuyetDinhTangLuong(db).findOne({
+                            //     order: [
+                            //         Sequelize.literal('max(DecisionDate) DESC'),
+                            //     ],
+                            //     group: ['Status', 'SalaryIncrease', 'IDNhanVien', 'StopReason', 'StopDate', 'IncreaseDate', 'DecisionCode', 'ID', 'DecisionDate'],
+                            //     where: {
+                            //         IDNhanVien: body.idNhanVien,
+                            //     }
+                            // })
+                            // salary = qdtl ? qdtl.SalaryIncrease ? qdtl.SalaryIncrease : 0 : 0
                             let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
                             if (!bl)
                                 await mtblBangLuong(db).create({
@@ -442,7 +442,7 @@ module.exports = {
 
                             var result = {
                                 link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + (body.contractCode ? body.contractCode : 'HD') + '-HĐLĐ-TX2021.docx',
-                                contractID: data.ID,
+                                id: data.ID,
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
                             }
@@ -603,15 +603,15 @@ module.exports = {
                             ],
                             where: {
                                 [Op.or]: [{
-                                        MaLoaiHD: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    },
-                                    {
-                                        TenLoaiHD: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
+                                    MaLoaiHD: {
+                                        [Op.like]: '%' + data.search + '%'
                                     }
+                                },
+                                {
+                                    TenLoaiHD: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                }
                                 ]
                             }
                         }).then(data => {
@@ -625,15 +625,15 @@ module.exports = {
                             ],
                             where: {
                                 [Op.or]: [{
-                                        StaffCode: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    },
-                                    {
-                                        StaffName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
+                                    StaffCode: {
+                                        [Op.like]: '%' + data.search + '%'
                                     }
+                                },
+                                {
+                                    StaffName: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                }
                                 ]
                             }
                         }).then(data => {
@@ -643,32 +643,32 @@ module.exports = {
                         })
                         if (data.search) {
                             where = [{
-                                    ContractCode: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    Status: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    IDLoaiHopDong: {
-                                        [Op.in]: list
-                                    }
-                                },
-                                {
-                                    IDNhanVien: {
-                                        [Op.in]: listStaff
-                                    }
-                                },
+                                ContractCode: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                Status: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                IDLoaiHopDong: {
+                                    [Op.in]: list
+                                }
+                            },
+                            {
+                                IDNhanVien: {
+                                    [Op.in]: listStaff
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 ContractCode: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
                         }
                         whereOjb = {
                             [Op.and]: [{
@@ -731,15 +731,15 @@ module.exports = {
                                         ],
                                         where: {
                                             [Op.or]: [{
-                                                    MaLoaiHD: {
-                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
-                                                    }
-                                                },
-                                                {
-                                                    TenLoaiHD: {
-                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
-                                                    }
+                                                MaLoaiHD: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
+                                            },
+                                            {
+                                                TenLoaiHD: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }
                                             ]
                                         }
                                     }).then(data => {
@@ -772,15 +772,15 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [{
-                                model: mtblLoaiHopDong(db),
-                                required: false,
-                                as: 'lhd'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'nv'
-                            },
+                            model: mtblLoaiHopDong(db),
+                            required: false,
+                            as: 'lhd'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'nv'
+                        },
                         ],
                         order: [
                             ['ID', 'DESC']
@@ -850,7 +850,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    if (body.dataSearch) {}
+                    if (body.dataSearch) { }
                     let stt = 1;
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
@@ -863,7 +863,7 @@ module.exports = {
                             model: mtblLoaiHopDong(db),
                             required: false,
                             as: 'lhd'
-                        }, ],
+                        },],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -984,15 +984,15 @@ module.exports = {
                     await tblHopDongNhanSu.findOne({
                         where: { ID: body.id },
                         include: [{
-                                model: mtblLoaiHopDong(db),
-                                required: false,
-                                as: 'lhd'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'nv'
-                            },
+                            model: mtblLoaiHopDong(db),
+                            required: false,
+                            as: 'lhd'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'nv'
+                        },
                         ],
                         order: [
                             ['ID', 'DESC']
@@ -1007,7 +1007,7 @@ module.exports = {
                                     model: mtblDMChucVu(db),
                                     required: false,
                                     as: 'position'
-                                }, ],
+                                },],
                             })
                             contactNumber = data.ContractCode
                             obj = {

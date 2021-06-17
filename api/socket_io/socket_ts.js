@@ -81,7 +81,8 @@ async function getPaymentAndREquest() {
                     await tblYeuCauMuaSam.findAll({
                         where: [
                             { IDPheDuyet1: user[i].IDNhanvien },
-                            { Status: 'Chờ phê duyệt' }
+                            { Status: 'Chờ phê duyệt' },
+                            { IsNotification: null }
                         ],
                         include: [{
                             model: mtblDMNhanvien(db),
@@ -101,7 +102,8 @@ async function getPaymentAndREquest() {
                     await tblYeuCauMuaSam.findAll({
                         where: [
                             { IDPheDuyet2: user[i].IDNhanvien },
-                            { Status: 'Đang phê duyệt' }
+                            { Status: 'Đang phê duyệt' },
+                            { IsNotification: null }
                         ],
                         include: [{
                             model: mtblDMNhanvien(db),
@@ -126,6 +128,7 @@ async function getPaymentAndREquest() {
                                 [Op.and]: {
                                     IDNhanVienKTPD: user[i].IDNhanvien,
                                     TrangThaiPheDuyetKT: 'Chờ phê duyệt',
+                                    IsNotification: null
                                 },
                             }, {
                                 [Op.and]: {
@@ -134,6 +137,7 @@ async function getPaymentAndREquest() {
                                     },
                                     IDNhanVienLDPD: user[i].IDNhanvien,
                                     TrangThaiPheDuyetLD: 'Chờ phê duyệt',
+                                    IsNotification: null
                                 }
                             }],
                         },
@@ -174,6 +178,7 @@ async function getPaymentApproval(userID) {
                         [Op.and]: {
                             IDNhanVienKTPD: user.IDNhanvien,
                             TrangThaiPheDuyetKT: 'Chờ phê duyệt',
+                            IsNotification: null
                         },
                     }, {
                         [Op.and]: {
@@ -182,6 +187,7 @@ async function getPaymentApproval(userID) {
                             },
                             IDNhanVienLDPD: user.IDNhanvien,
                             TrangThaiPheDuyetLD: 'Chờ phê duyệt',
+                            IsNotification: null
                         }
                     }],
                 },
@@ -225,6 +231,7 @@ async function getPaymentOfUser(userID) {
                     TrangThaiPheDuyetLD: {
                         [Op.ne]: 'Chờ phê duyệt'
                     },
+                    IsNotification: null
                 },
                 include: [{
                     model: mtblDMNhanvien(db),
@@ -260,10 +267,14 @@ async function getRequestApproval(userID) {
                 where: {
                     [Op.or]: [{
                         IDPheDuyet1: user.IDNhanvien,
-                        Status: 'Chờ phê duyệt'
+                        Status: 'Chờ phê duyệt',
+                        IsNotification: null
+
                     }, {
                         IDPheDuyet2: user.IDNhanvien,
-                        Status: 'Đang phê duyệt'
+                        Status: 'Đang phê duyệt',
+                        IsNotification: null
+
                     },],
                 },
                 include: [{
@@ -305,7 +316,8 @@ async function getRequestOfUser(userID) {
                     },
                     Status: {
                         [Op.ne]: 'Đang phê duyệt'
-                    }
+                    },
+                    IsNotification: null
                 },
                 include: [{
                     model: mtblDMNhanvien(db),

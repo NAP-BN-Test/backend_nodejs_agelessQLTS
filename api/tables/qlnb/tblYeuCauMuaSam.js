@@ -22,6 +22,7 @@ module.exports = function (db) {
         IDSupplier: Sequelize.BIGINT,
         IDPaymentOrder: Sequelize.BIGINT,
         AssetName: Sequelize.STRING,
+        IsNotification: Sequelize.BOOLEAN,
     });
 
     return table;

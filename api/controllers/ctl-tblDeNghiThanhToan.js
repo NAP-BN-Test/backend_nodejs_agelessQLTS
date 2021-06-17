@@ -897,4 +897,30 @@ module.exports = {
             }
         })
     },
+    //  change_notification_status_payment
+    changeNotificationStatusPayment: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblDeNghiThanhToan(db).update({
+                        IsNotification: true,
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

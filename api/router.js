@@ -138,6 +138,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_detail_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.getDetailtblYeuCauMuaSam);
 
     app.route('/qlnb/get_tbl_request_from_payment').post(tblYeuCauMuaSam.gettblYeuCauMuaSamFromDeNghiThanhToan);
+    app.route('/qlnb/change_notification_status_request').post(tblYeuCauMuaSam.changeNotificationStatusRequest);
 
     app.route('/qlnb/delete_tbl_yeucaumuasam').post(checkToken.checkToken, tblYeuCauMuaSam.deletetblYeuCauMuaSam);
 
@@ -227,6 +228,7 @@ module.exports = function (app) {
     app.route('/qlnb/approval_employee_leader').post(checkToken.checkToken, tblDeNghiThanhToan.approvalNhanVienLDPD);
     app.route('/qlnb/refuse_employee_accountant').post(checkToken.checkToken, tblDeNghiThanhToan.refuseNhanVienKTPD);
     app.route('/qlnb/refuse_employee_leader').post(checkToken.checkToken, tblDeNghiThanhToan.refuseNhanVienLDPD);
+    app.route('/qlnb/change_notification_status_payment').post(checkToken.checkToken, tblDeNghiThanhToan.changeNotificationStatusPayment);
     // app.route('/qlnb/approval_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.approvalDeNghiThanhToan);
     var zalo = require('./controllers/zalo');
     app.route('/zalo').post(zalo.zalo);
