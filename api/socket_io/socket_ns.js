@@ -48,51 +48,56 @@ async function getAllLeaveOfUser(userID, type) {
             }).then(async leave => {
                 if (leave) {
                     for (l = 0; l < leave.length; l++) {
+                        let name = leave[l].nv ? leave[l].nv.StaffName : '';
+                        let code = leave[l].NumberLeave;
+                        let leaveID = leave[l].ID;
+                        let status = leave[l].Status
                         if (type == 'both' || type == 'request') {
-                            if (leave[l].Status == 'Chờ trưởng bộ phận phê duyệt') {
+                            if (status == 'Chờ trưởng bộ phận phê duyệt') {
+
                                 var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: leave[l].IDHeadDepartment } });
                                 let objResult = {
-                                    name: leave[l].nv ? leave[l].nv.StaffName : '',
+                                    name: name,
                                     type: 'TakeLeave',
                                     userID: userID.ID,
                                     status: 'Yêu cầu duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
-                            } else if (leave[l].Status == 'Chờ thủ trưởng phê duyệt') {
+                            } else if (status == 'Chờ thủ trưởng phê duyệt') {
                                 var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: leave[l].IDHeads } });
                                 let objResult = {
-                                    name: leave[l].nv ? leave[l].nv.StaffName : '',
+                                    name: name,
                                     type: 'TakeLeave',
                                     userID: userID.ID,
                                     status: 'Yêu cầu duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
-                            } else if (leave[l].Status == 'Chờ hành chính nhân sự phê duyệt') {
+                            } else if (status == 'Chờ hành chính nhân sự phê duyệt') {
                                 var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: leave[l].IDAdministrationHR } });
                                 let objResult = {
-                                    name: leave[l].nv ? leave[l].nv.StaffName : '',
+                                    name: name,
                                     type: 'TakeLeave',
                                     userID: userID.ID,
                                     status: 'Yêu cầu duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
                             }
                         }
                         if (type == 'both' || type == 'approved') {
-                            if (leave[l].Status == 'Hoàn thành') {
+                            if (status == 'Hoàn thành') {
                                 let objResult = {
                                     name: '',
                                     type: 'TakeLeave',
                                     userID: leave[l].IDNhanVien,
                                     status: 'Đã được duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
                             }
@@ -139,51 +144,55 @@ async function getAllOvertimeOfUser(userID, type) {
             }).then(async leave => {
                 if (leave) {
                     for (l = 0; l < leave.length; l++) {
+                        let name = leave[l].nv ? leave[l].nv.StaffName : ''
+                        let code = leave[l].NumberLeave;
+                        let leaveID = leave[l].ID;
+                        let status = leave[l].Status
                         if (type == 'both' || type == 'request') {
-                            if (leave[l].Status == 'Chờ trưởng bộ phận phê duyệt' || leave[l].Status == 'Chờ trưởng bộ phận xác nhận') {
+                            if (status == 'Chờ trưởng bộ phận phê duyệt' || status == 'Chờ trưởng bộ phận xác nhận') {
                                 var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: leave[l].IDHeadDepartment } });
                                 let objResult = {
-                                    name: leave[l].nv ? leave[l].nv.StaffName : '',
+                                    name: name,
                                     type: 'SignUp',
                                     userID: userID.ID,
                                     status: 'Yêu cầu duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
-                            } else if (leave[l].Status == 'Chờ thủ trưởng phê duyệt') {
+                            } else if (status == 'Chờ thủ trưởng phê duyệt') {
                                 var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: leave[l].IDHeads } });
                                 let objResult = {
-                                    name: leave[l].nv ? leave[l].nv.StaffName : '',
+                                    name: name,
                                     type: 'SignUp',
                                     userID: userID.ID,
                                     status: 'Yêu cầu duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
-                            } else if (leave[l].Status == 'Chờ hành chính nhân sự phê duyệt') {
+                            } else if (status == 'Chờ hành chính nhân sự phê duyệt') {
                                 var userID = await mtblDMUser(db).findOne({ where: { IDNhanvien: leave[l].IDAdministrationHR } });
                                 let objResult = {
-                                    name: leave[l].nv ? leave[l].nv.StaffName : '',
+                                    name: name,
                                     type: 'SignUp',
                                     userID: userID.ID,
                                     status: 'Yêu cầu duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
                             }
                         }
                         if (type == 'both' || type == 'approved') {
-                            if (leave[l].Status == 'Hoàn thành') {
+                            if (status == 'Hoàn thành') {
                                 let objResult = {
                                     name: '',
                                     type: 'SignUp',
                                     userID: leave[l].IDNhanVien,
                                     status: 'Đã được duyệt',
-                                    code: leave[l].NumberLeave,
-                                    id: leave[l].ID,
+                                    code: code,
+                                    id: leaveID
                                 }
                                 array.push(objResult)
                             }
@@ -485,9 +494,10 @@ async function getStaffContractExpirationDataFollowSocket(socket, id) {
                     array = await getListContactExpiration(db)
                     socket.emit("contract-expiration", array);
                     obj = await getListContactDetail(db, id)
-                    console.log(obj);
-                    if (obj != {})
+                    let check = Object.keys(obj)
+                    if (check.length > 0) {
                         socket.emit("contract-expiration-detail", obj);
+                    }
                 }
             }
         }
@@ -522,6 +532,7 @@ async function getDetailLeaveOrOvertime(id) {
                                 id: data.ID,
                             }
                         } else if (data.Status == 'Chờ thủ trưởng phê duyệt') {
+                            let User = await mtblDMUser(db).findOne({ where: { IDNhanvien: data.IDHeads } })
                             obj = {
                                 name: data.nv ? data.nv.StaffName : '',
                                 type: 'TakeLeave',

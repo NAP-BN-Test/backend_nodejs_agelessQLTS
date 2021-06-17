@@ -68,30 +68,30 @@ async function getDetailYCMS(db, id) {
             ['ID', 'DESC']
         ],
         include: [{
-                model: mtblDMBoPhan(db),
-                required: false,
-                as: 'phongban'
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'NhanVien'
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'PheDuyet1',
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'PheDuyet2',
-            },
-            {
-                model: tblYeuCauMuaSamDetail,
-                required: false,
-                as: 'line'
-            },
+            model: mtblDMBoPhan(db),
+            required: false,
+            as: 'phongban'
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'NhanVien'
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'PheDuyet1',
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'PheDuyet2',
+        },
+        {
+            model: tblYeuCauMuaSamDetail,
+            required: false,
+            as: 'line'
+        },
         ],
         // offset: Number(body.itemPerPage) * (Number(body.page) - 1),
         // limit: Number(body.itemPerPage),
@@ -136,7 +136,7 @@ async function getDetailYCMS(db, id) {
                             model: mtblDMLoaiTaiSan(db),
                             required: false,
                             as: 'loaiTaiSan'
-                        }, ],
+                        },],
                     }).then(data => {
                         if (data)
                             arrayTaiSan.push({
@@ -199,6 +199,7 @@ module.exports = {
     // add_tbl_denghi_thanhtoan
     addtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body, 1234);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -214,6 +215,7 @@ module.exports = {
                         IDSupplier: body.idNhaCungCap ? body.idNhaCungCap : null,
                         Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
+                        Link: body.linkPayroll ? body.linkPayroll : '',
                     }).then(async data => {
                         body.fileAttach = JSON.parse(body.fileAttach)
                         if (body.fileAttach.length > 0)
@@ -387,15 +389,15 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [{
-                                            StaffCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            StaffName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        StaffCode: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        StaffName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -405,15 +407,15 @@ module.exports = {
                             })
                             where = {
                                 [Op.or]: [{
-                                        IDNhanVien: {
-                                            [Op.in]: list
-                                        }
-                                    },
-                                    {
-                                        PaymentOrderCode: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
+                                    IDNhanVien: {
+                                        [Op.in]: list
                                     }
+                                },
+                                {
+                                    PaymentOrderCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                }
                                 ]
                             };
                         } else {
@@ -421,7 +423,7 @@ module.exports = {
                                 Contents: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
                         }
                         whereObj[Op.and] = where
                         if (data.items) {
@@ -492,30 +494,30 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         include: [{
-                                model: tblDMNhanvien,
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'NhanVien',
+                            include: [{
+                                model: mtblDMBoPhan(db),
                                 required: false,
-                                as: 'NhanVien',
-                                include: [{
-                                    model: mtblDMBoPhan(db),
-                                    required: false,
-                                    as: 'bp'
-                                }, ]
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'KTPD'
-                            },
-                            {
-                                model: tblDMNhanvien,
-                                required: false,
-                                as: 'LDPD'
-                            },
-                            {
-                                model: mtblDMNhaCungCap(db),
-                                required: false,
-                                as: 'supplier'
-                            },
+                                as: 'bp'
+                            },]
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'KTPD'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'LDPD'
+                        },
+                        {
+                            model: mtblDMNhaCungCap(db),
+                            required: false,
+                            as: 'supplier'
+                        },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -553,6 +555,7 @@ module.exports = {
                                 isCreatePayment: element.IDReceiptsPayment ? true : false,
                                 supplierName: element.supplier ? element.supplier.SupplierName : '',
                                 idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
+                                linkPayroll: element.Link ? element.Link : '',
                             }
                             array.push(obj);
                             stt += 1;
@@ -620,35 +623,35 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         include: [{
-                                model: tblDMNhanvien,
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'NhanVien',
+                            include: [{
+                                model: tblDMBoPhan,
                                 required: false,
-                                as: 'NhanVien',
+                                as: 'bophan',
                                 include: [{
-                                    model: tblDMBoPhan,
+                                    model: mtblDMChiNhanh(db),
                                     required: false,
-                                    as: 'bophan',
-                                    include: [{
-                                        model: mtblDMChiNhanh(db),
-                                        required: false,
-                                        as: 'chinhanh'
-                                    }, ],
-                                }, ],
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'KTPD'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'LDPD'
-                            },
-                            {
-                                model: mtblDMNhaCungCap(db),
-                                required: false,
-                                as: 'supplier'
-                            },
+                                    as: 'chinhanh'
+                                },],
+                            },],
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'KTPD'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'LDPD'
+                        },
+                        {
+                            model: mtblDMNhaCungCap(db),
+                            required: false,
+                            as: 'supplier'
+                        },
                         ],
                     }).then(async data => {
                         var obj = {
@@ -677,6 +680,7 @@ module.exports = {
                             branchCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchCode : '' : '' : '',
                             supplierName: data.supplier ? data.supplier.SupplierName : '',
                             idNhaCungCap: data.IDSupplier ? Number(data.IDSupplier) : null,
+                            linkPayroll: data.Link ? data.Link : '',
                         }
                         stt += 1;
                         var arrayFile = []

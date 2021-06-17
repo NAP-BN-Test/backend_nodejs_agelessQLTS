@@ -45,15 +45,15 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id, staffID) {
         // limit: Number(body.itemPerPage),
         where: { ID: id },
         include: [{
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'employee'
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'employeeApproval'
-            },
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'employee'
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'employeeApproval'
+        },
         ],
         order: [
             ['ID', 'DESC']
@@ -337,22 +337,22 @@ module.exports = {
 
                         if (data.search) {
                             where = [{
-                                    DecisionCode: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    Status: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
+                                DecisionCode: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                Status: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 DecisionCode: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
                         }
                         whereOjb = {
                             [Op.and]: [{
@@ -407,15 +407,15 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [{
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'employee'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'employeeApp'
-                            },
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'employee'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'employeeApp'
+                        },
                         ],
                         order: [
                             ['ID', 'DESC']
@@ -450,7 +450,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                }, ],
+                                },],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({

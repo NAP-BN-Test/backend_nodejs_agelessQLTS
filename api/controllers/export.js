@@ -78,30 +78,30 @@ async function getDetailYCMS(db, id) {
             ['ID', 'DESC']
         ],
         include: [{
-                model: mtblDMBoPhan(db),
-                required: false,
-                as: 'phongban'
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'NhanVien'
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'PheDuyet1',
-            },
-            {
-                model: mtblDMNhanvien(db),
-                required: false,
-                as: 'PheDuyet2',
-            },
-            {
-                model: tblYeuCauMuaSamDetail,
-                required: false,
-                as: 'line'
-            },
+            model: mtblDMBoPhan(db),
+            required: false,
+            as: 'phongban'
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'NhanVien'
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'PheDuyet1',
+        },
+        {
+            model: mtblDMNhanvien(db),
+            required: false,
+            as: 'PheDuyet2',
+        },
+        {
+            model: tblYeuCauMuaSamDetail,
+            required: false,
+            as: 'line'
+        },
         ],
         where: { ID: id }
     }).then(async data => {
@@ -141,7 +141,7 @@ async function getDetailYCMS(db, id) {
                         model: mtblDMLoaiTaiSan(db),
                         required: false,
                         as: 'loaiTaiSan'
-                    }, ],
+                    },],
                 }).then(data => {
                     if (data)
                         arrayTaiSan.push({
@@ -369,7 +369,7 @@ module.exports = {
                             ws.cell(row, 4).string(data[i].nameIDNhanVien).style(stylecell);
                             ws.cell(row, 5).string(data[i].requireDate).style(stylecell);
                             ws.cell(row, 11).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
-                            ws.cell(row, 13, ).string(data[i].reason).style(stylecell);
+                            ws.cell(row, 13,).string(data[i].reason).style(stylecell);
                             // ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
@@ -476,7 +476,7 @@ module.exports = {
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
                             row = checkMaxRow + 1
-                            // bản ghi đầu tiên
+                        // bản ghi đầu tiên
                         else
                             row = i + 2
                         if (data[i].arrayFileExport.length) {
@@ -661,16 +661,16 @@ module.exports = {
                         } else if (i > 5 && i <= 10) {
                             if (i < 10)
                                 ws.cell(4, row)
-                                .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                                .style(styleHearder);
+                                    .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
+                                    .style(styleHearder);
                             else if (i = 10) {
                                 ws.cell(4, row)
                                     .string(arrayHeader[i])
                                     .style(styleHearder);
                             } else
                                 ws.cell(4, row)
-                                .string(arrayHeader[i])
-                                .style(styleHearder);
+                                    .string(arrayHeader[i])
+                                    .style(styleHearder);
                         } else {
                             ws.cell(3, row, 4, row, true)
                                 .string(arrayHeader[i])
@@ -685,7 +685,7 @@ module.exports = {
                         ws.cell(5 + i, 2).string(data[i].staffCode ? data[i].staffCode : '').style(stylecell)
                         ws.cell(5 + i, 3).string(data[i].staffName ? data[i].staffName : '').style(stylecell)
                         ws.cell(5 + i, 4).string(data[i].departmentName ? data[i].departmentName : '').style(stylecell)
-                            // ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
+                        // ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
                         ws.cell(5 + i, 5).number(data[i].productivityWages ? Number(data[i].productivityWages) : 0).style(stylecellNumber)
                         ws.cell(5 + i, 6).number(data[i].bhxhSalary ? Number(data[i].bhxhSalary) : 0).style(stylecellNumber)
                         ws.cell(5 + i, 7).number(Number(data[i].staffBHXH)).style(stylecellNumber)
@@ -714,10 +714,10 @@ module.exports = {
                     ws.cell(5 + data.length, 14).number(Number(totalFooter.totalAllReduce)).style(styleHearderNumber)
                     ws.cell(5 + data.length, 15).number(Number(totalFooter.totalRealField)).style(styleHearderNumber)
 
-                    await wb.write('C:/images_services/ageless_sendmail/export_excel_payroll.xlsx');
+                    // await wb.write('C:/images_services/ageless_sendmail/' + 'export_excel_payroll_t' + month + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_payroll.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export_excel_payroll_t' + month + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -734,7 +734,7 @@ module.exports = {
         })
     },
     // export_to_file_excel_payroll
-    exportToFileExcelTimekeeping: (req, res) => {},
+    exportToFileExcelTimekeeping: (req, res) => { },
     // export_tofile_excel_insurance_premiums
     exportToFileExcelInsutancePremiums: (req, res) => {
         var wb = new xl.Workbook();
@@ -1096,7 +1096,7 @@ module.exports = {
                 var numberRandom = Math.floor(Math.random() * 1000000);
                 nameMiddle = numberRandom.toString();
                 var dir = 'photo-' + nameMiddle + '.jpg';
-                require("fs").writeFile('C:/images_services/struck_web/' + dir, buf, function(err) {
+                require("fs").writeFile('C:/images_services/struck_web/' + dir, buf, function (err) {
                     if (err) console.log(err + '');
                 });
                 var result = {
@@ -1111,7 +1111,7 @@ module.exports = {
             }
         })
     },
-    exportToFileExcelVPP: async(req, res) => {
+    exportToFileExcelVPP: async (req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
         var styleHearder = wb.createStyle({
@@ -1162,18 +1162,18 @@ module.exports = {
         let body = req.body;
         let data = JSON.parse(body.data)
         let arrayHeader = [
-                'MÃ VPP',
-                'TÊN VPP',
-                'ĐƠN VỊ TÍNH',
-                'SỐ LƯỢNG',
-                'TRẠNG THÁI',
-                'NGƯỜI SỞ HỮU',
-                'NGÀY TIẾP NHẬN',
-                // 'NGƯỜI PHÊ DUYỆT TRƯỚC',
-                // 'NGƯỜI PHÊ DUYỆT SAU',
-            ]
-            // Add Worksheets to the workbook
-            // Add Worksheets to the workbook
+            'MÃ VPP',
+            'TÊN VPP',
+            'ĐƠN VỊ TÍNH',
+            'SỐ LƯỢNG',
+            'TRẠNG THÁI',
+            'NGƯỜI SỞ HỮU',
+            'NGÀY TIẾP NHẬN',
+            // 'NGƯỜI PHÊ DUYỆT TRƯỚC',
+            // 'NGƯỜI PHÊ DUYỆT SAU',
+        ]
+        // Add Worksheets to the workbook
+        // Add Worksheets to the workbook
         var ws = wb.addWorksheet('Sheet 1');
         var row = 1
         ws.column(row).setWidth(5);
@@ -1192,7 +1192,7 @@ module.exports = {
             // Hàng lớn nhất của bản ghi trước
             if (i > 0)
                 row = checkMaxRow + 1
-                // bản ghi đầu tiên
+            // bản ghi đầu tiên
             else
                 row = i + 2
             if (data[i].line.length) {
