@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = function(db) {
+module.exports = function (db) {
     var table = db.define('tblNghiPhep', {
         ID: {
             type: Sequelize.BIGINT,
@@ -29,6 +29,7 @@ module.exports = function(db) {
         Note: Sequelize.STRING,
         WorkContent: Sequelize.STRING,
         Deducted: Sequelize.FLOAT,
+        IsNotification: Sequelize.BOOLEAN,
     });
 
     return table;

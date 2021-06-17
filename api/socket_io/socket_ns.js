@@ -24,18 +24,22 @@ async function getAllLeaveOfUser(userID, type) {
                     [Op.or]: [{
                         IDNhanVien: User.IDNhanvien,
                         Type: 'TakeLeave',
+                        IsNotification: null
                     },
                     {
                         IDHeadDepartment: User.IDNhanvien,
                         Type: 'TakeLeave',
+                        IsNotification: null
                     },
                     {
                         IDHeads: User.IDNhanvien,
                         Type: 'TakeLeave',
+                        IsNotification: null
                     },
                     {
                         IDAdministrationHR: User.IDNhanvien,
                         Type: 'TakeLeave',
+                        IsNotification: null
                     },
                     ]
                     // Type: 'SignUp',
@@ -121,18 +125,22 @@ async function getAllOvertimeOfUser(userID, type) {
                     [Op.or]: [{
                         IDNhanVien: User.IDNhanvien,
                         Type: 'SignUp',
+                        IsNotification: null,
                     },
                     {
                         IDHeadDepartment: User.IDNhanvien,
                         Type: 'SignUp',
+                        IsNotification: null,
                     },
                     {
                         IDHeads: User.IDNhanvien,
                         Type: 'SignUp',
+                        IsNotification: null,
                     },
                     {
                         IDAdministrationHR: User.IDNhanvien,
                         Type: 'SignUp',
+                        IsNotification: null,
                     },
                     ]
                 },

@@ -714,7 +714,7 @@ module.exports = {
                     ws.cell(5 + data.length, 14).number(Number(totalFooter.totalAllReduce)).style(styleHearderNumber)
                     ws.cell(5 + data.length, 15).number(Number(totalFooter.totalRealField)).style(styleHearderNumber)
 
-                    // await wb.write('C:/images_services/ageless_sendmail/' + 'export_excel_payroll_t' + month + '.xlsx');
+                    await wb.write('C:/images_services/ageless_sendmail/' + 'export_excel_payroll_t' + month + '.xlsx');
                     setTimeout(() => {
                         var result = {
                             link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export_excel_payroll_t' + month + '.xlsx',

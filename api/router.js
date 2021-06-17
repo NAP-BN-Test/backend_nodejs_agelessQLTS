@@ -287,6 +287,7 @@ module.exports = function (app) {
     app.route('/qlnb/refuse_heads').post(checkToken.checkToken, tblNghiPhep.refuseHeads);
     app.route('/qlnb/handle_take_leave_day').post(tblNghiPhep.handleTakeLeaveDay);
     app.route('/qlnb/get_the_remaining_spells').post(tblNghiPhep.getTheRemainingSpells);
+    app.route('/qlnb/change_notification_status').post(tblNghiPhep.changeNotificationStatus);
 
     //  Danh mục tình trạng nhân viên
     app.route('/qlnb/add_tbl_dm_tinhtrangnv').post(checkToken.checkToken, tblDMTinhTrangNV.addtblDMTinhTrangNV);
