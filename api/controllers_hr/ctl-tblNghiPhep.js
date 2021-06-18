@@ -204,7 +204,6 @@ module.exports = {
                                     advancePayment += 1
                             }
                         }
-                        console.log(arrayRespone);
                         for (let i = 0; i < arrayRespone.length; i++) {
                             let numberHolidayArray = 0
                             if (!arrayRespone[i].timeStart)
@@ -220,7 +219,6 @@ module.exports = {
                                 deducted += numberHolidayArray
                             }
                         }
-                        console.log(numberHoliday);
                         usedLeave = await handleCalculateUsedLeave(db, body.idNhanVien);
                         let currentYear = Number(moment().format('YYYY'))
                         let currentMonth = Number(moment().format('MM'))
