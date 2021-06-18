@@ -283,8 +283,8 @@ module.exports = {
                                             DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
                                             WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
                                             WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
-                                            TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : '08:00'),
-                                            TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : '18:00'),
+                                            TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : arrayRespone[i].timeStart),
+                                            TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : arrayRespone[i].timeEnd),
                                             LeaveID: data.ID,
                                         })
                                     }
@@ -364,9 +364,9 @@ module.exports = {
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                 DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
                                 WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
-                                WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
-                                TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : '08:00'),
-                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeEndReal ? arrayRespone[i].timeEndReal : '18:00'),
+                                WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : (arrayRespone[i].workContent ? arrayRespone[i].workContent : ''),
+                                TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : arrayRespone[i].timeStart),
+                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeEndReal ? arrayRespone[i].timeEndReal : arrayRespone[i].timeEnd),
                                 LeaveID: body.id,
                             })
                         } else {
