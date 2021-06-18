@@ -67,7 +67,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (let i = 0; i < data.length; i++) {
@@ -94,7 +94,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                }, ],
+                                },],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
@@ -294,43 +294,68 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
-                    // if (body.dataSearch) {
-                    //     var data = JSON.parse(body.dataSearch)
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
 
-                    //     if (data.search) {
-                    //         where = [
-                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
-                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
-                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
-                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                    //         ];
-                    //     } else {
-                    //         where = [
-                    //             { FullName: { [Op.ne]: '%%' } },
-                    //         ];
-                    //     }
-                    //     whereOjb = {
-                    //         [Op.and]: [{ [Op.or]: where }],
-                    //         [Op.or]: [{ ID: { [Op.ne]: null } }],
-                    //     };
-                    //     if (data.items) {
-                    //         for (var i = 0; i < data.items.length; i++) {
-                    //             let userFind = {};
-                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                    //                 if (data.items[i].conditionFields['name'] == 'And') {
-                    //                     whereOjb[Op.and].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
-                    //                     whereOjb[Op.or].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
-                    //                     whereOjb[Op.not] = userFind
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                        if (data.search) {
+                            where = [{
+                                Type: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            ];
+                        } else {
+                            where = [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            },];
+                        }
+                        whereOjb = {
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
+                        };
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'NGÀY QUYẾT ĐỊNH') {
+                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
+                                    userFind['Date'] = {
+                                        [Op.substring]: '%' + date + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LOẠI QUYẾT ĐỊNH') {
+                                    userFind['Type'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                            }
+                        }
+                    }
                     let stt = 1;
                     let tblRewardPunishment = mtblRewardPunishment(db);
                     tblRewardPunishment.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })
@@ -345,7 +370,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (let i = 0; i < data.length; i++) {
@@ -372,7 +397,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                }, ],
+                                },],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({

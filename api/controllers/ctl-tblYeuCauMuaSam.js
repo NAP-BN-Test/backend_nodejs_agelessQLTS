@@ -442,6 +442,7 @@ module.exports = {
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
         let arrayPermission = []
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

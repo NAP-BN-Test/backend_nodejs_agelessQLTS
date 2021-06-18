@@ -201,6 +201,7 @@ module.exports = {
     // get_list_tbl_decided_insurance_salary
     getListtblDecidedInsuranceSalary: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -262,7 +263,7 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN') {
+                                if (data.items[i].fields['name'] === 'TÊN QUYẾT ĐỊNH') {
                                     userFind['Name'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                     }

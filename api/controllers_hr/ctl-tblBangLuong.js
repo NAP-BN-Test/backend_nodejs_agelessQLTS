@@ -2137,6 +2137,7 @@ module.exports = {
                                     var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
                                     var yearMonth = year + '-' + await convertNumber(month);
                                     for (var j = 1; j <= dateFinal; j++) {
+                                        console.log(j);
                                         var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
                                         let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
                                         let staffID = staff ? staff.ID : null

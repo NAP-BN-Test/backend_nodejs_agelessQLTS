@@ -815,6 +815,7 @@ module.exports = {
     // get_list_tbl_dmnhanvien
     getListtblDMNhanvien: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -925,7 +926,7 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY SINH') {
-                                    let date = moment(data.items[i]['searchFields']).subtract(14, 'hours').format('YYYY-MM-DD')
+                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
                                     userFind['Birthday'] = {
                                         [Op.substring]: '%' + date + '%'
                                     }

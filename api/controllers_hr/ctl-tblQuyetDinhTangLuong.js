@@ -328,6 +328,7 @@ module.exports = {
     // get_list_tbl_quyetdinh_tangluong
     getListtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -381,9 +382,36 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
+                                    userFind['IDNhanVien'] = data.items[i]['searchFields']
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'TÌNH TRẠNG QUYẾT ĐỊNH') {
-                                    userFind['Status'] = {
+                                    userFind['StatusDecision'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGÀY KÍ') {
+                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
+                                    userFind['IncreaseDate'] = {
+                                        [Op.substring]: '%' + date + '%'
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
