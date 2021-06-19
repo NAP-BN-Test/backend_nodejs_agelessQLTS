@@ -287,10 +287,11 @@ module.exports = {
                         }
                     }
                     let checkErr = advancePayment - usedLeave
+                    console.log(deducted, checkErr);
                     if (checkErr < deducted && body.type == 'TakeLeave') {
                         var result = {
                             status: Constant.STATUS.FAIL,
-                            message: 'Số ngày nghỉ :' + Deducted + ' đã quá số phép còn lại. Vui lòng kiểm tra lại!',
+                            message: 'Số ngày nghỉ : ' + deducted + ' đã quá số phép còn lại. Vui lòng kiểm tra lại!',
                         }
                         res.json(result);
                     } else {
@@ -1139,14 +1140,38 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                    }).then(data => {
+                    }).then(async data => {
                         if (data)
                             if (data.Status == 'Hoàn thành') {
                                 result = data.AdvancePayment - data.UsedLeave - data.Deducted
                             } else {
                                 result = data.AdvancePayment - data.UsedLeave
                             }
+                        else {
+                            let seniority = await handleCalculateAdvancePayment(db, body.staffID) // thâm niên
+                            // var quotient = Math.floor(y / x);  // lấy nguyên
+                            // var remainder = y % x; // lấy dư
+                            let advancePayment = 0
+                            if (seniority > 12) {
+                                advancePayment = 12 + Math.floor(seniority / 60)
+                            } else {
+                                let staffData = await mtblHopDongNhanSu(db).findOne({
+                                    where: { IDNhanVien: body.staffID },
+                                    order: [
+                                        ['ID', 'ASC']
+                                    ],
+                                })
+                                if (staffData) {
+                                    let dateSign = new Date(staffData.Date)
+                                    advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                                    if (Number(moment(dateSign).format('DD')) == 1)
+                                        advancePayment += 1
+                                }
+                            }
+                            result = advancePayment
+                        }
                     })
+
                     var resultRes = {
                         result: result,
                         status: Constant.STATUS.SUCCESS,
