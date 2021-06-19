@@ -140,6 +140,8 @@ async function converFromSecondsToHourLate(number) {
 
     return result;
 }
+var mtblConfigWorkday = require('../tables/hrmanage/tblConfigWorkday')
+
 async function roundNumberMinutes(number) {
     var result = 0;
     let h = Math.floor(number / 3600)
@@ -342,8 +344,22 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
             sunSta += 1
         }
     }
-    console.log((dateFinal - sunSta), (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB)), numberHoliday, leaveFree);
-    result = productivityWages / (dateFinal - sunSta) * (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB))
+    let arrayDate = []
+    await mtblConfigWorkday(db).findAll({
+        where: { Date: { [Op.substring]: year + '-' + month } },
+        order: [
+            ['Date', 'DESC']
+        ],
+    }).then(data => {
+        data.forEach(element => {
+            arrayDate.push(element.Date)
+        });
+    })
+    let workingDay = arrayDate.length
+    console.log((dateFinal - sunSta), workingDay, numberHoliday, leaveFree);
+    result = productivityWages / Number(workingDay) * (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB))
+    if (workingDay == 0)
+        result = null
     return result
 }
 async function getListHoliday(db, year, month, dateFinal) {
@@ -1105,6 +1121,7 @@ module.exports = {
                             })
                             let salariesDecidedIncrease = await getIncreaseSalaryOfStaff(db, data[i].IDNhanVien); // quyết định tawg lương năng suất
                             let productivityWages = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv ? (data[i].nv.ProductivityWages + Number(salariesDecidedIncrease)) : 0)
+                            productivityWages = productivityWages ? productivityWages : 0
                             var coefficientsSalary = 0;
                             coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0
                             let union = data[i].nv.Status == "Đóng bảo hiểm" ? 0 : (productivityWages * objInsurance['union'] / 100)
@@ -2567,67 +2584,67 @@ module.exports = {
     // synthetic_information_monthly
     syntheticInformationMonthly: async (req, res) => {
         let body = req.body;
-        await createTimeAttendanceSummary()
-        // database.connectDatabase().then(async db => {
-        //     if (db) {
-        //         try {
-        //             let arrayStaff = []
-        //             let array = []
-        //             let where = []
-        //             if (body.departmentID) {
-        //                 await mtblDMNhanvien(db).findAll({
-        //                     where: { IDBoPhan: body.departmentID }
-        //                 }).then(staff => {
-        //                     staff.forEach(element => {
-        //                         arrayStaff.push(element.ID)
-        //                     })
-        //                 })
-        //                 where.push({
-        //                     StaffID: {
-        //                         [Op.in]: arrayStaff
-        //                     }
-        //                 })
-        //             }
-        //             where.push({
-        //                 Month: {
-        //                     [Op.like]: '%' + body.date + '%'
-        //                 }
-        //             })
-        //             await mtblTimeAttendanceSummary(db).findAll({
-        //                 where: where,
-        //                 order: [
-        //                     ['ID', 'DESC']
-        //                 ],
-        //             }).then(data => {
-        //                 for (let i = 0; i < data.length; i++) {
-        //                     array.push({
-        //                         staffID: data[i].StaffID,
-        //                         staffName: data[i].StaffName,
-        //                         staffCode: data[i].StaffCode,
-        //                         departmentName: data[i].DepartmentName,
-        //                         overtime: data[i].Overtime,
-        //                         numberHoliday: data[i].NumberHoliday,
-        //                         freeBreak: data[i].FreeBreak,
-        //                         lateDay: data[i].LateDay,
-        //                         remaining: data[i].Remaining,
-        //                         remainingPreviousYear: data[i].RemainingPreviousYear,
-        //                         month: data[i].Month
-        //                     })
-        //                 }
-        //             })
-        //             var result = {
-        //                 array: array,
-        //                 status: Constant.STATUS.SUCCESS,
-        //                 message: Constant.MESSAGE.ACTION_SUCCESS,
-        //             }
-        //             res.json(result);
-        //         } catch (error) {
-        //             console.log(error);
-        //             res.json(Result.SYS_ERROR_RESULT)
-        //         }
-        //     } else {
-        //         res.json(Constant.MESSAGE.USER_FAIL)
-        //     }
-        // })
+        // await createTimeAttendanceSummary()
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let arrayStaff = []
+                    let array = []
+                    let where = []
+                    if (body.departmentID) {
+                        await mtblDMNhanvien(db).findAll({
+                            where: { IDBoPhan: body.departmentID }
+                        }).then(staff => {
+                            staff.forEach(element => {
+                                arrayStaff.push(element.ID)
+                            })
+                        })
+                        where.push({
+                            StaffID: {
+                                [Op.in]: arrayStaff
+                            }
+                        })
+                    }
+                    where.push({
+                        Month: {
+                            [Op.like]: '%' + body.date + '%'
+                        }
+                    })
+                    await mtblTimeAttendanceSummary(db).findAll({
+                        where: where,
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(data => {
+                        for (let i = 0; i < data.length; i++) {
+                            array.push({
+                                staffID: data[i].StaffID,
+                                staffName: data[i].StaffName,
+                                staffCode: data[i].StaffCode,
+                                departmentName: data[i].DepartmentName,
+                                overtime: data[i].Overtime,
+                                numberHoliday: data[i].NumberHoliday,
+                                freeBreak: data[i].FreeBreak,
+                                lateDay: data[i].LateDay,
+                                remaining: data[i].Remaining,
+                                remainingPreviousYear: data[i].RemainingPreviousYear,
+                                month: data[i].Month
+                            })
+                        }
+                    })
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
     },
 }

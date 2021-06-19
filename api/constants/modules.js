@@ -39,7 +39,8 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 var dayInWeek = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 module.exports = {
-    updateForFileAttach: async function(db, key, array, idFile) {
+    checkDuplicate,
+    updateForFileAttach: async function (db, key, array, idFile) {
         let arrayFileAttach = []
         let obj = {}
         obj[key] = idFile
@@ -68,7 +69,7 @@ module.exports = {
                 }
             })
     },
-    automaticCode: async(database, fieldCode, codeBefore, type = '') => {
+    automaticCode: async (database, fieldCode, codeBefore, type = '') => {
         let year = moment().format('YYYY');
         let month = moment().format('MM');
         let where = []
@@ -113,20 +114,20 @@ module.exports = {
         }
         return automaticCode
     },
-    toDatetimeHour: function(time) {
+    toDatetimeHour: function (time) {
         if (time) {
             var hour = moment(time).hours();
             return hour + ":00, " + moment(time).format('DD/MM/YYYY');
         } else return null
     },
 
-    toHour: function(time) {
+    toHour: function (time) {
         if (time) {
             return moment(time).hours() + ":00";
         } else return null
     },
 
-    toDatetimeDay: function(time) {
+    toDatetimeDay: function (time) {
         console.log(time);
         if (time) {
             var day = dayInWeek[moment(time).days()];
@@ -134,31 +135,31 @@ module.exports = {
         } else return null
     },
 
-    toDay: function(time) {
+    toDay: function (time) {
         if (time) {
             return dayInWeek[moment(time).days()];
         } else return null
     },
 
-    toDatetimeMonth: function(time) {
+    toDatetimeMonth: function (time) {
         if (time) {
             return "Tháng " + moment(time).format('MM/YYYY');
         } else return null
     },
 
-    toMonth: function(time) {
+    toMonth: function (time) {
         if (time) {
             return "T" + moment(time).format('MM/YYYY');
         } else return null
     },
 
-    toDatetime: function(time) {
+    toDatetime: function (time) {
         if (time)
             return moment(time).format('DD/MM/YYYY HH:mm');
         else return null
     },
 
-    callStatus: function(type) {
+    callStatus: function (type) {
         var obj = arrCallStatus.find(item => {
             return item.id == type
         });
@@ -167,7 +168,7 @@ module.exports = {
         } else return ''
     },
 
-    mailStatus: function(type) {
+    mailStatus: function (type) {
         var obj = arrMailStatus.find(item => {
             return item.id == type
         });
@@ -176,7 +177,7 @@ module.exports = {
         } else return ''
     },
 
-    taskType: function(type) {
+    taskType: function (type) {
         var obj = arrTastType.find(item => {
             return item.id == type
         });
@@ -221,7 +222,7 @@ module.exports = {
         return resultArray.toString(cryptoJS.enc.Utf8);
     },
 
-    handleWhereClause: async function(listObj) {
+    handleWhereClause: async function (listObj) {
         let obj = {};
         for (let field of listObj) {
             obj[field.key] = field.value
@@ -236,11 +237,11 @@ module.exports = {
         }
         return obj;
     },
-    convertDataAndRenderWordFile: async function(objKey, readName, writeName) {
+    convertDataAndRenderWordFile: async function (objKey, readName, writeName) {
         var pathTo = 'C:/images_services/ageless_sendmail/'
         try {
             console.log(pathTo + readName);
-            fs.readFile(pathTo + readName, 'binary', function(err, data) {
+            fs.readFile(pathTo + readName, 'binary', function (err, data) {
                 if (err) {
                     console.log(err, 1);
                     return false

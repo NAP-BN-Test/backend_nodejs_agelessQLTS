@@ -12,7 +12,14 @@ var mtblDateOfLeave = require('../tables/hrmanage/tblDateOfLeave')
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblDMPermission = require('../tables/constants/tblDMPermission');
-
+var mtblConfigWorkday = require('../tables/hrmanage/tblConfigWorkday')
+async function convertNumber(number) {
+    if (number < 10) {
+        return '0' + number
+    }
+    else
+        return number
+}
 async function deleteRelationshiptblNghiPhep(db, listID) {
     await mtblDateOfLeave(db).destroy({
         where: {
@@ -80,36 +87,81 @@ async function handleCalculateUsedLeave(db, idStaff) {
     })
     return result;
 }
+async function take7thDataToWork(year, month) {
+    //  lấy danh sách thứ 7 đi làm ------------------------------------
+    let array = []
+
+    await database.connectDatabase().then(async db => {
+        if (db) {
+            await mtblConfigWorkday(db).findAll({
+                where: {
+                    Date: {
+                        [Op.substring]: year + '-' + month
+                    }
+                },
+                order: [
+                    ['Date', 'DESC']
+                ],
+            }).then(async data => {
+                if (data.length > 0)
+                    for (var saturday = 0; saturday < data.length; saturday++) {
+                        array.push(Number(data[saturday].Date.slice(8, 10)))
+                    }
+            })
+            return array
+            // ----------------------------------------------------------------------
+        }
+        else {
+            array = []
+        }
+    })
+    return array
+
+}
 async function handleCalculateDayOff(dateStart, dateEnd) {
     let result = 0;
     let subtractHalfDay = 0;
+    let arrayMonth = []
+    let monthStart = moment(dateStart).add(14, 'hours').format('MM')
+    let monthEnd = moment(dateEnd).add(14, 'hours').format('MM')
+    for (let m = monthStart; m <= monthEnd; m++) {
+        arrayMonth.push(m)
+    }
     let days = await enumerateDaysBetweenDates(dateStart, dateEnd)
     let array7th = [];
     for (var i = 0; i < days.length; i++) {
-        var datetConvert = mModules.toDatetimeDay(moment(days[i]).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-            array7th.push(days[i])
-        }
-        if (datetConvert.slice(0, 5) == 'Thứ 7') {
+        var monthOfDay = moment(days[i]).add(14, 'hours').format('MM')
+        var yearOfDay = moment(days[i]).add(14, 'hours').format('YYYY')
+        var day = moment(days[i]).add(14, 'hours').format('DD')
+        let arrayWork = await take7thDataToWork(yearOfDay, monthOfDay)
+        if (!mModules.checkDuplicate(arrayWork, Number(day))) {
             array7th.push(days[i])
         }
     }
     let checkDateStart = Number(dateStart.slice(11, 13))
     let checkDateEnd = Number(dateEnd.slice(11, 13))
-    if (checkDateStart < 12) {
-        if (checkDateEnd <= 12)
-            subtractHalfDay = 0.5
-    } else {
-        subtractHalfDay = 0.5
+    var monthOfDayStart = moment(dateStart).add(14, 'hours').format('MM')
+    var yearOfDayStart = moment(dateStart).add(14, 'hours').format('YYYY')
+    var dayStart = moment(dateStart).add(14, 'hours').format('DD')
+    var monthOfDayEnd = moment(dateEnd).add(14, 'hours').format('MM')
+    var yearOfDayEnd = moment(dateEnd).add(14, 'hours').format('YYYY')
+    var dayEnd = moment(dateEnd).add(14, 'hours').format('DD')
+    let arrayWorkStart = await take7thDataToWork(yearOfDayStart, monthOfDayStart)
+    let arrayWorkEnd = await take7thDataToWork(yearOfDayEnd, monthOfDayEnd)
+    if (mModules.checkDuplicate(arrayWorkStart, Number(dayStart))) {
+        if (checkDateStart >= 13) {
+            subtractHalfDay += 0.5
+        } else {
+            subtractHalfDay += 1
+        }
     }
-    let plus = 0
-    // console.log(Number(dateStart.slice(8, 10)), Number(dateEnd.slice(8, 10)));
-    // if (checkDateStart < 12 && checkDateEnd >= 16) {
-    //     if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)) && Number(dateStart.slice(5, 7)) != Number(dateEnd.slice(5, 7)))
-    //         plus += 2
-    //     else
-    //         plus += 1
-    // }
+    if (mModules.checkDuplicate(arrayWorkEnd, Number(dayEnd))) {
+        if (checkDateEnd <= 13) {
+            subtractHalfDay += 0.5
+        } else {
+            subtractHalfDay += 1
+        }
+    }
     if (days.length < 1) {
         if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
             if (checkDateEnd < 17)
@@ -123,8 +175,8 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
                 result = 1
         }
     } else
-        result = days.length + 2 - array7th.length - subtractHalfDay
-    return result + plus
+        result = days.length - array7th.length + subtractHalfDay
+    return result
 }
 async function handleCalculatePreviousYear(db, idStaff, currentYear) {
     var result = 0;

@@ -187,23 +187,12 @@ module.exports = {
                                         arrayDate.push(element.Date)
                                     });
                                 })
-                                var date = new Date(year, month, 0);
-                                var dateFinal = Number(date.toISOString().slice(8, 10))
-                                dateFinal += 1
-                                let arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                let numberSunday = 0
-                                for (var j = 1; j <= dateFinal; j++) {
-                                    var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                    if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                        numberSunday += 1
-                                    }
-                                }
                                 array.push({
                                     stt: stt,
                                     year: year,
                                     month: month,
                                     arrayDate: arrayDate,
-                                    count: dateFinal - (numberSunday - arrayDate.length) - arrayHoliday.length - numberSunday,
+                                    count: arrayDate.length,
                                 })
                                 stt += 1;
                             }
