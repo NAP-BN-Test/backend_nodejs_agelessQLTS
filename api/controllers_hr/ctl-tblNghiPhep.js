@@ -199,7 +199,7 @@ async function handleCalculatePreviousYear(db, idStaff, currentYear) {
 }
 var mModules = require('../constants/modules');
 let ctlTimeAttendanceSummary = require('./ctl-tblBangLuong')
-
+var schedule = require('node-schedule');
 module.exports = {
     deleteRelationshiptblNghiPhep,
     // add_tbl_nghiphep
@@ -415,7 +415,7 @@ module.exports = {
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
                                 DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
                                 WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
-                                WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : (arrayRespone[i].workContent ? arrayRespone[i].workContent : ''),
+                                WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
                                 TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : arrayRespone[i].timeStart),
                                 TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeEndReal ? arrayRespone[i].timeEndReal : arrayRespone[i].timeEnd),
                                 LeaveID: body.id,
@@ -918,11 +918,28 @@ module.exports = {
     // approval_head_department
     approvalHeadDepartment: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let leave = await mtblNghiPhep(db).findOne({
                         where: { ID: body.id }
+                    })
+                    let tblDateOfLeave = mtblDateOfLeave(db);
+                    await tblDateOfLeave.findAll({
+                        where: { LeaveID: leave.ID },
+                    }).then(date => {
+                        for (let d = 0; d < date.length; d++) {
+                            var time = moment(date[d].DateEnd).add(17, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                            let dbCon = db
+                            let idN = body.id
+                            var job = schedule.scheduleJob(time, async function () {
+                                await mtblNghiPhep(dbCon).update({
+                                    Status: 'Từ chối',
+                                }, { where: { ID: idN } })
+                            });
+                            console.log(job);
+                        }
                     })
                     if (leave.Type == 'TakeLeave')
                         await mtblNghiPhep(db).update({
