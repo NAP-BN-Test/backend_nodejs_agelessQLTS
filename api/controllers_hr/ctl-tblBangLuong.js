@@ -336,7 +336,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
     })
     var array7thDB = await take7thDataToWork(db, year, Number(month));
     array7thDB = array7thDB.length
-    let numberHoliday = await calculateNumberLeave(db, staffID, date)
+    let numberHoliday = await calculateNumberLeave(db, staffID, date, 'productivityWage')
     let sunSta = 0
     for (let i = 0; i < dateFinal; i++) {
         var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
@@ -356,7 +356,6 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
         });
     })
     let workingDay = arrayDate.length
-    console.log((dateFinal - sunSta), workingDay, numberHoliday, leaveFree);
     result = productivityWages / Number(workingDay) * (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB))
     if (workingDay == 0)
         result = null
@@ -718,17 +717,31 @@ async function calculateOvertime(db, staffID, date) {
                     minuteDateEndReal = Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('mm'))
                     minuteDateEnd = Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateEnd).subtract(7, 'hours').format('mm'))
                 }
-                if ((minuteDateEnd - minuteDateStart) > (minuteDateEndReal - minuteDateStartReal))
+                if ((minuteDateEnd - minuteDateStart) < (minuteDateEndReal - minuteDateStartReal))
                     if (minuteDateEnd >= thirteenH && minuteDateStart <= twelveH) {
                         result += (minuteDateEnd - minuteDateStart) / 60 - 1.5
                     } else {
-                        result += (minuteDateEnd - minuteDateStart) / 60
+                        if (minuteDateStart >= twelveH && minuteDateStart <= thirteenH)
+                            minuteDateStart = thirteenH
+                        if (minuteDateEnd <= thirteenH && minuteDateEnd >= twelveH)
+                            minuteDateEnd = twelveH
+                        if ((minuteDateEnd - minuteDateStart) <= 0)
+                            result += 0
+                        else
+                            result += (minuteDateEnd - minuteDateStart) / 60
                     }
                 else
                     if (minuteDateEndReal >= thirteenH && minuteDateStartReal <= twelveH) {
                         result += (minuteDateEndReal - minuteDateStartReal) / 60 - 1.5
                     } else {
-                        result += (minuteDateEndReal - minuteDateStartReal) / 60
+                        if (minuteDateStartReal >= twelveH && minuteDateStartReal <= thirteenH)
+                            minuteDateStartReal = thirteenH
+                        if (minuteDateEndReal <= thirteenH && minuteDateEndReal >= twelveH)
+                            minuteDateEndReal = twelveH
+                        if ((minuteDateEndReal - minuteDateStartReal) <= 0)
+                            result += 0
+                        else
+                            result += (minuteDateEndReal - minuteDateStartReal) / 60
                     }
             }
         }
@@ -737,7 +750,7 @@ async function calculateOvertime(db, staffID, date) {
     return Number(result.toFixed(2))
 }
 // tính thời gian nghỉ phép
-async function calculateNumberLeave(db, staffID, date) {
+async function calculateNumberLeave(db, staffID, date, type = 'time') {
     // Tính ngày thời gian thêm giờ
     let result = 0
     var month = Number(date.slice(5, 7));
@@ -750,13 +763,22 @@ async function calculateNumberLeave(db, staffID, date) {
         }
     }).then(async leave => {
         for (let i = 0; i < leave.length; i++) {
-            let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+            let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart], [IDLoaiChamCong] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
                 WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + month + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
             let date = await db.query(query)
             date = date[0]
             for (let j = 0; j < date.length; j++) {
-                if (leave[i].Deducted != 0)
-                    result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
+                if (type == 'time') {
+                    if (leave[i].Deducted != 0)
+                        result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
+                } else {
+                    let type = await mtblLoaiChamCong(db).findOne({
+                        where: { ID: date[j].IDLoaiChamCong }
+                    })
+                    if (type && type.SalaryIsAllowed == false) {
+                        result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
+                    }
+                }
             }
         }
     })
