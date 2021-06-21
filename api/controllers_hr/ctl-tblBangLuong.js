@@ -733,6 +733,7 @@ async function calculateOvertime(db, staffID, date) {
             }
         }
     })
+    console.log(result);
     return Number(result.toFixed(2))
 }
 // tính thời gian nghỉ phép

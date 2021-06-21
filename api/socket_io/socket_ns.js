@@ -7,6 +7,7 @@ var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblMucDongBaoHiem = require('../tables/hrmanage/tblMucDongBaoHiem')
+const Op = require('sequelize').Op;
 
 async function getAllLeaveOfUser(userID, type) {
     let array = []
