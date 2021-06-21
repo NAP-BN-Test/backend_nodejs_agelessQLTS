@@ -453,6 +453,7 @@ module.exports = function (app) {
     app.route('/qlnb/reimbursement').post(checkToken.checkToken, tblVayTamUng.reimbursement);
     app.route('/qlnb/get_list_loan_advance_from_staff').post(tblVayTamUng.getListLoanAdvanceFromStaff);
     app.route('/qlnb/get_list_reimbursement_from_staff').post(checkToken.checkToken, tblVayTamUng.getListReimbursementFromStaff);
+    app.route('/qlnb/change_notification_status_Loan').post(checkToken.checkToken, tblVayTamUng.changeNotificationStatusLoan);
     app.route('/qlnb/get_list_reimbursement').post(tblVayTamUng.getListReimbursement);
     app.route('/qlnb/get_list_name_tbl_vaytamung').post(tblVayTamUng.getListNametblVayTamUng);
     app.route('/qlnb/approval_employee_accountant_kvtu').post(checkToken.checkToken, tblVayTamUng.approvalNhanVienKTPD);

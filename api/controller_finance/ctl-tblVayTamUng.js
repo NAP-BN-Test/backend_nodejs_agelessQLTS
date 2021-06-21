@@ -17,148 +17,148 @@ async function deleteRelationshiptblVayTamUng(db, listID) {
     })
 }
 dataStaff = [{
-        id: '1',
-        staffCode: 'NV001',
-        fullName: 'NGUYỄN THỊ THU',
-        gender: 'Nữ',
-        birthday: '20/03/1992',
-        cmndNumber: '125457789',
-        address: 'Số 13 Hoàng Mai Hà Nội',
-        mobile: '065817845',
-        email: 'thu123@gmail.com',
-        departmentName: 'Ban MKT',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '2',
-        staffCode: 'NV002',
-        fullName: 'Nguyễn Anh Tuấn',
-        gender: 'Nam',
-        birthday: '15/04/1994',
-        cmndNumber: '123789210',
-        address: 'Số 21A Kim Ngưu Hoàng Mai Hai Bà Trưng Hà Nội',
-        mobile: '067812345',
-        email: 'tuanna@gmail.com',
-        departmentName: 'Ban sáng chế',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '3',
-        staffCode: 'NV003',
-        fullName: 'NGUYỄN THỊ THU HUYỀN',
-        gender: 'Nữ',
-        birthday: '25/09/2021',
-        cmndNumber: '126412031',
-        address: 'Số 204 Nguyễn Văn Cừ Long Biên Hà Nội',
-        mobile: '036784521',
-        email: 'thuhuyen@gmail.com',
-        departmentName: 'Ban NH1',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '4',
-        staffCode: 'NV004',
-        fullName: 'Phạm Đức Anh',
-        gender: 'Nam',
-        birthday: '10/05/1985',
-        cmndNumber: '121012351',
-        address: 'Số 2 Đào Tấn Hà Nội',
-        mobile: '0365412784',
-        email: 'anhduc12@gmail.com',
-        departmentName: 'Ban sáng chế',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '5',
-        staffCode: 'NV005',
-        fullName: 'Trần Quỳnh Trang',
-        gender: 'Nữ',
-        birthday: '18/03/1991',
-        cmndNumber: '125317451',
-        address: 'Số 23 Tam Trinh Hoàng Mai Hà Nội',
-        mobile: '0368451274',
-        email: 'trang123@gmail.com',
-        departmentName: 'Ban NH1',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '6',
-        staffCode: 'NV006',
-        fullName: 'Nguyễn Thị Thu Trang',
-        gender: 'Nữ',
-        birthday: '20/09/1988',
-        cmndNumber: '12612468',
-        address: 'Số 1B Ngõ 286 Lĩnh Nam Hoàng Mai Hà Nội',
-        mobile: '098714521',
-        email: 'thutrang@gmail.com',
-        departmentName: 'Ban Kế toán',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '7',
-        staffCode: 'NV007',
-        fullName: 'Vũ Văn Chiến',
-        gender: 'Nam',
-        birthday: '16/06/1990',
-        cmndNumber: '125781423',
-        address: 'Số 25 Ngọc Lâm Long Biên Hà Nội',
-        mobile: '083654127',
-        email: 'vvchien@gmail.com',
-        departmentName: 'Ban Sáng chế',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '8',
-        staffCode: 'NV008',
-        fullName: 'lê Thị Ngọc Diệp',
-        gender: 'Nữ',
-        birthday: '25/10/1996',
-        cmndNumber: '125021342',
-        address: 'Số 3B Hàng Mã Hà Nội',
-        mobile: '012784125',
-        email: 'diephn@gmail.com',
-        departmentName: 'Ban Sáng chế',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '9',
-        staffCode: 'NV009',
-        fullName: 'Vũ Quang Minh',
-        gender: 'Nam',
-        birthday: '06/06/1980',
-        cmndNumber: '126120412',
-        address: 'Số 86 Thái Hà Hà Nội',
-        mobile: '086234517',
-        email: 'vuminh@gmail.com',
-        departmentName: 'Ban NH2',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '10',
-        staffCode: 'NV010',
-        fullName: 'Nguyễn Thị Thu Hà',
-        gender: 'Nữ',
-        birthday: '14/02/1985',
-        cmndNumber: '121453245',
-        address: 'Số 26 Hàng Chiếu Hà Nội',
-        mobile: '089631242',
-        email: 'thuha12@gmail.com',
-        departmentName: 'Ban Kế toán',
-        branchName: 'Việt Nam',
-    },
-    {
-        id: '1',
-        staffCode: 'NV001',
-        fullName: 'NGUYỄN THỊ THU',
-        gender: 'Nữ',
-        birthday: '20/03/1992',
-        cmndNumber: '125457789',
-        address: 'Số 13 Hoàng Mai Hà Nội',
-        mobile: '',
-        email: '',
-        departmentName: '',
-        branchName: '',
-    }
+    id: '1',
+    staffCode: 'NV001',
+    fullName: 'NGUYỄN THỊ THU',
+    gender: 'Nữ',
+    birthday: '20/03/1992',
+    cmndNumber: '125457789',
+    address: 'Số 13 Hoàng Mai Hà Nội',
+    mobile: '065817845',
+    email: 'thu123@gmail.com',
+    departmentName: 'Ban MKT',
+    branchName: 'Việt Nam',
+},
+{
+    id: '2',
+    staffCode: 'NV002',
+    fullName: 'Nguyễn Anh Tuấn',
+    gender: 'Nam',
+    birthday: '15/04/1994',
+    cmndNumber: '123789210',
+    address: 'Số 21A Kim Ngưu Hoàng Mai Hai Bà Trưng Hà Nội',
+    mobile: '067812345',
+    email: 'tuanna@gmail.com',
+    departmentName: 'Ban sáng chế',
+    branchName: 'Việt Nam',
+},
+{
+    id: '3',
+    staffCode: 'NV003',
+    fullName: 'NGUYỄN THỊ THU HUYỀN',
+    gender: 'Nữ',
+    birthday: '25/09/2021',
+    cmndNumber: '126412031',
+    address: 'Số 204 Nguyễn Văn Cừ Long Biên Hà Nội',
+    mobile: '036784521',
+    email: 'thuhuyen@gmail.com',
+    departmentName: 'Ban NH1',
+    branchName: 'Việt Nam',
+},
+{
+    id: '4',
+    staffCode: 'NV004',
+    fullName: 'Phạm Đức Anh',
+    gender: 'Nam',
+    birthday: '10/05/1985',
+    cmndNumber: '121012351',
+    address: 'Số 2 Đào Tấn Hà Nội',
+    mobile: '0365412784',
+    email: 'anhduc12@gmail.com',
+    departmentName: 'Ban sáng chế',
+    branchName: 'Việt Nam',
+},
+{
+    id: '5',
+    staffCode: 'NV005',
+    fullName: 'Trần Quỳnh Trang',
+    gender: 'Nữ',
+    birthday: '18/03/1991',
+    cmndNumber: '125317451',
+    address: 'Số 23 Tam Trinh Hoàng Mai Hà Nội',
+    mobile: '0368451274',
+    email: 'trang123@gmail.com',
+    departmentName: 'Ban NH1',
+    branchName: 'Việt Nam',
+},
+{
+    id: '6',
+    staffCode: 'NV006',
+    fullName: 'Nguyễn Thị Thu Trang',
+    gender: 'Nữ',
+    birthday: '20/09/1988',
+    cmndNumber: '12612468',
+    address: 'Số 1B Ngõ 286 Lĩnh Nam Hoàng Mai Hà Nội',
+    mobile: '098714521',
+    email: 'thutrang@gmail.com',
+    departmentName: 'Ban Kế toán',
+    branchName: 'Việt Nam',
+},
+{
+    id: '7',
+    staffCode: 'NV007',
+    fullName: 'Vũ Văn Chiến',
+    gender: 'Nam',
+    birthday: '16/06/1990',
+    cmndNumber: '125781423',
+    address: 'Số 25 Ngọc Lâm Long Biên Hà Nội',
+    mobile: '083654127',
+    email: 'vvchien@gmail.com',
+    departmentName: 'Ban Sáng chế',
+    branchName: 'Việt Nam',
+},
+{
+    id: '8',
+    staffCode: 'NV008',
+    fullName: 'lê Thị Ngọc Diệp',
+    gender: 'Nữ',
+    birthday: '25/10/1996',
+    cmndNumber: '125021342',
+    address: 'Số 3B Hàng Mã Hà Nội',
+    mobile: '012784125',
+    email: 'diephn@gmail.com',
+    departmentName: 'Ban Sáng chế',
+    branchName: 'Việt Nam',
+},
+{
+    id: '9',
+    staffCode: 'NV009',
+    fullName: 'Vũ Quang Minh',
+    gender: 'Nam',
+    birthday: '06/06/1980',
+    cmndNumber: '126120412',
+    address: 'Số 86 Thái Hà Hà Nội',
+    mobile: '086234517',
+    email: 'vuminh@gmail.com',
+    departmentName: 'Ban NH2',
+    branchName: 'Việt Nam',
+},
+{
+    id: '10',
+    staffCode: 'NV010',
+    fullName: 'Nguyễn Thị Thu Hà',
+    gender: 'Nữ',
+    birthday: '14/02/1985',
+    cmndNumber: '121453245',
+    address: 'Số 26 Hàng Chiếu Hà Nội',
+    mobile: '089631242',
+    email: 'thuha12@gmail.com',
+    departmentName: 'Ban Kế toán',
+    branchName: 'Việt Nam',
+},
+{
+    id: '1',
+    staffCode: 'NV001',
+    fullName: 'NGUYỄN THỊ THU',
+    gender: 'Nữ',
+    birthday: '20/03/1992',
+    cmndNumber: '125457789',
+    address: 'Số 13 Hoàng Mai Hà Nội',
+    mobile: '',
+    email: '',
+    departmentName: '',
+    branchName: '',
+}
 ]
 async function getDetailStaff(db, id) {
     var staffResult;
@@ -173,7 +173,7 @@ async function getDetailStaff(db, id) {
             model: mtblDMBoPhan(db),
             required: false,
             as: 'department'
-        }, ],
+        },],
     }).then(data => {
         staffResult = data
     })
@@ -218,7 +218,7 @@ module.exports = {
                             model: mtblDMTaiKhoanKeToan(db),
                             required: false,
                             as: 'tkkt'
-                        }, ],
+                        },],
                     }).then(async data => {
                         if (data) {
                             let staff = await getDetailStaff(db, data.IDNhanVienCreate)
@@ -481,15 +481,15 @@ module.exports = {
                     //  }
                     whereOjb = {
                         [Op.and]: [{
-                                Status: {
-                                    [Op.ne]: 'Chờ hoàn ứng'
-                                }
-                            },
-                            {
-                                Status: {
-                                    [Op.ne]: 'Đã hoàn ứng'
-                                }
+                            Status: {
+                                [Op.ne]: 'Chờ hoàn ứng'
                             }
+                        },
+                        {
+                            Status: {
+                                [Op.ne]: 'Đã hoàn ứng'
+                            }
+                        }
                         ]
                     }
                     let stt = 1;
@@ -506,7 +506,7 @@ module.exports = {
                             model: mtblDMTaiKhoanKeToan(db),
                             required: false,
                             as: 'tkkt'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -633,7 +633,7 @@ module.exports = {
                             model: mtblDMTaiKhoanKeToan(db),
                             required: false,
                             as: 'tkkt'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -948,13 +948,13 @@ module.exports = {
                     await mtblVayTamUng(db).findAll({
                         where: {
                             [Op.or]: [{
-                                    Status: 'Chờ hoàn ứng',
-                                    IDNhanVienAdvance: body.staffID,
-                                },
-                                {
-                                    Status: 'Đã hoàn ứng',
-                                    IDNhanVienAdvance: body.staffID,
-                                },
+                                Status: 'Chờ hoàn ứng',
+                                IDNhanVienAdvance: body.staffID,
+                            },
+                            {
+                                Status: 'Đã hoàn ứng',
+                                IDNhanVienAdvance: body.staffID,
+                            },
                             ]
                         }
                     }).then(data => {
@@ -973,6 +973,32 @@ module.exports = {
                     var result = {
                         arrayCreate: array,
                         arrayUpdate: arrayUpdate,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    //  change_notification_status_Loan
+    changeNotificationStatusLoan: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblVayTamUng(db).update({
+                        IsNotification: true,
+                    }, {
+                        where: { ID: body.id }
+                    })
+                    var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
