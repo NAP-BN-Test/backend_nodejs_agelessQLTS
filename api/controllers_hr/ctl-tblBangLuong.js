@@ -713,18 +713,26 @@ async function calculateOvertime(db, staffID, date) {
                 let minuteDateEnd = 0;
 
                 if (date[i].TimeEndReal && date[i].TimeStartReal) {
-                    minuteDateStart = Number(moment(date[i].TimeStartReal).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].TimeStartReal).subtract(7, 'hours').format('mm'))
-                    minuteDateEnd = Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('mm'))
+                    minuteDateStartReal = Number(moment(date[i].TimeStartReal).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].TimeStartReal).subtract(7, 'hours').format('mm'))
+                    minuteDateStart = Number(moment(date[i].DateStart).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateStart).subtract(7, 'hours').format('mm'))
+                    minuteDateEndReal = Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].TimeEndReal).subtract(7, 'hours').format('mm'))
+                    minuteDateEnd = Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH')) * 60 + Number(moment(date[i].DateEnd).subtract(7, 'hours').format('mm'))
                 }
-                if (minuteDateEnd >= thirteenH && minuteDateStart <= twelveH) {
-                    result += (minuteDateEnd - minuteDateStart) / 60 - 1.5
-                } else {
-                    result += (minuteDateEnd - minuteDateStart) / 60
-                }
+                if ((minuteDateEnd - minuteDateStart) > (minuteDateEndReal - minuteDateStartReal))
+                    if (minuteDateEnd >= thirteenH && minuteDateStart <= twelveH) {
+                        result += (minuteDateEnd - minuteDateStart) / 60 - 1.5
+                    } else {
+                        result += (minuteDateEnd - minuteDateStart) / 60
+                    }
+                else
+                    if (minuteDateEndReal >= thirteenH && minuteDateStartReal <= twelveH) {
+                        result += (minuteDateEndReal - minuteDateStartReal) / 60 - 1.5
+                    } else {
+                        result += (minuteDateEndReal - minuteDateStartReal) / 60
+                    }
             }
         }
     })
-    console.log(result);
     return Number(result.toFixed(2))
 }
 // tính thời gian nghỉ phép

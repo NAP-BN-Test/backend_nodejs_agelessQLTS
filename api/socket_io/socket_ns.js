@@ -2,10 +2,6 @@ var moment = require('moment');
 var fs = require('fs');
 var database = require('../database');
 const Sequelize = require('sequelize');
-const Op = require('sequelize').Op;
-var mtblDMNhanvien = require("../tables/constants/tblDMNhanvien");
-var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
-const bodyParser = require('body-parser');
 var mtblDMUser = require('../tables/constants/tblDMUser');
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
@@ -517,7 +513,7 @@ async function getStaffContractExpirationDataFollowSocket(socket, id) {
     })
 }
 async function getDetailLeaveOrOvertime(id) {
-    var obj = [];
+    var obj = {};
     await database.connectDatabase().then(async db => {
         if (db) {
             let tblNghiPhep = mtblNghiPhep(db);
