@@ -1038,6 +1038,28 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'CHI NHÁNH') {
+                                    let list = []
+                                    await mtblDMBoPhan(db).findAll({
+                                        where: { IDChiNhanh: data.items[i]['searchFields'] }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID)
+                                        })
+                                    })
+                                    userFind['IDBoPhan'] = {
+                                        [Op.in]: list
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                             }
                         }
                     }
