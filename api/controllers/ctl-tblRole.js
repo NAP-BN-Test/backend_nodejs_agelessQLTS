@@ -192,74 +192,66 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
-                    // if (body.dataSearch) {
-                    //     var data = JSON.parse(body.dataSearch)
+                    var whereObj = {};
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
 
-                    //     if (data.search) {
-                    //         where = [{
-                    //                 FullName: {
-                    //                     [Op.like]: '%' + data.search + '%'
-                    //                 }
-                    //             },
-                    //             {
-                    //                 Address: {
-                    //                     [Op.like]: '%' + data.search + '%'
-                    //                 }
-                    //             },
-                    //             {
-                    //                 CMND: {
-                    //                     [Op.like]: '%' + data.search + '%'
-                    //                 }
-                    //             },
-                    //             {
-                    //                 EmployeeCode: {
-                    //                     [Op.like]: '%' + data.search + '%'
-                    //                 }
-                    //             },
-                    //         ];
-                    //     } else {
-                    //         where = [{
-                    //             FullName: {
-                    //                 [Op.ne]: '%%'
-                    //             }
-                    //         }, ];
-                    //     }
-                    //     whereOjb = {
-                    //         [Op.and]: [{
-                    //             [Op.or]: where
-                    //         }],
-                    //         [Op.or]: [{
-                    //             ID: {
-                    //                 [Op.ne]: null
-                    //             }
-                    //         }],
-                    //     };
-                    //     if (data.items) {
-                    //         for (var i = 0; i < data.items.length; i++) {
-                    //             let userFind = {};
-                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                    //                 userFind['FullName'] = {
-                    //                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'And') {
-                    //                     whereOjb[Op.and].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
-                    //                     whereOjb[Op.or].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
-                    //                     whereOjb[Op.not] = userFind
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                        if (data.search) {
+                            where = {
+                                [Op.or]: [
+                                    {
+                                        Code: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        Name: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                ]
+                            };
+                        } else {
+                            where = {
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            };
+                        }
+                        whereObj[Op.and] = where
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'TÊN VAI TRÒ') {
+                                    userFind['Name'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                            }
+                        }
+                        if (arraySearchOr.length > 0)
+                            whereObj[Op.or] = arraySearchOr
+                        if (arraySearchAnd.length > 0)
+                            whereObj[Op.and] = arraySearchAnd
+                        if (arraySearchNot.length > 0)
+                            whereObj[Op.not] = arraySearchNot
+                    }
+                    console.log(whereObj);
                     let stt = 1;
                     mtblRole(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: whereObj,
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -280,7 +272,7 @@ module.exports = {
                                     model: mtblDMPermission(db),
                                     required: false,
                                     as: 'permission'
-                                }, ],
+                                },],
                             }).then(per => {
                                 let pers = []
                                 for (let p = 0; p < per.length; p++) {
@@ -294,7 +286,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        var count = await mtblRole(db).count({ where: whereOjb, })
+                        var count = await mtblRole(db).count({ where: whereObj, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

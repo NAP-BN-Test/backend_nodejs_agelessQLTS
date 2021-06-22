@@ -8,6 +8,7 @@ var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblMucDongBaoHiem = require('../tables/hrmanage/tblMucDongBaoHiem')
 const Op = require('sequelize').Op;
+var schedule = require('node-schedule');
 
 async function getAllLeaveOfUser(userID, type) {
     let array = []
@@ -223,21 +224,21 @@ async function getStaffContractExpirationData() {
                 where: {
                     [Op.or]: [{
                         Status: 'Có hiệu lực',
-                        Time: {
-                            [Op.eq]: null
-                        },
+                        // Time: {
+                        //     [Op.eq]: null
+                        // },
                         NoticeTime: {
-                            [Op.substring]: now
+                            [Op.gte]: now
                         }
                     },
                     {
                         Status: 'Có hiệu lực',
                         NoticeTime: {
-                            [Op.substring]: now
+                            [Op.gte]: now
                         },
-                        Time: {
-                            [Op.lte]: nowTime
-                        },
+                        // Time: {
+                        //     [Op.lte]: nowTime
+                        // },
                     }
                     ]
                 },
@@ -257,7 +258,7 @@ async function getStaffContractExpirationData() {
                             staffName: contract[i].staff.StaffName,
                             staffCode: contract[i].staff.StaffCode,
                             contractDateEnd: contract[i].ContractDateEnd ? contract[i].ContractDateEnd : null,
-                            noticeTime: contract[i].NoticeTime ? contract[i].NoticeTime : null,
+                            noticeTime: contract[i].Time ? moment(contract[i].Time).subtract(7, 'hours') : null,
                         })
                     }
                 }
@@ -432,7 +433,7 @@ async function getListContactExpiration(db) {
                     staffName: contract[i].staff.StaffName,
                     staffCode: contract[i].staff.StaffCode,
                     contractDateEnd: contract[i].ContractDateEnd ? contract[i].ContractDateEnd : null,
-                    noticeTime: contract[i].NoticeTime ? contract[i].NoticeTime : null,
+                    noticeTime: contract[i].Time ? contract[i].Time : null,
                 })
             }
         }
@@ -441,33 +442,13 @@ async function getListContactExpiration(db) {
 }
 async function getListContactDetail(db, id) {
     let obj = {}
-    let now = moment().format('YYYY-MM-DD');
-    let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+    // let now = moment().format('YYYY-MM-DD');
+    // let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
     await tblHopDongNhanSu.findOne({
         where: {
-            [Op.or]: [{
-                Status: 'Có hiệu lực',
-                Time: {
-                    [Op.eq]: null
-                },
-                NoticeTime: {
-                    [Op.substring]: now
-                },
-                ID: id
-            },
-            {
-                Status: 'Có hiệu lực',
-                NoticeTime: {
-                    [Op.substring]: now
-                },
-                Time: {
-                    [Op.lte]: nowTime
-                },
-                ID: id
-            }
-            ]
+            ID: id
         },
         order: [
             ['ID', 'DESC']
@@ -484,7 +465,7 @@ async function getListContactDetail(db, id) {
                 staffName: contract.staff.StaffName,
                 staffCode: contract.staff.StaffCode,
                 contractDateEnd: contract.ContractDateEnd ? contract.ContractDateEnd : null,
-                noticeTime: contract.NoticeTime ? contract.NoticeTime : null,
+                noticeTime: contract.Time ? contract.Time : null,
             }
         }
     })
@@ -512,6 +493,7 @@ async function getStaffContractExpirationDataFollowSocket(socket, id, io) {
                 }
                 if (isNotiContract == true) {
                     array = await getListContactExpiration(db)
+                    console.log(array);
                     socket.emit("contract-expiration", array);
                     obj = await getListContactDetail(db, id)
                     // let check = Object.keys(obj)
@@ -526,7 +508,6 @@ async function getStaffContractExpirationDataFollowSocket(socket, id, io) {
                         let socketGet = io.sockets.connected[roomLeave[s]]
                         console.log(socketGet.userID);
                         io.sockets.in(socketGet.id).emit('contract-expiration-detail', obj)
-
                     }
                 }
             }
@@ -660,8 +641,49 @@ module.exports = {
             socket.on("insurance-premiums", async function () {
                 await getInsurancePremiums(socket, io)
             });
+            socket.on("setup-time-repeat", async function (data) {
+                console.log(data);
+                database.connectDatabase().then(async db => {
+                    if (db) {
+                        try {
+                            await mtblHopDongNhanSu(db).update({
+                                Time: moment(data.time).format('YYYY-MM-DD  HH:mm:ss.SSS'),
+                            }, {
+                                where: {
+                                    ID: data.id
+                                }
+                            })
+                            let obj = await getListContactDetail(db, data.id)
+                            if (obj != {}) {
+                                let time = moment(obj.noticeTime).subtract(7, 'hours').format('YYYY-MM-DD  HH:mm:ss.SSS')
+                                let job = schedule.scheduleJob(time, async function () {
+                                    let roomLeave = io.sockets.adapter.rooms['isNotiContract'].sockets
+                                    //  Laays danh sách socket trong room
+                                    roomLeave = Object.keys(roomLeave)
+                                    console.log(roomLeave, obj);
+                                    for (let s = 0; s < roomLeave.length; s++) {
+                                        let socketGet = io.sockets.connected[roomLeave[s]]
+                                        io.sockets.in(socketGet.id).emit('contract-expiration-detail', obj)
+                                    }
+                                });
+                                console.log(job);
+                            }
+                            // console.log(socket.userID, '----------------- system-wide-notification-ns -------------------');
+                            if (socket.userID) {
+                                let obj = await getLeaveAndOvertimeOfUser(socket.userID);
+                                socket.emit("system-wide-notification-ns", obj)
+                            }
+
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    } else {
+                        console.log('Connect false');
+                    }
+                })
+            })
             socket.on("contract-expiration", async function (data) {
-                console.log('--------------------------contract-expiration----------------------', data);
+                console.log('-------------------------- contract-expiration ----------------------', data);
                 await getStaffContractExpirationDataFollowSocket(socket, data, io)
             });
             socket.on("system-wide-notification-ns", async (data) => {

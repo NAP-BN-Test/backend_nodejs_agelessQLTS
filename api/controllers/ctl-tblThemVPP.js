@@ -149,6 +149,7 @@ module.exports = {
     // get_list_tbl_them_vpp
     getListTBLThemVPP: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -161,15 +162,15 @@ module.exports = {
                             await mtblVanPhongPham(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            VPPCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            VPPName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        VPPCode: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        VPPName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -193,15 +194,15 @@ module.exports = {
                             await mtblDMNhaCungCap(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            SupplierCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            SupplierName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        SupplierCode: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        SupplierName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -210,22 +211,22 @@ module.exports = {
                                 })
                             })
                             where = [{
-                                    ID: {
-                                        [Op.in]: list
-                                    }
-                                },
-                                {
-                                    IDNhaCungCap: {
-                                        [Op.in]: listNCC
-                                    }
-                                },
+                                ID: {
+                                    [Op.in]: list
+                                }
+                            },
+                            {
+                                IDNhaCungCap: {
+                                    [Op.in]: listNCC
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 ID: {
                                     [Op.ne]: null
                                 }
-                            }, ];
+                            },];
                         }
                         whereOjb = {
                             [Op.or]: where
@@ -241,7 +242,7 @@ module.exports = {
                                                 Unit: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            }, ]
+                                            },]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -319,7 +320,7 @@ module.exports = {
                                                 VPPCode: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            }, ]
+                                            },]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -359,7 +360,7 @@ module.exports = {
                                                 VPPName: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            }, ]
+                                            },]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -438,20 +439,20 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [{
-                                model: mtblDMNhaCungCap(db),
+                            model: mtblDMNhaCungCap(db),
+                            required: false,
+                            as: 'ncc'
+                        },
+                        {
+                            model: themVPPChiTiet,
+                            required: false,
+                            as: 'line',
+                            include: [{
+                                model: mtblVanPhongPham(db),
                                 required: false,
-                                as: 'ncc'
-                            },
-                            {
-                                model: themVPPChiTiet,
-                                required: false,
-                                as: 'line',
-                                include: [{
-                                    model: mtblVanPhongPham(db),
-                                    required: false,
-                                    as: 'vpp',
-                                }, ],
-                            },
+                                as: 'vpp',
+                            },],
+                        },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -566,20 +567,20 @@ module.exports = {
                     tblThemVPP.findOne({
                         where: { ID: body.id },
                         include: [{
-                                model: mtblDMNhaCungCap(db),
+                            model: mtblDMNhaCungCap(db),
+                            required: false,
+                            as: 'ncc'
+                        },
+                        {
+                            model: themVPPChiTiet,
+                            required: false,
+                            as: 'line',
+                            include: [{
+                                model: mtblVanPhongPham(db),
                                 required: false,
-                                as: 'ncc'
-                            },
-                            {
-                                model: themVPPChiTiet,
-                                required: false,
-                                as: 'line',
-                                include: [{
-                                    model: mtblVanPhongPham(db),
-                                    required: false,
-                                    as: 'vpp',
-                                }, ],
-                            },
+                                as: 'vpp',
+                            },],
+                        },
                         ],
                     }).then(async data => {
                         obj = {

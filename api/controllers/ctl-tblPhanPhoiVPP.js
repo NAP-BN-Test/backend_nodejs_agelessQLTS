@@ -183,15 +183,15 @@ module.exports = {
                             await mtblVanPhongPham(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            VPPCode: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            VPPName: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        VPPCode: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        VPPName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -215,13 +215,13 @@ module.exports = {
                                 ID: {
                                     [Op.in]: list
                                 }
-                            }, ];
+                            },];
                         } else {
                             where = [{
                                 ID: {
                                     [Op.ne]: null
                                 }
-                            }, ];
+                            },];
                         }
                         whereOjb = {
                             [Op.or]: where
@@ -290,7 +290,7 @@ module.exports = {
                                                 Unit: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            }, ]
+                                            },]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -330,7 +330,7 @@ module.exports = {
                                                 VPPCode: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            }, ]
+                                            },]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -370,7 +370,7 @@ module.exports = {
                                                 VPPName: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            }, ]
+                                            },]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -402,7 +402,18 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
                             }
                         }
                     }
@@ -422,30 +433,30 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [{
-                                model: tblPhanPhoiVPPChiTiet,
+                            model: tblPhanPhoiVPPChiTiet,
+                            required: false,
+                            as: 'line',
+                            include: [{
+                                model: mtblVanPhongPham(db),
                                 required: false,
-                                as: 'line',
-                                include: [{
-                                    model: mtblVanPhongPham(db),
-                                    required: false,
-                                    as: 'vpp'
-                                }, ]
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'nvbg'
-                            },
-                            {
-                                model: mtblDMNhanvien(db),
-                                required: false,
-                                as: 'nvsh'
-                            },
-                            {
-                                model: mtblDMBoPhan(db),
-                                required: false,
-                                as: 'bp'
-                            },
+                                as: 'vpp'
+                            },]
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'nvbg'
+                        },
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'nvsh'
+                        },
+                        {
+                            model: mtblDMBoPhan(db),
+                            required: false,
+                            as: 'bp'
+                        },
                         ],
                     }).then(async data => {
                         var array = [];
