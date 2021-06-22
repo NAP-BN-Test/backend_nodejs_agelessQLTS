@@ -261,7 +261,12 @@ module.exports = {
                 objOrder = objOrder[0][0]
                 if (data.object.toUpperCase() == 'KHÁCH HÀNG') {
                     if (data.confirm == 0) {
-                        let queryUpdate = "UPDATE tblDonHang SET ConfirmKH = 0, TrangThaiCho = N'Khách Hàng Từ Chối' WHERE ID = " + data.id
+                        let queryUpdate
+                        if (data.type.toUpperCase() == 'KEHOACH') {
+                            queryUpdate = "UPDATE tblDonHang SET ConfirmKH = 0, TrangThaiCho = N'Khách Hàng Từ Chối Kế Hoạch' WHERE ID = " + data.id
+                        } else {
+                            queryUpdate = "UPDATE tblDonHang SET ConfirmKH = 0, TrangThaiCho = N'Khách Hàng Từ Chối Chi Phí' WHERE ID = " + data.id
+                        }
                         await db.query(queryUpdate)
                     } else {
                         if (objOrder.ConfirmNX == 1) {
@@ -276,7 +281,12 @@ module.exports = {
                     }
                 } else {
                     if (data.confirm == 0) {
-                        let queryUpdate = "UPDATE tblDonHang SET ConfirmNX = 0, TrangThaiCho = N'Nhà Xe Từ Chối' WHERE ID = " + data.id
+                        let queryUpdate
+                        if (data.type.toUpperCase() == 'KEHOACH') {
+                            queryUpdate = "UPDATE tblDonHang SET ConfirmNX = 0, TrangThaiCho = N'Nhà Xe Từ Chối Kế Hoạch' WHERE ID = " + data.id
+                        } else {
+                            queryUpdate = "UPDATE tblDonHang SET ConfirmNX = 0, TrangThaiCho = N'Nhà Xe Từ Chối Chi Phí' WHERE ID = " + data.id
+                        }
                         await db.query(queryUpdate)
                     } else {
                         //lấy dữ liệu đơn gốc
