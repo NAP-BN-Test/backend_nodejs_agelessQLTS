@@ -311,7 +311,7 @@ module.exports = {
                             model: mtblDMTaiKhoanKeToan(db),
                             required: false,
                             as: 'accounting'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -334,13 +334,13 @@ module.exports = {
                             await tblAccountingBooks.findAll({
                                 where: {
                                     [Op.and]: [{
-                                            [Op.or]: arrayWhere
-                                        },
-                                        {
-                                            ID: {
-                                                [Op.ne]: data[i].ID
-                                            }
+                                        [Op.or]: arrayWhere
+                                    },
+                                    {
+                                        ID: {
+                                            [Op.ne]: data[i].ID
                                         }
+                                    }
                                     ]
                                 },
                                 order: [
@@ -350,7 +350,7 @@ module.exports = {
                                     model: mtblDMTaiKhoanKeToan(db),
                                     required: false,
                                     as: 'accounting'
-                                }, ],
+                                },],
                             }).then(accounting => {
                                 if (accounting) {
                                     accounting.forEach(item => {
@@ -372,14 +372,9 @@ module.exports = {
                                             debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
                                             creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
                                         }
-                                        if (arrayIDAccount.length <= 1) {
+                                        if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
                                             array.push(obj);
                                             stt += 1;
-                                        } else {
-                                            if (checkDuplicate(arrayIDAccount, Number(data[i].IDAccounting)) && checkDuplicate(arrayIDAccount, Number(item.IDAccounting))) {
-                                                array.push(obj);
-                                                stt += 1;
-                                            }
                                         }
                                     })
                                 }

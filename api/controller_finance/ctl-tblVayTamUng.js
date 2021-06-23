@@ -279,6 +279,7 @@ module.exports = {
     // add_tbl_vaytamung
     addtblVayTamUng: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -922,6 +923,7 @@ module.exports = {
     // get_list_reimbursement_from_staff
     getListReimbursementFromStaff: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -930,7 +932,7 @@ module.exports = {
                     await mtblVayTamUng(db).findAll({
                         where: {
                             Status: 'Chờ hoàn ứng',
-                            IDNhanVienAdvance: body.staffID,
+                            IDNhanVienCreate: body.staffID,
                         }
                     }).then(data => {
                         data.forEach(element => {
@@ -949,11 +951,11 @@ module.exports = {
                         where: {
                             [Op.or]: [{
                                 Status: 'Chờ hoàn ứng',
-                                IDNhanVienAdvance: body.staffID,
+                                IDNhanVienCreate: body.staffID,
                             },
                             {
                                 Status: 'Đã hoàn ứng',
-                                IDNhanVienAdvance: body.staffID,
+                                IDNhanVienCreate: body.staffID,
                             },
                             ]
                         }
