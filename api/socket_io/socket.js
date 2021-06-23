@@ -202,12 +202,18 @@ module.exports = {
                 } else {
                     dbnameNX = null
                 }
-                console.log(dbnameNX, dbnameKH);
-                console.log("UPDATE tblDonHang SET NgayGui = '" + now + "' ,TrangThaiCho = N'" + status + "', ConfirmKH = '" + ConfirmKH + "', ConfirmNX = '" + ConfirmNX + "' WHERE ID = " + data.iddonhang);
+                if (!keyConnectKH && !keyConnectNX) {
+                    if (data.type == 'CHIPHI') {
+                        status = "CHI PHÍ HOÀN THÀNH"
+                    } else {
+                        status = "KẾ HOẠCH HOÀN THÀNH"
+                    }
+                }
                 await db.query("UPDATE tblDonHang SET NgayGui = '" + now + "' ,TrangThaiCho = N'" + status + "', ConfirmKH = " + ConfirmKH + ", ConfirmNX = " + ConfirmNX + " WHERE ID = " + data.iddonhang)
                 let objResult = {
                     dbnameKH: dbnameKH,
                     dbnameNX: dbnameNX,
+                    iddonhang: data.iddonhang,
                     type: data.type,
                 }
                 console.log(objResult);
@@ -400,6 +406,8 @@ module.exports = {
                             ChiPhiPhatSinhThu = ChiPhiPhatSinhThu + value.ChiPhiPhatSinhChi
                         })
                         let TongTienThu = CuocVanChuyen + ChiPhiPhatSinhThu
+                        await db2.query("DELETE FROM tblDonHang WHERE IDDonHangChinhSua = " + IDKhachHang)
+                        await db2.query("DELETE FROM tblDonHang WHERE MaDoiChieu = '" + MaDoiChieu + "' AND IDKhachHang = " + IDKhachHang)
                         let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, SoDonHang, MaDoiChieu, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + ",'" + SoDonHang + "','" + MaDoiChieu + "'," + CuocVanChuyen + "," + TongTienThu + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",N'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
                         await db2.query(CreateOrderQuery)
                         let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")
