@@ -372,9 +372,14 @@ module.exports = {
                                             debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
                                             creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
                                         }
-                                        if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                        if (arrayIDAccount.length <= 1) {
                                             array.push(obj);
                                             stt += 1;
+                                        } else {
+                                            if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                array.push(obj);
+                                                stt += 1;
+                                            }
                                         }
                                     })
                                 }
