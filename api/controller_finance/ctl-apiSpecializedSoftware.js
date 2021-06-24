@@ -865,7 +865,7 @@ async function calculateMoneyFollowVND(db, typeMoney, total, date) {
                 })
             }
         })
-    result = (exchangeRate * total)
+    result = ((exchangeRate ? exchangeRate : 1) * total)
     return result
 }
 async function getExchangeRateFromDate(db, typeMoney, date) {
