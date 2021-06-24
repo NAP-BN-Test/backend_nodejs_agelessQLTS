@@ -612,12 +612,6 @@ async function calculateTheTotalAmountOfEachCurrency(array) {
             }
         }
     }
-    await database.connectDatabase().then(async db => {
-        for (let a = 0; a < arrayResult.length; a++) {
-            let totelMoney = await calculateMoneyFollowVND(db, arrayResult[a].type, arrayResult[a].total, arrayResult[a].date)
-            arrayResult['totalMoneyVND'] = totelMoney
-        }
-    })
     return arrayResult
 }
 dataCustomer = [{
@@ -1212,12 +1206,17 @@ module.exports = {
                             }
                             // data[i]['totalAmountByCurrency'] = totalMoneyVND
                         }
+                        let totalMoneyVND = 0
+                        for (let a = 0; a < totalMoney.length; a++) {
+                            totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                        }
                         var result = {
                             array: data,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: 10,
                             totalMoney: totalMoney,
+                            totalMoneyVND: totalMoneyVND,
                             // all: data.data.data.pager.rowsCount
                         }
                     }
@@ -1279,6 +1278,10 @@ module.exports = {
                     }
                 }
                 totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
                 var result = {
                     array: array,
                     // array: data.data.data.list,
@@ -1286,6 +1289,7 @@ module.exports = {
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
+                    totalMoneyVND: totalMoneyVND,
 
                     // all: data.data.data.pager.rowsCount
                 }
@@ -1341,6 +1345,10 @@ module.exports = {
                     }
                 }
                 totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
                 var result = {
                     array: array,
                     // array: data.data.data.list,
@@ -1348,6 +1356,7 @@ module.exports = {
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
+                    totalMoneyVND: totalMoneyVND,
 
                     // all: data.data.data.pager.rowsCount
                 }
@@ -1624,6 +1633,10 @@ module.exports = {
                     }
                 }
                 totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
                 var result = {
                     array: array,
                     // array: data.data.data.list,
@@ -1631,6 +1644,7 @@ module.exports = {
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
+                    totalMoneyVND: totalMoneyVND,
 
                     // all: data.data.data.pager.rowsCount
                 }
@@ -1687,6 +1701,10 @@ module.exports = {
                     }
                 }
                 totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
                 var result = {
                     array: array,
                     // array: data.data.data.list,
@@ -1694,6 +1712,7 @@ module.exports = {
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
+                    totalMoneyVND: totalMoneyVND,
 
                     // all: data.data.data.pager.rowsCount
                 }
@@ -1752,6 +1771,10 @@ module.exports = {
                     }
                 }
                 totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
                 var result = {
                     array: array,
                     // array: data.data.data.list,
@@ -1759,6 +1782,7 @@ module.exports = {
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
+                    totalMoneyVND: totalMoneyVND,
 
                     // all: data.data.data.pager.rowsCount
                 }
@@ -1817,6 +1841,10 @@ module.exports = {
                     }
                 }
                 totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
                 var result = {
                     array: array,
                     // array: data.data.data.list,
@@ -1824,6 +1852,7 @@ module.exports = {
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
+                    totalMoneyVND: totalMoneyVND,
 
                     // all: data.data.data.pager.rowsCount
                 }

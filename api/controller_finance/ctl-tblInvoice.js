@@ -439,14 +439,19 @@ module.exports = {
                     data[i]['totalMoneyVND'] = totalMoneyVND
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
                 }
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
                 var result = {
                     array: data,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
-                }
+                    totalMoneyVND: totalMoneyVND,
 
+                }
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
