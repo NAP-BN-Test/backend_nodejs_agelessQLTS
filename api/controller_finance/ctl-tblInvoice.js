@@ -299,7 +299,8 @@ async function calculateTheTotalAmountOfEachCurrency(array) {
                 arrayCheck.push(array[i].arrayMoney[j].typeMoney)
                 arrayResult.push({
                     total: Number(array[i].arrayMoney[j].total),
-                    type: array[i].arrayMoney[j].typeMoney
+                    type: array[i].arrayMoney[j].typeMoney,
+                    date: array[i].createdDate,
                 })
             } else {
                 arrayResult.forEach(element => {
@@ -310,7 +311,92 @@ async function calculateTheTotalAmountOfEachCurrency(array) {
             }
         }
     }
+    await database.connectDatabase().then(async db => {
+        for (let a = 0; a < arrayResult.length; a++) {
+            let totelMoney = await calculateMoneyFollowVND(db, arrayResult[a].type, arrayResult[a].total, arrayResult[a].date)
+            arrayResult['totalMoneyVND'] = totelMoney
+        }
+    })
     return arrayResult
+}
+async function calculateMoneyFollowVND(db, typeMoney, total, date) {
+    let exchangeRate = 1;
+    let result = 0;
+    let currency = await mtblCurrency(db).findOne({
+        where: { ShortName: typeMoney }
+    })
+    if (currency)
+        await mtblRate(db).findOne({
+            where: {
+                Date: { [Op.substring]: date },
+                IDCurrency: currency.ID
+            },
+            order: [
+                ['ID', 'DESC']
+            ],
+        }).then(async Rate => {
+            if (Rate)
+                exchangeRate = Rate.ExchangeRate
+            else {
+                let searchNow = moment().format('YYYY-MM-DD');
+                await mtblRate(db).findOne({
+                    where: {
+                        Date: { [Op.substring]: searchNow },
+                        IDCurrency: currency.ID
+                    },
+                    order: [
+                        ['ID', 'DESC']
+                    ],
+                }).then(Rate => {
+                    if (Rate)
+                        exchangeRate = Rate.ExchangeRate
+                })
+            }
+        })
+    result = (exchangeRate * total)
+    return result
+}
+async function getExchangeRateFromDate(db, typeMoney, date) {
+    let exchangeRate = 1;
+    let result = {};
+    let currency = await mtblCurrency(db).findOne({
+        where: { ShortName: typeMoney }
+    })
+    if (currency)
+        await mtblRate(db).findOne({
+            where: {
+                Date: { [Op.substring]: date },
+                IDCurrency: currency.ID
+            },
+            order: [
+                ['ID', 'DESC']
+            ],
+        }).then(async Rate => {
+            if (Rate)
+                result = {
+                    typeMoney: typeMoney,
+                    exchangeRate: Rate.ExchangeRate,
+                }
+            else {
+                let searchNow = moment().format('YYYY-MM-DD');
+                await mtblRate(db).findOne({
+                    where: {
+                        Date: { [Op.substring]: searchNow },
+                        IDCurrency: currency.ID
+                    },
+                    order: [
+                        ['ID', 'DESC']
+                    ],
+                }).then(Rate => {
+                    if (Rate)
+                        result = {
+                            typeMoney: typeMoney,
+                            exchangeRate: Rate.ExchangeRate,
+                        }
+                })
+            }
+        })
+    return result
 }
 module.exports = {
     deleteRelationshiptblInvoice,
@@ -344,12 +430,14 @@ module.exports = {
                         data[i].statusName = check.Status
                         data[i].request = check.Request
                     }
-                    for (let m = 0; m < data[i].arrayMoney; m++) {
-                        let currency = await mtblCurrency(db).findOne({
-                            where: { ShortName: data[i].arrayMoney[m].typeMoney }
-                        })
-
+                    let totalMoneyVND = 0
+                    let arrayExchangeRate = []
+                    for (let m = 0; m < data[i].arrayMoney.length; m++) {
+                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
+                        arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
                     }
+                    data[i]['totalMoneyVND'] = totalMoneyVND
+                    data[i]['arrayExchangeRate'] = arrayExchangeRate
                 }
                 var result = {
                     array: data,

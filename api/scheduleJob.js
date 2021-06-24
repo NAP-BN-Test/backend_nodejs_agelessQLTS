@@ -17,7 +17,7 @@ module.exports = {
                 try {
                     await mtblCurrency(db).findAll().then(async data => {
                         for (let i = 0; i < data.length; i++) {
-                            let rate = await mtblRate(db).findAll({
+                            let rate = await mtblRate(db).findOne({
                                 where: {
                                     IDCurrency: data[i].ID,
                                 },
