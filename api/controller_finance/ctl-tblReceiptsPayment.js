@@ -1431,11 +1431,12 @@ module.exports = {
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
-                                    displayName: '[' + (dataCus ? dataCus.partnerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
+                                    displayName: dataCus ? dataCus.name : '',
                                     address: dataCus ? dataCus.address : '',
                                     id: data[i].IDCustomer,
                                     type: 'customer',
                                 }
+                            obj['objectName'] = obj['object'].displayName
                             let arrayCredit = []
                             let arraydebit = []
                             let tblPaymentAccounting = mtblPaymentAccounting(db);
