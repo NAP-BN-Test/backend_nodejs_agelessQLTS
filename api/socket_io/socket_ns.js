@@ -216,7 +216,7 @@ async function getStaffContractExpirationData() {
     var array = [];
     await database.connectDatabase().then(async db => {
         if (db) {
-            let now = moment().format('YYYY-MM-DD');
+            let now = moment().add(7, 'hours').format('YYYY-MM-DD');
             let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
             let tblHopDongNhanSu = mtblHopDongNhanSu(db);
             tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
@@ -228,13 +228,13 @@ async function getStaffContractExpirationData() {
                         //     [Op.eq]: null
                         // },
                         NoticeTime: {
-                            [Op.lte]: now
+                            [Op.lte]: nowTime
                         }
                     },
                     {
                         Status: 'Có hiệu lực',
                         NoticeTime: {
-                            [Op.lte]: now
+                            [Op.lte]: nowTime
                         },
                         // Time: {
                         //     [Op.lte]: nowTime
@@ -305,14 +305,14 @@ async function getInsurancePremiums(socket, io) {
                                 let roomLeave = io.sockets.adapter.rooms['isNotiInscreaseInsurance'].sockets
                                 //  Laays danh sách socket trong room
                                 roomLeave = Object.keys(roomLeave)
-                                // console.log(roomLeave, obj);
-                                for (let s = 0; s < roomLeave.length; s++) {
-                                    let socketGet = io.sockets.connected[roomLeave[s]]
-                                    console.log(socketGet.userID);
-                                    io.sockets.in(socketGet.id).emit("insurance-premiums", 1)
+                                socket.emit("insurance-premiums", 1)
 
-                                }
-                                // socket.emit("insurance-premiums", 1);
+                                // for (let s = 0; s < roomLeave.length; s++) {
+                                //     let socketGet = io.sockets.connected[roomLeave[s]]
+                                //     console.log(socketGet.userID);
+                                //     socket.emit("insurance-premiums", 1)
+
+                                // }
                             }
                         }
                     })
@@ -443,12 +443,15 @@ async function getListContactExpiration(db) {
 async function getListContactDetail(db, id) {
     let obj = {}
     // let now = moment().format('YYYY-MM-DD');
-    // let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+    let nowTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
     await tblHopDongNhanSu.findOne({
         where: {
-            ID: id
+            ID: id,
+            NoticeTime: {
+                [Op.lte]: nowTime
+            }
         },
         order: [
             ['ID', 'DESC']
@@ -493,22 +496,21 @@ async function getStaffContractExpirationDataFollowSocket(socket, id, io) {
                 }
                 if (isNotiContract == true) {
                     array = await getListContactExpiration(db)
-                    console.log(array);
                     socket.emit("contract-expiration", array);
                     obj = await getListContactDetail(db, id)
-                    // let check = Object.keys(obj)
-                    // if (check.length > 0) {
-                    //     socket.emit("contract-expiration-detail", obj);
-                    // }
                     let roomLeave = io.sockets.adapter.rooms['isNotiContract'].sockets
                     //  Laays danh sách socket trong room
                     roomLeave = Object.keys(roomLeave)
-                    console.log(roomLeave, obj);
                     for (let s = 0; s < roomLeave.length; s++) {
                         let socketGet = io.sockets.connected[roomLeave[s]]
                         console.log(socketGet.userID);
-                        io.sockets.in(socketGet.id).emit('contract-expiration-detail', obj)
+                        if (obj.contractID) {
+                            io.sockets.in(socketGet.id).emit('contract-expiration-detail', obj)
+                        }
+
                     }
+                    let objT = await getLeaveAndOvertimeOfUser(socket.userID);
+                    socket.emit("system-wide-notification-ns", objT)
                 }
             }
         }
@@ -690,7 +692,6 @@ module.exports = {
                 console.log(socket.userID, '----------------- system-wide-notification-ns -------------------');
                 if (socket.userID) {
                     let obj = await getLeaveAndOvertimeOfUser(socket.userID);
-                    console.log(obj);
                     socket.emit("system-wide-notification-ns", obj)
                 }
             })

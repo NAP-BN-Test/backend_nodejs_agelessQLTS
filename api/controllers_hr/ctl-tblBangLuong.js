@@ -2232,86 +2232,80 @@ module.exports = {
                                         }
                                     }
                                 }
+                            } else {
+                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+                                var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
+                                if (staff) {
+                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
+                                    var yearMonth = year + '-' + await convertNumber(month);
+                                    for (var j = 1; j <= dateFinal; j++) {
+                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                        let staffID = staff ? staff.ID : null
+                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                            await mtblChamCong(db).destroy({
+                                                where: {
+                                                    Date: date,
+                                                    IDNhanVien: staffID
+                                                }
+                                            })
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                            await mtblChamCong(db).destroy({
+                                                where: {
+                                                    Date: date,
+                                                    IDNhanVien: staffID
+                                                }
+                                            })
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && checkDuplicate(array7thDB, j)) {
+                                            let timeKeeping = await mtblChamCong(db).findOne({
+                                                where: {
+                                                    Date: date,
+                                                    IDNhanVien: staffID
+                                                }
+                                            })
+                                            if (timeKeeping && timeKeeping.Status == 'Sat') {
+                                                await mtblChamCong(db).destroy({
+                                                    where: {
+                                                        ID: timeKeeping.ID
+                                                    }
+                                                })
+                                                await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
+                                            }
+                                        } else if (checkDuplicate(arrayHoliday, j)) {
+
+                                            await mtblChamCong(db).destroy({
+                                                where: {
+                                                    Date: date,
+                                                    IDNhanVien: staffID
+                                                }
+                                            })
+                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                        } else {
+                                            // check xem có trong ngày nghỉ phép không ?
+                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                        await mtblChamCong(db).destroy({
+                                                            where: {
+                                                                Date: date,
+                                                                IDNhanVien: staffID
+                                                            }
+                                                        })
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-
                         }
-                        // }
-                        // } else {
-                        //     if (arrayUserID.length > 0) {
-                        //         for (var i = 0; i < arrayUserID.length; i++) {
-                        //             var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                        //             var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
-                        //             if (staff) {
-                        //                 var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                        //                 var yearMonth = year + '-' + await convertNumber(month);
-                        //                 for (var j = 1; j <= dateFinal; j++) {
-                        //                     var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                        //                     let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                        //                     let staffID = staff ? staff.ID : null
-                        //                     if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                        //                         await mtblChamCong(db).destroy({
-                        //                             where: {
-                        //                                 Date: date,
-                        //                                 IDNhanVien: staffID
-                        //                             }
-                        //                         })
-                        //                         await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                        //                         await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                        //                     } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                        //                         await mtblChamCong(db).destroy({
-                        //                             where: {
-                        //                                 Date: date,
-                        //                                 IDNhanVien: staffID
-                        //                             }
-                        //                         })
-                        //                         await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                        //                         await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                        //                     } else if (datetConvert.slice(0, 5) == 'Thứ 7' && checkDuplicate(array7thDB, j)) {
-                        //                         let timeKeeping = await mtblChamCong(db).findOne({
-                        //                             where: {
-                        //                                 Date: date,
-                        //                                 IDNhanVien: staffID
-                        //                             }
-                        //                         })
-                        //                         if (timeKeeping && timeKeeping.Status == 'Sat') {
-                        //                             await mtblChamCong(db).destroy({
-                        //                                 where: {
-                        //                                     ID: timeKeeping.ID
-                        //                                 }
-                        //                             })
-                        //                             await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
-                        //                         }
-                        //                     } else if (checkDuplicate(arrayHoliday, j)) {
-
-                        //                         await mtblChamCong(db).destroy({
-                        //                             where: {
-                        //                                 Date: date,
-                        //                                 IDNhanVien: staffID
-                        //                             }
-                        //                         })
-                        //                         await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                        //                         await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                        //                     } else {
-                        //                         // check xem có trong ngày nghỉ phép không ?
-                        //                         if (checkDuplicate(arrayLeaveDay.array, j)) {
-                        //                             for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                        //                                 if (arrayLeaveDay.arrayObj[i].date == j) {
-                        //                                     await mtblChamCong(db).destroy({
-                        //                                         where: {
-                        //                                             Date: date,
-                        //                                             IDNhanVien: staffID
-                        //                                         }
-                        //                                     })
-                        //                                     await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                        //                                     await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                        //                                 }
-                        //                             }
-                        //                         }
-                        //                     }
-                        //                 }
-                        //             }
-                        //         }
-                        //     }
                     }
                     await mtblDMNhanvien(db).findAll({ where: whereobj }).then(async staff => {
                         yearMonth = year + '-' + await convertNumber(month);

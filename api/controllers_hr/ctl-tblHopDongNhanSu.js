@@ -258,7 +258,7 @@ async function inWordContact(db, id) {
             }
         }
     })
-    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx')
+    await mModules.convertDataAndRenderWordFile(obj, 'template_contract.docx', (contactNumber ? contactNumber : 'HD').replace(/\//g, '-') + '-HĐLĐ-TX2021.docx')
     return (contactNumber ? contactNumber : 'HD') + '-HĐLĐ-TX2021.docx'
 }
 
