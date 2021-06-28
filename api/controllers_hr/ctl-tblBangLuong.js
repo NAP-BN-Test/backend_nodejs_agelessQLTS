@@ -760,8 +760,7 @@ async function calculateOvertime(db, staffID, date) {
             }
         }
     })
-    console.log(result);
-    return Number(result.toFixed(2))
+    return Number(result)
 }
 // tính thời gian nghỉ phép
 async function calculateNumberLeave(db, staffID, date, type = 'time') {
