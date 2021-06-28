@@ -28,6 +28,7 @@ const Sequelize = require('sequelize');
 var mtblChamCong = require('../tables/hrmanage/tblChamCong')
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
+var mtblDateOfLeave = require('../tables/hrmanage/tblDateOfLeave')
 
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
 var mtblPhanPhoiVPPChiTiet = require('../tables/qlnb/tblPhanPhoiVPPChiTiet')
@@ -91,6 +92,45 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
             }
         }
     })
+    // ---------------------------------------------------------------------------------------------------------------
+    let listLeave = []
+    await mtblNghiPhep(db).findAll({
+        where: {
+            [Op.or]: [
+                {
+                    IDNhanVien: {
+                        [Op.in]: listID
+                    }
+                },
+                {
+                    IDHeadDepartment: {
+                        [Op.in]: listID
+                    }
+                },
+                {
+                    IDHeads: {
+                        [Op.in]: listID
+                    }
+                },
+                {
+                    IDAdministrationHR: {
+                        [Op.in]: listID
+                    }
+                },
+            ]
+        }
+    }).then(async data => {
+        for (let i = 0; i < data.length; i++) {
+            listLeave.push(Number(data[i].ID))
+        }
+    })
+    await mtblDateOfLeave(db).destroy({
+        where: {
+            LeaveID: {
+                [Op.in]: listLeave
+            }
+        }
+    })
     await mtblNghiPhep(db).destroy({
         where: {
             IDNhanVien: {
@@ -119,6 +159,7 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
             }
         }
     })
+    // -----------------------------------------------------------------------------------------------------------------------------------------------------
     await mtblQuyetDinhTangLuong(db).destroy({
         where: {
             IDNhanVien: {

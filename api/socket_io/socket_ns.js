@@ -228,13 +228,13 @@ async function getStaffContractExpirationData() {
                         //     [Op.eq]: null
                         // },
                         NoticeTime: {
-                            [Op.gte]: now
+                            [Op.lte]: now
                         }
                     },
                     {
                         Status: 'Có hiệu lực',
                         NoticeTime: {
-                            [Op.gte]: now
+                            [Op.lte]: now
                         },
                         // Time: {
                         //     [Op.lte]: nowTime
@@ -690,6 +690,7 @@ module.exports = {
                 console.log(socket.userID, '----------------- system-wide-notification-ns -------------------');
                 if (socket.userID) {
                     let obj = await getLeaveAndOvertimeOfUser(socket.userID);
+                    console.log(obj);
                     socket.emit("system-wide-notification-ns", obj)
                 }
             })

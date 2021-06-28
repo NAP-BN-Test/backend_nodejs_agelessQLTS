@@ -4,7 +4,14 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var tblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 var database = require('../database');
+var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
+
 async function deleteRelationshiptblLoaiHopDong(db, listID) {
+    await mtblHopDongNhanSu(db).destroy({
+        where: {
+            IDLoaiHopDong: { [Op.in]: listID }
+        }
+    })
     await tblLoaiHopDong(db).destroy({
         where: {
             ID: { [Op.in]: listID }
