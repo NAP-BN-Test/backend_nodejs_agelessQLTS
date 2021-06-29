@@ -221,6 +221,7 @@ module.exports = {
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
+                    // await deleteRelationshiptblYeuCauMuaSam(db, listID);
                     await mtblYeuCauMuaSam(db).findAll({
                         where: {
                             [Op.and]: {
@@ -448,7 +449,6 @@ module.exports = {
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
         let arrayPermission = []
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
