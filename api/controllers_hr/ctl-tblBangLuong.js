@@ -1201,11 +1201,12 @@ module.exports = {
                                 personalTaxSalary: Math.round(personalTaxSalary),
                                 reduce: reduce + 11000000,
                                 totalReduce: totalReduce.toFixed(0),
-                                realField: realField.toFixed(0),
+                                realField: realField > 0 ? realField.toFixed(0) : 0,
                                 productivityWages: productivityWages.toFixed(0),
                             }
+                            realField = (realField > 0 ? realField.toFixed(0) : 0)
                             if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Hưởng lương') {
-                                totalRealField += realField;
+                                totalRealField += Number(realField);
                                 totalBHXHSalary += bhxhSalary;
                                 totalProductivityWages += productivityWages;
                                 totalStaffBHXH += staffBHXH;

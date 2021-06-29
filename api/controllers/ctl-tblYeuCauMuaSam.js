@@ -382,6 +382,7 @@ module.exports = {
     // done_purchase
     donePurchase: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -390,45 +391,50 @@ module.exports = {
                         Status: 'Đã mua',
                         ReasonReject: body.reason,
                     }, { where: { ID: body.id } })
-                    mtblYeuCauMuaSam(db).findOne({ where: { ID: body.id } }).then(async data => {
-                        var addVPP = await mtblThemVPP(db).create({
-                            IDNhaCungCap: data.IDSupplier ? data.IDSupplier : null,
-                            Date: now,
-                        })
-                        await mtblFileAttach(db).findAll({
-                            where: {
-                                IDYeuCauMuaSam: body.id
-                            }
-                        }).then(async ycms => {
-                            for (let y = 0; y < ycms.length; y++) {
-                                await mtblFileAttach(db).create({
-                                    Link: ycms[y].Link,
-                                    Name: ycms[y].Name,
-                                    IDVanPhongPham: addVPP.ID,
-                                })
-                            }
-                        })
-                        await mtblYeuCauMuaSamDetail(db).findAll({ where: { IDYeuCauMuaSam: data.ID } }).then(async detail => {
-                            for (var i = 0; i < detail.length; i++) {
-                                await mThemVPPChiTiet(db).create({
-                                    IDVanPhongPham: detail[i].IDVanPhongPham,
-                                    IDThemVPP: addVPP.ID,
-                                    Amount: detail[i].Amount ? detail[i].Amount : 0,
-                                    Describe: data.Reason ? data.Reason : '',
-                                })
-                                let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: detail[i].IDVanPhongPham } })
-                                let amount = vpp ? vpp.RemainingAmount : 0;
-                                await mtblVanPhongPham(db).update({
-                                    RemainingAmount: Number(detail[i].Amount) + Number(amount),
-                                }, { where: { ID: detail[i].IDVanPhongPham } })
-                            }
-                        })
-                        var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
-                    })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                    // mtblYeuCauMuaSam(db).findOne({ where: { ID: body.id } }).then(async data => {
+                    //     var addVPP = await mtblThemVPP(db).create({
+                    //         IDNhaCungCap: data.IDSupplier ? data.IDSupplier : null,
+                    //         Date: now,
+                    //     })
+                    //     await mtblFileAttach(db).findAll({
+                    //         where: {
+                    //             IDYeuCauMuaSam: body.id
+                    //         }
+                    //     }).then(async ycms => {
+                    //         for (let y = 0; y < ycms.length; y++) {
+                    //             await mtblFileAttach(db).create({
+                    //                 Link: ycms[y].Link,
+                    //                 Name: ycms[y].Name,
+                    //                 IDVanPhongPham: addVPP.ID,
+                    //             })
+                    //         }
+                    //     })
+                    //     await mtblYeuCauMuaSamDetail(db).findAll({ where: { IDYeuCauMuaSam: data.ID } }).then(async detail => {
+                    //         for (var i = 0; i < detail.length; i++) {
+                    //             // await mThemVPPChiTiet(db).create({
+                    //             //     IDVanPhongPham: detail[i].IDVanPhongPham,
+                    //             //     IDThemVPP: addVPP.ID,
+                    //             //     Amount: detail[i].Amount ? detail[i].Amount : 0,
+                    //             //     Describe: data.Reason ? data.Reason : '',
+                    //             // })
+                    //             let vpp = await mtblVanPhongPham(db).findOne({ where: { ID: detail[i].IDVanPhongPham } })
+                    //             let amount = vpp ? vpp.RemainingAmount : 0;
+                    //             await mtblVanPhongPham(db).update({
+                    //                 RemainingAmount: Number(detail[i].Amount) + Number(amount),
+                    //             }, { where: { ID: detail[i].IDVanPhongPham } })
+                    //         }
+                    //     })
+                    //     var result = {
+                    //         status: Constant.STATUS.SUCCESS,
+                    //         message: Constant.MESSAGE.ACTION_SUCCESS,
+                    //     }
+                    //     res.json(result);
+                    // })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -459,6 +465,7 @@ module.exports = {
                         arraySearchOr.push({ Status: 'Từ chối' })
                         // arraySearchOr.push({ Status: 'Đã thanh toán' })
                         arraySearchOr.push({ Status: 'Đã thêm mới tài sản' })
+                        arraySearchOr.push({ Status: 'Đã nhập văn phòng phẩm' })
                     } else {
                         arraySearchAnd.push({
                             Status: {
@@ -471,7 +478,11 @@ module.exports = {
                                 [Op.ne]: 'Đã thêm mới tài sản'
                             }
                         })
-
+                        arraySearchAnd.push({
+                            Status: {
+                                [Op.ne]: 'Đã nhập văn phòng phẩm'
+                            }
+                        })
                     }
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
