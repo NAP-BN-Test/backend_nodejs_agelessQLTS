@@ -215,29 +215,32 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
         let date = await db.query(query)
         date = date[0]
         for (let i = 0; i < date.length; i++) {
-            let signLeave = ''
-            let dateStart = moment(date[i].DateStart).subtract(7, 'hours').date()
-            let dateEnd = moment(date[i].DateEnd).subtract(7, 'hours').date()
-            let dateEndMonth = moment(date[i].DateEnd).subtract(7, 'hours').month()
-            // lấy tháng bị trừ 1
-            let signObj = await mtblLoaiChamCong(db).findOne({ where: { ID: date[i].IDLoaiChamCong } })
-            signLeave = signObj ? signObj.Code : ''
-            dateEndMonth += 1
-            if (dateEndMonth != month) {
-                dateEnd = dateFinal
-            } else {
-                if (Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH') <= 8)) {
-                    dateEnd -= 1
+            if (date[i].IDLoaiChamCong) {
+                let signLeave = ''
+                let dateStart = moment(date[i].DateStart).subtract(7, 'hours').date()
+                let dateEnd = moment(date[i].DateEnd).subtract(7, 'hours').date()
+                let dateEndMonth = moment(date[i].DateEnd).subtract(7, 'hours').month()
+                // lấy tháng bị trừ 1
+                let signObj = await mtblLoaiChamCong(db).findOne({ where: { ID: date[i].IDLoaiChamCong } })
+                signLeave = signObj ? signObj.Code : ''
+                dateEndMonth += 1
+                if (dateEndMonth != month) {
+                    dateEnd = dateFinal
+                } else {
+                    if (Number(moment(date[i].DateEnd).subtract(7, 'hours').format('HH') <= 8)) {
+                        dateEnd -= 1
+                    }
+                }
+                for (let d = dateStart; d <= dateEnd; d++) {
+                    array.push(d)
+                    arrayObj.push({
+                        date: d,
+                        id: date[i].ID,
+                        sign: signLeave,
+                    })
                 }
             }
-            for (let d = dateStart; d <= dateEnd; d++) {
-                array.push(d)
-                arrayObj.push({
-                    date: d,
-                    id: date[i].ID,
-                    sign: signLeave,
-                })
-            }
+
         }
 
     }
@@ -2183,7 +2186,7 @@ module.exports = {
                         await mtblChamCong(db).destroy({
                             where: [{
                                 Date: {
-                                    [Op.substring]: '%' + yearMonth + '%'
+                                    [Op.substring]: yearMonth
                                 }
                             }]
                         })

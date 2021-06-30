@@ -936,7 +936,12 @@ module.exports = {
                             var job = schedule.scheduleJob(time, async function () {
                                 await mtblNghiPhep(dbCon).update({
                                     Status: 'Từ chối',
-                                }, { where: { ID: idN } })
+                                }, {
+                                    where: {
+                                        ID: idN,
+                                        Status: { [Op.ne]: 'Hoàn thành' },
+                                    }
+                                })
                             });
                             console.log(job);
                         }
