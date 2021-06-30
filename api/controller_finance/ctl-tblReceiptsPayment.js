@@ -249,7 +249,7 @@ async function deleteAndCreateAllInvoice(db, id, listInvoiceID) {
             IDSpecializedSoftware: listInvoiceID[i]
         })
         await mtblInvoice(db).update({
-            Status: 'paid'
+            Status: 'Đá thanh toán'
         }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
     }
 
@@ -1035,7 +1035,7 @@ module.exports = {
                                 IDSpecializedSoftware: listInvoiceID[i]
                             })
                             await mtblInvoice(db).update({
-                                Status: 'paid'
+                                Status: 'Đã thanh toán'
                             }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
                         }
                         var withdrawalMoney = Number(body.withdrawal);

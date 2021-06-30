@@ -25,7 +25,6 @@ module.exports = {
                 })
                 for (let l = 0; l < leave.length; l++) {
                     let tblDateOfLeave = mtblDateOfLeave(db);
-                    console.log(12345);
                     await tblDateOfLeave.findAll({
                         where: [
                             { LeaveID: leave[l].ID },

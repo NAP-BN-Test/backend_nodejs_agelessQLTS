@@ -947,16 +947,17 @@ module.exports = {
                             array.push(obj);
                         });
                     })
+
                     await mtblVayTamUng(db).findAll({
                         where: {
                             [Op.or]: [{
                                 Status: 'Chờ hoàn ứng',
                                 IDNhanVienCreate: body.staffID,
                             },
-                            {
-                                Status: 'Đã hoàn ứng',
-                                IDNhanVienCreate: body.staffID,
-                            },
+                                // {
+                                //     Status: 'Đã hoàn ứng',
+                                //     IDNhanVienCreate: body.staffID,
+                                // },
                             ]
                         }
                     }).then(data => {
@@ -972,6 +973,25 @@ module.exports = {
                             arrayUpdate.push(obj);
                         });
                     })
+                    if (body.idReceiptPayment)
+                        await mtblVayTamUng(db).findAll({
+                            where: {
+                                // Status: 'Chờ hoàn ứng',
+                                IDReceiptsPayment: body.idReceiptPayment,
+                            }
+                        }).then(data => {
+                            data.forEach(element => {
+                                var obj = {
+                                    id: Number(element.ID),
+                                    advanceCode: element.AdvanceCode ? element.AdvanceCode : '',
+                                    date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : '',
+                                    cost: element.Cost ? element.Cost : '',
+                                    contents: element.Contents ? element.Contents : '',
+                                    reason: element.Reason ? element.Reason : '',
+                                }
+                                arrayUpdate.push(obj);
+                            });
+                        })
                     var result = {
                         arrayCreate: array,
                         arrayUpdate: arrayUpdate,
