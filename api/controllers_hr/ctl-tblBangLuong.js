@@ -193,6 +193,7 @@ async function getDateTakeLeave(db, month, year, idNhanVien) {
 
 }
 async function getListleaveDate(db, month, year, staffID, dateFinal) {
+    console.log(month, year, staffID, dateFinal);
     let objResult = {}
     var array = [];
     var arrayObj = [];
@@ -231,6 +232,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                         dateEnd -= 1
                     }
                 }
+                console.log(dateStart, dateEnd);
                 for (let d = dateStart; d <= dateEnd; d++) {
                     array.push(d)
                     arrayObj.push({
@@ -291,13 +293,27 @@ async function checkTypeContract(db, staffID, personalTax) {
     return result
 }
 
-async function getIncreaseSalaryOfStaff(db, staffID) {
+async function getIncreaseSalaryOfStaff(db, staffID, date) {
+    console.log(staffID, date);
     let salariesDecidedIncrease = 0
+    let array = []
+    await mtblQuyetDinhTangLuong(db).findAll({
+        where: {
+            DecisionDate: { [Op.substring]: date }
+        }
+    }).then(data => {
+        data.forEach(element => {
+            array.push(element.ID)
+        })
+    })
     let tblIncreaseSalariesAndStaff = mtblIncreaseSalariesAndStaff(db);
     tblIncreaseSalariesAndStaff.belongsTo(mtblQuyetDinhTangLuong(db), { foreignKey: 'IncreaseSalariesID', sourceKey: 'IncreaseSalariesID', as: 'IncreaseSalaries' })
 
     await tblIncreaseSalariesAndStaff.findOne({
-        where: { StaffID: staffID },
+        where: {
+            StaffID: staffID,
+            IncreaseSalariesID: { [Op.in]: array },
+        },
         include: [{
             model: mtblQuyetDinhTangLuong(db),
             required: false,
@@ -346,7 +362,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
             }
         }
     })
-    var array7thDB = await take7thDataToWork(db, year, Number(month));
+    var array7thDB = await take7thDataToWork(db, year, Number(month), dateFinal);
     array7thDB = array7thDB.length
     let numberHoliday = await calculateNumberLeave(db, staffID, date, 'productivityWage')
     let sunSta = 0
@@ -371,11 +387,11 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
     console.log(Number(workingDay), (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB)), numberHoliday, leaveFree / 2, work, dateFinal);
     result = productivityWages / Number(workingDay) * (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB))
     if (workingDay == 0)
-        result = null
+        result = 0
     if (result < 0)
         result = 0
-    if (work == 0)
-        result = 0
+    // if (work <= 0 && (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB)) < 15)
+    //     result = 0
     return result
 }
 async function getListHoliday(db, year, month, dateFinal) {
@@ -428,14 +444,21 @@ async function handleCalculateAdvancePayment(db, idStaff) {
     return diff ? diff : 0
 }
 // Lấy danh sách thứ 7 đi làm
-async function take7thDataToWork(db, year, month) {
+async function take7thDataToWork(db, year, month, dateRequest = 10) {
     //  lấy danh sách thứ 7 đi làm ------------------------------------
     let array7thDB = []
+    var date = new Date(year, month, 0);
+    var dateFinal = Number(date.toISOString().slice(8, 10))
+    dateFinal += 1
+    if (date != 10)
+        dateFinal = dateRequest
+    let dateWhere = year + '-' + await convertNumber(month) + '-' + await convertNumber(dateFinal)
+    let dateMonthFirst = year + '-' + await convertNumber(month) + '-' + '01'
+    dateWhere = moment(dateWhere).add(7, 'hours')
+    dateMonthFirst = moment(dateMonthFirst).add(7, 'hours')
     await mtblConfigWorkday(db).findAll({
         where: {
-            Date: {
-                [Op.substring]: year + '-' + await convertNumber(month)
-            }
+            Date: { [Op.between]: [dateMonthFirst, dateWhere] },
         },
         order: [
             ['Date', 'DESC']
@@ -1167,7 +1190,7 @@ module.exports = {
                                     reduce += Number(element.Reduce);
                                 });
                             })
-                            let salariesDecidedIncrease = await getIncreaseSalaryOfStaff(db, data[i].IDNhanVien); // quyết định tawg lương năng suất
+                            let salariesDecidedIncrease = await getIncreaseSalaryOfStaff(db, data[i].IDNhanVien, dateFrom); // quyết định tawg lương năng suất
                             let productivityWages = await realProductivityWageCalculation(db, data[i].IDNhanVien, date, data[i].nv ? (data[i].nv.ProductivityWages + Number(salariesDecidedIncrease)) : 0)
                             console.log(productivityWages);
                             productivityWages = productivityWages ? productivityWages : 0
@@ -1422,27 +1445,27 @@ module.exports = {
             // 01 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-1 8:00:00",
+                'Verify Date': "2021-5-1 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-1 17:30:30",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-1 8:00:16",
+                'Verify Date': "2021-5-1 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-1 17:30:20",
+                'Verify Date': "2021-5-1 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1450,27 +1473,27 @@ module.exports = {
             // 02 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-2 8:00:00",
+                'Verify Date': "2021-5-2 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-2 17:30:30",
+                'Verify Date': "2021-5-2 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-2 8:00:16",
+                'Verify Date': "2021-5-2 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-2 17:30:20",
+                'Verify Date': "2021-5-2 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1478,27 +1501,27 @@ module.exports = {
             // 03 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-3 8:00:00",
+                'Verify Date': "2021-5-3 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-3 17:30:30",
+                'Verify Date': "2021-5-3 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-3 8:00:16",
+                'Verify Date': "2021-5-3 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-3 16:00:20",
+                'Verify Date': "2021-5-3 16:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1506,27 +1529,27 @@ module.exports = {
             // 04 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-4 8:00:00",
+                'Verify Date': "2021-5-4 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-4 17:30:30",
+                'Verify Date': "2021-5-4 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-4 8:00:16",
+                'Verify Date': "2021-5-4 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-4 17:30:20",
+                'Verify Date': "2021-5-4 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1534,27 +1557,27 @@ module.exports = {
             // 05 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-5 8:00:00",
+                'Verify Date': "2021-5-5 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-5 17:30:30",
+                'Verify Date': "2021-5-5 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-5 8:00:16",
+                'Verify Date': "2021-5-5 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-5 17:30:20",
+                'Verify Date': "2021-5-5 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1562,27 +1585,27 @@ module.exports = {
             // 06 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-6 8:00:00",
+                'Verify Date': "2021-5-6 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-6 17:30:30",
+                'Verify Date': "2021-5-6 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-6 8:00:16",
+                'Verify Date': "2021-5-6 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-6 17:30:20",
+                'Verify Date': "2021-5-6 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1590,27 +1613,27 @@ module.exports = {
             // 07 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-7 8:00:00",
+                'Verify Date': "2021-5-7 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-7 17:30:30",
+                'Verify Date': "2021-5-7 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-7 8:00:16",
+                'Verify Date': "2021-5-7 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-7 17:30:20",
+                'Verify Date': "2021-5-7 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1618,27 +1641,27 @@ module.exports = {
             // 08 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-8 8:00:00",
+                'Verify Date': "2021-5-8 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-1 17:30:30",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-8 8:00:16",
+                'Verify Date': "2021-5-8 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-8 17:30:20",
+                'Verify Date': "2021-5-8 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1646,27 +1669,27 @@ module.exports = {
             // 10 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-10 8:00:00",
+                'Verify Date': "2021-5-10 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-10 17:30:30",
+                'Verify Date': "2021-5-10 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-10 8:00:16",
+                'Verify Date': "2021-5-10 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-10 17:30:20",
+                'Verify Date': "2021-5-10 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1674,27 +1697,27 @@ module.exports = {
             // 11 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-11 8:30:00",
+                'Verify Date': "2021-5-11 8:30:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-1 17:30:30",
+                'Verify Date': "2021-5-1 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-11 8:00:16",
+                'Verify Date': "2021-5-11 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-11 17:30:20",
+                'Verify Date': "2021-5-11 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1702,27 +1725,27 @@ module.exports = {
             // 12 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-12 8:00:00",
+                'Verify Date': "2021-5-12 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-12 17:30:30",
+                'Verify Date': "2021-5-12 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-12 8:00:16",
+                'Verify Date': "2021-5-12 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-12 17:30:20",
+                'Verify Date': "2021-5-12 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1730,27 +1753,27 @@ module.exports = {
             // 13 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-13 8:00:00",
+                'Verify Date': "2021-5-13 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-13 17:30:30",
+                'Verify Date': "2021-5-13 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-13 8:00:16",
+                'Verify Date': "2021-5-13 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-13 17:00:20",
+                'Verify Date': "2021-5-13 17:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1759,27 +1782,27 @@ module.exports = {
             // 14 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-14 8:00:00",
+                'Verify Date': "2021-5-14 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-14 17:30:30",
+                'Verify Date': "2021-5-14 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-14 8:00:16",
+                'Verify Date': "2021-5-14 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-14 17:30:20",
+                'Verify Date': "2021-5-14 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1787,27 +1810,27 @@ module.exports = {
             // 15 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-15 8:00:00",
+                'Verify Date': "2021-5-15 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-15 17:30:30",
+                'Verify Date': "2021-5-15 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-15 8:00:16",
+                'Verify Date': "2021-5-15 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-15 17:30:20",
+                'Verify Date': "2021-5-15 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1816,27 +1839,27 @@ module.exports = {
             // 16 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-16 8:00:00",
+                'Verify Date': "2021-5-16 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-16 17:30:30",
+                'Verify Date': "2021-5-16 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-16 8:00:16",
+                'Verify Date': "2021-5-16 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-16 17:30:20",
+                'Verify Date': "2021-5-16 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1845,27 +1868,27 @@ module.exports = {
             // 17 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-17 8:00:00",
+                'Verify Date': "2021-5-17 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-17 17:30:30",
+                'Verify Date': "2021-5-17 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-17 8:00:16",
+                'Verify Date': "2021-5-17 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-17 17:30:20",
+                'Verify Date': "2021-5-17 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1873,27 +1896,27 @@ module.exports = {
             // 18 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-18 8:00:00",
+                'Verify Date': "2021-5-18 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-18 17:30:30",
+                'Verify Date': "2021-5-18 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-18 8:00:16",
+                'Verify Date': "2021-5-18 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-18 17:00:20",
+                'Verify Date': "2021-5-18 17:00:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1902,27 +1925,27 @@ module.exports = {
             // 19 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-19 8:00:00",
+                'Verify Date': "2021-5-19 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-19 17:30:30",
+                'Verify Date': "2021-5-19 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-19 8:30:16",
+                'Verify Date': "2021-5-19 8:30:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-19 17:30:20",
+                'Verify Date': "2021-5-19 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1931,27 +1954,27 @@ module.exports = {
             // 20 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-20 8:00:00",
+                'Verify Date': "2021-5-20 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-20 17:30:30",
+                'Verify Date': "2021-5-20 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-20 8:00:16",
+                'Verify Date': "2021-5-20 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-20 17:30:20",
+                'Verify Date': "2021-5-20 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1959,27 +1982,27 @@ module.exports = {
             // 21 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-21 8:00:00",
+                'Verify Date': "2021-5-21 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-21 17:30:30",
+                'Verify Date': "2021-5-21 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-21 8:00:16",
+                'Verify Date': "2021-5-21 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-21 17:30:20",
+                'Verify Date': "2021-5-21 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -1988,27 +2011,27 @@ module.exports = {
             // 24 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-24 8:00:00",
+                'Verify Date': "2021-5-24 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-14 17:30:30",
+                'Verify Date': "2021-5-14 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-24 10:00:16",
+                'Verify Date': "2021-5-24 10:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-24 17:30:20",
+                'Verify Date': "2021-5-24 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2017,27 +2040,27 @@ module.exports = {
             // 25----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-25 8:00:00",
+                'Verify Date': "2021-5-25 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-25 17:30:30",
+                'Verify Date': "2021-5-25 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-25 8:00:16",
+                'Verify Date': "2021-5-25 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-25 17:30:20",
+                'Verify Date': "2021-5-25 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2045,27 +2068,27 @@ module.exports = {
             // 26 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-26 8:00:00",
+                'Verify Date': "2021-5-26 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-14 17:30:30",
+                'Verify Date': "2021-5-14 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-26 8:00:16",
+                'Verify Date': "2021-5-26 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-26 17:30:20",
+                'Verify Date': "2021-5-26 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2074,27 +2097,27 @@ module.exports = {
             // 27 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-27 8:00:00",
+                'Verify Date': "2021-5-27 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-27 17:30:30",
+                'Verify Date': "2021-5-27 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-27 8:00:16",
+                'Verify Date': "2021-5-27 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-27 17:30:20",
+                'Verify Date': "2021-5-27 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2103,27 +2126,27 @@ module.exports = {
             // 28 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-28 8:00:00",
+                'Verify Date': "2021-5-28 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-28 17:30:30",
+                'Verify Date': "2021-5-28 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-28 8:00:16",
+                'Verify Date': "2021-5-28 8:00:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-28 17:30:20",
+                'Verify Date': "2021-5-28 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2131,27 +2154,27 @@ module.exports = {
             // 31 ----------------------------------------------------------------------------------------------------------------------------------
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-31 8:00:00",
+                'Verify Date': "2021-5-31 8:00:00",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 1,
-                'Verify Date': "2021-6-31 17:30:30",
+                'Verify Date': "2021-5-31 17:30:30",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             }, {
                 'User ID': 2,
-                'Verify Date': "2021-6-31 8:30:16",
+                'Verify Date': "2021-5-31 8:30:16",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
             },
             {
                 'User ID': 2,
-                'Verify Date': "2021-6-31 17:30:20",
+                'Verify Date': "2021-5-31 17:30:20",
                 'Verify Type': 1,
                 'Verify State': 1,
                 'Work Code': 1
@@ -2195,7 +2218,19 @@ module.exports = {
                     var array7thDB = await take7thDataToWork(db, year, month);
                     var arrayDays = [];
                     let checkFor = 0;
-
+                    let arrayStaff = []
+                    let dateFirstMonth = yearMonth + '-' + dateFinal
+                    dateFirstMonth = moment(dateFirstMonth).add(7, 'hours')
+                    await mtblHopDongNhanSu(db).findAll({
+                        where: {
+                            Date: { [Op.lte]: dateFirstMonth },
+                            Status: 'Có hiệu lực',
+                        }
+                    }).then(staff => {
+                        staff.forEach(element => {
+                            arrayStaff.push(element.IDNhanVien)
+                        })
+                    })
                     // taopj cho nhân viên có id chấm công sai hoặc không có
                     await mtblDMNhanvien(db).findAll({
                         where: {
@@ -2206,169 +2241,246 @@ module.exports = {
                         }
                     }).then(async staff => {
                         for (let s = 0; s < staff.length; s++) {
-                            var timeKeeping = await mtblChamCong(db).findAll({
-                                where: [{
-                                    Date: {
-                                        [Op.substring]: '%' + yearMonth + '%'
-                                    }
-                                },
-                                {
-                                    IDNhanVien: staff[s].ID
-                                }]
-                            })
-                            if (timeKeeping.length <= 0) {
-                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                if (staff) {
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
-                                    var yearMonth = year + '-' + await convertNumber(month);
-                                    for (var j = 1; j <= dateFinal; j++) {
-                                        console.log(j);
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff[s] ? staff[s].ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                    }
-                                                }
-                                            } else {
-                                                await createAttendanceData(db, staffID, date, null, '1', '1', false, 0)
-                                                await createAttendanceData(db, staffID, date, null, '1', '1', true, 0)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    })
-                    if (arrayUserID.length > 0) {
-                        for (var i = 0; i < arrayUserID.length; i++) {
-                            var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
-                            var timeKeeping;
-                            if (staff)
-                                timeKeeping = await mtblChamCong(db).findAll({
+                            if (checkDuplicate(arrayStaff, staff[s].ID)) {
+                                var timeKeeping = await mtblChamCong(db).findAll({
                                     where: [{
                                         Date: {
                                             [Op.substring]: '%' + yearMonth + '%'
                                         }
                                     },
                                     {
-                                        IDNhanVien: staff.ID
+                                        IDNhanVien: staff[s].ID
                                     }]
                                 })
-                            if (timeKeeping.length <= 0) {
-                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                if (staff) {
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                                    var yearMonth = year + '-' + await convertNumber(month);
-                                    for (var j = 1; j <= dateFinal; j++) {
-                                        console.log(j);
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff ? staff.ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                if (timeKeeping.length <= 0) {
+                                    var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+                                    if (staff[s].ID) {
+                                        var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
+                                        var yearMonth = year + '-' + await convertNumber(month);
+                                        for (var j = 1; j <= dateFinal; j++) {
+                                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                            let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                            let staffID = staff[s] ? staff[s].ID : null
+                                            if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                            } else if (checkDuplicate(arrayHoliday, j)) {
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                            } else {
+                                                // check xem có trong ngày nghỉ phép không ?
+                                                if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                    for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                        if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                        }
+                                                    }
+                                                } else {
+                                                    await createAttendanceData(db, staffID, date, null, '1', '1', false, 0)
+                                                    await createAttendanceData(db, staffID, date, null, '1', '1', true, 0)
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+                                    if (staff[s].ID) {
+                                        var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
+                                        var yearMonth = year + '-' + await convertNumber(month);
+                                        for (var j = 1; j <= dateFinal; j++) {
+                                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                            let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                            let staffID = staff[s] ? staff[s].ID : null
+                                            if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                                await mtblChamCong(db).destroy({
+                                                    where: {
+                                                        Date: date,
+                                                        IDNhanVien: staffID
+                                                    }
+                                                })
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                                await mtblChamCong(db).destroy({
+                                                    where: {
+                                                        Date: date,
+                                                        IDNhanVien: staffID
+                                                    }
+                                                })
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && checkDuplicate(array7thDB, j)) {
+                                                let timeKeeping = await mtblChamCong(db).findOne({
+                                                    where: {
+                                                        Date: date,
+                                                        IDNhanVien: staffID
+                                                    }
+                                                })
+                                                if (timeKeeping && timeKeeping.Status == 'Sat') {
+                                                    await mtblChamCong(db).destroy({
+                                                        where: {
+                                                            ID: timeKeeping.ID
+                                                        }
+                                                    })
+                                                    await createAttendanceData(db, staffID, date, null, '1', '1', false, 0)
+                                                    await createAttendanceData(db, staffID, date, null, '1', '1', true, 0)
+                                                }
+                                            } else if (checkDuplicate(arrayHoliday, j)) {
+
+                                                await mtblChamCong(db).destroy({
+                                                    where: {
+                                                        Date: date,
+                                                        IDNhanVien: staffID
+                                                    }
+                                                })
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                            } else {
+                                                // check xem có trong ngày nghỉ phép không ?
+                                                if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                    console.log(arrayLeaveDay, j);
+                                                    for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                        if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                            await mtblChamCong(db).destroy({
+                                                                where: {
+                                                                    Date: date,
+                                                                    IDNhanVien: staffID
+                                                                }
+                                                            })
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                        }
                                                     }
                                                 }
-                                            } else {
-                                                await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
                                             }
                                         }
                                     }
                                 }
-                            } else {
-                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
-                                if (staff) {
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                                    var yearMonth = year + '-' + await convertNumber(month);
-                                    for (var j = 1; j <= dateFinal; j++) {
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff ? staff.ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
+                            }
+
+                        }
+                    })
+                    if (arrayUserID.length > 0) {
+                        for (var i = 0; i < arrayUserID.length; i++) {
+                            var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
+                            if (checkDuplicate(arrayStaff, staff.ID)) {
+                                var timeKeeping;
+                                if (staff)
+                                    timeKeeping = await mtblChamCong(db).findAll({
+                                        where: [{
+                                            Date: {
+                                                [Op.substring]: '%' + yearMonth + '%'
+                                            }
+                                        },
+                                        {
+                                            IDNhanVien: staff.ID
+                                        }]
+                                    })
+                                if (timeKeeping.length <= 0) {
+                                    var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+                                    if (staff) {
+                                        var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
+                                        var yearMonth = year + '-' + await convertNumber(month);
+                                        for (var j = 1; j <= dateFinal; j++) {
+                                            console.log(j);
+                                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                            let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                            let staffID = staff ? staff.ID : null
+                                            if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                            } else if (checkDuplicate(arrayHoliday, j)) {
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                            } else {
+                                                // check xem có trong ngày nghỉ phép không ?
+                                                if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                    for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                        if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                        }
+                                                    }
+                                                } else {
+                                                    await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
                                                 }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && checkDuplicate(array7thDB, j)) {
-                                            let timeKeeping = await mtblChamCong(db).findOne({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            if (timeKeeping && timeKeeping.Status == 'Sat') {
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+                                    var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
+                                    if (staff) {
+                                        var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
+                                        var yearMonth = year + '-' + await convertNumber(month);
+                                        for (var j = 1; j <= dateFinal; j++) {
+                                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                            let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                            let staffID = staff ? staff.ID : null
+                                            if (datetConvert.slice(0, 8) == 'Chủ nhật') {
                                                 await mtblChamCong(db).destroy({
                                                     where: {
-                                                        ID: timeKeeping.ID
+                                                        Date: date,
+                                                        IDNhanVien: staffID
                                                     }
                                                 })
-                                                await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
-                                            }
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                                await mtblChamCong(db).destroy({
+                                                    where: {
+                                                        Date: date,
+                                                        IDNhanVien: staffID
+                                                    }
+                                                })
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && checkDuplicate(array7thDB, j)) {
+                                                let timeKeeping = await mtblChamCong(db).findOne({
+                                                    where: {
+                                                        Date: date,
+                                                        IDNhanVien: staffID
+                                                    }
+                                                })
+                                                if (timeKeeping && timeKeeping.Status == 'Sat') {
+                                                    await mtblChamCong(db).destroy({
+                                                        where: {
+                                                            ID: timeKeeping.ID
+                                                        }
+                                                    })
+                                                    await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
                                                 }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await mtblChamCong(db).destroy({
-                                                            where: {
-                                                                Date: date,
-                                                                IDNhanVien: staffID
-                                                            }
-                                                        })
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                            } else if (checkDuplicate(arrayHoliday, j)) {
+
+                                                await mtblChamCong(db).destroy({
+                                                    where: {
+                                                        Date: date,
+                                                        IDNhanVien: staffID
+                                                    }
+                                                })
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                            } else {
+                                                // check xem có trong ngày nghỉ phép không ?
+                                                if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                    for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                        if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                            await mtblChamCong(db).destroy({
+                                                                where: {
+                                                                    Date: date,
+                                                                    IDNhanVien: staffID
+                                                                }
+                                                            })
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -2382,116 +2494,118 @@ module.exports = {
                         yearMonth = year + '-' + await convertNumber(month);
                         var stt = 1;
                         for (var i = 0; i < staff.length; i++) {
-                            let objWhere = {};
-                            let arraySearchAnd = [];
-                            let arraySearchOr = [];
-                            let arraySearchNot = [];
-                            if (body.date) {
-                                arraySearchAnd.push({ IDNhanVien: staff[i].ID });
-                                arraySearchAnd.push({
-                                    Date: {
-                                        [Op.substring]: '%' + yearMonth + '%'
-                                    }
-                                });
-                            }
-                            if (arraySearchOr.length > 0)
-                                objWhere[Op.or] = arraySearchOr
-                            if (arraySearchAnd.length > 0)
-                                objWhere[Op.and] = arraySearchAnd
-                            if (arraySearchNot.length > 0)
-                                objWhere[Op.not] = arraySearchNot
-                            var summary = 0;
-                            if (arrayDays.length > 0)
-                                checkFor = 1;
-                            var freeBreak = 0;
-                            var workingDay = 0;
-                            var obj = {}
-                            var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
-                            var timeKeeping = await mtblChamCong(db).findOne({
-                                where: objWhere,
-                            })
-                            if (timeKeeping) {
-                                for (var j = 1; j <= dateFinal; j++) {
-                                    var timeKeepingM = await mtblChamCong(db).findOne({
-                                        where: [
-                                            { IDNhanVien: staff[i].ID },
-                                            { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
-                                            { Type: true },
-                                        ]
-                                    })
-                                    var timeKeepingA = await mtblChamCong(db).findOne({
-                                        where: [
-                                            { IDNhanVien: staff[i].ID },
-                                            { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
-                                            { Type: false },
-                                        ]
-                                    })
-                                    if (timeKeepingM) {
-                                        if (timeKeepingM.Status == '1') {
-                                            if (checkDuplicate(arrayTakeLeave, j)) {
-                                                if (checkFor == 0)
-                                                    arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
-                                                let objDay = {};
-                                                objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
-                                                objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
-                                                objDay['C'] = timeKeepingA ? timeKeepingA.Status : '';
-                                                objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
-                                                objDay['status'] = 'H';
-                                                obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
-                                                freeBreak += 1;
+                            if (checkDuplicate(arrayStaff, staff[i].ID)) {
+                                let objWhere = {};
+                                let arraySearchAnd = [];
+                                let arraySearchOr = [];
+                                let arraySearchNot = [];
+                                if (body.date) {
+                                    arraySearchAnd.push({ IDNhanVien: staff[i].ID });
+                                    arraySearchAnd.push({
+                                        Date: {
+                                            [Op.substring]: '%' + yearMonth + '%'
+                                        }
+                                    });
+                                }
+                                if (arraySearchOr.length > 0)
+                                    objWhere[Op.or] = arraySearchOr
+                                if (arraySearchAnd.length > 0)
+                                    objWhere[Op.and] = arraySearchAnd
+                                if (arraySearchNot.length > 0)
+                                    objWhere[Op.not] = arraySearchNot
+                                var summary = 0;
+                                if (arrayDays.length > 0)
+                                    checkFor = 1;
+                                var freeBreak = 0;
+                                var workingDay = 0;
+                                var obj = {}
+                                var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
+                                var timeKeeping = await mtblChamCong(db).findOne({
+                                    where: objWhere,
+                                })
+                                if (timeKeeping) {
+                                    for (var j = 1; j <= dateFinal; j++) {
+                                        var timeKeepingM = await mtblChamCong(db).findOne({
+                                            where: [
+                                                { IDNhanVien: staff[i].ID },
+                                                { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
+                                                { Type: true },
+                                            ]
+                                        })
+                                        var timeKeepingA = await mtblChamCong(db).findOne({
+                                            where: [
+                                                { IDNhanVien: staff[i].ID },
+                                                { Date: moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS'), },
+                                                { Type: false },
+                                            ]
+                                        })
+                                        if (timeKeepingM) {
+                                            if (timeKeepingM.Status == '1') {
+                                                if (checkDuplicate(arrayTakeLeave, j)) {
+                                                    if (checkFor == 0)
+                                                        arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+                                                    let objDay = {};
+                                                    objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
+                                                    objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
+                                                    objDay['C'] = timeKeepingA ? timeKeepingA.Status : '';
+                                                    objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
+                                                    objDay['status'] = 'H';
+                                                    obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                                    freeBreak += 1;
+                                                } else {
+                                                    if (checkFor == 0)
+                                                        arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
+                                                    let objDay = {};
+                                                    objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
+                                                    objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
+                                                    objDay['C'] = timeKeepingA ? timeKeepingA.Status : '';
+                                                    objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
+                                                    objDay['status'] = 'F';
+                                                    obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                                    freeBreak += 1;
+                                                }
                                             } else {
                                                 if (checkFor == 0)
                                                     arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
                                                 let objDay = {};
                                                 objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
                                                 objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
-                                                objDay['C'] = timeKeepingA ? timeKeepingA.Status : '';
+                                                objDay['C'] = timeKeepingA ? timeKeepingA.Status ? timeKeepingA.Status : '' : ' ';
                                                 objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
-                                                objDay['status'] = 'F';
+                                                workingDay += 1
                                                 obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
-                                                freeBreak += 1;
                                             }
-                                        } else {
-                                            if (checkFor == 0)
-                                                arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
-                                            let objDay = {};
-                                            objDay['S'] = timeKeepingM ? timeKeepingM.Status ? timeKeepingM.Status : '' : ' ';
-                                            objDay['idS'] = timeKeepingM ? timeKeepingM.ID : ' ';
-                                            objDay['C'] = timeKeepingA ? timeKeepingA.Status ? timeKeepingA.Status : '' : ' ';
-                                            objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
-                                            workingDay += 1
-                                            obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
+                                        }
+                                        // lấy ngày nghỉ tính theo 3 con số theo yêu cầu
+                                        if (timeKeepingM) {
+                                            summary += timeKeepingM.SummaryEndDate
+                                        }
+                                        if (timeKeepingA) {
+                                            summary += timeKeepingA.SummaryEndDate
                                         }
                                     }
-                                    // lấy ngày nghỉ tính theo 3 con số theo yêu cầu
-                                    if (timeKeepingM) {
-                                        summary += timeKeepingM.SummaryEndDate
-                                    }
-                                    if (timeKeepingA) {
-                                        summary += timeKeepingA.SummaryEndDate
-                                    }
                                 }
+                                obj['takeLeave'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
+                                // obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
+                                obj['freeBreak'] = freeBreak;
+                                obj['workingDay'] = workingDay;
+                                obj['dayOff'] = Number(Number(summary) + Number(freeBreak)).toFixed(3);
+                                obj['staffName'] = staff[i] ? staff[i].StaffName : '';
+                                obj['staffCode'] = staff[i] ? staff[i].StaffCode : '';
+                                let departmentName = '';
+                                await mtblDMBoPhan(db).findOne({
+                                    where: {
+                                        ID: staff[i].IDBoPhan
+                                    }
+                                }).then(data => {
+                                    if (data)
+                                        departmentName = data.DepartmentName
+                                })
+                                obj['departmentName'] = departmentName;
+                                obj['stt'] = stt;
+                                array.push(obj)
+                                stt += 1;
                             }
-                            obj['takeLeave'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                            // obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
-                            obj['freeBreak'] = freeBreak;
-                            obj['workingDay'] = workingDay;
-                            obj['dayOff'] = Number(Number(summary) + Number(freeBreak)).toFixed(3);
-                            obj['staffName'] = staff[i] ? staff[i].StaffName : '';
-                            obj['staffCode'] = staff[i] ? staff[i].StaffCode : '';
-                            let departmentName = '';
-                            await mtblDMBoPhan(db).findOne({
-                                where: {
-                                    ID: staff[i].IDBoPhan
-                                }
-                            }).then(data => {
-                                if (data)
-                                    departmentName = data.DepartmentName
-                            })
-                            obj['departmentName'] = departmentName;
-                            obj['stt'] = stt;
-                            array.push(obj)
-                            stt += 1;
                         }
                     })
                     var result = {

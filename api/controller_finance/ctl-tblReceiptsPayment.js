@@ -802,7 +802,7 @@ module.exports = {
                                 paidAmount: data.PaidAmount ? data.PaidAmount : null,
                                 initialAmount: data.InitialAmount ? data.InitialAmount : null,
                                 withdrawal: data.Withdrawal ? data.Withdrawal : null,
-                                exchangeRae: data.ExchangeRae ? data.ExchangeRae : 0,
+                                exchangeRate: data.ExchangeRate ? data.ExchangeRate : 1,
                                 isUndefined: data.Unknown,
                                 staffID: data.IDStaff ? data.IDStaff : null,
                                 staffName: 'Chưa có dữ liệu' ? 'Chưa có dữ liệu' : null,
@@ -986,7 +986,7 @@ module.exports = {
                         UnpaidAmount: body.amount ? body.amount : null,
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
                         Unknown: body.isUndefined ? body.isUndefined : null,
-                        ExchangeRate: body.exchangeRae ? body.exchangeRae : 0,
+                        ExchangeRate: body.exchangeRate ? body.exchangeRate : 0,
                     }
                     body.object = JSON.parse(body.object)
                     if (body.object.type == 'staff')
@@ -1190,11 +1190,11 @@ module.exports = {
                         else
                             update.push({ key: 'IDCurrency', value: body.idCurrency });
                     }
-                    if (body.exchangeRae || body.exchangeRae === '') {
-                        if (body.exchangeRae === '')
-                            update.push({ key: 'ExchangeRae', value: null });
+                    if (body.exchangeRate || body.exchangeRate === '') {
+                        if (body.exchangeRate === '')
+                            update.push({ key: 'ExchangeRate', value: null });
                         else
-                            update.push({ key: 'ExchangeRae', value: body.exchangeRae });
+                            update.push({ key: 'ExchangeRate', value: body.exchangeRate });
                     }
                     if (body.voucherDate || body.voucherDate === '') {
                         if (body.voucherDate === '')
