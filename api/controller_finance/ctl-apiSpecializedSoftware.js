@@ -8,6 +8,8 @@ var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var moment = require('moment');
 const Op = require('sequelize').Op;
+var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
+var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 
 // data model invoice của KH
 data = [{
@@ -1249,41 +1251,75 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 var array = []
+                var arrayCreate = []
                 let totalMoney = []
+                let arrayInvoice = []
+                if (body.idReceiptPayment) {
+
+                    await mtblReceiptsPayment(db).findOne({
+                        where: {
+                            ID: body.idReceiptPayment
+                        }
+                    }).then(async data => {
+                        await mtblPaymentRInvoice(db).findAll({
+                            where: {
+                                IDPayment: data.ID
+                            }
+                        }).then(invoice => {
+                            invoice.forEach(element => {
+                                arrayInvoice.push(Number(element.IDSpecializedSoftware))
+                            })
+                        })
+                    })
+                }
                 for (var i = 0; i < data.length; i++) {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: data[i].id }
                     })
                     let totalMoneyVND = 0
                     let = arrayExchangeRate = []
-
                     for (let m = 0; m < data[i].arrayMoney.length; m++) {
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
                         totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                     }
                     data[i]['totalMoneyVND'] = totalMoneyVND
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
-
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
                             Status: data[i].statusName
                         })
-                        if (data[i].statusName == 'Chờ thanh toán')
+                        if (data[i].statusName == 'Chờ thanh toán') {
                             array.push(data[i])
+                            arrayCreate.push(data[i])
+                        }
+                        else {
+                            console.log(arrayInvoice, data[i].id);
+                            if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                                array.push(data[i])
+
+                            }
+                        }
                     } else {
-                        console.log(check.Status);
-                        if (check.Status == 'Chờ thanh toán')
+                        if (check.Status == 'Chờ thanh toán') {
                             array.push(data[i])
+                            arrayCreate.push(data[i])
+                        }
+                        else {
+                            if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                                array.push(data[i])
+                            }
+                        }
                     }
                 }
-                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(arrayCreate)
                 let totalMoneyVND = 0
                 for (let a = 0; a < totalMoney.length; a++) {
                     totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
                 }
                 var result = {
-                    array: array,
+                    arrayCreate: arrayCreate,
+                    arrayUpdate: array,
                     // array: data.data.data.list,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -1293,6 +1329,7 @@ module.exports = {
 
                     // all: data.data.data.pager.rowsCount
                 }
+                console.log(result);
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)

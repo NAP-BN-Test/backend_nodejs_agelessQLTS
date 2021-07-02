@@ -553,6 +553,7 @@ module.exports = {
                             CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : 0,
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
+                            IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                         }).then(async data => {
                             await mtblBangLuong(db).create({
                                 Date: body.signDate ? body.signDate : null,

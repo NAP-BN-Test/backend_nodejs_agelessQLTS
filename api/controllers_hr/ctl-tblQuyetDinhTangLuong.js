@@ -20,6 +20,13 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 //     }
 // })
 async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
+    await mtblFileAttach(db).destroy({
+        where: {
+            IDIncreaseSlary: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblIncreaseSalariesAndStaff(db).destroy({
         where: {
             IncreaseSalariesID: {

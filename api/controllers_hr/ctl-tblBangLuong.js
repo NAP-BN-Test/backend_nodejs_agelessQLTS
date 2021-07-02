@@ -2195,6 +2195,65 @@ module.exports = {
                     var array7thDB = await take7thDataToWork(db, year, month);
                     var arrayDays = [];
                     let checkFor = 0;
+
+                    // taopj cho nhân viên có id chấm công sai hoặc không có
+                    await mtblDMNhanvien(db).findAll({
+                        where: {
+                            [Op.or]: [
+                                { IDMayChamCong: { [Op.notIn]: arrayUserID } },
+                                { IDMayChamCong: null },
+                            ]
+                        }
+                    }).then(async staff => {
+                        for (let s = 0; s < staff.length; s++) {
+                            var timeKeeping = await mtblChamCong(db).findAll({
+                                where: [{
+                                    Date: {
+                                        [Op.substring]: '%' + yearMonth + '%'
+                                    }
+                                },
+                                {
+                                    IDNhanVien: staff[s].ID
+                                }]
+                            })
+                            if (timeKeeping.length <= 0) {
+                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+                                if (staff) {
+                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
+                                    var yearMonth = year + '-' + await convertNumber(month);
+                                    for (var j = 1; j <= dateFinal; j++) {
+                                        console.log(j);
+                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                        let staffID = staff[s] ? staff[s].ID : null
+                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                        } else if (checkDuplicate(arrayHoliday, j)) {
+                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                        } else {
+                                            // check xem có trong ngày nghỉ phép không ?
+                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                    }
+                                                }
+                                            } else {
+                                                await createAttendanceData(db, staffID, date, null, '1', '1', false, 0)
+                                                await createAttendanceData(db, staffID, date, null, '1', '1', true, 0)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
                     if (arrayUserID.length > 0) {
                         for (var i = 0; i < arrayUserID.length; i++) {
                             var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
@@ -2210,7 +2269,7 @@ module.exports = {
                                         IDNhanVien: staff.ID
                                     }]
                                 })
-                            if (timeKeeping <= 0) {
+                            if (timeKeeping.length <= 0) {
                                 var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
                                 if (staff) {
                                     var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
