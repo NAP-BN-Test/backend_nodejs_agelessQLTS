@@ -14,6 +14,7 @@ module.exports = function (db) {
         Reason: Sequelize.STRING,
         Type: Sequelize.BOOLEAN,
         SummaryEndDate: Sequelize.FLOAT,
+        EditDate: Sequelize.NOW,
     });
 
     return table;
