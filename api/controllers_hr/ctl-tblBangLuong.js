@@ -2193,7 +2193,8 @@ module.exports = {
                     var dateFinal = Number(date.toISOString().slice(8, 10))
                     dateFinal += 1
                     let now = moment().add(7, 'hours').format('MM');
-                    let dayNow = moment().add(7, 'hours').format('DD');
+                    let dayNow = moment().subtract(7, 'hours').format('DD');
+                    console.log(dayNow);
                     if (Number(now) == Number(month)) {
                         dateFinal = Number(dayNow)
                     }
@@ -2201,7 +2202,7 @@ module.exports = {
                     var yearMonth = body.date;
                     var array7thDB = await take7thDataToWork(db, year, month);
                     var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                    if (month == now) {
+                    if (Number(month) == Number(now)) {
                         console.log('==================================================================================================');
                         await mtblDMNhanvien(db).findAll({
                             where: {
@@ -2236,12 +2237,43 @@ module.exports = {
                                     ],
                                     group: ['ID', 'EditDate', 'SummaryEndDate', 'Type', 'Reason', 'Status', 'Time', 'IDNhanVien', 'Date'],
                                 })
-                                if (!timeKeeping && timeKeepingFinal) {
-                                    let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
+                                if (!timeKeeping) {
                                     var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
-                                    if (dateFinalSave < Number(dayNow)) {
-                                        console.log((dateFinalSave + 1));
-                                        for (var j = (dateFinalSave + 1); j <= Number(dayNow); j++) {
+                                    if (timeKeepingFinal) {
+                                        let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
+                                        if (dateFinalSave < Number(dayNow)) {
+                                            console.log((dateFinalSave + 1, Number(dayNow)));
+                                            for (var j = (dateFinalSave + 1); j <= Number(dayNow); j++) {
+                                                var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                                let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                                let staffID = staff[s] ? staff[s].ID : null
+                                                if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                                    await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                                } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                                    await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                                } else if (checkDuplicate(arrayHoliday, j)) {
+                                                    await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                                } else {
+                                                    // check xem có trong ngày nghỉ phép không ?
+                                                    if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                        for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                            if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                                await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                                await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                            }
+                                                        }
+                                                    } else {
+                                                        await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
+                                                        await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        for (var j = 1; j <= Number(dayNow); j++) {
                                             var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
                                             let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
                                             let staffID = staff[s] ? staff[s].ID : null
@@ -2270,6 +2302,7 @@ module.exports = {
                                             }
                                         }
                                     }
+
                                 }
                             }
                         })
@@ -2290,10 +2323,11 @@ module.exports = {
                                     ],
                                     group: ['ID', 'EditDate', 'SummaryEndDate', 'Type', 'Reason', 'Status', 'Time', 'IDNhanVien', 'Date'],
                                 })
+                                var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
+                                var yearMonth = year + '-' + await convertNumber(month);
                                 if (timeKeepingFinal) {
                                     let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                                    var yearMonth = year + '-' + await convertNumber(month);
+
                                     if (dateFinalSave < Number(dayNow)) {
                                         for (var j = (dateFinalSave + 1); j <= Number(dayNow); j++) {
                                             var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
@@ -2320,6 +2354,34 @@ module.exports = {
                                                 } else {
                                                     await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
                                                 }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    for (var j = 1; j <= Number(dayNow); j++) {
+                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                        let staffID = staff ? staff.ID : null
+                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                        } else if (checkDuplicate(arrayHoliday, j)) {
+                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                        } else {
+                                            // check xem có trong ngày nghỉ phép không ?
+                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                    }
+                                                }
+                                            } else {
+                                                await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
                                             }
                                         }
                                     }

@@ -82,6 +82,12 @@ module.exports = {
             socket.on("notification-thaydoichiphi", async function (data) {
                 io.sockets.emit("notification-thaydoichiphi", { dbname: data.dbnamenhaxe, donhang_thongbao: data.donhang_thongbao });
             });
+            socket.on("notification-yeucaupheduyet", async function (data) {
+                io.sockets.emit("notification-yeucaupheduyet", { dbname: data.dbname, donhang_thongbao: data.donhang_thongbao });
+            });
+            socket.on("notification-nhaxehoanthanh", async function (data) {
+                io.sockets.emit("notification-nhaxehoanthanh", { dbname: data.dbnamenhaxe, donhang_thongbao: data.donhang_thongbao });
+            });
             socket.on("change-received-status", async function (data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
