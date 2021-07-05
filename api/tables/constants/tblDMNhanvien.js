@@ -36,6 +36,7 @@ module.exports = function (db) {
         IDSpecializedSoftware: Sequelize.INTEGER,
         CMNDPlace: Sequelize.STRING,
         CMNDDate: Sequelize.DATE,
+        FileAttachID: Sequelize.BIGINT,
     });
 
     return table;

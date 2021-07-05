@@ -324,7 +324,6 @@ module.exports = {
                     var row = 0;
                     var checkMaxRow = 1;
                     for (let i = 0; i < data.length; i++) {
-                        console.log(data[i]);
                         data[i].arrayTaiSanExport = JSON.parse(data[i].arrayTaiSanExport)
                         data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
                         var max = 0;

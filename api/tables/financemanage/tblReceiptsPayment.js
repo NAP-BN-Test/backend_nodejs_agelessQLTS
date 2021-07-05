@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = function(db) {
+module.exports = function (db) {
     var table = db.define('tblReceiptsPayment', {
         ID: {
             type: Sequelize.BIGINT,
@@ -32,6 +32,7 @@ module.exports = function(db) {
         IDCustomer: Sequelize.INTEGER,
         IDPartner: Sequelize.INTEGER,
         RPType: Sequelize.STRING,
+        ApplicantReceiverName: Sequelize.STRING,
     });
 
     return table;

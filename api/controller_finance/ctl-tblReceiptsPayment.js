@@ -778,6 +778,7 @@ module.exports = {
                                 id: data.ID,
                                 type: data.Type ? data.Type : '',
                                 rpType: data.RPType ? data.RPType : '',
+                                applicantReceiverName: data.ApplicantReceiverName ? data.ApplicantReceiverName : '',
                                 voucherNumber: data.VoucherNumber ? data.VoucherNumber : null,
                                 voucherDate: data.VoucherDate ? data.VoucherDate : null,
                                 codeNumber: data.CodeNumber ? data.CodeNumber : '',
@@ -967,6 +968,7 @@ module.exports = {
                     let objCreate = {
                         Type: body.type ? body.type : '',
                         RPType: body.rpType ? body.rpType : '',
+                        ApplicantReceiverName: body.applicantReceiverName ? body.applicantReceiverName : '',
                         CodeNumber: automaticCode,
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
@@ -1173,6 +1175,8 @@ module.exports = {
                     await createAccountingBooks(db, listCredit, listDebit, body.id, body.reason ? body.reason : '', null)
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
+                    if (body.applicantReceiverName || body.applicantReceiverName === '')
+                        update.push({ key: 'ApplicantReceiverName', value: body.applicantReceiverName });
                     update.push({ key: 'Unknown', value: body.isUndefined });
                     if (body.withdrawal || body.withdrawal === '')
                         update.push({ key: 'Withdrawal', value: body.withdrawal });
@@ -1382,6 +1386,7 @@ module.exports = {
                                 id: Number(data[i].ID),
                                 type: data[i].Type ? data[i].Type : '',
                                 rpType: data[i].RPType ? data[i].RPType : '',
+                                applicantReceiverName: data[i].ApplicantReceiverName ? data[i].ApplicantReceiverName : '',
                                 codeNumber: data[i].CodeNumber ? data[i].CodeNumber : '',
                                 voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
                                 voucherDate: data[i].VoucherDate ? data[i].VoucherDate : null,

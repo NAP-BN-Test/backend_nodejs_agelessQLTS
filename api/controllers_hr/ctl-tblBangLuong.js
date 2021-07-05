@@ -349,7 +349,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
         }
     }).then(async leave => {
         for (let i = 0; i < leave.length; i++) {
-            if (leave[i].Status == '1') {
+            if (leave[i].Status == 'KL' && leave[i].Reason == 'Nghỉ không phép') {
                 leaveFree += 1
             } else if (leave[i].Status == '0.5') {
                 leaveFree += 1
@@ -381,6 +381,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
         });
     })
     let workingDay = arrayDate.length
+    console.log(sunSta, array7thDB);
     console.log(Number(workingDay), (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB)), numberHoliday, leaveFree / 2, work, dateFinal);
     result = productivityWages / Number(workingDay) * (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB))
     if (workingDay == 0)
@@ -681,8 +682,8 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
         }
 
     } else {
-        await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', true, summaryEndDateS)
-        await createAttendanceData(db, staffID, datedb, null, '1', 'Nghỉ không phép', false, summaryEndDateC)
+        await createAttendanceData(db, staffID, datedb, null, 'KL', 'Nghỉ không phép', true, summaryEndDateS)
+        await createAttendanceData(db, staffID, datedb, null, 'KL', 'Nghỉ không phép', false, summaryEndDateC)
     }
 }
 async function handleCalculateDayOff(dateStart, dateEnd) {
@@ -870,7 +871,7 @@ async function calculateRemainingPreviousYear(db, staffID, date) {
             }).then(data => {
                 if (data)
                     data.forEach(item => {
-                        if (item.Status == '1') {
+                        if (item.Status == 'KL' && leave[i].Status == 'KL') {
                             freeBreakPlus += 1
                         } else if (item.Status != '+') {
                             if (item.Status && item.Status != '0.5' && !item.Reason) {
@@ -905,7 +906,7 @@ async function calculateRemainingPreviousYear(db, staffID, date) {
                 advancePayment += 1
         }
     }
-    remainingPreviousYear = advancePayment + overtime / 8 - lateDay - result - freeBreak / 2
+    remainingPreviousYear = advancePayment + overtime / 8 - lateDay - result
     return remainingPreviousYear
 }
 
@@ -932,7 +933,7 @@ async function aggregateTimekeepingForEachMonth(db, staff, date) {
     }).then(data => {
         if (data)
             data.forEach(item => {
-                if (item.Status == '1') {
+                if (item.Status == 'KL' && item.Reason == 'Nghỉ không phép') {
                     freeBreak += 1
                 } else if (item.Status != '+') {
                     if (item.Status && item.Status != '0.5' && item.Status != 'Sat' && item.Status != 'Sun') {
@@ -2235,12 +2236,12 @@ module.exports = {
                                     ],
                                     group: ['ID', 'EditDate', 'SummaryEndDate', 'Type', 'Reason', 'Status', 'Time', 'IDNhanVien', 'Date'],
                                 })
-                                if (!timeKeeping) {
+                                if (!timeKeeping && timeKeepingFinal) {
                                     let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
                                     var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
                                     if (dateFinalSave < Number(dayNow)) {
-                                        for (var j = dateFinalSave; j <= Number(dayNow); j++) {
-                                            console.log(j, 1234567);
+                                        console.log((dateFinalSave + 1));
+                                        for (var j = (dateFinalSave + 1); j <= Number(dayNow); j++) {
                                             var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
                                             let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
                                             let staffID = staff[s] ? staff[s].ID : null
@@ -2263,8 +2264,8 @@ module.exports = {
                                                         }
                                                     }
                                                 } else {
-                                                    await createAttendanceData(db, staffID, date, null, '1', '1', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, '1', '1', true, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
                                                 }
                                             }
                                         }
@@ -2289,33 +2290,37 @@ module.exports = {
                                     ],
                                     group: ['ID', 'EditDate', 'SummaryEndDate', 'Type', 'Reason', 'Status', 'Time', 'IDNhanVien', 'Date'],
                                 })
-                                let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
-                                var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                                var yearMonth = year + '-' + await convertNumber(month);
-                                for (var j = dateFinalSave; j <= Number(dayNow); j++) {
-                                    var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                    let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                    let staffID = staff ? staff.ID : null
-                                    if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                        await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                        await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                    } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                        await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                        await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                    } else if (checkDuplicate(arrayHoliday, j)) {
-                                        await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                        await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                    } else {
-                                        // check xem có trong ngày nghỉ phép không ?
-                                        if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                            for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                if (timeKeepingFinal) {
+                                    let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
+                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
+                                    var yearMonth = year + '-' + await convertNumber(month);
+                                    if (dateFinalSave < Number(dayNow)) {
+                                        for (var j = (dateFinalSave + 1); j <= Number(dayNow); j++) {
+                                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                                            let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+                                            let staffID = staff ? staff.ID : null
+                                            if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+                                            } else if (checkDuplicate(arrayHoliday, j)) {
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
+                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                                            } else {
+                                                // check xem có trong ngày nghỉ phép không ?
+                                                if (checkDuplicate(arrayLeaveDay.array, j)) {
+                                                    for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                                                        if (arrayLeaveDay.arrayObj[i].date == j) {
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                                                        }
+                                                    }
+                                                } else {
+                                                    await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
                                                 }
                                             }
-                                        } else {
-                                            await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
                                         }
                                     }
                                 }
@@ -2386,8 +2391,8 @@ module.exports = {
                                                         }
                                                     }
                                                 } else {
-                                                    await createAttendanceData(db, staffID, date, null, '1', '1', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, '1', '1', true, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
                                                 }
                                             }
                                         }
@@ -2431,8 +2436,8 @@ module.exports = {
                                                             ID: timeKeeping.ID
                                                         }
                                                     })
-                                                    await createAttendanceData(db, staffID, date, null, '1', '1', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, '1', '1', true, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
+                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
                                                 }
                                             } else if (checkDuplicate(arrayHoliday, j)) {
 
@@ -2643,7 +2648,7 @@ module.exports = {
                                             ]
                                         })
                                         if (timeKeepingM) {
-                                            if (timeKeepingM.Status == '1') {
+                                            if (timeKeepingM.Status == 'KL' && timeKeepingM.Reason == 'Nghỉ không phép') {
                                                 if (checkDuplicate(arrayTakeLeave, j)) {
                                                     if (checkFor == 0)
                                                         arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
@@ -2920,7 +2925,7 @@ module.exports = {
     // synthetic_information_monthly
     syntheticInformationMonthly: async (req, res) => {
         let body = req.body;
-        await createTimeAttendanceSummary()
+        // await createTimeAttendanceSummary()
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

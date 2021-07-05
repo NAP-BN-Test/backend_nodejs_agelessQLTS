@@ -23,6 +23,7 @@ var mtblQuyetDinhTangLuong = require('../tables/hrmanage/tblQuyetDinhTangLuong')
 var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
 var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 const Sequelize = require('sequelize');
+var mtblFileAttach = require('../tables/constants/tblFileAttach');
 
 // nhân sự
 var mtblChamCong = require('../tables/hrmanage/tblChamCong')
@@ -404,6 +405,7 @@ module.exports = {
                     let stt = 1;
                     let tblDMNhanvien = mtblDMNhanvien(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
+                    tblDMNhanvien.belongsTo(mtblFileAttach(db), { foreignKey: 'FileAttachID', sourceKey: 'FileAttachID', as: 'file' })
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
                     tblDMNhanvien.belongsTo(mtblDMChucVu(db), { foreignKey: 'IDChucVu', sourceKey: 'IDChucVu', as: 'chucvu' })
@@ -422,11 +424,15 @@ module.exports = {
                                 model: mtblDMChiNhanh(db)
                             }]
                         },
-
                         {
                             model: mtblDMChucVu(db),
                             required: false,
                             as: 'chucvu',
+                        },
+                        {
+                            model: mtblFileAttach(db),
+                            required: false,
+                            as: 'file',
                         },
                         ],
                     }).then(async data => {
@@ -466,6 +472,11 @@ module.exports = {
                             statusEmployee: data.Status ? data.Status : '',
                             productivityWages: data.ProductivityWages ? data.ProductivityWages : '',
                             coefficientsSalary: data.CoefficientsSalary ? data.CoefficientsSalary : 0,
+                        }
+                        obj['fileAttach'] = {
+                            id: data.file ? data.file.ID : null,
+                            name: data.file ? data.file.Name : null,
+                            link: data.file ? data.file.Link : null,
                         }
                         let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                         tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'loaiHD' })
@@ -554,6 +565,7 @@ module.exports = {
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                             IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
+                            FileAttachID: body.fileAttachID ? body.fileAttachID : null,
                         }).then(async data => {
                             await mtblBangLuong(db).create({
                                 Date: body.signDate ? body.signDate : null,
@@ -638,6 +650,12 @@ module.exports = {
                             update.push({ key: 'IDNation', value: null });
                         else
                             update.push({ key: 'IDNation', value: body.idNation });
+                    }
+                    if (body.fileAttachID || body.fileAttachID === '') {
+                        if (body.fileAttachID === '')
+                            update.push({ key: 'FileAttachID', value: null });
+                        else
+                            update.push({ key: 'FileAttachID', value: body.fileAttachID });
                     }
                     if (body.productivityWages || body.productivityWages === '') {
                         if (body.productivityWages === '')
@@ -1108,6 +1126,7 @@ module.exports = {
                     let stt = 1;
                     let tblDMNhanvien = mtblDMNhanvien(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
+                    tblDMNhanvien.belongsTo(mtblFileAttach(db), { foreignKey: 'FileAttachID', sourceKey: 'FileAttachID', as: 'file' })
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
                     let all = await tblDMNhanvien.count({ where: whereOjb, })
@@ -1124,7 +1143,13 @@ module.exports = {
                             as: 'bophan',
                             include: [{
                                 model: mtblDMChiNhanh(db)
-                            }]
+                            },
+                            ]
+                        },
+                        {
+                            model: mtblFileAttach(db),
+                            required: false,
+                            as: 'file',
                         },],
                     }).then(data => {
                         var array = [];
@@ -1162,6 +1187,11 @@ module.exports = {
                                 statusEmployee: element.Status ? element.Status : '',
                                 productivityWages: element.ProductivityWages ? element.ProductivityWages : '',
                                 idSpecializedSoftware: element.idSpecializedSoftware ? element.idSpecializedSoftware : null,
+                            }
+                            obj['fileAttach'] = {
+                                id: element.file ? element.file.ID : null,
+                                name: element.file ? element.file.Name : null,
+                                link: element.file ? element.file.Link : null,
                             }
                             array.push(obj);
                             stt += 1;
