@@ -622,6 +622,8 @@ module.exports = {
     // update_tbl_dmnhanvien
     updatetblDMNhanvien: (req, res) => {
         let body = req.body;
+        console.log(body);
+
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
@@ -650,6 +652,13 @@ module.exports = {
                             update.push({ key: 'IDNation', value: null });
                         else
                             update.push({ key: 'IDNation', value: body.idNation });
+                    }
+                    if (body.fileAttach || body.fileAttach === '') {
+                        body.fileAttach = JSON.parse(body.fileAttach)
+                        if (body.fileAttach === '')
+                            update.push({ key: 'FileAttachID', value: null });
+                        else
+                            update.push({ key: 'FileAttachID', value: body.fileAttach.id });
                     }
                     if (body.fileAttachID || body.fileAttachID === '') {
                         if (body.fileAttachID === '')
