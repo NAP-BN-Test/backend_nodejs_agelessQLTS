@@ -428,7 +428,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/Danh sách yêu cầu mua sắm.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách yêu cầu mua sắm.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -614,15 +614,15 @@ module.exports = {
                             ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
                         }
                     }
-                    await wb.write('D:/images_services/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx');
-                    // setTimeout(() => {
-                    //     var result = {
-                    //         link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx',
-                    //         status: Constant.STATUS.SUCCESS,
-                    //         message: Constant.MESSAGE.ACTION_SUCCESS,
-                    //     }
-                    //     res.json(result);
-                    // }, 500);
+                    await wb.write('C:/images_services/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx');
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx',
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
