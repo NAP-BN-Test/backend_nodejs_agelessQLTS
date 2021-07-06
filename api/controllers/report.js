@@ -232,7 +232,7 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
         yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
         if (((y - yearAsset) * 12 - monthAsset + 12) >= time) {
             let balance = 0 // số tháng dư
-                //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
+            //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
             balance = (12 - (((y - yearAsset) * 12 - monthAsset + 12) - time))
             for (month = 1; month < balance; month++) {
                 objGoods['discountedValue' + month] = monthlyDepreciationRate
@@ -272,7 +272,7 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
             model: mtblTaiSanADD(db),
             required: false,
             as: 'asset'
-        }, ],
+        },],
     }).then(async asset => {
         let stt = 1;
         for (let s = 0; s < asset.length; s++) {
@@ -326,7 +326,7 @@ async function getInfoAssetFromIDTypeAsset(db, typeAssetID, year) {
     }).then(async goods => {
         for (var g = 0; g < goods.length; g++) {
             let arrayAsset = await getDetailAsset(db, goods[g].ID, goods[g].Name, year)
-                // console.log(arrayAsset);
+            // console.log(arrayAsset);
             Array.prototype.push.apply(arrayResult, arrayAsset);
         }
 

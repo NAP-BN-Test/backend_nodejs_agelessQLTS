@@ -240,7 +240,7 @@ module.exports = {
         }
 
     },
-    // export_to_file_excel
+    // export_to_file_excel, yêu cầu mua sắm
     exportToFileExcel: (req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
@@ -257,6 +257,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         var stylecell = wb.createStyle({
@@ -272,7 +290,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+            border: {
+                left: {
+                    style: 'thin', //§18.18.3 ST_BorderStyle (Border Line Styles) ['none', 'thin', 'medium', 'dashed', 'dotted', 'thick', 'double', 'hair', 'mediumDashed', 'dashDot', 'mediumDashDot', 'dashDotDot', 'mediumDashDotDot', 'slantDashDot']
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
         });
         var stylecellNumber = wb.createStyle({
             font: {
@@ -287,7 +322,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
         });
         let body = req.body;
         let data = JSON.parse(body.data);
@@ -314,8 +366,11 @@ module.exports = {
                     var ws = wb.addWorksheet('Sheet 1');
                     var row = 1
                     ws.column(row).setWidth(5);
+                    ws.cell(1, 1, 1, 13, true)
+                        .string('DANH SÁCH YÊU CẦU MUA SẮM')
+                        .style(styleHearder);
                     arrayHeader.forEach(element => {
-                        ws.cell(1, row)
+                        ws.cell(4, row)
                             .string(element)
                             .style(styleHearder);
                         row += 1
@@ -328,9 +383,9 @@ module.exports = {
                         data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
                         var max = 0;
                         if (i > 0)
-                            row = checkMaxRow + 1
+                            row = checkMaxRow + 4
                         else
-                            row = i + 2
+                            row = i + 5
                         if (data[i].arrayTaiSanExport.length >= data[i].arrayFileExport.length) {
                             checkMaxRow += data[i].arrayTaiSanExport.length;
                             max = data[i].arrayTaiSanExport.length;
@@ -338,20 +393,18 @@ module.exports = {
                             checkMaxRow += data[i].arrayFileExport.length;
                             max = data[i].arrayFileExport.length;
                         }
-                        if (data[i].arrayTaiSanExport.length > 0) {
-                            for (var taisan = 0; taisan < data[i].arrayTaiSanExport.length; taisan++) {
-                                ws.cell(taisan + row, 6).string(data[i].arrayTaiSanExport[taisan].code).style(stylecell)
-                                ws.cell(taisan + row, 7).string(data[i].arrayTaiSanExport[taisan].name).style(stylecell)
-                                ws.cell(taisan + row, 9).string(transform(data[i].arrayTaiSanExport[taisan].amount ? data[i].arrayTaiSanExport[taisan].amount : 0) + '').style(stylecellNumber)
-                                ws.cell(taisan + row, 8).string(transform(data[i].arrayTaiSanExport[taisan].unitPrice ? data[i].arrayTaiSanExport[taisan].unitPrice : 0) + '').style(stylecellNumber)
-                                ws.cell(taisan + row, 10).string(transform(data[i].arrayTaiSanExport[taisan].remainingAmount ? data[i].arrayTaiSanExport[taisan].remainingAmount : 0) + '').style(stylecellNumber)
-                            }
+                        // Tạo dữ liệu trống nếu số lượng tài sản < số lượng file
+                        for (var taisan = 0; taisan < max; taisan++) {
+                            ws.cell(taisan + row, 6).string(data[i].arrayTaiSanExport[taisan] ? data[i].arrayTaiSanExport[taisan].code : '').style(stylecell)
+                            ws.cell(taisan + row, 7).string(data[i].arrayTaiSanExport[taisan] ? data[i].arrayTaiSanExport[taisan].name : '').style(stylecell)
+                            ws.cell(taisan + row, 9).string(transform(data[i].arrayTaiSanExport[taisan] ? data[i].arrayTaiSanExport[taisan].amount : 0) + '').style(stylecellNumber)
+                            ws.cell(taisan + row, 8).string(transform(data[i].arrayTaiSanExport[taisan] ? data[i].arrayTaiSanExport[taisan].unitPrice : 0) + '').style(stylecellNumber)
+                            ws.cell(taisan + row, 10).string(transform(data[i].arrayTaiSanExport[taisan] ? data[i].arrayTaiSanExport[taisan].remainingAmount : 0) + '').style(stylecellNumber)
                         }
-                        if (data[i].arrayFileExport.length > 0) {
-                            for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 12).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
-                            }
+                        for (var file = 0; file < max; file++) {
+                            ws.cell(file + row, 12).link(data[i].arrayFileExport[file] ? data[i].arrayFileExport[file].link : '', data[i].arrayFileExport[file] ? data[i].arrayFileExport[file].name : '').style(stylecell)
                         }
+                        // -----------------------------------------------------------
                         if (data[i].arrayFileExport.length > 0 && data[i].arrayTaiSanExport.length > 0) {
                             ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
                             ws.cell(row, 2, row + max - 1, 2, true).string(data[i].type).style(stylecell);
@@ -372,7 +425,7 @@ module.exports = {
                             // ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
-                    await wb.write('C:/images_services/ageless_sendmail/export_excel_request_shopping.xlsx');
+                    await wb.write('C:/images_services/ageless_sendmail/Danh sách yêu cầu mua sắm.xlsx');
                     setTimeout(() => {
                         var result = {
                             link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_request_shopping.xlsx',
@@ -390,7 +443,7 @@ module.exports = {
             }
         })
     },
-    // export_to_file_excel_payment
+    // export_to_file_excel_payment, đề nghị thanh toán
     exportToFileExcelPayment: (req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
@@ -407,6 +460,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         var stylecell = wb.createStyle({
@@ -422,6 +493,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         var stylecellNumber = wb.createStyle({
@@ -437,6 +526,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         let body = req.body;
@@ -459,8 +566,11 @@ module.exports = {
                     var ws = wb.addWorksheet('Sheet 1');
                     var row = 1
                     ws.column(row).setWidth(5);
+                    ws.cell(1, 1, 1, 7, true)
+                        .string('DANH SÁCH ĐỀ NGHỊ THANH TOÁN')
+                        .style(styleHearder);
                     arrayHeader.forEach(element => {
-                        ws.cell(1, row)
+                        ws.cell(4, row)
                             .string(element)
                             .style(styleHearder);
                         row += 1
@@ -471,13 +581,13 @@ module.exports = {
                     var checkMaxRow = 1;
                     for (let i = 0; i < data.length; i++) {
                         data[i].arrayFileExport = JSON.parse(data[i].arrayFileExport)
-                        var max = 0;
+                        var max = 1;
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
-                            row = checkMaxRow + 1
+                            row = checkMaxRow + 4
                         // bản ghi đầu tiên
                         else
-                            row = i + 2
+                            row = i + 5
                         if (data[i].arrayFileExport.length) {
                             checkMaxRow += data[i].arrayFileExport.length;
                             // max dùng để đánh dầu hàng tiếp theo
@@ -485,11 +595,8 @@ module.exports = {
                         } else {
                             checkMaxRow += 1;
                         }
-                        console.log(data[i].arrayFileExport);
-                        if (data[i].arrayFileExport.length > 0) {
-                            for (var file = 0; file < data[i].arrayFileExport.length; file++) {
-                                ws.cell(file + row, 7).link(data[i].arrayFileExport[file].link, data[i].arrayFileExport[file].name).style(stylecell)
-                            }
+                        for (var file = 0; file < max; file++) {
+                            ws.cell(file + row, 7).link(data[i].arrayFileExport[file] ? data[i].arrayFileExport[file].link : '', data[i].arrayFileExport[file] ? data[i].arrayFileExport[file].name : '').style(stylecell)
                         }
                         if (data[i].arrayFileExport.length > 0) {
                             ws.cell(row, 1, row + max - 1, 1, true).number(data[i].stt).style(stylecell);
@@ -507,10 +614,186 @@ module.exports = {
                             ws.cell(row, 6).string(transform(data[i].cost ? data[i].cost : 0)).style(stylecellNumber);
                         }
                     }
-                    await wb.write('C:/images_services/ageless_sendmail/export_excel_payment_request.xlsx');
+                    await wb.write('D:/images_services/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx');
+                    // setTimeout(() => {
+                    //     var result = {
+                    //         link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx',
+                    //         status: Constant.STATUS.SUCCESS,
+                    //         message: Constant.MESSAGE.ACTION_SUCCESS,
+                    //     }
+                    //     res.json(result);
+                    // }, 500);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // export_to_file_import_and_export, báo cáo xuất nhập tồn văn phòng phẩm
+    exportToFileImportAndExport: (req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            }
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        let body = req.body;
+        let dateFrom = moment(body.dateFrom).format('DD/MM/YYYY')
+        let dateTo = moment(body.dateTo).format('DD/MM/YYYY')
+        let data = JSON.parse(body.data);
+        let arrayHeader = [
+            'STT',
+            'MÃ VPP',
+            'TÊN VPP',
+            'ĐƠN VỊ TÍNH',
+            'TỒN ĐẦU KÌ',
+            'NHẬP TRONG KÌ',
+            'XUẤT TRONG KÌ',
+            'TỒN CUỐI KÌ',
+        ]
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    // Add Worksheets to the workbook
+                    var ws = wb.addWorksheet('Sheet 1');
+                    var row = 1
+                    ws.column(row).setWidth(5);
+                    ws.cell(1, 1, 1, 8, true)
+                        .string('BÁO CÁO XUẤT NHẬP TỒN VĂN PHÒNG PHẨM ' + dateFrom + ' - ' + dateTo)
+                        .style(styleHearder);
+                    arrayHeader.forEach(element => {
+                        ws.cell(4, row)
+                            .string(element)
+                            .style(styleHearder);
+                        row += 1
+                        ws.column(row).setWidth(20);
+                    });
+                    var row = 0;
+                    // dùng để check bản ghi chiếm nhiều nhất bao nhiêu dòng
+                    var checkMaxRow = 1;
+                    for (let i = 0; i < data.length; i++) {
+
+                        var max = 1;
+                        // Hàng lớn nhất của bản ghi trước
+                        if (i > 0)
+                            row = checkMaxRow + 4
+                        // bản ghi đầu tiên
+                        else
+                            row = i + 5
+                        checkMaxRow += 1;
+                        ws.cell(row, 1).number(data[i].stt).style(stylecell)
+                        ws.cell(row, 2).string(data[i].vppCode).style(stylecell)
+                        ws.cell(row, 3).string(data[i].vppName).style(stylecell)
+                        ws.cell(row, 4).string(data[i].unit).style(stylecell)
+                        ws.cell(row, 5).number(data[i].openingBalance).style(stylecellNumber)
+                        ws.cell(row, 6).number(data[i].duringBalance).style(stylecellNumber)
+                        ws.cell(row, 7).number(data[i].outputPeriod).style(stylecellNumber)
+                        ws.cell(row, 8).number(data[i].closingBalance).style(stylecellNumber)
+                    }
+                    let dayFrom = moment(body.dateFrom).format('DD\MM\YYYY')
+                    let dayTo = moment(body.dateTo).format('DDMM\YYYY')
+                    await wb.write('C:/images_services/ageless_sendmail/Báo cáo xuất nhập tồn văn phòng phẩm ' + dayFrom + ' - ' + dayTo + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_payment_request.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Báo cáo xuất nhập tồn văn phòng phẩm ' + dayFrom + ' - ' + dayTo + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -525,6 +808,8 @@ module.exports = {
             }
         })
     },
+
+
     // export_to_file_excel_payroll
     exportToFileExcelPayroll: (req, res) => {
         var wb = new xl.Workbook();
