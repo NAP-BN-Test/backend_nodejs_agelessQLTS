@@ -18,6 +18,7 @@ module.exports = function (db) {
         DateStart: Sequelize.DATE,
         DateEnd: Sequelize.DATE,
         MinimumWage: Sequelize.FLOAT,
+        ApplicableDate: Sequelize.STRING,
     });
 
     return table;

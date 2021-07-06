@@ -504,6 +504,7 @@ module.exports = {
                                         id: item.staff.ID,
                                         staffName: item.staff.StaffName,
                                         staffCode: item.staff.StaffCode,
+                                        productivityWages: item.staff.ProductivityWages ? item.staff.ProductivityWages : 0,
                                     })
                                 })
                             })

@@ -17,39 +17,6 @@ async function deleteRelationshiptblMucDongBaoHiem(db, listID) {
 }
 module.exports = {
     deleteRelationshiptblMucDongBaoHiem,
-    // //  get_detail_tbl_mucdong_baohiem
-    // detailtblMucDongBaoHiem: (req, res) => {
-    //     let body = req.body;
-    //     database.connectDatabase().then(async db => {
-    //         if (db) {
-    //             try {
-    //                 mtblMucDongBaoHiem(db).findOne({ where: { ID: body.id } }).then(data => {
-    //                     if (data) {
-    //                         var obj = {
-    //                             id: data.ID,
-    //                             name: data.Name,
-    //                             code: data.Code,
-    //                         }
-    //                         var result = {
-    //                             obj: obj,
-    //                             status: Constant.STATUS.SUCCESS,
-    //                             message: Constant.MESSAGE.ACTION_SUCCESS,
-    //                         }
-    //                         res.json(result);
-    //                     } else {
-    //                         res.json(Result.NO_DATA_RESULT)
-
-    //                     }
-
-    //                 })
-    //             } catch (error) {
-    //                 res.json(Result.SYS_ERROR_RESULT)
-    //             }
-    //         } else {
-    //             res.json(Constant.MESSAGE.USER_FAIL)
-    //         }
-    //     })
-    // },
     // add_tbl_mucdong_baohiem
     addtblMucDongBaoHiem: (req, res) => {
         let body = req.body;
@@ -67,6 +34,7 @@ module.exports = {
                         StaffBHTN: body.staffBHTN ? body.staffBHTN : null,
                         DateStart: body.dateStart ? body.dateStart : null,
                         DateEnd: body.dateEnd ? body.dateEnd : null,
+                        ApplicableDate: body.applicableDate ? body.applicableDate : null,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -90,6 +58,12 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.applicableDate || body.applicableDate === '') {
+                        if (body.applicableDate === '')
+                            update.push({ key: 'ApplicableDate', value: null });
+                        else
+                            update.push({ key: 'ApplicableDate', value: body.applicableDate });
+                    }
                     if (body.companyBHXH || body.companyBHXH === '') {
                         if (body.companyBHXH === '')
                             update.push({ key: 'CompanyBHXH', value: null });
@@ -253,6 +227,7 @@ module.exports = {
                                 staffBHTN: element.StaffBHTN ? element.StaffBHTN : 0,
                                 dateStart: element.DateStart ? moment(element.DateStart).format('DD/MM/YYYY') : null,
                                 dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD/MM/YYYY') : null,
+                                applicableDate: element.ApplicableDate ? element.ApplicableDate : null,
                             }
                             array.push(obj);
                             stt += 1;
