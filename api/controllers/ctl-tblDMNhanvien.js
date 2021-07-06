@@ -531,7 +531,10 @@ module.exports = {
             if (db) {
                 try {
                     let check = await mtblDMNhanvien(db).findOne({
-                        where: { StaffCode: body.staffCode },
+                        where: {
+                            StaffCode: body.staffCode,
+                            IDMayChamCong: body.idMayChamCong,
+                        },
                     })
                     if (!check)
                         mtblDMNhanvien(db).create({
@@ -605,7 +608,7 @@ module.exports = {
                     else {
                         var result = {
                             status: Constant.STATUS.FAIL,
-                            message: "Mã nhân viên đã tồn tại. Vui lòng kiểm tra lại!",
+                            message: "Mã nhân viên hoặc id chấm công đã tồn tại. Vui lòng kiểm tra lại!",
                         }
                         res.json(result);
 
@@ -622,233 +625,245 @@ module.exports = {
     // update_tbl_dmnhanvien
     updatetblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
-
         let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    if (body.coefficientsSalary)
-                        update.push({ key: 'CoefficientsSalary', value: body.coefficientsSalary });
-                    if (body.cmndNumber || body.cmndNumber === '')
-                        update.push({ key: 'CMNDNumber', value: body.cmndNumber });
-                    if (body.staffCode || body.staffCode === '')
-                        update.push({ key: 'StaffCode', value: body.staffCode });
-                    if (body.staffName || body.staffName === '')
-                        update.push({ key: 'StaffName', value: body.staffName });
-                    if (body.cmndumber || body.cmndumber === '')
-                        update.push({ key: 'CMNDumber', value: body.cmndumber });
-                    if (body.cmndPlace || body.cmndPlace === '')
-                        update.push({ key: 'CMNDPlace', value: body.cmndPlace });
-                    if (body.address || body.address === '')
-                        update.push({ key: 'Address', value: body.address });
-                    if (body.statusEmployee || body.statusEmployee === '')
-                        update.push({ key: 'Status', value: body.statusEmployee });
-                    if (body.idSpecializedSoftware || body.idSpecializedSoftware === '')
-                        update.push({ key: 'IDSpecializedSoftware', value: body.idSpecializedSoftware });
-                    if (body.idNation || body.idNation === '') {
-                        if (body.idNation === '')
-                            update.push({ key: 'IDNation', value: null });
-                        else
-                            update.push({ key: 'IDNation', value: body.idNation });
-                    }
-                    if (body.fileAttach || body.fileAttach === '') {
-                        body.fileAttach = JSON.parse(body.fileAttach)
-                        if (body.fileAttach === '')
-                            update.push({ key: 'FileAttachID', value: null });
-                        else
-                            update.push({ key: 'FileAttachID', value: body.fileAttach.id });
-                    }
-                    if (body.fileAttachID || body.fileAttachID === '') {
-                        if (body.fileAttachID === '')
-                            update.push({ key: 'FileAttachID', value: null });
-                        else
-                            update.push({ key: 'FileAttachID', value: body.fileAttachID });
-                    }
-                    if (body.productivityWages || body.productivityWages === '') {
-                        if (body.productivityWages === '')
-                            update.push({ key: 'ProductivityWages', value: null });
-                        else
-                            update.push({ key: 'ProductivityWages', value: body.productivityWages });
-                    }
-                    if (body.cmndDate || body.cmndDate === '') {
-                        if (body.cmndDate === '')
-                            update.push({ key: 'CMNDDate', value: null });
-                        else
-                            update.push({ key: 'CMNDDate', value: body.cmndDate });
-                    }
-                    if (body.phoneNumber || body.phoneNumber === '')
-                        update.push({ key: 'PhoneNumber', value: body.phoneNumber });
-                    if (body.gender || body.gender === '')
-                        update.push({ key: 'Gender', value: body.gender });
-                    if (body.idBoPhan || body.idBoPhan === '') {
-                        if (body.idBoPhan === '')
-                            update.push({ key: 'IDBoPhan', value: null });
-                        else
-                            update.push({ key: 'IDBoPhan', value: body.idBoPhan });
+                    let check = await mtblDMNhanvien(db).findOne({
+                        where: {
+                            IDMayChamCong: body.idMayChamCong,
+                        },
+                    })
+                    if (!check) {
+                        if (body.coefficientsSalary)
+                            update.push({ key: 'CoefficientsSalary', value: body.coefficientsSalary });
+                        if (body.cmndNumber || body.cmndNumber === '')
+                            update.push({ key: 'CMNDNumber', value: body.cmndNumber });
+                        if (body.staffCode || body.staffCode === '')
+                            update.push({ key: 'StaffCode', value: body.staffCode });
+                        if (body.staffName || body.staffName === '')
+                            update.push({ key: 'StaffName', value: body.staffName });
+                        if (body.cmndumber || body.cmndumber === '')
+                            update.push({ key: 'CMNDumber', value: body.cmndumber });
+                        if (body.cmndPlace || body.cmndPlace === '')
+                            update.push({ key: 'CMNDPlace', value: body.cmndPlace });
+                        if (body.address || body.address === '')
+                            update.push({ key: 'Address', value: body.address });
+                        if (body.statusEmployee || body.statusEmployee === '')
+                            update.push({ key: 'Status', value: body.statusEmployee });
+                        if (body.idSpecializedSoftware || body.idSpecializedSoftware === '')
+                            update.push({ key: 'IDSpecializedSoftware', value: body.idSpecializedSoftware });
+                        if (body.idNation || body.idNation === '') {
+                            if (body.idNation === '')
+                                update.push({ key: 'IDNation', value: null });
+                            else
+                                update.push({ key: 'IDNation', value: body.idNation });
+                        }
+                        if (body.fileAttach || body.fileAttach === '') {
+                            body.fileAttach = JSON.parse(body.fileAttach)
+                            if (body.fileAttach === '')
+                                update.push({ key: 'FileAttachID', value: null });
+                            else
+                                update.push({ key: 'FileAttachID', value: body.fileAttach.id });
+                        }
+                        if (body.fileAttachID || body.fileAttachID === '') {
+                            if (body.fileAttachID === '')
+                                update.push({ key: 'FileAttachID', value: null });
+                            else
+                                update.push({ key: 'FileAttachID', value: body.fileAttachID });
+                        }
+                        if (body.productivityWages || body.productivityWages === '') {
+                            if (body.productivityWages === '')
+                                update.push({ key: 'ProductivityWages', value: null });
+                            else
+                                update.push({ key: 'ProductivityWages', value: body.productivityWages });
+                        }
+                        if (body.cmndDate || body.cmndDate === '') {
+                            if (body.cmndDate === '')
+                                update.push({ key: 'CMNDDate', value: null });
+                            else
+                                update.push({ key: 'CMNDDate', value: body.cmndDate });
+                        }
+                        if (body.phoneNumber || body.phoneNumber === '')
+                            update.push({ key: 'PhoneNumber', value: body.phoneNumber });
+                        if (body.gender || body.gender === '')
+                            update.push({ key: 'Gender', value: body.gender });
+                        if (body.idBoPhan || body.idBoPhan === '') {
+                            if (body.idBoPhan === '')
+                                update.push({ key: 'IDBoPhan', value: null });
+                            else
+                                update.push({ key: 'IDBoPhan', value: body.idBoPhan });
+                        }
+
+                        if (body.idChucVu || body.idChucVu === '') {
+                            if (body.idChucVu === '')
+                                update.push({ key: 'IDChucVu', value: null });
+                            else
+                                update.push({ key: 'IDChucVu', value: body.idChucVu });
+                        }
+                        if (body.taxCode || body.taxCode === '')
+                            update.push({ key: 'TaxCode', value: body.taxCode });
+                        if (body.bankNumber || body.bankNumber === '')
+                            update.push({ key: 'BankNumber', value: body.bankNumber });
+                        if (body.bankName || body.bankName === '')
+                            update.push({ key: 'BankName', value: body.bankName });
+                        if (body.birthday || body.birthday === '') {
+                            if (body.birthday === '')
+                                update.push({ key: 'Birthday', value: null });
+                            else
+                                update.push({ key: 'Birthday', value: body.birthday });
+                        }
+                        if (body.degree || body.degree === '')
+                            update.push({ key: 'Degree', value: body.degree });
+                        if (body.permanentResidence || body.permanentResidence === '')
+                            update.push({ key: 'PermanentResidence', value: body.permanentResidence });
+                        if (body.probationaryDate || body.probationaryDate === '') {
+                            if (body.probationaryDate === '')
+                                update.push({ key: 'ProbationaryDate', value: null });
+                            else
+                                update.push({ key: 'ProbationaryDate', value: body.probationaryDate });
+                        }
+                        if (body.probationarySalary || body.probationarySalary === '') {
+                            if (body.probationarySalary === '')
+                                update.push({ key: 'probationarySalary', value: null });
+                            else
+                                update.push({ key: 'probationarySalary', value: body.probationarySalary });
+                        }
+                        if (body.workingDate || body.workingDate === '') {
+                            if (body.workingDate === '')
+                                update.push({ key: 'WorkingDate', value: null });
+                            else
+                                update.push({ key: 'WorkingDate', value: body.workingDate });
+                        }
+                        if (body.workingSalary || body.workingSalary === '') {
+                            if (body.workingSalary === '')
+                                update.push({ key: 'WorkingSalary', value: null });
+                            else
+                                update.push({ key: 'WorkingSalary', value: body.workingSalary });
+                        }
+                        if (body.bhxhSalary || body.bhxhSalary === '') {
+                            if (body.bhxhSalary === '')
+                                update.push({ key: 'BHXHSalary', value: null });
+                            else
+                                update.push({ key: 'BHXHSalary', value: body.bhxhSalary });
+                        }
+                        if (body.contactUrgent || body.contactUrgent === '')
+                            update.push({ key: 'ContactUrgent', value: body.contactUrgent });
+                        if (body.email || body.email === '')
+                            update.push({ key: 'Email', value: body.email });
+                        if (body.idMayChamCong || body.idMayChamCong === '') {
+                            if (body.idMayChamCong === '')
+                                update.push({ key: 'IDMayChamCong', value: null });
+                            else
+                                update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
+                        }
+                        // let noticeTime;
+                        // if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
+                        //     noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
+                        // else
+                        //     noticeTime = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                        // if (body.idContract != '') {
+                        //     if (body.id)
+                        //         await mtblHopDongNhanSu(db).update({
+                        //             Status: 'Hết hiệu lực'
+                        //         }, {
+                        //             where: { IDNhanVien: body.id }
+                        //         })
+                        //     await mtblHopDongNhanSu(db).create({
+                        //         EditDate: now,
+                        //         ContractCode: body.contractCode ? body.contractCode : '',
+                        //         Date: body.signDate ? body.signDate : null,
+                        //         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                        //         SalaryNumber: body.workingSalary ? body.workingSalary : '',
+                        //         SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                        //         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                        //         // ContractDateStart: now,
+                        //         UnitSalary: 'VND',
+                        //         Status: body.status ? body.status : '',
+                        //         IDNhanVien: body.id ? body.id : null,
+                        //         WorkingPlace: '',
+                        //         Announced: false,
+                        //         NoticeTime: noticeTime,
+                        //     })
+                        //     salary = body.workingSalary ? body.workingSalary : 0
+                        //     let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
+                        //     if (bl)
+                        //         await mtblBangLuong(db).update({
+                        //             Date: body.signDate ? body.signDate : null,
+                        //             WorkingSalary: body.workingSalary ? body.workingSalary : 0,
+                        //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                        //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                        //         }, {
+                        //             where: { IDNhanVien: body.id, }
+                        //         })
+                        //     else
+                        //         await mtblBangLuong(db).create({
+                        //             Date: body.signDate ? body.signDate : null,
+                        //             WorkingSalary: body.workingSalary ? body.workingSalary : 0,
+                        //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                        //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                        //             IDNhanVien: body.id,
+                        //         })
+                        // }
+                        // else {
+                        //     if (body.id)
+                        //         await mtblHopDongNhanSu(db).update({
+                        //             Status: 'Hết hiệu lực'
+                        //         }, {
+                        //             where: { IDNhanVien: body.id }
+                        //         })
+                        //     await mtblHopDongNhanSu(db).create({
+                        //         EditDate: now,
+                        //         ContractCode: body.contractCode ? body.contractCode : '',
+                        //         Date: body.signDate ? body.signDate : null,
+                        //         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
+                        //         SalaryNumber: body.workingSalary ? body.workingSalary : '',
+                        //         SalaryText: body.salaryNumber ? body.salaryNumber : '',
+                        //         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                        //         // ContractDateStart: now,
+                        //         UnitSalary: 'VND',
+                        //         Status: body.status ? body.status : '',
+                        //         IDNhanVien: body.id ? body.id : null,
+                        //         WorkingPlace: '',
+                        //         Announced: false,
+                        //         NoticeTime: noticeTime,
+                        //     })
+                        //     salary = body.workingSalary ? body.workingSalary : 0
+                        //     let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
+                        //     if (bl)
+                        //         await mtblBangLuong(db).update({
+                        //             Date: body.signDate ? body.signDate : null,
+                        //             WorkingSalary: salary,
+                        //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                        //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                        //         }, {
+                        //             where: { IDNhanVien: body.id, }
+                        //         })
+                        //     else
+                        //         await mtblBangLuong(db).create({
+                        //             Date: body.signDate ? body.signDate : null,
+                        //             WorkingSalary: salary,
+                        //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
+                        //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
+                        //             IDNhanVien: body.id
+                        //         })
+                        // }
+                        database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
+                            if (response == 1) {
+                                res.json(Result.ACTION_SUCCESS);
+                            } else {
+                                res.json(Result.SYS_ERROR_RESULT);
+                            }
+                        })
+                    } else {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: "Mã nhân viên hoặc id chấm công đã tồn tại. Vui lòng kiểm tra lại!",
+                        }
+                        res.json(result);
                     }
 
-                    if (body.idChucVu || body.idChucVu === '') {
-                        if (body.idChucVu === '')
-                            update.push({ key: 'IDChucVu', value: null });
-                        else
-                            update.push({ key: 'IDChucVu', value: body.idChucVu });
-                    }
-                    if (body.taxCode || body.taxCode === '')
-                        update.push({ key: 'TaxCode', value: body.taxCode });
-                    if (body.bankNumber || body.bankNumber === '')
-                        update.push({ key: 'BankNumber', value: body.bankNumber });
-                    if (body.bankName || body.bankName === '')
-                        update.push({ key: 'BankName', value: body.bankName });
-                    if (body.birthday || body.birthday === '') {
-                        if (body.birthday === '')
-                            update.push({ key: 'Birthday', value: null });
-                        else
-                            update.push({ key: 'Birthday', value: body.birthday });
-                    }
-                    if (body.degree || body.degree === '')
-                        update.push({ key: 'Degree', value: body.degree });
-                    if (body.permanentResidence || body.permanentResidence === '')
-                        update.push({ key: 'PermanentResidence', value: body.permanentResidence });
-                    if (body.probationaryDate || body.probationaryDate === '') {
-                        if (body.probationaryDate === '')
-                            update.push({ key: 'ProbationaryDate', value: null });
-                        else
-                            update.push({ key: 'ProbationaryDate', value: body.probationaryDate });
-                    }
-                    if (body.probationarySalary || body.probationarySalary === '') {
-                        if (body.probationarySalary === '')
-                            update.push({ key: 'probationarySalary', value: null });
-                        else
-                            update.push({ key: 'probationarySalary', value: body.probationarySalary });
-                    }
-                    if (body.workingDate || body.workingDate === '') {
-                        if (body.workingDate === '')
-                            update.push({ key: 'WorkingDate', value: null });
-                        else
-                            update.push({ key: 'WorkingDate', value: body.workingDate });
-                    }
-                    if (body.workingSalary || body.workingSalary === '') {
-                        if (body.workingSalary === '')
-                            update.push({ key: 'WorkingSalary', value: null });
-                        else
-                            update.push({ key: 'WorkingSalary', value: body.workingSalary });
-                    }
-                    if (body.bhxhSalary || body.bhxhSalary === '') {
-                        if (body.bhxhSalary === '')
-                            update.push({ key: 'BHXHSalary', value: null });
-                        else
-                            update.push({ key: 'BHXHSalary', value: body.bhxhSalary });
-                    }
-                    if (body.contactUrgent || body.contactUrgent === '')
-                        update.push({ key: 'ContactUrgent', value: body.contactUrgent });
-                    if (body.email || body.email === '')
-                        update.push({ key: 'Email', value: body.email });
-                    if (body.idMayChamCong || body.idMayChamCong === '') {
-                        if (body.idMayChamCong === '')
-                            update.push({ key: 'IDMayChamCong', value: null });
-                        else
-                            update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
-                    }
-                    // let noticeTime;
-                    // if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
-                    //     noticeTime = moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS')
-                    // else
-                    //     noticeTime = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
-                    // if (body.idContract != '') {
-                    //     if (body.id)
-                    //         await mtblHopDongNhanSu(db).update({
-                    //             Status: 'Hết hiệu lực'
-                    //         }, {
-                    //             where: { IDNhanVien: body.id }
-                    //         })
-                    //     await mtblHopDongNhanSu(db).create({
-                    //         EditDate: now,
-                    //         ContractCode: body.contractCode ? body.contractCode : '',
-                    //         Date: body.signDate ? body.signDate : null,
-                    //         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                    //         SalaryNumber: body.workingSalary ? body.workingSalary : '',
-                    //         SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                    //         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                    //         // ContractDateStart: now,
-                    //         UnitSalary: 'VND',
-                    //         Status: body.status ? body.status : '',
-                    //         IDNhanVien: body.id ? body.id : null,
-                    //         WorkingPlace: '',
-                    //         Announced: false,
-                    //         NoticeTime: noticeTime,
-                    //     })
-                    //     salary = body.workingSalary ? body.workingSalary : 0
-                    //     let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
-                    //     if (bl)
-                    //         await mtblBangLuong(db).update({
-                    //             Date: body.signDate ? body.signDate : null,
-                    //             WorkingSalary: body.workingSalary ? body.workingSalary : 0,
-                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                    //         }, {
-                    //             where: { IDNhanVien: body.id, }
-                    //         })
-                    //     else
-                    //         await mtblBangLuong(db).create({
-                    //             Date: body.signDate ? body.signDate : null,
-                    //             WorkingSalary: body.workingSalary ? body.workingSalary : 0,
-                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                    //             IDNhanVien: body.id,
-                    //         })
-                    // }
-                    // else {
-                    //     if (body.id)
-                    //         await mtblHopDongNhanSu(db).update({
-                    //             Status: 'Hết hiệu lực'
-                    //         }, {
-                    //             where: { IDNhanVien: body.id }
-                    //         })
-                    //     await mtblHopDongNhanSu(db).create({
-                    //         EditDate: now,
-                    //         ContractCode: body.contractCode ? body.contractCode : '',
-                    //         Date: body.signDate ? body.signDate : null,
-                    //         IDLoaiHopDong: body.idLoaiHopDong ? body.idLoaiHopDong : null,
-                    //         SalaryNumber: body.workingSalary ? body.workingSalary : '',
-                    //         SalaryText: body.salaryNumber ? body.salaryNumber : '',
-                    //         ContractDateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                    //         // ContractDateStart: now,
-                    //         UnitSalary: 'VND',
-                    //         Status: body.status ? body.status : '',
-                    //         IDNhanVien: body.id ? body.id : null,
-                    //         WorkingPlace: '',
-                    //         Announced: false,
-                    //         NoticeTime: noticeTime,
-                    //     })
-                    //     salary = body.workingSalary ? body.workingSalary : 0
-                    //     let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.id } })
-                    //     if (bl)
-                    //         await mtblBangLuong(db).update({
-                    //             Date: body.signDate ? body.signDate : null,
-                    //             WorkingSalary: salary,
-                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                    //         }, {
-                    //             where: { IDNhanVien: body.id, }
-                    //         })
-                    //     else
-                    //         await mtblBangLuong(db).create({
-                    //             Date: body.signDate ? body.signDate : null,
-                    //             WorkingSalary: salary,
-                    //             BHXHSalary: body.bhxhSalary ? body.bhxhSalary : 0,
-                    //             DateEnd: body.contractDateEnd ? body.contractDateEnd : null,
-                    //             IDNhanVien: body.id
-                    //         })
-                    // }
-                    database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
-                        if (response == 1) {
-                            res.json(Result.ACTION_SUCCESS);
-                        } else {
-                            res.json(Result.SYS_ERROR_RESULT);
-                        }
-                    })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -1246,6 +1261,7 @@ module.exports = {
                                 staffCode: element.StaffCode ? element.StaffCode : '',
                                 staffName: element.StaffName ? element.StaffName : '',
                                 departmentName: element.bp ? element.bp.DepartmentName : '',
+                                productivityWages: element.ProductivityWages ? element.ProductivityWages : 0,
                             }
                             array.push(obj);
                         });

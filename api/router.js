@@ -66,9 +66,6 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_dmuser').post(checkToken.checkToken, tblDMUser.deletetblDMUser);
     app.route('/qlnb/get_list_tbl_dmuser').post(tblDMUser.getListtblDMUser);
     app.route('/qlnb/get_list_name_tbl_dmuser').post(tblDMUser.getListNametblDMUser);
-
-    app.route('/qlnb/get_list_name_tbl_dmnhanvien').post(tblDMNhanvien.getListNametblDMNhanvien);
-
     app.route('/qlnb/get_list_name_tbl_dmpermission').post(tblDMPermission.getListNametblDMPermission);
     // Quản lý bộ phận
     app.route('/qlnb/add_tbl_dm_bophan').post(checkToken.checkToken, tblDMBoPhan.addtblDMBoPhan);

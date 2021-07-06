@@ -916,19 +916,37 @@ module.exports = {
         });
         let body = req.body;
         let data = JSON.parse(body.data);
-        let arrayHeader = [
-            'STT',
-            'MÃ NỘI BỘ',
-            'TÊN TÀI SẢN',
-            'SERIAL TÀI SẢN',
-            'LOẠI TÀI SẢN',
-            'ĐƠN VỊ',
-            'SỐ TIỀN THANH LÝ',
-            'NGÀY MUA',
-            'NGÀY THANH LÝ',
-            'LÝ DO',
-            'TÌNH TRẠNG',
-        ]
+        let arrayHeader = []
+        if (body.type == 'liquidation') {
+            arrayHeader = [
+                'STT',
+                'MÃ NỘI BỘ',
+                'TÊN TÀI SẢN',
+                'SERIAL TÀI SẢN',
+                'LOẠI TÀI SẢN',
+                'ĐƠN VỊ',
+                'SỐ TIỀN THANH LÝ',
+                'NGÀY MUA',
+                'NGÀY THANH LÝ',
+                'LÝ DO',
+                'TÌNH TRẠNG',
+            ]
+        } else {
+            arrayHeader = [
+                'STT',
+                'MÃ NỘI BỘ',
+                'TÊN TÀI SẢN',
+                'SERIAL TÀI SẢN',
+                'LOẠI TÀI SẢN',
+                'ĐƠN VỊ',
+                'NGUYÊN GIÁ',
+                'GIÁ TRỊ CÒN LẠI',
+                'NGÀY MUA',
+                'NGÀY HẾT HẠN BẢO HÀNH',
+                'BẢO HÀNH CÒN LẠI',
+                'TÌNH TRẠNG',
+            ]
+        }
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -950,6 +968,7 @@ module.exports = {
                     var row = 0;
                     // dùng để check bản ghi chiếm nhiều nhất bao nhiêu dòng
                     var checkMaxRow = 1;
+                    console.log(data);
                     for (let i = 0; i < data.length; i++) {
 
                         var max = 1;
@@ -960,17 +979,33 @@ module.exports = {
                         else
                             row = i + 5
                         checkMaxRow += 1;
-                        ws.cell(row, 1).number(data[i].stt).style(stylecell)
-                        ws.cell(row, 2).string(data[i].codeDMHangHoa).style(stylecell)
-                        ws.cell(row, 3).string(data[i].nameDMHangHoa).style(stylecell)
-                        ws.cell(row, 4).string(data[i].serialNumber).style(stylecell)
-                        ws.cell(row, 5).string(data[i].nameLoaiTaiSan).style(stylecellNumber)
-                        ws.cell(row, 6).string(data[i].unit).style(stylecellNumber)
-                        ws.cell(row, 7).number(data[i].liquidationMoney).style(stylecellNumber)
-                        ws.cell(row, 8).string(data[i].date).style(stylecellNumber)
-                        ws.cell(row, 9).string(data[i].guaranteDate).style(stylecellNumber)
-                        ws.cell(row, 10).string(data[i].liquidationReason).style(stylecellNumber)
-                        ws.cell(row, 11).string(data[i].status).style(stylecellNumber)
+                        if (body.type == 'liquidation') {
+                            ws.cell(row, 1).number(data[i].stt).style(stylecellNumber)
+                            ws.cell(row, 2).string(data[i].codeDMHangHoa).style(stylecell)
+                            ws.cell(row, 3).string(data[i].nameDMHangHoa).style(stylecell)
+                            ws.cell(row, 4).string(data[i].serialNumber).style(stylecell)
+                            ws.cell(row, 5).string(data[i].nameLoaiTaiSan).style(stylecell)
+                            ws.cell(row, 6).string(data[i].unit).style(stylecell)
+                            ws.cell(row, 7).number(data[i].liquidationMoney).style(stylecellNumber)
+                            ws.cell(row, 8).string(data[i].date).style(stylecell)
+                            ws.cell(row, 9).string(data[i].liquidationDate).style(stylecell)
+                            ws.cell(row, 10).string(data[i].liquidationReason).style(stylecell)
+                            ws.cell(row, 11).string(data[i].status).style(stylecell)
+                        } else {
+                            ws.cell(row, 1).number(data[i].stt).style(stylecell)
+                            ws.cell(row, 2).string(data[i].codeDMHangHoa).style(stylecell)
+                            ws.cell(row, 3).string(data[i].nameDMHangHoa).style(stylecell)
+                            ws.cell(row, 4).string(data[i].serialNumber).style(stylecell)
+                            ws.cell(row, 5).string(data[i].nameLoaiTaiSan).style(stylecell)
+                            ws.cell(row, 6).string(data[i].unit).style(stylecell)
+                            ws.cell(row, 7).number(data[i].originalPrice).style(stylecellNumber)
+                            ws.cell(row, 8).number(data[i].depreciationPrice).style(stylecellNumber)
+                            ws.cell(row, 9).string(data[i].date).style(stylecell)
+                            ws.cell(row, 10).string(data[i].guaranteDate).style(stylecell)
+                            ws.cell(row, 11).number(data[i].guaranteeMonth ? data[i].guaranteeMonth : 0).style(stylecellNumber)
+                            ws.cell(row, 12).string(data[i].status).style(stylecell)
+                        }
+
                     }
                     await wb.write('C:/images_services/ageless_sendmail/Danh sách tài sản' + (body.type == 'liquidation' ? ' thanh lý' : '') + '.xlsx');
                     setTimeout(() => {
