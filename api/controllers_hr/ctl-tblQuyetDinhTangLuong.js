@@ -96,6 +96,65 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id, staffID) {
     })
     return obj
 }
+
+async function checkIncreaseTheSalariesExistForStaff(db, staffArray, date) {
+    let check = true
+    date = moment(date).add(7, 'hours')
+    for (let s = 0; s < staffArray.length; s++) {
+        let arrayDecision = []
+        await mtblIncreaseSalariesAndStaff(db).findAll({
+            where: {
+                StaffID: staffArray[s].id,
+            }
+        }).then(decision => {
+            decision.forEach(element => {
+                arrayDecision.push(element.IncreaseSalariesID)
+            })
+        })
+        let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
+        tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
+        await tblQuyetDinhTangLuong.findOne({
+            where: {
+                StopDate: {
+                    [Op.gte]: date
+                },
+                DecisionDate: {
+                    [Op.lte]: date
+                },
+                ID: { [Op.in]: arrayDecision },
+            },
+        }).then(data => {
+            if (data) {
+                check = false
+            }
+        })
+    }
+    return check
+}
+
+async function checkIncreaseTheSalariesExist(db, date, staffArray, type = 'create', id = 0) {
+    // [Op.gt]: 6,                // > 6
+    // [Op.gte]: 6,               // >= 6
+    // [Op.lt]: 10,               // < 10
+    // [Op.lte]: 10,              // <= 10
+    let check = true
+    if (type == 'create') {
+        check = await checkIncreaseTheSalariesExistForStaff(db, staffArray, date)
+    } else {
+        let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
+        tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
+        await tblQuyetDinhTangLuong.findOne({
+            where: {
+                ID: id,
+            },
+        }).then(async detailDecision => {
+            if (date != detailDecision.DecisionDate) {
+                check = await checkIncreaseTheSalariesExistForStaff(db, staffArray, date)
+            }
+        })
+    }
+    return check
+}
 module.exports = {
     deleteRelationshiptblQuyetDinhTangLuong,
     //  get_detail_tbl_quyetdinh_tangluong
@@ -136,87 +195,79 @@ module.exports = {
     // add_tbl_quyetdinh_tangluong
     addtblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         body.idNhanVien = JSON.parse(body.idNhanVien);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblQuyetDinhTangLuong(db).create({
-                        DecisionCode: await mModules.automaticCode(mtblQuyetDinhTangLuong(db), 'DecisionCode', 'QDTL'),
-                        DecisionDate: body.decisionDate ? body.decisionDate : null,
-                        IncreaseDate: body.increaseDate ? body.increaseDate : null,
-                        StopDate: body.stopDate ? body.stopDate : null,
-                        StopReason: body.stopReason ? body.stopReason : '',
-                        // IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
-                        IDEmployeeApproval: body.idStaffApproval ? body.idStaffApproval : null,
-                        // SalaryIncrease: salaryIncrease,
-                        StatusDecision: body.statusDecision ? body.statusDecision : '',
-                        Increase: body.increase ? body.increase : '',
-                        Status: 'Chờ phê duyệt',
-                    }).then(async data => {
-                        if (data) {
-                            if (body.fileAttach) {
-                                body.fileAttach = JSON.parse(body.fileAttach)
-                                if (body.fileAttach.length > 0)
-                                    for (var j = 0; j < body.fileAttach.length; j++)
-                                        await mtblFileAttach(db).update({
-                                            IDIncreaseSlary: data.ID,
-                                        }, {
-                                            where: {
-                                                ID: body.fileAttach[j].id
-                                            }
-                                        })
-                            }
-                            for (let staff = 0; staff < body.idNhanVien.length; staff++) {
-                                await mtblIncreaseSalariesAndStaff(db).create({
-                                    StaffID: body.idNhanVien[staff].id,
-                                    IncreaseSalariesID: data.ID,
-                                })
-                            }
+                    if (await checkIncreaseTheSalariesExist(db, body.decisionDate, body.idNhanVien)) {
+                        mtblQuyetDinhTangLuong(db).create({
+                            DecisionCode: await mModules.automaticCode(mtblQuyetDinhTangLuong(db), 'DecisionCode', 'QDTL'),
+                            DecisionDate: body.decisionDate ? body.decisionDate : null,
+                            IncreaseDate: body.increaseDate ? body.increaseDate : null,
+                            StopDate: body.stopDate ? body.stopDate : null,
+                            StopReason: body.stopReason ? body.stopReason : '',
+                            // IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
+                            IDEmployeeApproval: body.idStaffApproval ? body.idStaffApproval : null,
+                            // SalaryIncrease: salaryIncrease,
+                            StatusDecision: body.statusDecision ? body.statusDecision : '',
+                            Increase: body.increase ? body.increase : '',
+                            Status: 'Chờ phê duyệt',
+                        }).then(async data => {
+                            if (data) {
+                                if (body.fileAttach) {
+                                    body.fileAttach = JSON.parse(body.fileAttach)
+                                    if (body.fileAttach.length > 0)
+                                        for (var j = 0; j < body.fileAttach.length; j++)
+                                            await mtblFileAttach(db).update({
+                                                IDIncreaseSlary: data.ID,
+                                            }, {
+                                                where: {
+                                                    ID: body.fileAttach[j].id
+                                                }
+                                            })
+                                }
+                                for (let staff = 0; staff < body.idNhanVien.length; staff++) {
+                                    await mtblIncreaseSalariesAndStaff(db).create({
+                                        StaffID: body.idNhanVien[staff].id,
+                                        IncreaseSalariesID: data.ID,
+                                    })
+                                    if (body.decisionDate && body.increase) {
+                                        let now = moment().format('MM');
+                                        if (Number(moment(body.decisionDate).add(7, 'hours').format('MM')) == Number(now)) {
+                                            let staffOld = await mtblDMNhanvien(db).findOne({
+                                                where: {
+                                                    ID: body.idNhanVien[staff].id
+                                                }
+                                            })
+                                            let OldProductivity = staffOld.OldProductivity ? staffOld.OldProductivity : staffOld.ProductivityWages
+                                            await mtblDMNhanvien(db).update({
+                                                OldProductivity: OldProductivity,
+                                                Increase: body.increase ? body.increase : 0,
+                                                ProductivityWages: Number(OldProductivity) + Number(body.increase),
+                                            }, {
+                                                where: {
+                                                    ID: body.idNhanVien[staff].id
+                                                }
+                                            })
+                                        }
+                                    }
+                                }
 
-                        }
-                        // var hd = await mtblHopDongNhanSu(db).findOne({
-                        //     where: {
-                        //         IDNhanVien: body.idNhanVien
-                        //     },
-                        //     order: [
-                        //         ['ID', 'DESC']
-                        //     ],
-                        // })
-                        // if (hd)
-                        //     await mtblHopDongNhanSu(db).update({
-                        //         workingSalary: body.salaryIncrease,
-                        //         SalaryNumber: body.salaryIncrease,
-                        //     }, {
-                        //         where: {
-                        //             ID: hd.ID
-                        //         },
-                        //     })
-                        // salary = body.workingSalary ? body.workingSalary : 0
-                        // let bl = await mtblBangLuong(db).findOne({ where: { IDNhanVien: body.idNhanVien } })
-                        // if (bl)
-                        //     await mtblBangLuong(db).update({
-                        //         Date: body.decisionDate ? body.decisionDate : null,
-                        //         WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
-                        //         SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
-                        //         DateEnd: body.stopDate ? body.stopDate : null,
-                        //     }, {
-                        //         where: { IDNhanVien: body.idNhanVien, }
-                        //     })
-                        // else
-                        //     await mtblBangLuong(db).create({
-                        //         Date: body.decisionDate ? body.decisionDate : null,
-                        //         WorkingSalary: body.salaryIncrease ? body.salaryIncrease : 0,
-                        //         SalaryNumber: body.salaryIncrease ? body.salaryIncrease : 0,
-                        //         DateEnd: body.stopDate ? body.stopDate : null,
-                        //         IDNhanVien: body.idNhanVien,
-                        //     })
+                            }
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
+                    } else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: 'Quyết định tăng lương đã có. Vui lòng kiểm tra lại !',
                         }
                         res.json(result);
-                    })
+                    }
+
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -229,78 +280,104 @@ module.exports = {
     // update_tbl_quyetdinh_tangluong
     updatetblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let update = [];
-                    if (body.fileAttach) {
-                        body.fileAttach = JSON.parse(body.fileAttach)
-                        await mModules.updateForFileAttach(db, 'IDIncreaseSlary', body.fileAttach, body.id)
-                    }
-                    if (body.idNhanVien) {
-                        body.idNhanVien = JSON.parse(body.idNhanVien)
+                    body.idNhanVien = JSON.parse(body.idNhanVien)
+                    if (await checkIncreaseTheSalariesExist(db, body.decisionDate, body.idNhanVien, 'update', body.id)) {
+                        let update = [];
+                        if (body.fileAttach) {
+                            body.fileAttach = JSON.parse(body.fileAttach)
+                            await mModules.updateForFileAttach(db, 'IDIncreaseSlary', body.fileAttach, body.id)
+                        }
                         await mtblIncreaseSalariesAndStaff(db).destroy({ where: { IncreaseSalariesID: body.id, } })
                         for (let staff = 0; staff < body.idNhanVien.length; staff++) {
                             await mtblIncreaseSalariesAndStaff(db).create({
                                 StaffID: body.idNhanVien[staff].id,
                                 IncreaseSalariesID: body.id,
                             })
+                            if (body.decisionDate && body.increase) {
+                                let now = moment().format('MM');
+                                if (Number(moment(body.decisionDate).add(7, 'hours').format('MM')) == Number(now)) {
+                                    let staffOld = await mtblDMNhanvien(db).findOne({
+                                        where: {
+                                            ID: body.idNhanVien[staff].id
+                                        }
+                                    })
+                                    let OldProductivity = staffOld.OldProductivity ? staffOld.OldProductivity : staffOld.ProductivityWages
+                                    console.log(OldProductivity);
+                                    await mtblDMNhanvien(db).update({
+                                        OldProductivity: OldProductivity,
+                                        Increase: body.increase ? body.increase : 0,
+                                        ProductivityWages: Number(OldProductivity) + Number(body.increase),
+                                    }, {
+                                        where: {
+                                            ID: body.idNhanVien[staff].id
+                                        }
+                                    })
+                                }
+                            }
                         }
-                    }
-                    if (body.decisionDate || body.decisionDate === '') {
-                        if (body.decisionDate === '')
-                            update.push({ key: 'DecisionDate', value: null });
-                        else
-                            update.push({ key: 'DecisionDate', value: body.decisionDate });
-                    }
-                    if (body.increaseDate || body.increaseDate === '') {
-                        if (body.increaseDate === '')
-                            update.push({ key: 'IncreaseDate', value: null });
-                        else
-                            update.push({ key: 'IncreaseDate', value: body.increaseDate });
-                    }
-                    if (body.stopDate || body.stopDate === '') {
-                        if (body.stopDate === '')
-                            update.push({ key: 'StopDate', value: null });
-                        else
-                            update.push({ key: 'StopDate', value: body.stopDate });
-                    }
-                    // if (body.idNhanVien || body.idNhanVien === '') {
-                    //     if (body.idNhanVien === '')
-                    //         update.push({ key: 'IDNhanVien', value: null });
-                    //     else
-                    //         update.push({ key: 'IDNhanVien', value: body.idNhanVien });
-                    // }
-                    if (body.idEmployeeApproval || body.idEmployeeApproval === '') {
-                        if (body.idEmployeeApproval === '')
-                            update.push({ key: 'IDEmployeeApproval', value: null });
-                        else
-                            update.push({ key: 'IDEmployeeApproval', value: body.idEmployeeApproval });
-                    }
-                    if (body.increase || body.increase === '') {
-                        if (body.increase === '')
-                            update.push({ key: 'Increase', value: null });
-                        else
-                            update.push({ key: 'Increase', value: body.increase });
-                    }
-                    if (body.decisionCode || body.decisionCode === '')
-                        update.push({ key: 'DecisionCode', value: body.decisionCode });
-                    if (body.stopReason || body.stopReason === '')
-                        update.push({ key: 'StopReason', value: body.stopReason });
-                    if (body.salaryIncrease || body.salaryIncrease === '') {
-                        update.push({ key: 'SalaryIncrease', value: body.salaryIncrease });
-                    }
-                    if (body.status || body.status === '')
-                        update.push({ key: 'Status', value: body.status });
+                        if (body.decisionDate || body.decisionDate === '') {
+                            if (body.decisionDate === '')
+                                update.push({ key: 'DecisionDate', value: null });
+                            else
+                                update.push({ key: 'DecisionDate', value: body.decisionDate });
+                        }
+                        if (body.increaseDate || body.increaseDate === '') {
+                            if (body.increaseDate === '')
+                                update.push({ key: 'IncreaseDate', value: null });
+                            else
+                                update.push({ key: 'IncreaseDate', value: body.increaseDate });
+                        }
+                        if (body.stopDate || body.stopDate === '') {
+                            if (body.stopDate === '')
+                                update.push({ key: 'StopDate', value: null });
+                            else
+                                update.push({ key: 'StopDate', value: body.stopDate });
+                        }
+                        // if (body.idNhanVien || body.idNhanVien === '') {
+                        //     if (body.idNhanVien === '')
+                        //         update.push({ key: 'IDNhanVien', value: null });
+                        //     else
+                        //         update.push({ key: 'IDNhanVien', value: body.idNhanVien });
+                        // }
+                        if (body.idEmployeeApproval || body.idEmployeeApproval === '') {
+                            if (body.idEmployeeApproval === '')
+                                update.push({ key: 'IDEmployeeApproval', value: null });
+                            else
+                                update.push({ key: 'IDEmployeeApproval', value: body.idEmployeeApproval });
+                        }
+                        if (body.increase || body.increase === '') {
+                            if (body.increase === '')
+                                update.push({ key: 'Increase', value: null });
+                            else
+                                update.push({ key: 'Increase', value: body.increase });
+                        }
+                        if (body.decisionCode || body.decisionCode === '')
+                            update.push({ key: 'DecisionCode', value: body.decisionCode });
+                        if (body.stopReason || body.stopReason === '')
+                            update.push({ key: 'StopReason', value: body.stopReason });
+                        if (body.salaryIncrease || body.salaryIncrease === '') {
+                            update.push({ key: 'SalaryIncrease', value: body.salaryIncrease });
+                        }
+                        if (body.status || body.status === '')
+                            update.push({ key: 'Status', value: body.status });
 
-                    database.updateTable(update, mtblQuyetDinhTangLuong(db), body.id).then(response => {
-                        if (response == 1) {
-                            res.json(Result.ACTION_SUCCESS);
-                        } else {
-                            res.json(Result.SYS_ERROR_RESULT);
+                        database.updateTable(update, mtblQuyetDinhTangLuong(db), body.id).then(response => {
+                            if (response == 1) {
+                                res.json(Result.ACTION_SUCCESS);
+                            } else {
+                                res.json(Result.SYS_ERROR_RESULT);
+                            }
+                        })
+                    } else {
+                        var result = {
+                            status: Constant.STATUS.FAIL,
+                            message: 'Quyết định tăng lương đã có. Vui lòng kiểm tra lại !',
                         }
-                    })
+                        res.json(result);
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

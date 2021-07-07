@@ -37,6 +37,8 @@ module.exports = function (db) {
         CMNDPlace: Sequelize.STRING,
         CMNDDate: Sequelize.DATE,
         FileAttachID: Sequelize.BIGINT,
+        OldProductivity: Sequelize.FLOAT,
+        Increase: Sequelize.FLOAT,
     });
 
     return table;

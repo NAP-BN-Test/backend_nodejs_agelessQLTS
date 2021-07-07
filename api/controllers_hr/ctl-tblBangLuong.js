@@ -871,7 +871,7 @@ async function calculateRemainingPreviousYear(db, staffID, date) {
             }).then(data => {
                 if (data)
                     data.forEach(item => {
-                        if (item.Status == 'KL' && leave[i].Status == 'KL') {
+                        if (item.Status == 'KL' && item.Status == 'KL') {
                             freeBreakPlus += 1
                         } else if (item.Status != '+') {
                             if (item.Status && item.Status != '0.5' && !item.Reason) {

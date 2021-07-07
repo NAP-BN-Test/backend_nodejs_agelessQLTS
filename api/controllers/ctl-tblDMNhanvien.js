@@ -630,12 +630,23 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    let check = await mtblDMNhanvien(db).findOne({
+                    let idCHamCong = await mtblDMNhanvien(db).findOne({
                         where: {
-                            IDMayChamCong: body.idMayChamCong,
+                            ID: body.id,
                         },
                     })
-                    if (!check) {
+                    let check = true;
+                    if (idCHamCong.IDMayChamCong != body.idMayChamCong) {
+                        await mtblDMNhanvien(db).findOne({
+                            where: {
+                                IDMayChamCong: body.idMayChamCong,
+                            },
+                        }).then(data => {
+                            if (data)
+                                check = false
+                        })
+                    }
+                    if (check) {
                         if (body.coefficientsSalary)
                             update.push({ key: 'CoefficientsSalary', value: body.coefficientsSalary });
                         if (body.cmndNumber || body.cmndNumber === '')
