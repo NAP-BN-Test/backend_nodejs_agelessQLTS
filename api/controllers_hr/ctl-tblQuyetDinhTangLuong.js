@@ -113,15 +113,27 @@ async function checkIncreaseTheSalariesExistForStaff(db, staffArray, date) {
         })
         let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
         tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'staff' })
+        let dateM = moment(date).add(7, 'hours').format('YYYY-MM').toString()
         await tblQuyetDinhTangLuong.findOne({
             where: {
-                StopDate: {
-                    [Op.gte]: date
-                },
-                DecisionDate: {
-                    [Op.lte]: date
-                },
-                ID: { [Op.in]: arrayDecision },
+                [Op.or]: [
+                    {
+                        StopDate: {
+                            [Op.gte]: date
+                        },
+                        DecisionDate: {
+                            [Op.lte]: date
+                        },
+                        ID: { [Op.in]: arrayDecision },
+                    },
+                    {
+                        StopDate: null,
+                        DecisionDate: {
+                            [Op.substring]: dateM
+                        },
+                        ID: { [Op.in]: arrayDecision },
+                    }
+                ]
             },
         }).then(data => {
             if (data) {
@@ -263,7 +275,7 @@ module.exports = {
                     } else {
                         var result = {
                             status: Constant.STATUS.FAIL,
-                            message: 'Quyết định tăng lương đã có. Vui lòng kiểm tra lại !',
+                            message: 'Quyết định tăng lương ' + moment(body.decisionDate).add(7, 'hours').format('MM/YYYY') + ' đã có. Vui lòng kiểm tra lại !',
                         }
                         res.json(result);
                     }
