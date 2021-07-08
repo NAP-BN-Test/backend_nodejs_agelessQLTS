@@ -1173,18 +1173,34 @@ module.exports = {
                             required: false,
                             as: 'bp'
                         },],
-                    }).then(data => {
+                    }).then(async staff => {
                         var array = [];
-                        data.forEach(element => {
+                        for (let i = 0; i < staff.length; i++) {
+                            let salary = 0;
+                            if (body.date) {
+                                let dateSearch = moment(data.date).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                                await mtblIncreaseSalariesAndStaff(db).findAll({
+                                    where: {
+                                        Date: {
+                                            [Op.lte]: dateSearch
+                                        },
+                                        StaffID: staff[i].ID,
+                                    },
+                                }).then(async data => {
+                                    data.forEach(element => {
+                                        salary += element.Increase
+                                    })
+                                })
+                            }
                             var obj = {
-                                id: Number(element.ID),
-                                staffCode: element.StaffCode ? element.StaffCode : '',
-                                staffName: element.StaffName ? element.StaffName : '',
-                                departmentName: element.bp ? element.bp.DepartmentName : '',
-                                productivityWages: element.ProductivityWages ? element.ProductivityWages : 0,
+                                id: Number(staff[i].ID),
+                                staffCode: staff[i].StaffCode ? staff[i].StaffCode : '',
+                                staffName: staff[i].StaffName ? staff[i].StaffName : '',
+                                departmentName: staff[i].bp ? staff[i].bp.DepartmentName : '',
+                                productivityWagesPresent: Number(data[i].ProductivityWages ? data[i].ProductivityWages : 0) + Number(salary),
                             }
                             array.push(obj);
-                        });
+                        }
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

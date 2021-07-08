@@ -91,6 +91,7 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id) {
             for (let s = 0; s < arrayStaff.length; s++) {
                 let salary = 0
                 let obj = {}
+                let productivityWages = 0
                 await tblIncreaseSalariesAndStaff.findAll({
                     where: {
                         Date: {
@@ -106,16 +107,17 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id) {
                         },
                     ],
                 }).then(data => {
+                    productivityWages = data[0].staff ? data[0].staff.ProductivityWages : 0
                     obj = {
-                        name: data[0].staff ? data[0].staff.StaffName : '',
-                        code: data[0].staff ? data[0].staff.StaffCode : '',
+                        staffName: data[0].staff ? data[0].staff.StaffName : '',
+                        staffCode: data[0].staff ? data[0].staff.StaffCode : '',
                         productivityWages: data[0].staff ? data[0].staff.ProductivityWages : 0,
                     }
                     data.forEach(element => {
                         salary += element.Increase
                     })
                 })
-                obj['salaryIncrease'] = salary
+                obj['productivityWagesPresent'] = Number(salary) + Number(productivityWages)
                 arrayObjStaff.push(obj)
             }
             obj['arrayStaff'] = arrayObjStaff

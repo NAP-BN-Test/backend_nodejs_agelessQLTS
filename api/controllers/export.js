@@ -1330,6 +1330,7 @@ module.exports = {
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         let body = req.body;
+        console.log(body);
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
         let totalFooter = JSON.parse(body.totalFooter)
@@ -1351,8 +1352,12 @@ module.exports = {
             'TỔNG CÁC KHOẢN TRỪ',
             'THỰC LĨNH',
         ]
-        var month = Number(body.date.slice(5, 7)); // January
-        var year = Number(body.date.slice(0, 4));
+        var month = Number(body.dateStart.slice(5, 7)); // January
+        var year = Number(body.dateStart.slice(0, 4));
+        if (body.dateEnd) {
+            monthEnd = Number(body.dateEnd.slice(5, 7));
+            yearEnd = Number(body.dateEnd.slice(0, 4));
+        }
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1363,8 +1368,30 @@ module.exports = {
                     ws.cell(3, 7, 3, 11, true)
                         .string('CÁC KHOẢN GIẢM TRỪ')
                         .style(styleHearder);
+                    let str = '';
+                    let strFile = '';
+                    if (!body.dateEnd) {
+                        if (!body.departmentID) {
+                            strFile = 'Bảng lương tháng' + body.dateStart + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year
+                        } else {
+                            let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            strFile = 'Bảng lương tháng' + body.dateStart + ' ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year + ' ' + department.DepartmentName
+                        }
+                    } else {
+                        if (!body.departmentID) {
+                            strFile = 'Bảng lương tháng' + body.dateStart + ' - ' + body.dateEnd + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + body.dateStart + ' - ' + body.dateEnd
+                        } else {
+                            let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            strFile = 'Bảng lương tháng' + body.dateStart + ' - ' + body.dateEnd + ' ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + body.dateStart + ' - ' + body.dateEnd + ' ' + department.DepartmentName
+                        }
+
+                    }
                     ws.cell(1, 1, 1, 14, true)
-                        .string('BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year)
+                        .string(str)
                         .style(styleHearder);
 
                     // push vào các khoản trừ %
@@ -1440,10 +1467,10 @@ module.exports = {
                     ws.cell(5 + data.length, 14).number(Number(totalFooter.totalAllReduce)).style(styleHearderNumber)
                     ws.cell(5 + data.length, 15).number(Number(totalFooter.totalRealField)).style(styleHearderNumber)
 
-                    await wb.write('C:/images_services/ageless_sendmail/' + 'Bảng lương tháng' + body.date + '.xlsx');
+                    await wb.write('C:/images_services/ageless_sendmail/' + strFile);
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Bảng lương tháng' + body.date + '.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

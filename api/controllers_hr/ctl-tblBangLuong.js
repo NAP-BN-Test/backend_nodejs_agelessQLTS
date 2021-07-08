@@ -2788,6 +2788,7 @@ module.exports = {
     // track_insurance_premiums
     trackInsurancePremiums: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -2810,8 +2811,6 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
-                        limit: Number(body.itemPerPage),
                         where: {
                             Date: {
                                 [Op.substring]: body.date.slice(0, 4)

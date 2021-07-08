@@ -1148,6 +1148,30 @@ module.exports = {
             }
         })
     },
+    // refuse_staff
+    refuseStaff: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblNghiPhep(db).update({
+                        Status: 'Nhân viên đã từ chối',
+                        Reason: body.reason,
+                    }, { where: { ID: body.id } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // handle_take_leave_day
     handleTakeLeaveDay: (req, res) => {
         let body = req.body;
