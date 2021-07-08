@@ -1197,7 +1197,7 @@ module.exports = {
                                 staffCode: staff[i].StaffCode ? staff[i].StaffCode : '',
                                 staffName: staff[i].StaffName ? staff[i].StaffName : '',
                                 departmentName: staff[i].bp ? staff[i].bp.DepartmentName : '',
-                                productivityWagesPresent: Number(data[i].ProductivityWages ? data[i].ProductivityWages : 0) + Number(salary),
+                                productivityWagesPresent: Number(staff[i].ProductivityWages ? staff[i].ProductivityWages : 0) + Number(salary),
                             }
                             array.push(obj);
                         }

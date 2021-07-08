@@ -1372,21 +1372,21 @@ module.exports = {
                     let strFile = '';
                     if (!body.dateEnd) {
                         if (!body.departmentID) {
-                            strFile = 'Bảng lương tháng' + body.dateStart + '.xlsx'
+                            strFile = 'Bảng lương tháng ' + month + '.' + year + '.xlsx'
                             str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year
                         } else {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                            strFile = 'Bảng lương tháng' + body.dateStart + ' ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year + ' ' + department.DepartmentName
+                            strFile = 'Bảng lương tháng ' + month + '.' + year + ' bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year + ' bộ phận ' + department.DepartmentName
                         }
                     } else {
                         if (!body.departmentID) {
-                            strFile = 'Bảng lương tháng' + body.dateStart + ' - ' + body.dateEnd + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + body.dateStart + ' - ' + body.dateEnd
+                            strFile = 'Bảng lương tháng ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd
                         } else {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                            strFile = 'Bảng lương tháng' + body.dateStart + ' - ' + body.dateEnd + ' ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + body.dateStart + ' - ' + body.dateEnd + ' ' + department.DepartmentName
+                            strFile = 'Bảng lương tháng ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' bộ phận ' + department.DepartmentName
                         }
 
                     }
