@@ -1203,12 +1203,24 @@ module.exports = {
                 size: 14,
                 bold: true,
             },
-            // fill: {
-            //     type: 'pattern', // the only one implemented so far.
-            //     patternType: 'solid', // most common.
-            //     // fgColor: '2172d7', // you can add two extra characters to serve as alpha, i.e. '2172d7aa'.
-            //     // bgColor: 'ffffff' // bgColor only applies on patternTypes other than solid.
-            // },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
             alignment: {
                 wrapText: true,
                 // ngang
@@ -1224,12 +1236,24 @@ module.exports = {
                 size: 14,
                 bold: true,
             },
-            // fill: {
-            //     type: 'pattern', // the only one implemented so far.
-            //     patternType: 'solid', // most common.
-            //     // fgColor: '2172d7', // you can add two extra characters to serve as alpha, i.e. '2172d7aa'.
-            //     // bgColor: 'ffffff' // bgColor only applies on patternTypes other than solid.
-            // },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
             alignment: {
                 wrapText: true,
                 // ngang
@@ -1244,6 +1268,24 @@ module.exports = {
                 // color: '#FF0800',
                 size: 13,
                 bold: false,
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
             },
             alignment: {
                 wrapText: true,
@@ -1266,6 +1308,24 @@ module.exports = {
                 horizontal: 'right',
                 // Dọc
                 vertical: 'center',
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
             },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
@@ -1300,7 +1360,7 @@ module.exports = {
                     var ws = wb.addWorksheet('Sheet 1');
                     var row = 1
                     ws.column(row).setWidth(5);
-                    ws.cell(3, 7, 3, 10, true)
+                    ws.cell(3, 7, 3, 11, true)
                         .string('CÁC KHOẢN GIẢM TRỪ')
                         .style(styleHearder);
                     ws.cell(1, 1, 1, 14, true)
@@ -1308,7 +1368,6 @@ module.exports = {
                         .style(styleHearder);
 
                     // push vào các khoản trừ %
-                    console.log(objInsurance);
                     var arrayReduct = []
                     arrayReduct.push(1)
                     arrayReduct.push(2)
@@ -1381,10 +1440,10 @@ module.exports = {
                     ws.cell(5 + data.length, 14).number(Number(totalFooter.totalAllReduce)).style(styleHearderNumber)
                     ws.cell(5 + data.length, 15).number(Number(totalFooter.totalRealField)).style(styleHearderNumber)
 
-                    await wb.write('C:/images_services/ageless_sendmail/' + 'export_excel_payroll_t' + month + '.xlsx');
+                    await wb.write('C:/images_services/ageless_sendmail/' + 'Bảng lương tháng' + body.date + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export_excel_payroll_t' + month + '.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Bảng lương tháng' + body.date + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1401,7 +1460,9 @@ module.exports = {
         })
     },
     // export_to_file_excel_payroll
-    exportToFileExcelTimekeeping: (req, res) => { },
+    exportToFileExcelTimekeeping: (req, res) => {
+
+    },
     // export_tofile_excel_insurance_premiums
     exportToFileExcelInsutancePremiums: (req, res) => {
         var wb = new xl.Workbook();

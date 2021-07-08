@@ -287,6 +287,7 @@ module.exports = function (app) {
     app.route('/qlnb/approval_head_department').post(checkToken.checkToken, tblNghiPhep.approvalHeadDepartment);
     app.route('/qlnb/approval_administration_hr').post(checkToken.checkToken, tblNghiPhep.approvalAdministrationHR);
     app.route('/qlnb/approval_heads').post(checkToken.checkToken, tblNghiPhep.approvalHeads);
+    app.route('/qlnb/staff_confirm').post(checkToken.checkToken, tblNghiPhep.staffConfirm);
     app.route('/qlnb/refuse_head_department').post(checkToken.checkToken, tblNghiPhep.refuseHeadDepartment);
     app.route('/qlnb/refuse_administration_hr').post(checkToken.checkToken, tblNghiPhep.refuseAdministrationHR);
     app.route('/qlnb/refuse_heads').post(checkToken.checkToken, tblNghiPhep.refuseHeads);
@@ -370,6 +371,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/approval_decision').post(checkToken.checkToken, tblQuyetDinhTangLuong.approvalDecision);
     app.route('/qlnb/refuse_decision').post(checkToken.checkToken, tblQuyetDinhTangLuong.refuseDecisoon);
+
+    app.route('/qlnb/get_list_decision_increase_from_staff').post(tblQuyetDinhTangLuong.getListDecisionIncreaseFromStaff);
 
     //---------------------------------------------------------------- Mẫu bảng lương --------------------------------------------------------------------------------------
     var tblBangLuong = require('./controllers_hr/ctl-tblBangLuong');

@@ -42,56 +42,83 @@ async function deleteRelationshiptblQuyetDinhTangLuong(db, listID) {
         }
     })
 }
-async function getDetailDecidedToIncreaseTheSalaries(db, id, staffID) {
+async function getDetailDecidedToIncreaseTheSalaries(db, id) {
     var obj = {}
-    let tblQuyetDinhTangLuong = mtblQuyetDinhTangLuong(db);
-    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'employee' })
-    tblQuyetDinhTangLuong.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDEmployeeApproval', sourceKey: 'IDEmployeeApproval', as: 'employeeApproval' })
-    await tblQuyetDinhTangLuong.findOne({
-        // offset: Number(body.itemPerPage) * (Number(body.page) - 1),
-        // limit: Number(body.itemPerPage),
-        where: { ID: id },
-        include: [{
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'employee'
-        },
-        {
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'employeeApproval'
-        },
-        ],
-        order: [
-            ['ID', 'DESC']
-        ],
-    }).then(async data => {
-        let staff = await mtblDMNhanvien(db).findOne({
-            order: [
-                ['ID', 'DESC']
-            ],
-            where: { ID: staffID }
-        })
-        let salaryIncrease = 0
-        if (staff) {
-            salaryIncrease = Number((staff.ProductivityWages ? staff.ProductivityWages : 0)) + Number(data.Increase)
+    await mtblQuyetDinhTangLuong(db).findOne({
+        where: {
+            ID: id
         }
-        obj = {
-            id: Number(data.ID),
-            decisionCode: data.DecisionCode ? data.DecisionCode : '',
-            decisionDate: data.DecisionDate ? moment(data.DecisionDate).format('DD/MM/YYYY') : null,
-            increaseDate: data.IncreaseDate ? moment(data.IncreaseDate).format('DD/MM/YYYY') : null,
-            stopDate: data.StopDate ? moment(data.StopDate).format('DD/MM/YYYY') : null,
-            stopReason: data.StopReason ? data.StopReason : '',
-            idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
-            nameNhanVien: data.IDNhanVien ? data.employee.StaffName : null,
-            salaryIncrease: salaryIncrease,
-            status: data.Status ? data.Status : '',
-            reason: data.Reason ? data.Reason : '',
-            statusDecision: data.StatusDecision ? data.StatusDecision : '',
-            idStaffApproval: data.IDEmployeeApproval ? data.IDEmployeeApproval : null,
-            increase: data.Increase ? data.Increase : null,
-            nameStaffApproval: data.employeeApproval ? data.employeeApproval.StaffName : null,
+    }).then(async data => {
+        if (data) {
+            let salaryIncrease = 0
+            obj = {
+                id: Number(data.ID),
+                decisionCode: data.DecisionCode ? data.DecisionCode : '',
+                decisionDate: data.DecisionDate ? moment(data.DecisionDate).format('DD/MM/YYYY') : null,
+                increaseDate: data.IncreaseDate ? moment(data.IncreaseDate).format('DD/MM/YYYY') : null,
+                stopDate: data.StopDate ? moment(data.StopDate).format('DD/MM/YYYY') : null,
+                stopReason: data.StopReason ? data.StopReason : '',
+                idNhanVien: data.IDNhanVien ? data.IDNhanVien : null,
+                nameNhanVien: data.IDNhanVien ? data.employee.StaffName : null,
+                status: data.Status ? data.Status : '',
+                reason: data.Reason ? data.Reason : '',
+                statusDecision: data.StatusDecision ? data.StatusDecision : '',
+                idStaffApproval: data.IDEmployeeApproval ? data.IDEmployeeApproval : null,
+                increase: data.Increase ? data.Increase : null,
+                nameStaffApproval: data.employeeApproval ? data.employeeApproval.StaffName : null,
+            }
+            let dateSearch = moment(data.DecisionDate).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+            let tblIncreaseSalariesAndStaff = mtblIncreaseSalariesAndStaff(db);
+            tblIncreaseSalariesAndStaff.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
+            let arrayStaff = []
+            let arrayObjStaff = []
+            await tblIncreaseSalariesAndStaff.findAll({
+                where: {
+                    IncreaseSalariesID: id,
+                },
+                include: [
+                    {
+                        model: mtblDMNhanvien(db),
+                        required: false,
+                        as: 'staff'
+                    },
+                ],
+            }).then(data => {
+                data.forEach(element => {
+                    arrayStaff.push(element.StaffID)
+                })
+            })
+            for (let s = 0; s < arrayStaff.length; s++) {
+                let salary = 0
+                let obj = {}
+                await tblIncreaseSalariesAndStaff.findAll({
+                    where: {
+                        Date: {
+                            [Op.lte]: dateSearch
+                        },
+                        StaffID: arrayStaff[s],
+                    },
+                    include: [
+                        {
+                            model: mtblDMNhanvien(db),
+                            required: false,
+                            as: 'staff'
+                        },
+                    ],
+                }).then(data => {
+                    obj = {
+                        name: data[0].staff ? data[0].staff.StaffName : '',
+                        code: data[0].staff ? data[0].staff.StaffCode : '',
+                        productivityWages: data[0].staff ? data[0].staff.ProductivityWages : 0,
+                    }
+                    data.forEach(element => {
+                        salary += element.Increase
+                    })
+                })
+                obj['salaryIncrease'] = salary
+                arrayObjStaff.push(obj)
+            }
+            obj['arrayStaff'] = arrayObjStaff
         }
     })
     return obj
@@ -175,26 +202,17 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let stt = 1;
                     let array = []
-                    await mtblIncreaseSalariesAndStaff(db).findAll({
-                        where: { StaffID: body.idNhanVien }
-                    }).then(async data => {
-                        for (var i = 0; i < data.length; i++) {
-                            let obj = await getDetailDecidedToIncreaseTheSalaries(db, data[i].IncreaseSalariesID, body.idNhanVien)
-                            array.push(obj)
-                        }
-                    })
-
+                    console.log(body.id);
+                    let obj = await getDetailDecidedToIncreaseTheSalaries(db, body.id)
                     var count = 0
                     var result = {
-                        array: array,
+                        obj: obj,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                         all: count
                     }
                     res.json(result);
-
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -222,7 +240,7 @@ module.exports = {
                             IDEmployeeApproval: body.idStaffApproval ? body.idStaffApproval : null,
                             // SalaryIncrease: salaryIncrease,
                             StatusDecision: body.statusDecision ? body.statusDecision : '',
-                            Increase: body.increase ? body.increase : '',
+                            Increase: body.increase ? body.increase : 0,
                             Status: 'Chờ phê duyệt',
                         }).then(async data => {
                             if (data) {
@@ -242,27 +260,9 @@ module.exports = {
                                     await mtblIncreaseSalariesAndStaff(db).create({
                                         StaffID: body.idNhanVien[staff].id,
                                         IncreaseSalariesID: data.ID,
+                                        Increase: body.increase ? body.increase : 0,
+                                        Date: body.decisionDate ? body.decisionDate : null,
                                     })
-                                    if (body.decisionDate && body.increase) {
-                                        let now = moment().format('MM');
-                                        if (Number(moment(body.decisionDate).add(7, 'hours').format('MM')) == Number(now)) {
-                                            let staffOld = await mtblDMNhanvien(db).findOne({
-                                                where: {
-                                                    ID: body.idNhanVien[staff].id
-                                                }
-                                            })
-                                            let OldProductivity = staffOld.OldProductivity ? staffOld.OldProductivity : staffOld.ProductivityWages
-                                            await mtblDMNhanvien(db).update({
-                                                OldProductivity: OldProductivity,
-                                                Increase: body.increase ? body.increase : 0,
-                                                ProductivityWages: Number(OldProductivity) + Number(body.increase),
-                                            }, {
-                                                where: {
-                                                    ID: body.idNhanVien[staff].id
-                                                }
-                                            })
-                                        }
-                                    }
                                 }
 
                             }
@@ -292,6 +292,7 @@ module.exports = {
     // update_tbl_quyetdinh_tangluong
     updatetblQuyetDinhTangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -307,28 +308,9 @@ module.exports = {
                             await mtblIncreaseSalariesAndStaff(db).create({
                                 StaffID: body.idNhanVien[staff].id,
                                 IncreaseSalariesID: body.id,
+                                Increase: body.increase ? body.increase : 0,
+                                Date: body.decisionDate ? body.decisionDate : null,
                             })
-                            if (body.decisionDate && body.increase) {
-                                let now = moment().format('MM');
-                                if (Number(moment(body.decisionDate).add(7, 'hours').format('MM')) == Number(now)) {
-                                    let staffOld = await mtblDMNhanvien(db).findOne({
-                                        where: {
-                                            ID: body.idNhanVien[staff].id
-                                        }
-                                    })
-                                    let OldProductivity = staffOld.OldProductivity ? staffOld.OldProductivity : staffOld.ProductivityWages
-                                    console.log(OldProductivity);
-                                    await mtblDMNhanvien(db).update({
-                                        OldProductivity: OldProductivity,
-                                        Increase: body.increase ? body.increase : 0,
-                                        ProductivityWages: Number(OldProductivity) + Number(body.increase),
-                                    }, {
-                                        where: {
-                                            ID: body.idNhanVien[staff].id
-                                        }
-                                    })
-                                }
-                            }
                         }
                         if (body.decisionDate || body.decisionDate === '') {
                             if (body.decisionDate === '')
@@ -593,7 +575,7 @@ module.exports = {
                                         id: item.staff.ID,
                                         staffName: item.staff.StaffName,
                                         staffCode: item.staff.StaffCode,
-                                        productivityWages: item.staff.ProductivityWages ? item.staff.ProductivityWages : 0,
+                                        productivityWages: item.staff ? item.staff.ProductivityWages : 0,
                                     })
                                 })
                             })
@@ -704,6 +686,121 @@ module.exports = {
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    //  get_list_decision_increase_from_staff
+    getListDecisionIncreaseFromStaff: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let array = []
+                    let arrayDecisionID = []
+                    await mtblIncreaseSalariesAndStaff(db).findAll({
+                        where: {
+                            StaffID: body.staffID
+                        }
+                    }).then(re => {
+                        re.forEach(element => {
+                            arrayDecisionID.push(element.IncreaseSalariesID)
+                        })
+                    })
+                    await mtblQuyetDinhTangLuong(db).findAll({
+                        where: {
+                            ID: { [Op.in]: arrayDecisionID }
+                        }
+                    }).then(async decision => {
+                        if (decision.length > 0) {
+                            for (d = 0; d < decision.length; d++) {
+                                obj = {
+                                    id: Number(decision[d].ID),
+                                    decisionCode: decision[d].DecisionCode ? decision[d].DecisionCode : '',
+                                    decisionDate: decision[d].DecisionDate ? moment(decision[d].DecisionDate).format('DD/MM/YYYY') : null,
+                                    increaseDate: decision[d].IncreaseDate ? moment(decision[d].IncreaseDate).format('DD/MM/YYYY') : null,
+                                    stopDate: decision[d].StopDate ? moment(decision[d].StopDate).format('DD/MM/YYYY') : null,
+                                    stopReason: decision[d].StopReason ? decision[d].StopReason : '',
+                                    idNhanVien: decision[d].IDNhanVien ? decision[d].IDNhanVien : null,
+                                    nameNhanVien: decision[d].IDNhanVien ? decision[d].employee.StaffName : null,
+                                    status: decision[d].Status ? decision[d].Status : '',
+                                    reason: decision[d].Reason ? decision[d].Reason : '',
+                                    statusDecision: decision[d].StatusDecision ? decision[d].StatusDecision : '',
+                                    idStaffApproval: decision[d].IDEmployeeApproval ? decision[d].IDEmployeeApproval : null,
+                                    increase: decision[d].Increase ? decision[d].Increase : null,
+                                    nameStaffApproval: decision[d].employeeApproval ? decision[d].employeeApproval.StaffName : null,
+                                }
+                                let dateSearch = moment(decision[d].DecisionDate).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                                let tblIncreaseSalariesAndStaff = mtblIncreaseSalariesAndStaff(db);
+                                tblIncreaseSalariesAndStaff.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
+                                let arrayStaff = []
+                                let arrayObjStaff = []
+                                await tblIncreaseSalariesAndStaff.findAll({
+                                    where: {
+                                        IncreaseSalariesID: decision[d].ID,
+                                    },
+                                    include: [
+                                        {
+                                            model: mtblDMNhanvien(db),
+                                            required: false,
+                                            as: 'staff'
+                                        },
+                                    ],
+                                }).then(data => {
+                                    data.forEach(element => {
+                                        arrayStaff.push(element.StaffID)
+                                    })
+                                })
+                                for (let s = 0; s < arrayStaff.length; s++) {
+                                    let salary = 0
+                                    let obj = {}
+                                    await tblIncreaseSalariesAndStaff.findAll({
+                                        where: {
+                                            Date: {
+                                                [Op.lte]: dateSearch
+                                            },
+                                            StaffID: arrayStaff[s],
+                                        },
+                                        include: [
+                                            {
+                                                model: mtblDMNhanvien(db),
+                                                required: false,
+                                                as: 'staff'
+                                            },
+                                        ],
+                                    }).then(data => {
+                                        obj = {
+                                            id: arrayStaff[s],
+                                            name: data[0].staff ? data[0].staff.StaffName : '',
+                                            code: data[0].staff ? data[0].staff.StaffCode : '',
+                                            productivityWages: data[0].staff ? data[0].staff.ProductivityWages : 0,
+                                        }
+                                        data.forEach(element => {
+                                            salary += element.Increase
+                                        })
+                                    })
+                                    obj['salaryIncrease'] = salary
+                                    arrayObjStaff.push(obj)
+                                }
+                                obj['arrayStaff'] = arrayObjStaff
+                                array.push(obj)
+                            }
+                        }
+                    })
+                    var count = 0
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: count
                     }
                     res.json(result);
                 } catch (error) {

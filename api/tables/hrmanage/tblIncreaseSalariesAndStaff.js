@@ -8,8 +8,11 @@ module.exports = function (db) {
             autoIncrement: true
         },
         IncreaseSalariesID: Sequelize.BIGINT,
-        StaffID: Sequelize.BIGINT
-
+        StaffID: Sequelize.BIGINT,
+        CurrentSalary: Sequelize.FLOAT,
+        ProductivityWages: Sequelize.FLOAT,
+        Increase: Sequelize.FLOAT,
+        Date: Sequelize.DATE,
     });
 
     return table;
