@@ -923,7 +923,6 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
-        console.log(body);
         var listUndefinedID = []
         var listInvoiceID = []
         if (body.listUndefinedID)

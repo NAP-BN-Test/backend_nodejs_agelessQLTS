@@ -886,6 +886,7 @@ module.exports = {
     // confirm_head_department
     confirmHeadDepartment: (req, res) => {
         let body = req.body;
+        console.log('confirm_head_department');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -918,7 +919,6 @@ module.exports = {
     // approval_head_department
     approvalHeadDepartment: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -948,7 +948,7 @@ module.exports = {
                     })
                     if (leave.Type == 'TakeLeave')
                         await mtblNghiPhep(db).update({
-                            Status: 'Chờ thủ trưởng phê duyệt',
+                            Status: 'Chờ hành chính nhân sự phê duyệt',
                         }, { where: { ID: body.id } })
                     else
                         await mtblNghiPhep(db).update({
@@ -979,18 +979,8 @@ module.exports = {
                     })
                     if (leave.Type == 'TakeLeave') {
                         await mtblNghiPhep(db).update({
-                            Status: 'Hoàn thành',
+                            Status: 'Chờ thủ trưởng phê duyệt',
                         }, { where: { ID: body.id } })
-                        let min = Number(moment().format('MM'));
-                        await mtblDateOfLeave(db).findAll({
-                            where: { LeaveID: body.id }
-                        }).then(date => {
-                            date.forEach(element => {
-                                if (Number(moment(element.DateStart).format('MM')) < min)
-                                    min = Number(moment(element.DateStart).format('MM'))
-                            })
-                        })
-                        await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
                     } else
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ thủ trưởng phê duyệt',
@@ -1019,10 +1009,21 @@ module.exports = {
                     let leave = await mtblNghiPhep(db).findOne({
                         where: { ID: body.id }
                     })
-                    if (leave.Type == 'TakeLeave')
+                    if (leave.Type == 'TakeLeave') {
                         await mtblNghiPhep(db).update({
-                            Status: 'Chờ hành chính nhân sự phê duyệt',
+                            Status: 'Hoàn thành',
                         }, { where: { ID: body.id } })
+                        let min = Number(moment().format('MM'));
+                        await mtblDateOfLeave(db).findAll({
+                            where: { LeaveID: body.id }
+                        }).then(date => {
+                            date.forEach(element => {
+                                if (Number(moment(element.DateStart).format('MM')) < min)
+                                    min = Number(moment(element.DateStart).format('MM'))
+                            })
+                        })
+                        await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
+                    }
                     else {
                         await mtblNghiPhep(db).update({
                             Status: 'Hoàn thành',
