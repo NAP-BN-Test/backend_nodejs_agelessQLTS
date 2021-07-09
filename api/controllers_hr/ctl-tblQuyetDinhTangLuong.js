@@ -88,6 +88,7 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id) {
                     arrayStaff.push(element.StaffID)
                 })
             })
+            let increase = obj['increase']
             for (let s = 0; s < arrayStaff.length; s++) {
                 let salary = 0
                 let obj = {}
@@ -117,7 +118,7 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id) {
                         salary += element.Increase
                     })
                 })
-                obj['productivityWagesPresent'] = Number(salary) + Number(productivityWages)
+                obj['productivityWagesPresent'] = Number(salary) + Number(productivityWages) - Number(increase)
                 arrayObjStaff.push(obj)
             }
             obj['arrayStaff'] = arrayObjStaff

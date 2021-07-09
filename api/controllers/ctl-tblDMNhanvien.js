@@ -536,6 +536,7 @@ module.exports = {
                             IDMayChamCong: body.idMayChamCong,
                         },
                     })
+                    body.fileAttach = JSON.parse(body.fileAttach)
                     if (!check)
                         mtblDMNhanvien(db).create({
                             StaffCode: body.staffCode ? body.staffCode : '',
@@ -568,7 +569,7 @@ module.exports = {
                             Status: body.statusEmployee ? body.statusEmployee : 'Hưởng lương và được công ty đóng bảo hiểm',
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                             IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
-                            FileAttachID: body.fileAttachID ? body.fileAttachID : null,
+                            FileAttachID: body.fileAttach ? body.fileAttach.id : null,
                         }).then(async data => {
                             await mtblBangLuong(db).create({
                                 Date: body.signDate ? body.signDate : null,

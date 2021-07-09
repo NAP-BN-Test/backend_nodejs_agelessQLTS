@@ -365,10 +365,10 @@ module.exports = {
                         if (!loaivo[0][0]) {
                             IDLoaiVo = null
                         } else {
-                            let loaivo2 = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
+                            let loaivo2 = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = N'" + loaivo[0][0].TenLoaiVo + "'")
                             if (!loaivo2[0][0]) {
                                 await db2.query("INSERT INTO tblLoaiVo (TenLoaiVo, GhiChu, TrangThai) values ('" + loaivo[0][0].TenLoaiVo + "', '" + loaivo[0][0].GhiChu + "', 0 )")
-                                let create_lv = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = '" + loaivo[0][0].TenLoaiVo + "'")
+                                let create_lv = await db2.query("SELECT * FROM tblLoaiVo WHERE TenLoaiVo = N'" + loaivo[0][0].TenLoaiVo + "'")
                                 IDLoaiVo = create_lv[0][0].ID
                             } else {
                                 IDLoaiVo = loaivo2[0][0].ID
@@ -377,10 +377,10 @@ module.exports = {
                         if (!hangtau[0][0]) {
                             IDHangTau = null
                         } else {
-                            let hangtau2 = await db2.query("SELECT * FROM tblHangTau WHERE BaiContainer = '" + hangtau[0][0].BaiContainer + "'")
+                            let hangtau2 = await db2.query("SELECT * FROM tblHangTau WHERE TenHangTau = N'" + hangtau[0][0].TenHangTau + "'")
                             if (!hangtau2[0][0]) {
                                 await db2.query("INSERT INTO tblHangTau (BaiContainer, TenHangTau, GhiChu, TrangThai) values (N'" + hangtau[0][0].BaiContainer + "', N'" + hangtau[0][0].TenHangTau + "', N'" + hangtau[0][0].GhiChu + "', 0)")
-                                let create_ht = await db2.query("SELECT * FROM tblHangTau WHERE TenHangTau = '" + hangtau[0][0].TenHangTau + "'")
+                                let create_ht = await db2.query("SELECT * FROM tblHangTau WHERE TenHangTau = N'" + hangtau[0][0].TenHangTau + "'")
                                 IDHangTau = create_ht[0][0].ID
                             } else {
                                 IDHangTau = hangtau2[0][0].ID
@@ -414,12 +414,15 @@ module.exports = {
                         let TongTienThu = CuocVanChuyen + ChiPhiPhatSinhThu
                         await db2.query("DELETE FROM tblDonHang WHERE IDDonHangChinhSua = " + IDKhachHang)
                         await db2.query("DELETE FROM tblDonHang WHERE MaDoiChieu = '" + MaDoiChieu + "' AND IDKhachHang = " + IDKhachHang)
-                        let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, SoDonHang, MaDoiChieu, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + ",'" + SoDonHang + "','" + MaDoiChieu + "'," + CuocVanChuyen + "," + TongTienThu + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",N'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
+                        let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, SoDonHang, MaDoiChieu, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + ",'" + SoDonHang + "','" + MaDoiChieu + "'," + CuocVanChuyen + "," + CuocVanChuyen + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",N'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
                         await db2.query(CreateOrderQuery)
                         let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")
                         let IDDonHang = NewOrder[0][0].ID
                         await chiphiphatsinhchi[0].forEach(value => {
                             db2.query("INSERT INTO tblDoanhThuKhacChoXeCT (IDDonHang, TenDoanhThuKhac, ChiPhi) values ('" + IDDonHang + "', '" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
+                        })
+                        await chiphiphatsinhchi[0].forEach(value => {
+                            db2.query("INSERT INTO tblChiPhiThuDonHang (IDDonHang, TenChiPhiThu, ChiPhiPhatSinhThu) values ('" + IDDonHang + "', '" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
                         })
                         if (objOrder.ConfirmKH == 1) {
                             if (data.type.toUpperCase() == 'KEHOACH') {

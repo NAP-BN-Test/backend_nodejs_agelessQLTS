@@ -74,6 +74,8 @@ module.exports = {
                         if (body.applicableDate === '')
                             update.push({ key: 'ApplicableDate', value: null });
                         else {
+                            var year = Number(body.applicableDate.slice(3, 7)); // January
+                            var month = Number(body.applicableDate.slice(0, 2));
                             let applicableDate = year + '-' + await convertNumber(month) + '-' + '01';
                             update.push({ key: 'ApplicableDate', value: applicableDate });
 
@@ -180,7 +182,6 @@ module.exports = {
     // get_list_tbl_mucdong_baohiem
     getListtblMucDongBaoHiem: (req, res) => {
         let body = req.body;
-        console.log(123);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -294,10 +295,22 @@ module.exports = {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
+                let where = {}
+                if (body.date) {
+                    let month = Number(body.date.slice(5, 7)); // January
+                    let year = Number(body.date.slice(0, 4));
+                    let minimumWageDate = moment(year + '-' + await convertNumber(month + 1) + '-01').add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                    where = {
+                        StartDate: {
+                            [Op.lte]: minimumWageDate
+                        }
+                    }
+                }
                 var minimumWage = await mtblMinWageConfig(db).findOne({
                     order: [
                         ['ID', 'DESC']
-                    ]
+                    ],
+                    where: where,
                 })
                 var result = {
                     minimumWage: minimumWage ? minimumWage.MinimumWage ? minimumWage.MinimumWage : 0 : 0,

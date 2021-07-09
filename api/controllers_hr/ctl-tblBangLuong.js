@@ -3086,7 +3086,6 @@ module.exports = {
                         }
                     } else {
                         result = await getDetailTrackInsurancePremiums(db, yearStart + '-' + await convertNumber(monthStart), body.departmentID)
-                        console.log(result);
                     }
                     res.json(result);
                 } catch (error) {
@@ -3101,6 +3100,7 @@ module.exports = {
     // data_timekeeping
     dataTimekeeping: async (req, res) => {
         let body = req.body;
+
         let result = await getDataTimeKeeping(body.date, body.departmentID)
         console.log(result);
         res.json(result);
