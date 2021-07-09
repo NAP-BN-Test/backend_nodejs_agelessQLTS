@@ -278,7 +278,8 @@ module.exports = {
                                 id: Number(element.ID),
                                 departmentName: element.DepartmentName ? element.DepartmentName : '',
                                 branchID: element.IDChiNhanh ? element.IDChiNhanh : null,
-                                branchName: element.IDChiNhanh ? element.chinhanh.BranchName : null,
+                                branchName: element.IDChiNhanh ? element.chinhanh.BranchName : '',
+                                displayName: (element.DepartmentName ? element.DepartmentName : '') + ' - ' + (element.IDChiNhanh ? element.chinhanh.BranchName : ''),
                             }
                             array.push(obj);
                         });

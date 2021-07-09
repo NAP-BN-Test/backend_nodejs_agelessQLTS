@@ -310,6 +310,7 @@ module.exports = {
                         let IDLoaiHinhVanChuyen;
                         let TypeLoaiHinhVanChuyen;
                         let IDKhachHang;
+                        let IDDonHangs
                         // let IDDMXeCongTy = data.xecongty == null ? null : data.xecongty.id;
                         let SoLuongVo = objOrder.SoLuongVo;
                         let IDLoaiVo;
@@ -412,7 +413,12 @@ module.exports = {
                             ChiPhiPhatSinhThu = ChiPhiPhatSinhThu + value.ChiPhiPhatSinhChi
                         })
                         let TongTienThu = CuocVanChuyen + ChiPhiPhatSinhThu
-                        await db2.query("DELETE FROM tblDonHang WHERE IDDonHangChinhSua = " + IDKhachHang)
+                        let donhangs = await db2.query("SELECT * FROM tblDonHang WHERE MaDoiChieu = '" + MaDoiChieu + "' AND IDKhachHang = " + IDKhachHang)
+                        IDDonHangs = donhangs[0][0].ID
+                        await db2.query("DELETE FROM tblAttachFile WHERE IDDonHang = " + IDDonHangs)
+                        await db2.query("DELETE FROM tblChiPhiThuDonHang WHERE IDDonHang = " + IDDonHangs)
+                        await db2.query("DELETE FROM tblDoanhThuKhacChoXeCT WHERE IDDonHang = " + IDDonHangs)
+                        await db2.query("DELETE FROM tblDonHang WHERE IDDonHangChinhSua = " + IDDonHangs)
                         await db2.query("DELETE FROM tblDonHang WHERE MaDoiChieu = '" + MaDoiChieu + "' AND IDKhachHang = " + IDKhachHang)
                         let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, SoDonHang, MaDoiChieu, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + ",'" + SoDonHang + "','" + MaDoiChieu + "'," + CuocVanChuyen + "," + CuocVanChuyen + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",N'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
                         await db2.query(CreateOrderQuery)

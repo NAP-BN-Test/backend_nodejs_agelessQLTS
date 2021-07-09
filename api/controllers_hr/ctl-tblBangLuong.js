@@ -3100,8 +3100,7 @@ module.exports = {
     // data_timekeeping
     dataTimekeeping: async (req, res) => {
         let body = req.body;
-
-        let result = await getDataTimeKeeping(body.date, body.departmentID)
+        let result = await getDataTimeKeeping(body.dateStart, body.departmentID)
         console.log(result);
         res.json(result);
     },
