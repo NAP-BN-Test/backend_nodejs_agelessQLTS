@@ -1365,7 +1365,7 @@ module.exports = {
                     var ws = wb.addWorksheet('Sheet 1');
                     var row = 1
                     ws.column(row).setWidth(5);
-                    ws.cell(3, 7, 3, 11, true)
+                    ws.cell(3, 7, 3, 12, true)
                         .string('CÁC KHOẢN GIẢM TRỪ')
                         .style(styleHearder);
                     let str = '';
@@ -1376,8 +1376,8 @@ module.exports = {
                             str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year
                         } else {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                            strFile = 'Bảng lương tháng ' + month + '.' + year + ' bộ phận ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year + ' bộ phận ' + department.DepartmentName
+                            strFile = 'Bảng lương tháng ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
                         }
                     } else {
                         if (!body.departmentID) {
@@ -1385,8 +1385,8 @@ module.exports = {
                             str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd
                         } else {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                            strFile = 'Bảng lương tháng ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' bộ phận ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' bộ phận ' + department.DepartmentName
+                            strFile = 'Bảng lương tháng ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
                         }
 
                     }

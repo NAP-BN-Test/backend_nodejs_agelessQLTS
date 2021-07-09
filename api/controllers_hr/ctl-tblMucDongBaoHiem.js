@@ -15,11 +15,22 @@ async function deleteRelationshiptblMucDongBaoHiem(db, listID) {
         }
     })
 }
+async function convertNumber(number) {
+    if (number < 10) {
+        return '0' + number
+    } else
+        return number
+}
 module.exports = {
     deleteRelationshiptblMucDongBaoHiem,
     // add_tbl_mucdong_baohiem
-    addtblMucDongBaoHiem: (req, res) => {
+    addtblMucDongBaoHiem: async (req, res) => {
         let body = req.body;
+        var year = Number(body.applicableDate.slice(3, 7)); // January
+        var month = Number(body.applicableDate.slice(0, 2));
+        let applicableDate = null
+        if (body.applicableDate)
+            applicableDate = year + '-' + await convertNumber(month) + '-' + '01';
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -34,7 +45,7 @@ module.exports = {
                         StaffBHTN: body.staffBHTN ? body.staffBHTN : null,
                         DateStart: body.dateStart ? body.dateStart : null,
                         DateEnd: body.dateEnd ? body.dateEnd : null,
-                        ApplicableDate: body.applicableDate ? body.applicableDate : null,
+                        ApplicableDate: applicableDate,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -54,6 +65,7 @@ module.exports = {
     // update_tbl_mucdong_baohiem
     updatetblMucDongBaoHiem: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -61,8 +73,11 @@ module.exports = {
                     if (body.applicableDate || body.applicableDate === '') {
                         if (body.applicableDate === '')
                             update.push({ key: 'ApplicableDate', value: null });
-                        else
-                            update.push({ key: 'ApplicableDate', value: body.applicableDate });
+                        else {
+                            let applicableDate = year + '-' + await convertNumber(month) + '-' + '01';
+                            update.push({ key: 'ApplicableDate', value: applicableDate });
+
+                        }
                     }
                     if (body.companyBHXH || body.companyBHXH === '') {
                         if (body.companyBHXH === '')
@@ -165,6 +180,7 @@ module.exports = {
     // get_list_tbl_mucdong_baohiem
     getListtblMucDongBaoHiem: (req, res) => {
         let body = req.body;
+        console.log(123);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -225,9 +241,9 @@ module.exports = {
                                 staffBHXH: element.StaffBHXH ? element.StaffBHXH : 0,
                                 staffBHYT: element.StaffBHYT ? element.StaffBHYT : 0,
                                 staffBHTN: element.StaffBHTN ? element.StaffBHTN : 0,
-                                dateStart: element.DateStart ? moment(element.DateStart).format('DD/MM/YYYY') : null,
-                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('DD/MM/YYYY') : null,
-                                applicableDate: element.ApplicableDate ? element.ApplicableDate : null,
+                                dateStart: element.DateStart ? moment(element.DateStart).format('MM/YYYY') : null,
+                                dateEnd: element.DateEnd ? moment(element.DateEnd).format('MM/YYYY') : null,
+                                applicableDate: element.ApplicableDate ? moment(element.ApplicableDate).format('MM/YYYY') : null,
                             }
                             array.push(obj);
                             stt += 1;

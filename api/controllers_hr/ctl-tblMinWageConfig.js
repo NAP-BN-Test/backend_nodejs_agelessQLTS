@@ -50,12 +50,18 @@ module.exports = {
     // add_tbl_min_wage_config
     addtblMinWageConfig: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let startDate = null;
+                    if (body.startDate) {
+                        body.startDate = body.startDate + '-01'
+                        startDate = moment(body.startDate).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                    }
                     mtblMinWageConfig(db).create({
                         MinimumWage: body.minimumWage ? body.minimumWage : null,
-                        StartDate: body.startDate ? body.startDate : null,
+                        StartDate: startDate,
                         EndDate: body.endDate ? body.endDate : null,
                     }).then(data => {
                         var result = {
@@ -89,10 +95,14 @@ module.exports = {
                     if (body.startDate || body.startDate === '') {
                         if (body.startDate === '')
                             update.push({ key: 'StartDate', value: null });
-                        else
-                            update.push({ key: 'StartDate', value: body.startDate });
+                        else {
+                            body.startDate = body.startDate + '-01'
+                            let startDate = moment(body.startDate).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+                            update.push({ key: 'StartDate', value: startDate });
+                        }
                     }
                     if (body.endDate || body.endDate === '') {
+
                         if (body.endDate === '')
                             update.push({ key: 'EndDate', value: null });
                         else
@@ -208,7 +218,7 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 minimumWage: element.MinimumWage ? element.MinimumWage : null,
-                                startDate: element.StartDate ? moment(element.StartDate).format('DD/MM/YYYY') : null,
+                                startDate: element.StartDate ? moment(element.StartDate).format('MM/YYYY') : null,
                                 endDate: element.EndDate ? element.EndDate : null,
                             }
                             array.push(obj);
