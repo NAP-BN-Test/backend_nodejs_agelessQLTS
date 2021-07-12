@@ -1390,7 +1390,7 @@ module.exports = {
                         }
 
                     }
-                    ws.cell(1, 1, 1, 14, true)
+                    ws.cell(1, 1, 1, 15, true)
                         .string(str)
                         .style(styleHearder);
 
