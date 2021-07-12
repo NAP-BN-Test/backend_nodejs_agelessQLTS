@@ -2934,6 +2934,101 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID) {
 
     return result
 }
+
+
+async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd) {
+    let arrayStaff = []
+    let array = []
+    let where = []
+    if (departmentID) {
+        await mtblDMNhanvien(db).findAll({
+            where: { IDBoPhan: departmentID }
+        }).then(staff => {
+            staff.forEach(element => {
+                arrayStaff.push(element.ID)
+            })
+        })
+        where.push({
+            StaffID: {
+                [Op.in]: arrayStaff
+            }
+        })
+    }
+    let whereOr = []
+    let monthStart = 0;
+    let monthEnd = 0;
+    if (dateStart) {
+        monthStart = Number(dateStart.slice(5, 7));
+        whereOr.push({
+            Month: {
+                [Op.like]: '%' + dateStart + '%'
+            }
+        })
+    }
+    if (dateEnd) {
+        let yearStart = Number(dateStart.slice(0, 4));
+        monthEnd = Number(dateEnd.slice(5, 7));
+        for (let m = monthStart + 1; m <= monthEnd; m++) {
+            whereOr.push({
+                Month: {
+                    [Op.like]: '%' + yearStart + '-' + await convertNumber(m) + '%'
+                }
+            })
+        }
+    }
+    where = {
+        [Op.or]: whereOr
+    }
+    await mtblTimeAttendanceSummary(db).findAll({
+        where: where,
+        order: [
+            ['ID', 'DESC']
+        ],
+    }).then(data => {
+        for (let i = 0; i < data.length; i++) {
+            array.push({
+                staffID: data[i].StaffID,
+                staffName: data[i].StaffName,
+                staffCode: data[i].StaffCode,
+                departmentName: data[i].DepartmentName,
+                overtime: data[i].Overtime,
+                numberHoliday: data[i].NumberHoliday,
+                freeBreak: data[i].FreeBreak,
+                lateDay: data[i].LateDay,
+                remaining: data[i].Remaining,
+                remainingPreviousYear: data[i].RemainingPreviousYear,
+                month: data[i].Month
+            })
+        }
+    })
+    let arrayResult = []
+    let staffIDs = []
+    for (let a = 0; a < array.length; a++) {
+        if (!checkDuplicate(staffIDs, array[a].staffID))
+            staffIDs.push(array[a].staffID)
+    }
+    for (let s = 0; s < staffIDs.length; s++) {
+        for (let ch = 0; ch < array.length; ch++) {
+            if (staffIDs[s] == array[ch].staffID) {
+                if (array[ch].month == dateEnd) {
+                    arrayResult.push(array[ch])
+                } else {
+                    for (let ar = 0; ar < arrayResult.length; ar++) {
+                        if (arrayResult[ar].staffID == array[ch].staffID) {
+                            arrayResult[ar].overtime += array[ch].overtime
+                            arrayResult[ar].numberHoliday += array[ch].numberHoliday
+                            arrayResult[ar].freeBreak += array[ch].freeBreak
+                            arrayResult[ar].lateDay += array[ch].lateDay
+                            arrayResult[ar].remainingPreviousYear = array[ch].remainingPreviousYear
+                            console.log(array[ch].remainingPreviousYear);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return arrayResult
+}
 module.exports = {
     createTimeAttendanceSummaryFollowMonth,
     createTimeAttendanceSummary,
@@ -2941,7 +3036,6 @@ module.exports = {
     // get_list_tbl_bangluong
     getListtblBangLuong: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -3100,8 +3194,7 @@ module.exports = {
     // data_timekeeping
     dataTimekeeping: async (req, res) => {
         let body = req.body;
-        let result = await getDataTimeKeeping(body.dateStart, body.departmentID)
-        console.log(result);
+        let result = await getDataTimeKeeping(body.date, body.departmentID)
         res.json(result);
     },
     // update_timekeeping
@@ -3301,50 +3394,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let arrayStaff = []
-                    let array = []
-                    let where = []
-                    if (body.departmentID) {
-                        await mtblDMNhanvien(db).findAll({
-                            where: { IDBoPhan: body.departmentID }
-                        }).then(staff => {
-                            staff.forEach(element => {
-                                arrayStaff.push(element.ID)
-                            })
-                        })
-                        where.push({
-                            StaffID: {
-                                [Op.in]: arrayStaff
-                            }
-                        })
-                    }
-                    where.push({
-                        Month: {
-                            [Op.like]: '%' + body.date + '%'
-                        }
-                    })
-                    await mtblTimeAttendanceSummary(db).findAll({
-                        where: where,
-                        order: [
-                            ['ID', 'DESC']
-                        ],
-                    }).then(data => {
-                        for (let i = 0; i < data.length; i++) {
-                            array.push({
-                                staffID: data[i].StaffID,
-                                staffName: data[i].StaffName,
-                                staffCode: data[i].StaffCode,
-                                departmentName: data[i].DepartmentName,
-                                overtime: data[i].Overtime,
-                                numberHoliday: data[i].NumberHoliday,
-                                freeBreak: data[i].FreeBreak,
-                                lateDay: data[i].LateDay,
-                                remaining: data[i].Remaining,
-                                remainingPreviousYear: data[i].RemainingPreviousYear,
-                                month: data[i].Month
-                            })
-                        }
-                    })
+                    let array = await getDetailSyntheticTimkeeping(db, body.departmentID, body.dateStart ? body.dateStart : null, body.dateEnd ? body.dateEnd : null)
                     var result = {
                         array: array,
                         status: Constant.STATUS.SUCCESS,
