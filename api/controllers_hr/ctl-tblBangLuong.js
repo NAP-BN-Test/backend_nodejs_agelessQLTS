@@ -2951,7 +2951,8 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                             bhxhSalary: bhxhSalary,
                             reduce: Number(reduce),
                             insuranceSalaryIncrease: data[i].nv ? data[i].nv.ProductivityWages : 0,
-                            coefficientsSalary: coefficientsSalary
+                            coefficientsSalary: coefficientsSalary,
+                            minimumWage: minimumWage[min]
                         }
                         console.log(obj.monthOfChange, 123456789);
 
@@ -2994,7 +2995,8 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                                 bhxhSalary: bhxhSalary,
                                 reduce: Number(reduce),
                                 insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
-                                coefficientsSalary: coefficientsSalary
+                                coefficientsSalary: coefficientsSalary,
+                                minimumWage: minimumWage[min],
                             }
                             if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
                                 tongTotal += total
@@ -3306,7 +3308,6 @@ module.exports = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
-                    console.log(result);
                     res.json(result);
                 } catch (error) {
                     console.log(error);
