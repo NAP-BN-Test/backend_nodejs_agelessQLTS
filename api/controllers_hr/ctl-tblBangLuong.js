@@ -2439,7 +2439,9 @@ async function getDataTimeKeeping(dateRes, departmentID) {
 
 async function getMinWageConfig(db, year, month) {
     let minimumWage = 0;
+    console.log(year, month);
     let minimumWageDate = moment(year + '-' + await convertNumber(month + 1) + '-01').add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')
+    console.log(minimumWageDate);
     await mtblMinWageConfig(db).findOne({
         order: [
             ['ID', 'DESC']
@@ -2461,9 +2463,11 @@ async function getMucDongBaoHiem(db, year, month) {
         order: [
             ['ID', 'DESC']
         ],
-        ApplicableDate: {
-            [Op.lte]: minimumWageDate
-        }
+        where: {
+            ApplicableDate: {
+                [Op.lte]: minimumWageDate
+            }
+        },
     }).then(data => {
         if (data) {
             objInsurance['staffBHXH'] = data.StaffBHXH ? data.StaffBHXH : 0
@@ -2731,13 +2735,24 @@ async function getDetailPayrollForMonthYear(db, monthYear, departmentID) {
     }
 }
 
-async function getDetailTrackInsurancePremiums(db, monthYear, departmentID) {
+async function getDecidedInsuranceSalary(db, staffID) {
+    let insuranceSalaryIncrease = null
+    insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findOne({
+        where: { IDStaff: staffID },
+        order: [
+            ['ID', 'DESC']
+        ],
+    })
+    return insuranceSalaryIncrease
+}
+
+async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, nextMonthYear = null) {
     var result = {}
     let stt = 1;
     var date = monthYear + '-01 07:00:00.000'
-    var month = Number(monthYear.slice(5, 7)); // January
-    var year = Number(monthYear.slice(0, 4));
-    var dateFrom = year + '-' + await convertNumber(month)
+    var monthFirst = Number(monthYear.slice(5, 7)); // January
+    var yearFirst = Number(monthYear.slice(0, 4));
+    var dateFrom = yearFirst + '-' + await convertNumber(monthFirst)
     let tblBangLuong = mtblBangLuong(db);
     let tblDMNhanvien = mtblDMNhanvien(db)
     try {
@@ -2842,90 +2857,91 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID) {
             where: whereObj,
         }).then(async data => {
             var array = [];
-            var objInsurance = await getMucDongBaoHiem(db, year, month);
-            var minimumWage = await getMinWageConfig(db, year, month);
-
-            let bhxhSalaryTotal = 0
-            let bhxhCTTotal = 0
-            let bhxhNVTotal = 0
-            let bhytCTTotal = 0
-            let bhytNVTotal = 0
-            let bhtnCTTotal = 0
-            let bhtnNVTotal = 0
-            let bhtnldTotal = 0
-            let tongTotal = 0
-            for (var i = 0; i < data.length; i++) {
-                var reduce = 0;
-                await mtblDMGiaDinh(db).findAll({
-                    where: { IDNhanVien: data[i].IDNhanVien }
-                }).then(family => {
-                    family.forEach(element => {
-                        reduce += Number(element.Reduce);
-                    });
-                })
-                let insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findOne({
-                    where: { IDStaff: data[i].IDNhanVien },
-                    order: [
-                        ['ID', 'DESC']
-                    ],
-                })
-                var coefficientsSalary = data[i].IDNhanVien ? data[i].nv.CoefficientsSalary ? data[i].nv.CoefficientsSalary : 0 : 0;
-                let bhxhSalary = coefficientsSalary * minimumWage + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
-                bhxhSalaryTotal += bhxhSalary
-                bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
-                bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
-                bhytCTTotal += (bhxhSalary * objInsurance['companyBHYT'] / 100)
-                bhytNVTotal += (bhxhSalary * objInsurance['staffBHYT'] / 100)
-                bhtnNVTotal += (bhxhSalary * objInsurance['staffBHTN'] / 100)
-                bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
-                bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
-                let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
-                // tongTotal += total
-                var obj = {
-                    stt: stt,
-                    id: Number(data[i].ID),
-                    idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
-                    nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
-                    nameDepartment: data[i].IDNhanVien ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
-                    staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
-                    productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
-                    workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                    bhxhSalary: bhxhSalary,
-                    reduce: Number(reduce),
-                    insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
-                    coefficientsSalary: coefficientsSalary
+            var objInsurance = await getMucDongBaoHiem(db, yearFirst, monthFirst);
+            var minimumWage = [];
+            let arrayMonthMinWage = []
+            if (nextMonthYear != null) {
+                var nextMonth = Number(nextMonthYear.slice(5, 7)); // January
+                var nextYear = Number(nextMonthYear.slice(0, 4));
+                arrayMonthMinWage = await applicationIntervalDivision(db, monthFirst, nextMonth, yearFirst, nextYear, type = 'MWC')
+                for (let month = 0; month < arrayMonthMinWage.length; month++) {
+                    minimumWage.push(await getMinWageConfig(db, Number(arrayMonthMinWage[month].slice(0, 4)), Number(arrayMonthMinWage[month].slice(5, 7))))
                 }
-                if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
-                    tongTotal += total
-                    array.push(obj);
-                    stt += 1;
-                }
-
+            } else {
+                minimumWage.push(await getMinWageConfig(db, yearFirst, monthFirst))
             }
-            var count = await mtblBangLuong(db).count({
-                where: {
-                    Date: {
-                        [Op.substring]: monthYear
+            let arrayResult = []
+            for (let min = 0; min < minimumWage.length; min++) {
+                let bhxhSalaryTotal = 0
+                let bhxhCTTotal = 0
+                let bhxhNVTotal = 0
+                let bhytCTTotal = 0
+                let bhytNVTotal = 0
+                let bhtnCTTotal = 0
+                let bhtnNVTotal = 0
+                let bhtnldTotal = 0
+                let tongTotal = 0
+                for (var i = 0; i < data.length; i++) {
+                    var reduce = 0;
+                    let insuranceSalaryIncrease = await getDecidedInsuranceSalary(db, data[i].IDNhanVien)
+                    var coefficientsSalary = insuranceSalaryIncrease ? insuranceSalaryIncrease.Coefficient : 0;
+                    let bhxhSalary = coefficientsSalary * minimumWage[min] + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
+                    await mtblDMGiaDinh(db).findAll({
+                        where: { IDNhanVien: data[i].IDNhanVien }
+                    }).then(family => {
+                        family.forEach(element => {
+                            reduce += Number(element.Reduce);
+                        });
+                    })
+                    bhxhSalaryTotal += bhxhSalary
+                    bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
+                    bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
+                    bhytCTTotal += (bhxhSalary * objInsurance['companyBHYT'] / 100)
+                    bhytNVTotal += (bhxhSalary * objInsurance['staffBHYT'] / 100)
+                    bhtnNVTotal += (bhxhSalary * objInsurance['staffBHTN'] / 100)
+                    bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
+                    bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
+                    let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
+                    // tongTotal += total
+                    var obj = {
+                        stt: stt,
+                        id: Number(data[i].ID),
+                        idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                        nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
+                        nameDepartment: data[i].IDNhanVien ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
+                        staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
+                        productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
+                        workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
+                        bhxhSalary: bhxhSalary,
+                        reduce: Number(reduce),
+                        insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
+                        coefficientsSalary: coefficientsSalary
                     }
-                },
-            })
+                    if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
+                        tongTotal += total
+                        array.push(obj);
+                        stt += 1;
+                    }
+
+                }
+                arrayResult.push({
+                    array: array,
+                    totalFooter: {
+                        bhxhSalaryTotal: bhxhSalaryTotal,
+                        bhxhCTTotal: bhxhCTTotal,
+                        bhxhNVTotal: bhxhNVTotal,
+                        bhytCTTotal: bhytCTTotal,
+                        bhytNVTotal: bhytNVTotal,
+                        bhtnCTTotal: bhtnCTTotal,
+                        bhtnNVTotal: bhtnNVTotal,
+                        bhtnldTotal: bhtnldTotal,
+                        tongTotal: tongTotal,
+                    },
+                })
+            }
             result = {
                 objInsurance: objInsurance,
-                array: array,
-                totalFooter: {
-                    bhxhSalaryTotal: bhxhSalaryTotal,
-                    bhxhCTTotal: bhxhCTTotal,
-                    bhxhNVTotal: bhxhNVTotal,
-                    bhytCTTotal: bhytCTTotal,
-                    bhytNVTotal: bhytNVTotal,
-                    bhtnCTTotal: bhtnCTTotal,
-                    bhtnNVTotal: bhtnNVTotal,
-                    bhtnldTotal: bhtnldTotal,
-                    tongTotal: tongTotal,
-                },
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: count
+                arrayResult: arrayResult
             }
         })
     } catch (error) {
@@ -2976,9 +2992,7 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
             })
         }
     }
-    where = {
-        [Op.or]: whereOr
-    }
+    where.push({ [Op.or]: whereOr })
     await mtblTimeAttendanceSummary(db).findAll({
         where: where,
         order: [
@@ -3007,27 +3021,84 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
         if (!checkDuplicate(staffIDs, array[a].staffID))
             staffIDs.push(array[a].staffID)
     }
-    for (let s = 0; s < staffIDs.length; s++) {
-        for (let ch = 0; ch < array.length; ch++) {
-            if (staffIDs[s] == array[ch].staffID) {
-                if (array[ch].month == dateEnd) {
-                    arrayResult.push(array[ch])
-                } else {
-                    for (let ar = 0; ar < arrayResult.length; ar++) {
-                        if (arrayResult[ar].staffID == array[ch].staffID) {
-                            arrayResult[ar].overtime += array[ch].overtime
-                            arrayResult[ar].numberHoliday += array[ch].numberHoliday
-                            arrayResult[ar].freeBreak += array[ch].freeBreak
-                            arrayResult[ar].lateDay += array[ch].lateDay
-                            arrayResult[ar].remainingPreviousYear = array[ch].remainingPreviousYear
-                            console.log(array[ch].remainingPreviousYear);
+    if (dateEnd) {
+        for (let s = 0; s < staffIDs.length; s++) {
+            for (let ch = 0; ch < array.length; ch++) {
+                if (staffIDs[s] == array[ch].staffID) {
+                    if (array[ch].month == dateEnd) {
+                        arrayResult.push(array[ch])
+                    } else {
+                        for (let ar = 0; ar < arrayResult.length; ar++) {
+                            if (arrayResult[ar].staffID == array[ch].staffID) {
+                                arrayResult[ar].overtime += array[ch].overtime
+                                arrayResult[ar].numberHoliday += array[ch].numberHoliday
+                                arrayResult[ar].freeBreak += array[ch].freeBreak
+                                arrayResult[ar].lateDay += array[ch].lateDay
+                                arrayResult[ar].remainingPreviousYear = array[ch].remainingPreviousYear
+                            }
                         }
                     }
                 }
             }
         }
+    } else {
+        arrayResult = array
     }
+
     return arrayResult
+}
+
+async function applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd, type = 'MDBH') {
+    let dateStart = moment(yearStart + '-' + await convertNumber(monthStart)).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
+    let dateEnd = moment(yearEnd + '-' + await convertNumber(monthEnd)).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
+    let arrayMonth = [yearStart + '-' + await convertNumber(monthStart), yearEnd + '-' + await convertNumber(monthEnd)]
+    if (type == 'MDBH') {
+        await mtblMucDongBaoHiem(db).findAll({
+            where: {
+                [Op.and]: [
+                    {
+                        ApplicableDate: { [Op.gte]: dateStart },
+                    },
+                    {
+                        ApplicableDate: { [Op.lte]: dateEnd }
+                    }
+                ]
+            }
+        }).then(async data => {
+            for (let i = 0; i < data.length; i++) {
+                let month = Number(data[i].ApplicableDate.slice(5, 7));
+                let year = Number(data[i].ApplicableDate.slice(0, 4));
+                if (!checkDuplicate(arrayMonth, year + '-' + await convertNumber(month))) {
+                    arrayMonth.push(year + '-' + await convertNumber(month))
+
+                }
+            }
+        })
+    } else {
+        await mtblMinWageConfig(db).findAll({
+            where: {
+                [Op.and]: [
+                    {
+                        StartDate: { [Op.gte]: dateStart },
+                    },
+                    {
+                        StartDate: { [Op.lte]: dateEnd }
+                    }
+                ]
+            }
+        }).then(async data => {
+            for (let i = 0; i < data.length; i++) {
+                let month = Number(data[i].StartDate.slice(5, 7));
+                let year = Number(data[i].StartDate.slice(0, 4));
+                if (!checkDuplicate(arrayMonth, year + '-' + await convertNumber(month))) {
+                    arrayMonth.push(year + '-' + await convertNumber(month))
+
+                }
+            }
+        })
+    }
+    arrayMonth.sort()
+    return arrayMonth
 }
 module.exports = {
     createTimeAttendanceSummaryFollowMonth,
@@ -3121,6 +3192,7 @@ module.exports = {
     trackInsurancePremiums: (req, res) => {
         let body = req.body;
         console.log(body);
+        let arrayResult = []
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -3138,49 +3210,21 @@ module.exports = {
                     }
                     let result = {}
                     if (body.dateEnd) {
-                        if (yearEnd < yearStart) {
-                            result = {
-                                status: Constant.STATUS.FAIL,
-                                message: 'Tháng bắt đầu lớn hơn tháng kết thúc. Vui lòng kiểm tra lại!'
-                            }
-                        } else if (yearEnd = yearStart) {
-                            result = await getDetailTrackInsurancePremiums(db, yearStart + '-' + await convertNumber(monthStart), body.departmentID)
-                            let arrayStaff = []
-                            for (let arr = 0; arr < result.array.length; arr++) {
-                                arrayStaff.push(Number(result.array[arr].idStaff))
-                            }
-                            for (let m = monthStart + 1; m <= monthEnd; m++) {
-                                let resultObj = await getDetailTrackInsurancePremiums(db, yearStart + '-' + await convertNumber(m), body.departmentID)
-                                result.totalFooter.bhxhSalaryTotal = Number(result.totalFooter.bhxhSalaryTotal) + Number(resultObj.totalFooter.bhxhSalaryTotal)
-                                result.totalFooter.bhxhCTTotal = Number(result.totalFooter.bhxhCTTotal) + Number(resultObj.totalFooter.bhxhCTTotal)
-                                result.totalFooter.bhxhNVTotal = Number(result.totalFooter.bhxhNVTotal) + Number(resultObj.totalFooter.bhxhNVTotal)
-                                result.totalFooter.bhytCTTotal = Number(result.totalFooter.bhytCTTotal) + Number(resultObj.totalFooter.bhytCTTotal)
-                                result.totalFooter.bhytNVTotal = Number(result.totalFooter.bhytNVTotal) + Number(resultObj.totalFooter.bhytNVTotal)
-                                result.totalFooter.bhtnCTTotal = Number(result.totalFooter.bhtnCTTotal) + Number(resultObj.totalFooter.bhtnCTTotal)
-                                result.totalFooter.bhtnNVTotal = Number(result.totalFooter.bhtnNVTotal) + Number(resultObj.totalFooter.bhtnNVTotal)
-                                result.totalFooter.bhtnldTotal = Number(result.totalFooter.bhtnldTotal) + Number(resultObj.totalFooter.bhtnldTotal)
-                                result.totalFooter.tongTotal = Number(result.totalFooter.tongTotal) + Number(resultObj.totalFooter.tongTotal)
-                                for (let arrayM = 0; arrayM < resultObj.array.length; arrayM++) {
-                                    if (checkDuplicate(arrayStaff, Number(resultObj.array[arrayM].idStaff)) == false) {
-                                        arrayStaff.push(Number(resultObj.array[arrayM].idStaff))
-                                        result.array.push(resultObj.array[arrayM])
-                                    } else {
-                                        for (let arrayR = 0; arrayR < result.array.length; arrayR++) {
-                                            if (resultObj.array[arrayM].idStaff == result.array[arrayR].idStaff) {
-                                                result.array[arrayR].workingSalary = Number(result.array[arrayR].workingSalary) + Number(resultObj.array[arrayM].workingSalary)
-                                                result.array[arrayR].bhxhSalary = Number(result.array[arrayR].bhxhSalary) + Number(resultObj.array[arrayM].bhxhSalary)
-                                                result.array[arrayR].reduce = Number(result.array[arrayR].reduce) + Number(resultObj.array[arrayM].reduce)
-                                                result.array[arrayR].insuranceSalaryIncrease = Number(result.array[arrayR].insuranceSalaryIncrease) + Number(resultObj.array[arrayM].insuranceSalaryIncrease)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
+                        let arrayMonth = await applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd)
+                        for (let month = 0; month < arrayMonth.length; month++) {
+                            let resultOfMonth = await getDetailTrackInsurancePremiums(db, arrayMonth[month], body.departmentID, arrayMonth[month + 1])
+                            arrayResult.push(resultOfMonth)
                         }
                     } else {
-                        result = await getDetailTrackInsurancePremiums(db, yearStart + '-' + await convertNumber(monthStart), body.departmentID)
+                        let resultOfMonth = await getDetailTrackInsurancePremiums(db, yearStart + '-' + await convertNumber(monthStart), body.departmentID)
+                        arrayResult.push(resultOfMonth)
                     }
+                    result = {
+                        array: arrayResult,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    console.log(result);
                     res.json(result);
                 } catch (error) {
                     console.log(error);
@@ -3390,6 +3434,7 @@ module.exports = {
     // synthetic_information_monthly
     syntheticInformationMonthly: async (req, res) => {
         let body = req.body;
+        console.log(body);
         // await createTimeAttendanceSummary()
         database.connectDatabase().then(async db => {
             if (db) {
