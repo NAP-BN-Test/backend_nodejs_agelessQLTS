@@ -2871,17 +2871,19 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                 minimumWage.push(await getMinWageConfig(db, yearFirst, monthFirst))
             }
             let arrayResult = []
-            for (let min = 0; min < minimumWage.length; min++) {
-                let bhxhSalaryTotal = 0
-                let bhxhCTTotal = 0
-                let bhxhNVTotal = 0
-                let bhytCTTotal = 0
-                let bhytNVTotal = 0
-                let bhtnCTTotal = 0
-                let bhtnNVTotal = 0
-                let bhtnldTotal = 0
-                let tongTotal = 0
-                for (var i = 0; i < data.length; i++) {
+            let bhxhSalaryTotal = 0
+            let bhxhCTTotal = 0
+            let bhxhNVTotal = 0
+            let bhytCTTotal = 0
+            let bhytNVTotal = 0
+            let bhtnCTTotal = 0
+            let bhtnNVTotal = 0
+            let bhtnldTotal = 0
+            let tongTotal = 0
+
+            let arrayFooter = []
+            for (var i = 0; i < data.length; i++) {
+                for (let min = 0; min < minimumWage.length; min++) {
                     var reduce = 0;
                     let insuranceSalaryIncrease = await getDecidedInsuranceSalary(db, data[i].IDNhanVien)
                     var coefficientsSalary = insuranceSalaryIncrease ? insuranceSalaryIncrease.Coefficient : 0;
@@ -2922,26 +2924,22 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                         array.push(obj);
                         stt += 1;
                     }
-
                 }
-                arrayResult.push({
-                    array: array,
-                    totalFooter: {
-                        bhxhSalaryTotal: bhxhSalaryTotal,
-                        bhxhCTTotal: bhxhCTTotal,
-                        bhxhNVTotal: bhxhNVTotal,
-                        bhytCTTotal: bhytCTTotal,
-                        bhytNVTotal: bhytNVTotal,
-                        bhtnCTTotal: bhtnCTTotal,
-                        bhtnNVTotal: bhtnNVTotal,
-                        bhtnldTotal: bhtnldTotal,
-                        tongTotal: tongTotal,
-                    },
-                })
             }
             result = {
                 objInsurance: objInsurance,
-                arrayResult: arrayResult
+                array: array,
+                totalFooter: {
+                    bhxhSalaryTotal: bhxhSalaryTotal,
+                    bhxhCTTotal: bhxhCTTotal,
+                    bhxhNVTotal: bhxhNVTotal,
+                    bhytCTTotal: bhytCTTotal,
+                    bhytNVTotal: bhytNVTotal,
+                    bhtnCTTotal: bhtnCTTotal,
+                    bhtnNVTotal: bhtnNVTotal,
+                    bhtnldTotal: bhtnldTotal,
+                    tongTotal: tongTotal,
+                },
             }
         })
     } catch (error) {
