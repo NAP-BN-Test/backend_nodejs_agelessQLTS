@@ -2735,10 +2735,40 @@ async function getDetailPayrollForMonthYear(db, monthYear, departmentID) {
     }
 }
 
-async function getDecidedInsuranceSalary(db, staffID) {
+async function getDecidedInsuranceSalary(db, staffID, dateStart, dateEnd) {
     let insuranceSalaryIncrease = null
-    insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findOne({
-        where: { IDStaff: staffID },
+    insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findAll({
+        where: {
+            [Op.and]: [
+                {
+                    StartDate: { [Op.gte]: dateStart },
+                },
+                {
+                    StartDate: { [Op.lte]: dateEnd }
+                },
+                { IDStaff: staffID },
+            ]
+        },
+        order: [
+            ['ID', 'DESC']
+        ],
+    })
+    return insuranceSalaryIncrease
+}
+
+async function getDecidedInsuranceSalaryOfStaff(db, dateStart, dateEnd, staffID) {
+    let insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findAll({
+        where: {
+            [Op.and]: [
+                {
+                    StartDate: { [Op.gte]: dateStart },
+                },
+                {
+                    StartDate: { [Op.lte]: dateEnd }
+                },
+                { IDStaff: staffID },
+            ]
+        },
         order: [
             ['ID', 'DESC']
         ],
@@ -2863,14 +2893,15 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
             if (nextMonthYear != null) {
                 var nextMonth = Number(nextMonthYear.slice(5, 7)); // January
                 var nextYear = Number(nextMonthYear.slice(0, 4));
-                arrayMonthMinWage = await applicationIntervalDivision(db, monthFirst, nextMonth, yearFirst, nextYear, type = 'MWC')
+
+                // Lấy danh sách lương của hai khoảng
+                arrayMonthMinWage = await applicationIntervalDivision(db, monthFirst, nextMonth, yearFirst, nextYear, type = 'MLTT')
                 for (let month = 0; month < arrayMonthMinWage.length; month++) {
                     minimumWage.push(await getMinWageConfig(db, Number(arrayMonthMinWage[month].slice(0, 4)), Number(arrayMonthMinWage[month].slice(5, 7))))
                 }
             } else {
                 minimumWage.push(await getMinWageConfig(db, yearFirst, monthFirst))
             }
-            let arrayResult = []
             let bhxhSalaryTotal = 0
             let bhxhCTTotal = 0
             let bhxhNVTotal = 0
@@ -2880,51 +2911,105 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
             let bhtnNVTotal = 0
             let bhtnldTotal = 0
             let tongTotal = 0
-
-            let arrayFooter = []
             for (var i = 0; i < data.length; i++) {
                 for (let min = 0; min < minimumWage.length; min++) {
                     var reduce = 0;
-                    let insuranceSalaryIncrease = await getDecidedInsuranceSalary(db, data[i].IDNhanVien)
-                    var coefficientsSalary = insuranceSalaryIncrease ? insuranceSalaryIncrease.Coefficient : 0;
-                    let bhxhSalary = coefficientsSalary * minimumWage[min] + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
-                    await mtblDMGiaDinh(db).findAll({
-                        where: { IDNhanVien: data[i].IDNhanVien }
-                    }).then(family => {
-                        family.forEach(element => {
-                            reduce += Number(element.Reduce);
-                        });
-                    })
-                    bhxhSalaryTotal += bhxhSalary
-                    bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
-                    bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
-                    bhytCTTotal += (bhxhSalary * objInsurance['companyBHYT'] / 100)
-                    bhytNVTotal += (bhxhSalary * objInsurance['staffBHYT'] / 100)
-                    bhtnNVTotal += (bhxhSalary * objInsurance['staffBHTN'] / 100)
-                    bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
-                    bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
-                    let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
-                    // tongTotal += total
-                    var obj = {
-                        stt: stt,
-                        id: Number(data[i].ID),
-                        idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
-                        nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
-                        nameDepartment: data[i].IDNhanVien ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
-                        staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
-                        productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
-                        workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
-                        bhxhSalary: bhxhSalary,
-                        reduce: Number(reduce),
-                        insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
-                        coefficientsSalary: coefficientsSalary
-                    }
-                    if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
-                        tongTotal += total
-                        array.push(obj);
-                        stt += 1;
+                    let arrayDecided = await getDecidedInsuranceSalaryOfStaff(db, monthYear, nextMonthYear, data[i].IDNhanVien)
+                    if (arrayDecided.length <= 0) {
+                        let insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findAll({
+                            where: {
+                                [Op.and]: [
+                                    {
+                                        StartDate: { [Op.lte]: monthYear },
+                                    },
+                                    { IDStaff: data[i].IDNhanVien },
+                                ]
+                            },
+                            order: [
+                                ['ID', 'DESC']
+                            ],
+                        })
+                        var coefficientsSalary = insuranceSalaryIncrease ? insuranceSalaryIncrease.Coefficient : 0;
+                        let bhxhSalary = coefficientsSalary * minimumWage[min] + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
+                        await mtblDMGiaDinh(db).findAll({
+                            where: { IDNhanVien: data[i].IDNhanVien }
+                        }).then(family => {
+                            family.forEach(element => {
+                                reduce += Number(element.Reduce);
+                            });
+                        })
+                        bhxhSalaryTotal += bhxhSalary
+                        bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
+                        bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
+                        bhytCTTotal += (bhxhSalary * objInsurance['companyBHYT'] / 100)
+                        bhytNVTotal += (bhxhSalary * objInsurance['staffBHYT'] / 100)
+                        bhtnNVTotal += (bhxhSalary * objInsurance['staffBHTN'] / 100)
+                        bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
+                        bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
+                        let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
+                        // tongTotal += total
+                        var obj = {
+                            stt: stt,
+                            id: Number(data[i].ID),
+                            idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                            nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
+                            nameDepartment: data[i].IDNhanVien ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
+                            staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
+                            productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
+                            workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
+                            bhxhSalary: bhxhSalary,
+                            reduce: Number(reduce),
+                            insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
+                            coefficientsSalary: coefficientsSalary
+                        }
+                        if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
+                            tongTotal += total
+                            array.push(obj);
+                        }
+                    } else {
+                        for (let decsion = 0; decsion < arrayDecided.length; decsion++) {
+                            let insuranceSalaryIncrease = arrayDecided[decsion]
+                            var coefficientsSalary = insuranceSalaryIncrease ? insuranceSalaryIncrease.Coefficient : 0;
+                            let bhxhSalary = coefficientsSalary * minimumWage[min] + ((insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0) * coefficientsSalary)
+                            await mtblDMGiaDinh(db).findAll({
+                                where: { IDNhanVien: data[i].IDNhanVien }
+                            }).then(family => {
+                                family.forEach(element => {
+                                    reduce += Number(element.Reduce);
+                                });
+                            })
+                            bhxhSalaryTotal += bhxhSalary
+                            bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
+                            bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
+                            bhytCTTotal += (bhxhSalary * objInsurance['companyBHYT'] / 100)
+                            bhytNVTotal += (bhxhSalary * objInsurance['staffBHYT'] / 100)
+                            bhtnNVTotal += (bhxhSalary * objInsurance['staffBHTN'] / 100)
+                            bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
+                            bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
+                            let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
+                            // tongTotal += total
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
+                                nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
+                                nameDepartment: data[i].IDNhanVien ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
+                                staffCode: data[i].IDNhanVien ? data[i].nv.StaffCode : null,
+                                productivityWages: data[i].IDNhanVien ? data[i].nv.ProductivityWages : 0,
+                                workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : 0,
+                                bhxhSalary: bhxhSalary,
+                                reduce: Number(reduce),
+                                insuranceSalaryIncrease: insuranceSalaryIncrease ? insuranceSalaryIncrease.Increase : 0,
+                                coefficientsSalary: coefficientsSalary
+                            }
+                            if (data[i].nv.Status == 'Lương và bảo hiểm' || data[i].nv.Status == 'Đóng bảo hiểm') {
+                                tongTotal += total
+                                array.push(obj);
+                            }
+                        }
                     }
                 }
+                stt += 1;
             }
             result = {
                 objInsurance: objInsurance,
@@ -2945,7 +3030,6 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
     } catch (error) {
         console.log(error);
     }
-
     return result
 }
 
@@ -3211,10 +3295,16 @@ module.exports = {
                         let arrayMonth = await applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd)
                         for (let month = 0; month < arrayMonth.length; month++) {
                             let resultOfMonth = await getDetailTrackInsurancePremiums(db, arrayMonth[month], body.departmentID, arrayMonth[month + 1])
+                            if (arrayMonth[month + 1])
+                                resultOfMonth['monthString'] = 'Từ tháng ' + arrayMonth[month].slice(5, 7) + '/' + arrayMonth[month].slice(0, 4) + ' đến tháng ' + arrayMonth[month + 1].slice(5, 7) + '/' + arrayMonth[month + 1].slice(0, 4)
+                            else
+                                resultOfMonth['monthString'] = arrayMonth[month].slice(5, 7) + '/' + arrayMonth[month].slice(0, 4)
+
                             arrayResult.push(resultOfMonth)
                         }
                     } else {
                         let resultOfMonth = await getDetailTrackInsurancePremiums(db, yearStart + '-' + await convertNumber(monthStart), body.departmentID)
+                        resultOfMonth['monthString'] = await convertNumber(monthStart) + '/' + yearStart
                         arrayResult.push(resultOfMonth)
                     }
                     result = {
