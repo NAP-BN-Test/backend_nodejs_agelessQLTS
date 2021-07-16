@@ -2949,6 +2949,7 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
             var nextMonth = Number(nextMonthYear.slice(5, 7));
             var nextYear = Number(nextMonthYear.slice(0, 4));
             arrayMonthMinWage = await applicationIntervalDivision(db, monthFirst, nextMonth, yearFirst, nextYear, type = 'MLTT')
+            console.log(arrayMonthMinWage);
             for (let month = 0; month < arrayMonthMinWage.length; month++) {
                 minimumWage.push(await getMinWageConfig(db, Number(arrayMonthMinWage[month].slice(0, 4)), Number(arrayMonthMinWage[month].slice(5, 7))))
             }
@@ -3004,20 +3005,22 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                 var nextYear = Number(nextMonthYear.slice(0, 4));
                 for (let monthMinWage = 0; monthMinWage < minimumWage.length; monthMinWage++) {
                     for (let month = monthFirst; month <= nextMonth; month++) {
-                        let resultNew = await getDetailPayroll(db, nextYear + '-' + await convertNumber(month), departmentID, minimumWage[monthMinWage])
-                        Array.prototype.push.apply(result.array, resultNew.array)
-                        if (result.objInsurance.companyBHTN)
-                            result.objInsurance = result.objInsurance
-                        result.totalFooter.bhxhSalaryTotal += resultNew.totalFooter.bhxhSalaryTotal
-                        result.totalFooter.bhxhCTTotal += resultNew.totalFooter.bhxhCTTotal
-                        result.totalFooter.bhxhNVTotal += resultNew.totalFooter.bhxhNVTotal
-                        result.totalFooter.bhytCTTotal += resultNew.totalFooter.bhytCTTotal
-                        result.totalFooter.bhytNVTotal += resultNew.totalFooter.bhytNVTotal
-                        result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
-                        result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
-                        result.totalFooter.bhtnNVTotal += resultNew.totalFooter.bhtnNVTotal
-                        result.totalFooter.bhtnldTotal += resultNew.totalFooter.bhtnldTotal
-                        result.totalFooter.tongTotal += resultNew.totalFooter.tongTotal
+                        if (nextYear + '-' + await convertNumber(month) == arrayMonthMinWage[monthMinWage]) {
+                            let resultNew = await getDetailPayroll(db, nextYear + '-' + await convertNumber(month), departmentID, minimumWage[monthMinWage])
+                            Array.prototype.push.apply(result.array, resultNew.array)
+                            if (resultNew.objInsurance.companyBHTN)
+                                result.objInsurance = resultNew.objInsurance
+                            result.totalFooter.bhxhSalaryTotal += resultNew.totalFooter.bhxhSalaryTotal
+                            result.totalFooter.bhxhCTTotal += resultNew.totalFooter.bhxhCTTotal
+                            result.totalFooter.bhxhNVTotal += resultNew.totalFooter.bhxhNVTotal
+                            result.totalFooter.bhytCTTotal += resultNew.totalFooter.bhytCTTotal
+                            result.totalFooter.bhytNVTotal += resultNew.totalFooter.bhytNVTotal
+                            result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
+                            result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
+                            result.totalFooter.bhtnNVTotal += resultNew.totalFooter.bhtnNVTotal
+                            result.totalFooter.bhtnldTotal += resultNew.totalFooter.bhtnldTotal
+                            result.totalFooter.tongTotal += resultNew.totalFooter.tongTotal
+                        }
                     }
                 }
             }
@@ -3155,7 +3158,6 @@ async function applicationIntervalDivision(db, monthStart, monthEnd, yearStart, 
             }
         })
     } else {
-        arrayMonth = []
         await mtblMinWageConfig(db).findAll({
             where: {
                 [Op.and]: [
@@ -3300,9 +3302,8 @@ module.exports = {
                         let arrayMonth = await applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd)
                         console.log(arrayMonth);
                         for (let my = 0; my < arrayMonth.length; my += 2) {
-                            console.log(arrayMonth[my], arrayMonth[my + 1]);
                             resultOfMonth = await getDetailTrackInsurancePremiums(db, arrayMonth[my], body.departmentID, arrayMonth[my + 1])
-                            if (arrayMonth[my + 1])
+                            if (arrayMonth[my + 1] && arrayMonth[my].slice(5, 7) != arrayMonth[my + 1].slice(5, 7))
                                 resultOfMonth['monthString'] = 'Từ tháng ' + arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + ' đến tháng ' + Number(arrayMonth[my + 1].slice(5, 7)) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
                             else
                                 resultOfMonth['monthString'] = arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4)
@@ -3314,10 +3315,25 @@ module.exports = {
                         arrayResult.push(resultOfMonth)
                     }
                     // thêm số thứ tự
+                    let arrayNew = []
+                    let arrayCheck = []
                     arrayResult.forEach(item => {
                         let stt = 1
                         item.array.forEach(e => {
-                            e['stt'] = stt
+                            e.stt = stt
+                            // if (!checkDuplicate(arrayCheck, e.idStaff)) {
+                            //     arrayCheck.push({
+                            //         staffID: e.idStaff,
+                            //         monthOfChange: e.monthOfChange,
+                            //         stt: e.stt,
+                            //     })
+                            // } else {
+                            //     for (let c = 0; c < arrayCheck.length; c++) {
+                            //         if (arrayCheck[c].staffID == e.idStaff) {
+                            //             e['monthOfChange'] = e['monthOfChange'] + ' - ' + arrayCheck[c].monthOfChange
+                            //         }
+                            //     }
+                            // }
                             stt += 1
                         })
                     })
