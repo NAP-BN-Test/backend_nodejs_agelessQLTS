@@ -3147,7 +3147,7 @@ async function applicationIntervalDivision(db, monthStart, monthEnd, yearStart, 
                 let year = Number(data[i].ApplicableDate.slice(0, 4));
                 if (!checkDuplicate(arrayMonth, year + '-' + await convertNumber(month))) {
                     arrayMonth.push(year + '-' + await convertNumber(month))
-                    arrayMonth.push(year + '-' + await convertNumber(month + 1))
+                    arrayMonth.push(year + '-' + await convertNumber(month - 1))
                 }
                 if (year + '-' + await convertNumber(month) == yearEnd + '-' + await convertNumber(monthEnd)) {
                     arrayMonth.push(year + '-' + await convertNumber(month - 1))
