@@ -2776,7 +2776,7 @@ async function getDecidedInsuranceSalaryOfStaff(db, dateSearch, staffID) {
     return insuranceSalaryIncrease
 }
 
-async function getDetailPayroll(db, dateResponse, departmentID, minimumWage) {
+async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dateString) {
     var date = dateResponse + '-01 07:00:00.000'
     var monthFirst = Number(dateResponse.slice(5, 7)); // January
     var yearFirst = Number(dateResponse.slice(0, 4));
@@ -2832,6 +2832,7 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage) {
         let bhtnldTotal = 0
         let tongTotal = 0
         for (var i = 0; i < data.length; i++) {
+            let dateDisplay = ''
             var reduce = 0;
             let arrayDecided = await getDecidedInsuranceSalaryOfStaff(db, dateResponse, data[i].IDNhanVien)
             if (arrayDecided.length <= 0) {
@@ -2855,8 +2856,13 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage) {
                 bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
                 let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
                 tongTotal += total
+                if (dateString) {
+                    console.log(Number(dateString.slice(5, 7)) - 1, Number(dateResponse.slice(5, 7)));
+                    if (Number(dateString.slice(5, 7)) - 1 != Number(dateResponse.slice(5, 7)))
+                        dateDisplay = (dateString ? ('-' + await convertNumber(Number(dateString.slice(5, 7)) - 1) + '/' + dateString.slice(0, 4)) : '')
+                }
                 var obj = {
-                    monthOfChange: dateResponse.slice(5, 7) + '/' + dateResponse.slice(0, 4),
+                    monthOfChange: dateResponse.slice(5, 7) + '/' + dateResponse.slice(0, 4) + dateDisplay,
                     id: Number(data[i].ID),
                     idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                     nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
@@ -2896,8 +2902,12 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage) {
                     bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
                     bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
                     let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
+                    if (dateString) {
+                        if (Number(dateString.slice(5, 7)) - 1 != Number(moment(insuranceSalaryIncrease.StartDate).add(7, 'hours').format('MM')))
+                            dateDisplay = (dateString ? ('-' + await convertNumber(Number(dateString.slice(5, 7)) - 1) + '/' + dateString.slice(0, 4)) : '')
+                    }
                     var obj = {
-                        monthOfChange: moment(insuranceSalaryIncrease.StartDate).add(7, 'hours').format('MM/YYYY'),
+                        monthOfChange: moment(insuranceSalaryIncrease.StartDate).add(7, 'hours').format('MM/YYYY') + dateDisplay,
                         id: Number(data[i].ID),
                         idStaff: data[i].IDNhanVien ? data[i].IDNhanVien : null,
                         nameStaff: data[i].IDNhanVien ? data[i].nv.StaffName : null,
@@ -2949,7 +2959,6 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
             var nextMonth = Number(nextMonthYear.slice(5, 7));
             var nextYear = Number(nextMonthYear.slice(0, 4));
             arrayMonthMinWage = await applicationIntervalDivision(db, monthFirst, nextMonth, yearFirst, nextYear, type = 'MLTT')
-            console.log(arrayMonthMinWage);
             for (let month = 0; month < arrayMonthMinWage.length; month++) {
                 minimumWage.push(await getMinWageConfig(db, Number(arrayMonthMinWage[month].slice(0, 4)), Number(arrayMonthMinWage[month].slice(5, 7))))
             }
@@ -3004,9 +3013,10 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                 var nextMonth = Number(nextMonthYear.slice(5, 7));
                 var nextYear = Number(nextMonthYear.slice(0, 4));
                 for (let monthMinWage = 0; monthMinWage < minimumWage.length; monthMinWage++) {
+                    // chưa có trường hợp khác năm
                     for (let month = monthFirst; month <= nextMonth; month++) {
                         if (nextYear + '-' + await convertNumber(month) == arrayMonthMinWage[monthMinWage]) {
-                            let resultNew = await getDetailPayroll(db, nextYear + '-' + await convertNumber(month), departmentID, minimumWage[monthMinWage])
+                            let resultNew = await getDetailPayroll(db, nextYear + '-' + await convertNumber(month), departmentID, minimumWage[monthMinWage], arrayMonthMinWage[monthMinWage + 1])
                             Array.prototype.push.apply(result.array, resultNew.array)
                             if (resultNew.objInsurance.companyBHTN)
                                 result.objInsurance = resultNew.objInsurance
