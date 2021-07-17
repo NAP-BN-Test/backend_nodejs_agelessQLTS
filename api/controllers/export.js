@@ -1656,18 +1656,26 @@ module.exports = {
                     strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + '.xlsx'
                     str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + ' NĂM ' + year
                 } else {
-                    let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                    strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
-                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + ' NĂM ' + year + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                    await database.connectDatabase().then(async db => {
+                        if (db) {
+                            let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + ' NĂM ' + year + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                        }
+                    })
                 }
             } else {
                 if (!body.departmentID) {
                     strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + '.xlsx'
                     str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd
                 } else {
-                    let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                    strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
-                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                    await database.connectDatabase().then(async db => {
+                        if (db) {
+                            let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                        }
+                    })
                 }
 
             }
@@ -1677,11 +1685,13 @@ module.exports = {
                 data = dataResponse[d].array
                 let arrayCheckExcel = dataResponse[d].arrayCheckExcel
                 // Add Worksheets to the workbook
-                var ws = wb.addWorksheet('Sheet ' + (d + 1));
+                let stringSheet = dataResponse[d].monthString
+                console.log(dataResponse[d].monthString);
+                var ws = wb.addWorksheet('sheet-' + (d + 1));
                 var row = 1
                 ws.column(row).setWidth(5);
                 ws.cell(1, 1, 1, 16, true)
-                    .string('THEO DÕI ĐÓNG BẢO HIỂM ' + dataResponse[d].monthString.toUpperCase())
+                    .string(str)
                     .style(styleHearder);
                 ws.cell(3, 9, 3, 10, true)
                     .string('BHXH')
@@ -1729,16 +1739,16 @@ module.exports = {
                 }
                 for (let c = 0; c < arrayCheckExcel.length;) {
                     console.log(arrayCheckExcel[c], data[c].stt);
-                    ws.cell(5 + c, 1, 5 + c + arrayCheckExcel[c] - 1, 1, true).number(data[c].stt).style(stylecellNumber)
-                    ws.cell(5 + c, 2, 5 + c + arrayCheckExcel[c] - 1, 2, true).string(data[c].staffCode).style(stylecellNumber)
-                    ws.cell(5 + c, 3, 5 + c + arrayCheckExcel[c] - 1, 3, true).string(data[c].nameStaff).style(stylecellNumber)
-                    ws.cell(5 + c, 4, 5 + c + arrayCheckExcel[c] - 1, 4, true).string(data[c].nameDepartment).style(stylecellNumber)
+                    ws.cell(5 + c, 1, 5 + c + arrayCheckExcel[c] - 1, 1, true).number(data[c].stt).style(stylecell)
+                    ws.cell(5 + c, 2, 5 + c + arrayCheckExcel[c] - 1, 2, true).string(data[c].staffCode).style(stylecell)
+                    ws.cell(5 + c, 3, 5 + c + arrayCheckExcel[c] - 1, 3, true).string(data[c].nameStaff).style(stylecell)
+                    ws.cell(5 + c, 4, 5 + c + arrayCheckExcel[c] - 1, 4, true).string(data[c].nameDepartment).style(stylecell)
                     c += arrayCheckExcel[c]
                 }
                 for (var i = 0; i < data.length; i++) {
                     let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
                     ws.cell(5 + i, 5).string(data[i].monthOfChange ? data[i].monthOfChange : '').style(stylecell)
-                    ws.cell(5 + i, 6).number(data[i].minimumWage ? data[i].minimumWage : 0).style(stylecell)
+                    ws.cell(5 + i, 6).number(data[i].minimumWage ? data[i].minimumWage : 0).style(stylecellNumber)
                     ws.cell(5 + i, 7).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNumber)
                     ws.cell(5 + i, 8).number(wages).style(stylecellNumber)
                     ws.cell(5 + i, 9).number(wages * objInsurance.companyBHXH / 100).style(stylecellNumber)
@@ -1765,7 +1775,7 @@ module.exports = {
                 ws.cell(5 + data.length, 16).number(totalFooter.tongTotal).style(styleHearderNumber)
             }
 
-            await wb.write('D:/images_services/ageless_sendmail/' + strFile);
+            await wb.write('C:/images_services/ageless_sendmail/' + strFile);
             setTimeout(() => {
                 var result = {
                     link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
