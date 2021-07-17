@@ -2858,7 +2858,7 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
                 tongTotal += total
                 if (dateString) {
                     console.log(Number(dateString.slice(5, 7)) - 1, Number(dateResponse.slice(5, 7)));
-                    if (Number(dateString.slice(5, 7)) - 1 != Number(dateResponse.slice(5, 7)))
+                    if (Number(dateString.slice(5, 7)) - 1 > Number(dateResponse.slice(5, 7)))
                         dateDisplay = (dateString ? ('-' + await convertNumber(Number(dateString.slice(5, 7)) - 1) + '/' + dateString.slice(0, 4)) : '')
                 }
                 var obj = {
@@ -2903,7 +2903,7 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
                     bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
                     let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
                     if (dateString) {
-                        if (Number(dateString.slice(5, 7)) - 1 != Number(moment(insuranceSalaryIncrease.StartDate).add(7, 'hours').format('MM')))
+                        if (Number(dateString.slice(5, 7)) - 1 > Number(moment(insuranceSalaryIncrease.StartDate).add(7, 'hours').format('MM')))
                             dateDisplay = (dateString ? ('-' + await convertNumber(Number(dateString.slice(5, 7)) - 1) + '/' + dateString.slice(0, 4)) : '')
                     }
                     var obj = {
@@ -3312,40 +3312,54 @@ module.exports = {
                         let arrayMonth = await applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd)
                         console.log(arrayMonth);
                         for (let my = 0; my < arrayMonth.length; my += 2) {
-                            resultOfMonth = await getDetailTrackInsurancePremiums(db, arrayMonth[my], body.departmentID, arrayMonth[my + 1])
+                            let nextMonth = null
+                            if (arrayMonth[my + 1])
+                                nextMonth = (arrayMonth[my + 1] > arrayMonth[my] + 1) ? arrayMonth[my + 1] : null
+                            resultOfMonth = await getDetailTrackInsurancePremiums(db, arrayMonth[my], body.departmentID, nextMonth)
                             if (arrayMonth[my + 1] && arrayMonth[my].slice(5, 7) != arrayMonth[my + 1].slice(5, 7))
                                 resultOfMonth['monthString'] = 'Từ tháng ' + arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + ' đến tháng ' + Number(arrayMonth[my + 1].slice(5, 7)) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
                             else
                                 resultOfMonth['monthString'] = arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4)
-                            arrayResult.push(resultOfMonth)
+                            if (resultOfMonth.array.length > 0)
+                                arrayResult.push(resultOfMonth)
                         }
                     } else {
                         let resultOfMonth = await getDetailTrackInsurancePremiums(db, body.dateStart, body.departmentID, null)
                         resultOfMonth['monthString'] = await convertNumber(monthStart) + '/' + yearStart
-                        arrayResult.push(resultOfMonth)
+                        if (resultOfMonth.array.length > 0)
+                            arrayResult.push(resultOfMonth)
                     }
                     // thêm số thứ tự
-                    let arrayNew = []
-                    let arrayCheck = []
                     arrayResult.forEach(item => {
                         let stt = 1
+                        let arrayStaff = []
+                        let arrayStaffCheck = []
+                        let arrayNew = []
                         item.array.forEach(e => {
-                            e.stt = stt
-                            // if (!checkDuplicate(arrayCheck, e.idStaff)) {
-                            //     arrayCheck.push({
-                            //         staffID: e.idStaff,
-                            //         monthOfChange: e.monthOfChange,
-                            //         stt: e.stt,
-                            //     })
-                            // } else {
-                            //     for (let c = 0; c < arrayCheck.length; c++) {
-                            //         if (arrayCheck[c].staffID == e.idStaff) {
-                            //             e['monthOfChange'] = e['monthOfChange'] + ' - ' + arrayCheck[c].monthOfChange
-                            //         }
-                            //     }
-                            // }
+                            if (!checkDuplicate(arrayStaffCheck, e.idStaff))
+                                arrayStaff.push({
+                                    idStaff: e.idStaff,
+                                    stt: stt
+                                })
+                            arrayStaffCheck.push(e.idStaff)
                             stt += 1
                         })
+                        let arrayCheckExcel = []
+                        arrayStaff.forEach(staff => {
+                            let dem = 0
+                            item.array.forEach(e => {
+                                if (staff.idStaff == e.idStaff) {
+                                    arrayNew.push(e)
+                                    dem += 1
+                                    e.stt = staff.stt
+                                }
+                            })
+                            for (d = 0; d < dem; d++) {
+                                arrayCheckExcel.push(dem)
+                            }
+                        })
+                        item.array = arrayNew
+                        item['arrayCheckExcel'] = arrayCheckExcel
                     })
                     result = {
                         array: arrayResult,

@@ -1491,7 +1491,7 @@ module.exports = {
 
     },
     // export_tofile_excel_insurance_premiums
-    exportToFileExcelInsutancePremiums: (req, res) => {
+    exportToFileExcelInsutancePremiums: async (req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
         var styleHearder = wb.createStyle({
@@ -1507,6 +1507,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
             // numberFormat: '$#,##0.00; ($#,##0.00); -',
         });
         var styleHearderNumber = wb.createStyle({
@@ -1515,24 +1533,32 @@ module.exports = {
                 size: 14,
                 bold: true,
             },
-            // fill: {
-            //     type: 'pattern', // the only one implemented so far.
-            //     patternType: 'solid', // most common.
-            //     // fgColor: '2172d7', // you can add two extra characters to serve as alpha, i.e. '2172d7aa'.
-            //     // bgColor: 'ffffff' // bgColor only applies on patternTypes other than solid.
-            // },
             alignment: {
                 wrapText: true,
-                // ngang
                 horizontal: 'right',
-                // Dọc
                 vertical: 'center',
             },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
         });
         var stylecell = wb.createStyle({
             font: {
-                // color: '#FF0800',
                 size: 13,
                 bold: false,
             },
@@ -1543,7 +1569,24 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
         });
         var stylecellNumber = wb.createStyle({
             font: {
@@ -1558,17 +1601,40 @@ module.exports = {
                 // Dọc
                 vertical: 'center',
             },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
         });
         let body = req.body;
-        let data = JSON.parse(body.data);
-        let objInsurance = JSON.parse(body.objInsurance);
-        let totalFooter = JSON.parse(body.totalFooter);
+        let dataResponse = JSON.parse(body.data);
+        var month = Number(body.dateStart.slice(5, 7)); // January
+        var year = Number(body.dateStart.slice(0, 4));
+        if (body.dateEnd) {
+            monthEnd = Number(body.dateEnd.slice(5, 7));
+            yearEnd = Number(body.dateEnd.slice(0, 4));
+        }
         let arrayHeader = [
             'STT',
             'MÃ NHÂN VIÊN',
             'HỌ VÀ TÊN',
             'PHÒNG BAN',
+            'THÁNG ÁP DỤNG',
+            'MỨC LƯƠNG TỐI THIỂU',
             'HỆ SỐ LƯƠNG',
             'MỨC LƯƠNG',
             'CT',
@@ -1580,108 +1646,139 @@ module.exports = {
             'BHTNLĐ',
             'TỔNG',
         ]
-        var month = Number(body.date.slice(5, 7)); // January
-        var year = Number(body.date.slice(0, 4));
-        database.connectDatabase().then(async db => {
-            if (db) {
-                try {
-                    // Add Worksheets to the workbook
-                    var ws = wb.addWorksheet('Sheet 1');
-                    var row = 1
-                    ws.column(row).setWidth(5);
-                    ws.cell(1, 1, 1, 14, true)
-                        .string('THEO DÕI ĐÓNG BẢO HIỂM ' + month + '/' + year)
-                        .style(styleHearder);
-                    ws.cell(3, 7, 3, 8, true)
-                        .string('BHXH')
-                        .style(styleHearder);
-                    ws.cell(3, 9, 3, 10, true)
-                        .string('BHYT')
-                        .style(styleHearder);
-                    ws.cell(3, 11, 3, 12, true)
-                        .string('BHTN')
-                        .style(styleHearder);
-                    // // push vào các khoản trừ %
-                    var arrayReduct = []
-                    arrayReduct.push(1)
-                    arrayReduct.push(2)
-                    arrayReduct.push(3)
-                    arrayReduct.push(4)
-                    arrayReduct.push(5)
-                    arrayReduct.push(6)
-                    arrayReduct.push(objInsurance.companyBHXH)
-                    arrayReduct.push(objInsurance.staffBHXH)
-                    arrayReduct.push(objInsurance.companyBHYT)
-                    arrayReduct.push(objInsurance.staffBHYT)
-                    arrayReduct.push(objInsurance.companyBHTN)
-                    arrayReduct.push(objInsurance.staffBHTN)
-                    arrayReduct.push(objInsurance.staffBHTNLD)
-                    arrayReduct.push(objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD)
-                    for (var i = 0; i < arrayHeader.length; i++) {
-                        if (i <= 5) {
-                            ws.cell(3, row, 4, row, true)
-                                .string(arrayHeader[i])
-                                .style(styleHearder);
-                        } else if (i > 5 && i < 12) {
-                            ws.cell(4, row)
-                                .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                                .style(styleHearder);
-                        } else {
-                            ws.cell(3, row, 4, row, true)
-                                .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                                .style(styleHearder);
-                        }
-                        row += 1
-                        ws.column(row).setWidth(20);
-                    }
-                    for (var i = 0; i < data.length; i++) {
-                        let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
-                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecellNumber)
-                        ws.cell(5 + i, 2).string(data[i].staffCode).style(stylecell)
-                        ws.cell(5 + i, 3).string(data[i].nameStaff ? data[i].nameStaff : 0).style(stylecell)
-                        ws.cell(5 + i, 4).string(data[i].nameDepartment ? data[i].nameDepartment : '').style(stylecell)
-                        ws.cell(5 + i, 5).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 6).number(wages).style(stylecellNumber)
-                        ws.cell(5 + i, 7).number(wages * objInsurance.companyBHXH / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 8).number(wages * objInsurance.staffBHXH / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 9).number(wages * objInsurance.companyBHYT / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 10).number(wages * objInsurance.staffBHYT / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 11).number(wages * objInsurance.companyBHTN / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 12).number(wages * objInsurance.staffBHTN / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 13).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellNumber)
-                        ws.cell(5 + i, 14).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
-                    }
-                    // Tổng cộng
-                    ws.cell(5 + data.length, 1, 5 + data.length, 4, true)
-                        .string('TỔNG CỘNG')
-                        .style(styleHearder);
-                    ws.cell(5 + data.length, 6).number(totalFooter.bhxhSalaryTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 7).number(totalFooter.bhxhCTTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 8).number(totalFooter.bhxhNVTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 9).number(totalFooter.bhytCTTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 10).number(totalFooter.bhytNVTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 11).number(totalFooter.bhtnCTTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 12).number(totalFooter.bhtnNVTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 13).number(totalFooter.bhtnldTotal).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 14).number(totalFooter.tongTotal).style(styleHearderNumber)
-                    await wb.write('C:/images_services/ageless_sendmail/export_excel_insurance_premiums.xlsx');
-                    setTimeout(() => {
-                        var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_insurance_premiums.xlsx',
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
-                    }, 500);
-
-                } catch (error) {
-                    console.log(error);
-                    res.json(Result.SYS_ERROR_RESULT)
+        var month = Number(body.dateStart.slice(5, 7)); // January
+        var year = Number(body.dateStart.slice(0, 4));
+        try {
+            let str = '';
+            let strFile = '';
+            if (!body.dateEnd) {
+                if (!body.departmentID) {
+                    strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + '.xlsx'
+                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + ' NĂM ' + year
+                } else {
+                    let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                    strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + ' NĂM ' + year + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
                 }
             } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
+                if (!body.departmentID) {
+                    strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + '.xlsx'
+                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd
+                } else {
+                    let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                    strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                }
+
             }
-        })
+            for (let d = 0; d < dataResponse.length; d++) {
+                let objInsurance = dataResponse[d].objInsurance
+                let totalFooter = dataResponse[d].totalFooter
+                data = dataResponse[d].array
+                let arrayCheckExcel = dataResponse[d].arrayCheckExcel
+                // Add Worksheets to the workbook
+                var ws = wb.addWorksheet('Sheet ' + (d + 1));
+                var row = 1
+                ws.column(row).setWidth(5);
+                ws.cell(1, 1, 1, 16, true)
+                    .string('THEO DÕI ĐÓNG BẢO HIỂM ' + dataResponse[d].monthString.toUpperCase())
+                    .style(styleHearder);
+                ws.cell(3, 9, 3, 10, true)
+                    .string('BHXH')
+                    .style(styleHearder);
+                ws.cell(3, 11, 3, 12, true)
+                    .string('BHYT')
+                    .style(styleHearder);
+                ws.cell(3, 13, 3, 14, true)
+                    .string('BHTN')
+                    .style(styleHearder);
+                // // push vào các khoản trừ %
+                var arrayReduct = []
+                arrayReduct.push(1)
+                arrayReduct.push(2)
+                arrayReduct.push(3)
+                arrayReduct.push(4)
+                arrayReduct.push(5)
+                arrayReduct.push(6)
+                arrayReduct.push(7)
+                arrayReduct.push(8)
+                arrayReduct.push(objInsurance.companyBHXH)
+                arrayReduct.push(objInsurance.staffBHXH)
+                arrayReduct.push(objInsurance.companyBHYT)
+                arrayReduct.push(objInsurance.staffBHYT)
+                arrayReduct.push(objInsurance.companyBHTN)
+                arrayReduct.push(objInsurance.staffBHTN)
+                arrayReduct.push(objInsurance.staffBHTNLD)
+                arrayReduct.push(objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD)
+                for (var i = 0; i < arrayHeader.length; i++) {
+                    if (i <= 7) {
+                        ws.cell(3, row, 4, row, true)
+                            .string(arrayHeader[i])
+                            .style(styleHearder);
+                    } else if (i > 7 && i < 14) {
+                        ws.cell(4, row)
+                            .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
+                            .style(styleHearder);
+                    } else {
+                        ws.cell(3, row, 4, row, true)
+                            .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
+                            .style(styleHearder);
+                    }
+                    row += 1
+                    ws.column(row).setWidth(20);
+                }
+                for (let c = 0; c < arrayCheckExcel.length;) {
+                    console.log(arrayCheckExcel[c], data[c].stt);
+                    ws.cell(5 + c, 1, 5 + c + arrayCheckExcel[c] - 1, 1, true).number(data[c].stt).style(stylecellNumber)
+                    ws.cell(5 + c, 2, 5 + c + arrayCheckExcel[c] - 1, 2, true).string(data[c].staffCode).style(stylecellNumber)
+                    ws.cell(5 + c, 3, 5 + c + arrayCheckExcel[c] - 1, 3, true).string(data[c].nameStaff).style(stylecellNumber)
+                    ws.cell(5 + c, 4, 5 + c + arrayCheckExcel[c] - 1, 4, true).string(data[c].nameDepartment).style(stylecellNumber)
+                    c += arrayCheckExcel[c]
+                }
+                for (var i = 0; i < data.length; i++) {
+                    let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
+                    ws.cell(5 + i, 5).string(data[i].monthOfChange ? data[i].monthOfChange : '').style(stylecell)
+                    ws.cell(5 + i, 6).number(data[i].minimumWage ? data[i].minimumWage : 0).style(stylecell)
+                    ws.cell(5 + i, 7).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNumber)
+                    ws.cell(5 + i, 8).number(wages).style(stylecellNumber)
+                    ws.cell(5 + i, 9).number(wages * objInsurance.companyBHXH / 100).style(stylecellNumber)
+                    ws.cell(5 + i, 10).number(wages * objInsurance.staffBHXH / 100).style(stylecellNumber)
+                    ws.cell(5 + i, 11).number(wages * objInsurance.companyBHYT / 100).style(stylecellNumber)
+                    ws.cell(5 + i, 12).number(wages * objInsurance.staffBHYT / 100).style(stylecellNumber)
+                    ws.cell(5 + i, 13).number(wages * objInsurance.companyBHTN / 100).style(stylecellNumber)
+                    ws.cell(5 + i, 14).number(wages * objInsurance.staffBHTN / 100).style(stylecellNumber)
+                    ws.cell(5 + i, 15).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellNumber)
+                    ws.cell(5 + i, 16).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
+                }
+                // Tổng cộng
+                ws.cell(5 + data.length, 1, 5 + data.length, 8, true)
+                    .string('TỔNG CỘNG')
+                    .style(styleHearder);
+                ws.cell(5 + data.length, 8).number(totalFooter.bhxhSalaryTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 9).number(totalFooter.bhxhCTTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 10).number(totalFooter.bhxhNVTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 11).number(totalFooter.bhytCTTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 12).number(totalFooter.bhytNVTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 13).number(totalFooter.bhtnCTTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 14).number(totalFooter.bhtnNVTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 15).number(totalFooter.bhtnldTotal).style(styleHearderNumber)
+                ws.cell(5 + data.length, 16).number(totalFooter.tongTotal).style(styleHearderNumber)
+            }
+
+            await wb.write('D:/images_services/ageless_sendmail/' + strFile);
+            setTimeout(() => {
+                var result = {
+                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            }, 500);
+
+        } catch (error) {
+            console.log(error);
+            res.json(Result.SYS_ERROR_RESULT)
+        }
     },
     // export_excel_Detail_YCMS
     exportExcelInDetailYCMS: (req, res) => {
