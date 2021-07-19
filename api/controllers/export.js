@@ -1654,32 +1654,36 @@ module.exports = {
             if (!body.dateEnd) {
                 if (!body.departmentID) {
                     strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + '.xlsx'
-                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + ' NĂM ' + year
                 } else {
                     await database.connectDatabase().then(async db => {
                         if (db) {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
                             strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + ' NĂM ' + year + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
                         }
                     })
                 }
             } else {
                 if (!body.departmentID) {
                     strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + '.xlsx'
-                    str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd
                 } else {
                     await database.connectDatabase().then(async db => {
                         if (db) {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
                             strFile = 'Bảng theo dõi đóng bảo hiểm ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
                         }
                     })
                 }
 
             }
+            let department;
+            let strDepartment = ''
+            if (body.departmentID) {
+                department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                strDepartment = ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+            }
             for (let d = 0; d < dataResponse.length; d++) {
+
+                str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + dataResponse[d].monthString.toUpperCase() + strDepartment;
                 let objInsurance = dataResponse[d].objInsurance
                 let totalFooter = dataResponse[d].totalFooter
                 data = dataResponse[d].array
