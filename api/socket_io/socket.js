@@ -419,6 +419,8 @@ module.exports = {
                             await db2.query("DELETE FROM tblAttachFile WHERE IDDonHang = " + IDDonHangs)
                             await db2.query("DELETE FROM tblChiPhiThuDonHang WHERE IDDonHang = " + IDDonHangs)
                             await db2.query("DELETE FROM tblDoanhThuKhacChoXeCT WHERE IDDonHang = " + IDDonHangs)
+                            await db2.query("DELETE FROM tblChiPhiChiDonHang WHERE IDDonHang = " + IDDonHangs)
+                            await db2.query("DELETE FROM tblChiPhiKhacChoXeCT WHERE IDDonHang = " + IDDonHangs)
                             await db2.query("DELETE FROM tblDonHang WHERE IDDonHangChinhSua = " + IDDonHangs)
                             await db2.query("DELETE FROM tblDonHang WHERE MaDoiChieu = '" + MaDoiChieu + "' AND IDKhachHang = " + IDKhachHang)
                         }
@@ -427,10 +429,10 @@ module.exports = {
                         let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")
                         let IDDonHang = NewOrder[0][0].ID
                         await chiphiphatsinhchi[0].forEach(value => {
-                            db2.query("INSERT INTO tblDoanhThuKhacChoXeCT (IDDonHang, TenDoanhThuKhac, ChiPhi) values ('" + IDDonHang + "', '" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
+                            db2.query("INSERT INTO tblDoanhThuKhacChoXeCT (IDDonHang, TenDoanhThuKhac, ChiPhi) values ('" + IDDonHang + "', N'" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
                         })
                         await chiphiphatsinhchi[0].forEach(value => {
-                            db2.query("INSERT INTO tblChiPhiThuDonHang (IDDonHang, TenChiPhiThu, ChiPhiPhatSinhThu) values ('" + IDDonHang + "', '" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
+                            db2.query("INSERT INTO tblChiPhiThuDonHang (IDDonHang, TenChiPhiThu, ChiPhiPhatSinhThu) values ('" + IDDonHang + "', N'" + value.TenChiPhiChi + "', " + value.ChiPhiPhatSinhChi + ")")
                         })
                         if (objOrder.ConfirmKH == 1) {
                             if (data.type.toUpperCase() == 'KEHOACH') {

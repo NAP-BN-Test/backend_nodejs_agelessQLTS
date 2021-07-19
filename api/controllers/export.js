@@ -1678,8 +1678,11 @@ module.exports = {
             let department;
             let strDepartment = ''
             if (body.departmentID) {
-                department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                strDepartment = ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                await database.connectDatabase().then(async db => {
+
+                    department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                    strDepartment = ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                })
             }
             for (let d = 0; d < dataResponse.length; d++) {
 
@@ -1742,7 +1745,6 @@ module.exports = {
                     ws.column(row).setWidth(20);
                 }
                 for (let c = 0; c < arrayCheckExcel.length;) {
-                    console.log(arrayCheckExcel[c], data[c].stt);
                     ws.cell(5 + c, 1, 5 + c + arrayCheckExcel[c] - 1, 1, true).number(data[c].stt).style(stylecell)
                     ws.cell(5 + c, 2, 5 + c + arrayCheckExcel[c] - 1, 2, true).string(data[c].staffCode).style(stylecell)
                     ws.cell(5 + c, 3, 5 + c + arrayCheckExcel[c] - 1, 3, true).string(data[c].nameStaff).style(stylecell)
@@ -1765,7 +1767,7 @@ module.exports = {
                     ws.cell(5 + i, 16).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
                 }
                 // Tổng cộng
-                ws.cell(5 + data.length, 1, 5 + data.length, 8, true)
+                ws.cell(5 + data.length, 1, 5 + data.length, 7, true)
                     .string('TỔNG CỘNG')
                     .style(styleHearder);
                 ws.cell(5 + data.length, 8).number(totalFooter.bhxhSalaryTotal).style(styleHearderNumber)
