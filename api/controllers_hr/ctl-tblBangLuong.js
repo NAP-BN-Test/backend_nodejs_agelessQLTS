@@ -3196,6 +3196,7 @@ module.exports = {
     createTimeAttendanceSummaryFollowMonth,
     createTimeAttendanceSummary,
     deleteRelationshiptblBangLuong,
+    getDetailPayrollForMonthYear,
     // get_list_tbl_bangluong
     getListtblBangLuong: (req, res) => {
         let body = req.body;

@@ -599,4 +599,10 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_role').post(tblRole.getListtblRole);
     app.route('/qlnb/get_list_name_tbl_role').post(checkToken.checkToken, tblRole.getListNametblRole);
 
+    // report nhân sự
+    var reportHR = require('./controllers_hr/report_hr')
+    app.route('/qlnb/report_personnel_structure').post(reportHR.reportPersonnelStructure);
+    app.route('/qlnb/report_types_of_contracts').post(reportHR.reportTypesOfContracts);
+    app.route('/qlnb/report_salary_bonus_chart').post(reportHR.reportSalaryAndBonusChart);
+    app.route('/qlnb/report_personnel_development').post(reportHR.reportPersonnelDevelopment);
 }
