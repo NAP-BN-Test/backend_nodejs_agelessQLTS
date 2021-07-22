@@ -59,21 +59,25 @@ var mModules = require('../constants/modules');
 
 async function numberStaffInYear(db, year, departmentID) {
     var dateStart = year + '-' + '12-30 07:00:00.000';
-    let arrayStaff = []
-    await mtblDMNhanvien(db).findAll({
-        where: {
-            IDBoPhan: departmentID
-        }
-    }).then(data => {
-        data.forEach(item => {
-            arrayStaff.push(item.ID)
+    let obj = {
+        ContractDateStart: { [Op.lte]: dateStart },
+    }
+    if (departmentID) {
+        let arrayStaff = []
+        await mtblDMNhanvien(db).findAll({
+            where: {
+                IDBoPhan: departmentID
+            }
+        }).then(data => {
+            data.forEach(item => {
+                arrayStaff.push(item.ID)
+            })
         })
-    })
+        obj['IDNhanVien'] = { [Op.in]: arrayStaff }
+    }
+    let arrayStaff = []
     await mtblHopDongNhanSu(db).findAll({
-        where: {
-            ContractDateStart: { [Op.lte]: dateStart },
-            IDNhanVien: { [Op.in]: arrayStaff },
-        }
+        where: obj
     }).then(contract => {
         for (let c = 0; c < contract.length; c++) {
             if (!mModules.checkDuplicate(arrayStaff, contract[c].IDNhanVien)) {
@@ -81,10 +85,7 @@ async function numberStaffInYear(db, year, departmentID) {
             }
         }
     })
-    return {
-        yearStart: year,
-        numberStaff: arrayStaff.length,
-    }
+    return arrayStaff.length
 }
 
 module.exports = {
@@ -165,24 +166,24 @@ module.exports = {
                         }
                     })
                     var monthStart;
-                    var yearStart;
+                    var dateStart;
                     if (body.dateStart) {
                         monthStart = Number(body.dateStart.slice(5, 7)); // January
-                        yearStart = Number(body.dateStart.slice(0, 4));
+                        dateStart = Number(body.dateStart.slice(0, 4));
                     }
                     var monthEnd;
-                    var yearEnd;
+                    var dateEnd;
                     if (body.dateEnd) {
                         monthEnd = Number(body.dateEnd.slice(5, 7)); // January
-                        yearEnd = Number(body.dateEnd.slice(0, 4));
+                        dateEnd = Number(body.dateEnd.slice(0, 4));
                     }
 
                     obj['array1'] = array1
                     obj['count1'] = count1
-                    obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + yearStart) : ''
+                    obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + dateStart) : ''
                     obj['array2'] = array2
                     obj['count2'] = count2
-                    obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + yearEnd) : ''
+                    obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + dateEnd) : ''
                     var result = {
                         obj: obj,
                         status: Constant.STATUS.SUCCESS,
@@ -276,23 +277,23 @@ module.exports = {
                         }
                     })
                     var monthStart;
-                    var yearStart;
+                    var dateStart;
                     if (body.dateStart) {
                         monthStart = Number(body.dateStart.slice(5, 7)); // January
-                        yearStart = Number(body.dateStart.slice(0, 4));
+                        dateStart = Number(body.dateStart.slice(0, 4));
                     }
                     var monthEnd;
-                    var yearEnd;
+                    var dateEnd;
                     if (body.dateEnd) {
                         monthEnd = Number(body.dateEnd.slice(5, 7)); // January
-                        yearEnd = Number(body.dateEnd.slice(0, 4));
+                        dateEnd = Number(body.dateEnd.slice(0, 4));
                     }
                     obj['array1'] = array1
                     obj['count1'] = count1
-                    obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + yearStart) : ''
+                    obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + dateStart) : ''
                     obj['array2'] = array2
                     obj['count2'] = count2
-                    obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + yearEnd) : ''
+                    obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + dateEnd) : ''
                     var result = {
                         obj: obj,
                         status: Constant.STATUS.SUCCESS,
@@ -317,16 +318,16 @@ module.exports = {
             if (db) {
                 try {
                     var monthStart;
-                    var yearStart;
+                    var dateStart;
                     if (body.dateStart) {
                         monthStart = Number(body.dateStart.slice(5, 7)); // January
-                        yearStart = Number(body.dateStart.slice(0, 4));
+                        dateStart = Number(body.dateStart.slice(0, 4));
                     }
                     var monthEnd;
-                    var yearEnd;
+                    var dateEnd;
                     if (body.dateEnd) {
                         monthEnd = Number(body.dateEnd.slice(5, 7)); // January
-                        yearEnd = Number(body.dateEnd.slice(0, 4));
+                        dateEnd = Number(body.dateEnd.slice(0, 4));
                     }
                     let obj = {};
                     let count1 = 0
@@ -366,8 +367,8 @@ module.exports = {
                         obj['array2'] = array2
                         obj['totalRewardPunishment2'] = count2
                         obj['countSalary2'] = countSalary2
-                        obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + yearStart) : ''
-                        obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + yearEnd) : ''
+                        obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + dateStart) : ''
+                        obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + dateEnd) : ''
                     })
                     var result = {
                         obj: obj,
@@ -393,36 +394,54 @@ module.exports = {
             if (db) {
                 try {
                     let arrayResult = []
-                    if (!body.yearEnd) {
+                    let arrayYear = []
+                    if (!body.dateEnd) {
+                        arrayYear.push(body.dateStart ? body.dateStart : '2021')
                         await mtblDMBoPhan(db).findAll().then(async department => {
-                            let array = []
                             for (let d = 0; d < department.length; d++) {
-                                let obj = await numberStaffInYear(db, body.yearStart ? body.yearStart : '2021', department[d].ID)
-                                obj['departmentName'] = department[d].DepartmentName
+                                let array = []
+                                let arrayPercent = []
+                                let total = await numberStaffInYear(db, body.dateStart ? body.dateStart : '2021', null)
+                                let obj = await numberStaffInYear(db, body.dateStart ? body.dateStart : '2021', department[d].ID)
                                 array.push(obj)
+                                arrayPercent.push((obj / (total != 0 ? total : 1)) * 100);
+                                let objResult = {
+                                    data: array,
+                                    dataPercent: arrayPercent,
+                                    label: department[d].DepartmentName ? department[d].DepartmentName : '',
+                                    stack: 'a',
+                                }
+                                console.log(objResult);
+                                arrayResult.push(objResult)
                             }
-                            arrayResult.push({
-                                year: body.yearStart,
-                                array: array
-                            })
+
                         })
                     } else {
-                        for (let y = Number(body.yearStart); y <= Number(body.yearEnd); y++) {
-                            await mtblDMBoPhan(db).findAll().then(async department => {
+                        for (let y = Number(body.dateStart); y <= Number(body.dateEnd); y++) {
+                            arrayYear.push(y)
+                        }
+                        await mtblDMBoPhan(db).findAll().then(async department => {
+                            for (let d = 0; d < department.length; d++) {
                                 let array = []
-                                for (let d = 0; d < department.length; d++) {
+                                let arrayPercent = []
+                                for (let y = Number(body.dateStart); y <= Number(body.dateEnd); y++) {
                                     let obj = await numberStaffInYear(db, y, department[d].ID)
-                                    obj['departmentName'] = department[d].DepartmentName
+                                    let total = await numberStaffInYear(db, y, null)
+                                    arrayPercent.push((obj / (total != 0 ? total : 1)) * 100);
                                     array.push(obj)
                                 }
-                                arrayResult.push({
-                                    year: y,
-                                    array: array
-                                })
-                            })
-                        }
+                                let objResult = {
+                                    data: array,
+                                    dataPercent: arrayPercent,
+                                    label: department[d].DepartmentName ? department[d].DepartmentName : '',
+                                    stack: 'a',
+                                }
+                                arrayResult.push(objResult)
+                            }
+                        })
                     }
                     var result = {
+                        arrayYear: arrayYear,
                         arrayResult: arrayResult,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -446,20 +465,30 @@ module.exports = {
             if (db) {
                 try {
                     let arrayResult = []
+                    let arrayYear = []
                     await mtblLoaiHopDong(db).findAll({
                         order: [
                             ['ID', 'DESC']
                         ],
                     }).then(async contractType => {
-                        if (!body.yearEnd && body.yearStart) {
-                            let array = []
+                        if (!body.dateEnd && body.dateStart) {
+                            arrayYear.push(body.dateStart)
                             for (let c = 0; c < contractType.length; c++) {
+                                let array = []
+                                let arrayPercent = []
                                 let countInForce;
-                                let countExpiredContract;
-                                var date = body.yearStart + '-12-30 07:00:00.000';
+                                var date = body.dateStart + '-12-30 07:00:00.000';
                                 countInForce = await mtblHopDongNhanSu(db).count({
                                     where: {
                                         IDLoaiHopDong: contractType[c].ID,
+                                        Status: 'Có hiệu lực',
+                                        ContractDateStart: { [Op.lte]: date },
+
+                                    }
+                                })
+                                let total = await mtblHopDongNhanSu(db).count({
+                                    where: {
+                                        // IDLoaiHopDong: contractType[c].ID,
                                         Status: 'Có hiệu lực',
                                         ContractDateStart: { [Op.lte]: date },
 
@@ -473,27 +502,38 @@ module.exports = {
 
                                     }
                                 })
-                                array.push({
-                                    contractTypeName: contractType[c].TenLoaiHD ? contractType[c].TenLoaiHD : '',
-                                    contractTypeCode: contractType[c].MaLoaiHD ? contractType[c].MaLoaiHD : '',
-                                    numberOfContractsInForce: countInForce ? countInForce : 0,
-                                    numberOfExpiredContracts: countExpiredContract ? countExpiredContract : 0,
-                                })
+                                array.push(countInForce ? countInForce : 0)
+                                arrayPercent.push((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100)
+                                let objResult = {
+                                    // total: total,
+                                    data: array,
+                                    dataPercent: arrayPercent,
+                                    label: contractType[c].TenLoaiHD ? contractType[c].TenLoaiHD : '',
+                                    stack: 'a',
+                                }
+                                arrayResult.push(objResult)
                             }
-                            arrayResult.push({
-                                year: body.yearStart,
-                                array: array,
-                            })
-                        } else if (body.yearEnd && body.yearStart) {
-                            for (let year = Number(body.yearStart); year <= Number(body.yearEnd); year++) {
+                        } else if (body.dateEnd && body.dateStart) {
+                            for (let year = Number(body.dateStart); year <= Number(body.dateEnd); year++) {
+                                arrayYear.push(year)
+                            }
+                            for (let c = 0; c < contractType.length; c++) {
                                 let array = []
-                                for (let c = 0; c < contractType.length; c++) {
+                                let arrayPercent = []
+                                for (let y = Number(body.dateStart); y <= Number(body.dateEnd); y++) {
                                     let countInForce;
-                                    let countExpiredContract;
-                                    var date = year + '-12-30 07:00:00.000';
+                                    var date = y + '-12-30 07:00:00.000';
                                     countInForce = await mtblHopDongNhanSu(db).count({
                                         where: {
                                             IDLoaiHopDong: contractType[c].ID,
+                                            Status: 'Có hiệu lực',
+                                            ContractDateStart: { [Op.lte]: date },
+
+                                        }
+                                    })
+                                    let total = await mtblHopDongNhanSu(db).count({
+                                        where: {
+                                            // IDLoaiHopDong: contractType[c].ID,
                                             Status: 'Có hiệu lực',
                                             ContractDateStart: { [Op.lte]: date },
 
@@ -507,22 +547,22 @@ module.exports = {
 
                                         }
                                     })
-                                    array.push({
-                                        contractTypeName: contractType[c].TenLoaiHD ? contractType[c].TenLoaiHD : '',
-                                        contractTypeCode: contractType[c].MaLoaiHD ? contractType[c].MaLoaiHD : '',
-                                        numberOfContractsInForce: countInForce ? countInForce : 0,
-                                        numberOfExpiredContracts: countExpiredContract ? countExpiredContract : 0,
-                                    })
+                                    array.push(countInForce ? countInForce : 0)
+                                    arrayPercent.push((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100)
                                 }
-                                arrayResult.push({
-                                    year: year,
-                                    array: array,
-                                })
+                                let objResult = {
+                                    data: array,
+                                    dataPercent: arrayPercent,
+                                    label: contractType[c].TenLoaiHD ? contractType[c].TenLoaiHD : '',
+                                    stack: 'a',
+                                }
+                                arrayResult.push(objResult)
                             }
                         }
 
                     })
                     var result = {
+                        arrayYear: arrayYear,
                         arrayResult: arrayResult,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -547,7 +587,6 @@ module.exports = {
                 try {
                     let arrayResult = []
                     arrayResult = await ctlBangLuong.getDetailSyntheticTimkeeping(db, null, body.dateStart, body.dateEnd)
-                    console.log(arrayResult);
                     var result = {
                         arrayResult: arrayResult,
                         status: Constant.STATUS.SUCCESS,
