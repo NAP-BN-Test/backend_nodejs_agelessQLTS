@@ -605,4 +605,6 @@ module.exports = function (app) {
     app.route('/qlnb/report_types_of_contracts').post(reportHR.reportTypesOfContracts);
     app.route('/qlnb/report_salary_bonus_chart').post(reportHR.reportSalaryAndBonusChart);
     app.route('/qlnb/report_personnel_development').post(reportHR.reportPersonnelDevelopment);
+    app.route('/qlnb/report_types_of_contracts_column_chart').post(reportHR.reportTypesOfContractsColumnChart);
+    app.route('/qlnb/report_time_attendance_summary').post(reportHR.reportTimeAttendanceSummary);
 }

@@ -422,6 +422,131 @@ module.exports = {
                             })
                         }
                     }
+                    var result = {
+                        arrayResult: arrayResult,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+
+    },
+    // report_types_of_contracts_column_chart
+    reportTypesOfContractsColumnChart: async (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let arrayResult = []
+                    await mtblLoaiHopDong(db).findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async contractType => {
+                        if (!body.yearEnd && body.yearStart) {
+                            let array = []
+                            for (let c = 0; c < contractType.length; c++) {
+                                let countInForce;
+                                let countExpiredContract;
+                                var date = body.yearStart + '-12-30 07:00:00.000';
+                                countInForce = await mtblHopDongNhanSu(db).count({
+                                    where: {
+                                        IDLoaiHopDong: contractType[c].ID,
+                                        Status: 'Có hiệu lực',
+                                        ContractDateStart: { [Op.lte]: date },
+
+                                    }
+                                })
+                                countExpiredContract = await mtblHopDongNhanSu(db).count({
+                                    where: {
+                                        IDLoaiHopDong: contractType[c].ID,
+                                        Status: 'Hết hiệu lực',
+                                        ContractDateStart: { [Op.gte]: date },
+
+                                    }
+                                })
+                                array.push({
+                                    contractTypeName: contractType[c].TenLoaiHD ? contractType[c].TenLoaiHD : '',
+                                    contractTypeCode: contractType[c].MaLoaiHD ? contractType[c].MaLoaiHD : '',
+                                    numberOfContractsInForce: countInForce ? countInForce : 0,
+                                    numberOfExpiredContracts: countExpiredContract ? countExpiredContract : 0,
+                                })
+                            }
+                            arrayResult.push({
+                                year: body.yearStart,
+                                array: array,
+                            })
+                        } else if (body.yearEnd && body.yearStart) {
+                            for (let year = Number(body.yearStart); year <= Number(body.yearEnd); year++) {
+                                let array = []
+                                for (let c = 0; c < contractType.length; c++) {
+                                    let countInForce;
+                                    let countExpiredContract;
+                                    var date = year + '-12-30 07:00:00.000';
+                                    countInForce = await mtblHopDongNhanSu(db).count({
+                                        where: {
+                                            IDLoaiHopDong: contractType[c].ID,
+                                            Status: 'Có hiệu lực',
+                                            ContractDateStart: { [Op.lte]: date },
+
+                                        }
+                                    })
+                                    countExpiredContract = await mtblHopDongNhanSu(db).count({
+                                        where: {
+                                            IDLoaiHopDong: contractType[c].ID,
+                                            Status: 'Hết hiệu lực',
+                                            ContractDateStart: { [Op.gte]: date },
+
+                                        }
+                                    })
+                                    array.push({
+                                        contractTypeName: contractType[c].TenLoaiHD ? contractType[c].TenLoaiHD : '',
+                                        contractTypeCode: contractType[c].MaLoaiHD ? contractType[c].MaLoaiHD : '',
+                                        numberOfContractsInForce: countInForce ? countInForce : 0,
+                                        numberOfExpiredContracts: countExpiredContract ? countExpiredContract : 0,
+                                    })
+                                }
+                                arrayResult.push({
+                                    year: year,
+                                    array: array,
+                                })
+                            }
+                        }
+
+                    })
+                    var result = {
+                        arrayResult: arrayResult,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+
+    },
+    // report_time_attendance_summary
+    reportTimeAttendanceSummary: async (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let arrayResult = []
+                    arrayResult = await ctlBangLuong.getDetailSyntheticTimkeeping(db, null, body.dateStart, body.dateEnd)
                     console.log(arrayResult);
                     var result = {
                         arrayResult: arrayResult,
