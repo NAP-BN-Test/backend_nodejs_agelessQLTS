@@ -11,6 +11,7 @@ var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 const Sequelize = require('sequelize');
 var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
 var mModules = require('../constants/modules');
+var mtblTimeAttendanceSummary = require('../tables/hrmanage/tblTimeAttendanceSummary')
 
 let ctlBangLuong = require('./ctl-tblBangLuong')
 
@@ -215,6 +216,61 @@ async function handleYearOrther(monthStart, yearStart, monthEnd, yearEnd, type =
 
     return array
 }
+
+
+
+
+async function getByMonthSyntheticTimkeeping(db, staffID, monthYear, year, type, departmentID = null) {
+    let total = 0;
+    let tblTimeAttendanceSummary = mtblTimeAttendanceSummary(db);
+    tblTimeAttendanceSummary.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
+    let obj = {}
+    if (monthYear) {
+        obj['Month'] = { [Op.substring]: monthYear }
+    } else if (monthYear) {
+        obj['Month'] = { [Op.substring]: year }
+    }
+    if (staffID) {
+        obj['StaffID'] = staffID
+    }
+    if (departmentID) {
+        let staffIDs = []
+        await mtblDMNhanvien(db).findAll({
+            where: { IDBoPhan: departmentID }
+        }).then(data => {
+            data.forEach(item => {
+                staffIDs.push(item.ID)
+            })
+        })
+        obj['StaffID'] = { [Op.in]: staffIDs }
+    }
+    await tblTimeAttendanceSummary.findAll({
+        where: obj,
+        order: [
+            ['ID', 'DESC']
+        ],
+        include: [
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'staff'
+            },
+        ],
+    }).then(data => {
+        data.forEach(item => {
+            if (type == 'LateDay')
+                total += (item.LateDay ? item.LateDay : 0)
+            if (type == 'FreeBreak')
+                total += (item.FreeBreak ? item.FreeBreak : 0)
+            if (type == 'Overtime')
+                total += (item.Overtime ? item.Overtime : 0)
+        })
+    })
+    return total
+}
+
+
+
 module.exports = {
     // report_personnel_structure
     reportPersonnelStructure: async (req, res) => {
@@ -713,9 +769,111 @@ module.exports = {
             if (db) {
                 try {
                     let arrayResult = []
-                    arrayResult = await ctlBangLuong.getDetailSyntheticTimkeeping(db, null, body.dateStart, body.dateEnd)
+                    let arrayMonthYear = []
+                    if (!body.monthEnd && body.monthStart) {
+                        if (body.staffID) {
+                            let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                            let yearStart = Number(body.monthStart.slice(0, 4));
+                            arrayMonthYear.push(await convertNumber(monthStart) + '/' + yearStart)
+                            let array = []
+                            let arrayPercent = []
+                            let staff = await mtblDMNhanvien(db).findOne({
+                                where: { ID: body.staffID }
+                            })
+                            let totalStaff = await getByMonthSyntheticTimkeeping(db, staff.ID, body.monthStart, null, body.type)
+                            let total = await getByMonthSyntheticTimkeeping(db, staff.ID, body.monthStart, null, body.type, null)
+                            array.push(totalStaff)
+                            arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                            let objResult = {
+                                data: array,
+                                dataPercent: arrayPercent,
+                                label: staff ? staff.StaffName : '',
+                                stack: 'a',
+                            }
+                            arrayResult.push(objResult)
+                        } else {
+                            let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                            let yearStart = Number(body.monthStart.slice(0, 4));
+                            arrayMonthYear.push(await convertNumber(monthStart) + '/' + yearStart)
+                            await mtblDMNhanvien(db).findAll({
+                                where: { IDBoPhan: body.departmentID }
+                            }).then(async staff => {
+                                for (let s = 0; s < staff.length; s++) {
+                                    let array = []
+                                    let arrayPercent = []
+                                    let totalStaff = await getByMonthSyntheticTimkeeping(db, staff[s].ID, body.monthStart, null, 'LateDay')
+                                    let total = await getByMonthSyntheticTimkeeping(db, null, body.monthStart, null, 'LateDay', body.departmentID)
+                                    array.push(totalStaff)
+                                    arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    let objResult = {
+                                        data: array,
+                                        dataPercent: arrayPercent,
+                                        label: staff[s] ? staff[s].StaffName : '',
+                                        stack: 'a',
+                                    }
+                                    arrayResult.push(objResult)
+                                }
+                            })
+
+                        }
+                    } else if (body.monthEnd && body.monthStart) {
+                        let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                        let yearStart = Number(body.monthStart.slice(0, 4)); // January
+                        let monthEnd = Number(body.monthEnd.slice(5, 7));
+                        let yearEnd = Number(body.monthEnd.slice(0, 4));
+                        let arrayDistanceMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd)
+                        arrayMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd, 'format')
+                        if (body.staffID) {
+                            let array = []
+                            let arrayPercent = []
+                            for (let month = 0; month < arrayDistanceMonthYear.length; month++) {
+                                let totalStaff = await getByMonthSyntheticTimkeeping(db, body.staffID, arrayDistanceMonthYear[month], null, body.type)
+                                array.push(totalStaff)
+                                arrayPercent.push(100)
+                            }
+                            let staff = await mtblDMNhanvien(db).findOne({
+                                where: { ID: body.staffID }
+                            })
+                            let objResult = {
+                                data: array,
+                                dataPercent: arrayPercent,
+                                label: staff ? staff.StaffName : '',
+                                stack: 'a',
+                            }
+                            arrayResult.push(objResult)
+                        } else {
+                            let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                            let yearStart = Number(body.monthStart.slice(0, 4)); // January
+                            let monthEnd = Number(body.monthEnd.slice(5, 7));
+                            let yearEnd = Number(body.monthEnd.slice(0, 4));
+                            let arrayDistanceMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd)
+                            arrayMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd, 'format')
+                            await mtblDMNhanvien(db).findAll({
+                                where: { IDBoPhan: body.departmentID }
+                            }).then(async staff => {
+                                for (let s = 0; s < staff.length; s++) {
+                                    let array = []
+                                    let arrayPercent = []
+                                    for (let month = 0; month < arrayDistanceMonthYear.length; month++) {
+                                        let totalStaff = await getByMonthSyntheticTimkeeping(db, staff[s].ID, arrayDistanceMonthYear[month], null, body.type)
+                                        let total = await getByMonthSyntheticTimkeeping(db, null, arrayDistanceMonthYear[month], null, body.type, body.departmentID)
+                                        array.push(totalStaff)
+                                        arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    }
+                                    let objResult = {
+                                        data: array,
+                                        dataPercent: arrayPercent,
+                                        label: staff[s].StaffName,
+                                        stack: 'a',
+                                    }
+                                    arrayResult.push(objResult)
+                                }
+                            })
+                        }
+                    }
                     var result = {
                         arrayResult: arrayResult,
+                        arrayMonthYear: arrayMonthYear,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -786,7 +944,7 @@ module.exports = {
                             for (let month = 0; month < arrayDistanceMonthYear.length; month++) {
                                 let totalStaff = await getRewardPunishmentByMonth(db, body.staffID, arrayDistanceMonthYear[month], null)
                                 array.push(totalStaff)
-                                arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                arrayPercent.push(100)
                             }
                             let staff = await mtblDMNhanvien(db).findOne({
                                 where: { ID: body.staffID }
@@ -813,8 +971,7 @@ module.exports = {
                                     let arrayPercent = []
                                     for (let month = 0; month < arrayDistanceMonthYear.length; month++) {
                                         let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, arrayDistanceMonthYear[month], null)
-                                        let total = await getRewardPunishmentByMonth(db, null, arrayDistanceMonthYear[month], body.departmentID)
-                                        console.log(total);
+                                        let total = await getRewardPunishmentByMonth(db, null, arrayDistanceMonthYear[month], null, body.departmentID)
                                         array.push(totalStaff)
                                         arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
                                     }
@@ -860,11 +1017,11 @@ module.exports = {
                         if (body.staffID) {
                             let array = []
                             let arrayPercent = []
-                            for (let year = Number(body.yearStart); year < Number(body.yearEnd); year++) {
+                            for (let year = Number(body.yearStart); year <= Number(body.yearEnd); year++) {
                                 arrayMonthYear.push(year)
                                 let totalStaff = await getRewardPunishmentByMonth(db, body.staffID, null, year)
                                 array.push(totalStaff)
-                                arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                arrayPercent.push(100)
                             }
                             let staff = await mtblDMNhanvien(db).findOne({
                                 where: { ID: body.staffID }
@@ -904,7 +1061,6 @@ module.exports = {
                             })
                         }
                     }
-                    console.log(arrayResult);
                     var result = {
                         arrayResult: arrayResult,
                         arrayMonthYear: arrayMonthYear,
