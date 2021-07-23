@@ -30,32 +30,12 @@ async function totalRewardPunishment(db, month, departmentID) {
             arrayStaff.push(item.ID)
         })
     })
-    let listID = []
     await mtblRewardPunishmentRStaff(db).findAll({
-        where: { StaffID: { [Op.in]: arrayStaff }, }
+        where: { StaffID: { [Op.in]: arrayStaff }, Date: { [Op.substring]: month }, }
     }).then(data => {
         data.forEach(item => {
-            listID.push(item.RewardPunishmentID)
+            total += item.SalaryIncrease
         })
-    })
-    let tblRewardPunishment = mtblRewardPunishment(db);
-    tblRewardPunishment.hasMany(mtblRewardPunishmentRStaff(db), { foreignKey: 'RewardPunishmentID', as: 'rp' })
-    await tblRewardPunishment.findAll({
-        where: {
-            Date: { [Op.substring]: month },
-            ID: { [Op.in]: listID },
-        },
-        include: [
-            {
-                model: mtblRewardPunishmentRStaff(db),
-                required: false,
-                as: 'rp'
-            },
-        ],
-    }).then(data => {
-        for (let r = 0; r < data.length; r++) {
-            total += (data[r].rp.length * data[r].SalaryIncrease)
-        }
     })
     return total
 }
