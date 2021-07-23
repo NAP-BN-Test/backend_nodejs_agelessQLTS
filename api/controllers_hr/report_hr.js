@@ -587,7 +587,7 @@ module.exports = {
                                 let total = await numberStaffInYear(db, body.dateStart ? body.dateStart : '2021', null)
                                 let obj = await numberStaffInYear(db, body.dateStart ? body.dateStart : '2021', department[d].ID)
                                 array.push(obj)
-                                arrayPercent.push((obj / (total != 0 ? total : 1)) * 100);
+                                arrayPercent.push(Math.round((obj / (total != 0 ? total : 1)) * 100));
                                 let objResult = {
                                     data: array,
                                     dataPercent: arrayPercent,
@@ -610,7 +610,7 @@ module.exports = {
                                 for (let y = Number(body.dateStart); y <= Number(body.dateEnd); y++) {
                                     let obj = await numberStaffInYear(db, y, department[d].ID)
                                     let total = await numberStaffInYear(db, y, null)
-                                    arrayPercent.push((obj / (total != 0 ? total : 1)) * 100);
+                                    arrayPercent.push(Math.round((obj / (total != 0 ? total : 1)) * 100));
                                     array.push(obj)
                                 }
                                 let objResult = {
@@ -686,7 +686,7 @@ module.exports = {
                                     }
                                 })
                                 array.push(countInForce ? countInForce : 0)
-                                arrayPercent.push((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100)
+                                arrayPercent.push(Math.round((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100))
                                 let objResult = {
                                     // total: total,
                                     data: array,
@@ -731,7 +731,7 @@ module.exports = {
                                         }
                                     })
                                     array.push(countInForce ? countInForce : 0)
-                                    arrayPercent.push((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100)
+                                    arrayPercent.push(Math.round((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100))
                                 }
                                 let objResult = {
                                     data: array,
@@ -783,7 +783,7 @@ module.exports = {
                             let totalStaff = await getByMonthSyntheticTimkeeping(db, staff.ID, body.monthStart, null, body.type)
                             let total = await getByMonthSyntheticTimkeeping(db, staff.ID, body.monthStart, null, body.type, null)
                             array.push(totalStaff)
-                            arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                            arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                             let objResult = {
                                 data: array,
                                 dataPercent: arrayPercent,
@@ -804,7 +804,7 @@ module.exports = {
                                     let totalStaff = await getByMonthSyntheticTimkeeping(db, staff[s].ID, body.monthStart, null, 'LateDay')
                                     let total = await getByMonthSyntheticTimkeeping(db, null, body.monthStart, null, 'LateDay', body.departmentID)
                                     array.push(totalStaff)
-                                    arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                                     let objResult = {
                                         data: array,
                                         dataPercent: arrayPercent,
@@ -858,7 +858,7 @@ module.exports = {
                                         let totalStaff = await getByMonthSyntheticTimkeeping(db, staff[s].ID, arrayDistanceMonthYear[month], null, body.type)
                                         let total = await getByMonthSyntheticTimkeeping(db, null, arrayDistanceMonthYear[month], null, body.type, body.departmentID)
                                         array.push(totalStaff)
-                                        arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                        arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                                     }
                                     let objResult = {
                                         data: array,
@@ -892,7 +892,6 @@ module.exports = {
     // report_reward_punishment
     reportRewardPunishment: async (req, res) => {
         let body = req.body;
-        console.log(body);
         body = JSON.parse(body.obj)
         database.connectDatabase().then(async db => {
             if (db) {
@@ -919,7 +918,7 @@ module.exports = {
                                     let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, body.monthStart, null)
                                     let total = await getRewardPunishmentByMonth(db, null, body.monthStart, null, body.departmentID)
                                     array.push(totalStaff)
-                                    arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                                     let objResult = {
                                         data: array,
                                         dataPercent: arrayPercent,
@@ -973,7 +972,7 @@ module.exports = {
                                         let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, arrayDistanceMonthYear[month], null)
                                         let total = await getRewardPunishmentByMonth(db, null, arrayDistanceMonthYear[month], null, body.departmentID)
                                         array.push(totalStaff)
-                                        arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                        arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                                     }
                                     let objResult = {
                                         data: array,
@@ -1001,7 +1000,7 @@ module.exports = {
                                     let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, null, body.yearStart)
                                     let total = await getRewardPunishmentByMonth(db, null, null, body.yearStart, body.departmentID)
                                     array.push(totalStaff)
-                                    arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                                     let objResult = {
                                         data: array,
                                         dataPercent: arrayPercent,
@@ -1048,7 +1047,7 @@ module.exports = {
                                         let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, null, year)
                                         let total = await getRewardPunishmentByMonth(db, null, null, year, body.departmentID)
                                         array.push(totalStaff)
-                                        arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                        arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                                     }
                                     let objResult = {
                                         data: array,
