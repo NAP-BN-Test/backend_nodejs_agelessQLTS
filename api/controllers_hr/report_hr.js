@@ -687,19 +687,19 @@ module.exports = {
                             for (let year = Number(body.dateStart); year <= Number(body.dateEnd); year++) {
                                 arrayYear.push(year)
                             }
-                            var date = y + '-12-30 07:00:00.000';
-                            let total = await mtblHopDongNhanSu(db).count({
-                                where: {
-                                    IDLoaiHopDong: { [Op.ne]: null },
-                                    Status: 'Có hiệu lực',
-                                    ContractDateStart: { [Op.lte]: date },
-
-                                }
-                            })
                             for (let c = 0; c < contractType.length; c++) {
                                 let array = []
                                 let arrayPercent = []
                                 for (let y = Number(body.dateStart); y <= Number(body.dateEnd); y++) {
+                                    var date = y + '-12-30 07:00:00.000';
+                                    let total = await mtblHopDongNhanSu(db).count({
+                                        where: {
+                                            IDLoaiHopDong: { [Op.ne]: null },
+                                            Status: 'Có hiệu lực',
+                                            ContractDateStart: { [Op.lte]: date },
+
+                                        }
+                                    })
                                     let countInForce;
                                     countInForce = await mtblHopDongNhanSu(db).count({
                                         where: {
