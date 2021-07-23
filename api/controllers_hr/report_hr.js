@@ -30,12 +30,20 @@ async function totalRewardPunishment(db, month, departmentID) {
             arrayStaff.push(item.ID)
         })
     })
+    let listID = []
+    await mtblRewardPunishmentRStaff(db).findAll({
+        where: { StaffID: { [Op.in]: arrayStaff }, }
+    }).then(data => {
+        data.forEach(item => {
+            listID.push(item.RewardPunishmentID)
+        })
+    })
     let tblRewardPunishment = mtblRewardPunishment(db);
     tblRewardPunishment.hasMany(mtblRewardPunishmentRStaff(db), { foreignKey: 'RewardPunishmentID', as: 'rp' })
     await tblRewardPunishment.findAll({
         where: {
             Date: { [Op.substring]: month },
-            IDStaff: { [Op.in]: arrayStaff },
+            ID: { [Op.in]: listID },
         },
         include: [
             {
@@ -553,6 +561,7 @@ module.exports = {
                         obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + dateStart) : ''
                         obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + dateEnd) : ''
                     })
+                    console.log(obj);
                     var result = {
                         obj: obj,
                         status: Constant.STATUS.SUCCESS,
