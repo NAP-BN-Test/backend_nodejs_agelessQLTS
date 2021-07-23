@@ -788,8 +788,8 @@ module.exports = {
                                 for (let s = 0; s < staff.length; s++) {
                                     let array = []
                                     let arrayPercent = []
-                                    let totalStaff = await getByMonthSyntheticTimkeeping(db, staff[s].ID, body.monthStart, null, 'LateDay')
-                                    let total = await getByMonthSyntheticTimkeeping(db, null, body.monthStart, null, 'LateDay', body.departmentID)
+                                    let totalStaff = await getByMonthSyntheticTimkeeping(db, staff[s].ID, body.monthStart, null, body.type)
+                                    let total = await getByMonthSyntheticTimkeeping(db, null, body.monthStart, null, body.type, body.departmentID)
                                     array.push(totalStaff)
                                     arrayPercent.push(Math.round(totalStaff / (total != 0 ? total : 1) * 100))
                                     let objResult = {
@@ -1046,6 +1046,74 @@ module.exports = {
                                 }
                             })
                         }
+                    }
+                    var result = {
+                        arrayResult: arrayResult,
+                        arrayMonthYear: arrayMonthYear,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+
+    },
+    // report_salary_fund
+    reportSalaryFund: async (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let arrayResult = []
+                    let arrayMonthYear = []
+                    if (!body.dateEnd && body.dateStart) {
+                        arrayMonthYear.push(body.dateStart)
+                        await mtblDMBoPhan(db).findAll().then(async department => {
+                            for (let d = 0; d < department.length; d++) {
+                                let total = 0;
+                                let array = []
+                                for (let month = 1; month < 12; month++) {
+                                    let result = await ctlBangLuong.getDetailPayrollForMonthYear(db, body.dateStart + '-' + await convertNumber(month), department[d].ID)
+                                    total += Number(result.totalFooter.totalRealField)
+                                }
+                                array.push(total)
+                                let objResult = {
+                                    data: array,
+                                    label: department[d].DepartmentName,
+                                    stack: 'a',
+                                }
+                                arrayResult.push(objResult)
+                            }
+                        })
+                    } else if (body.dateEnd && body.dateStart) {
+                        arrayMonthYear.push(body.dateStart)
+                        arrayMonthYear.push(body.dateEnd)
+                        await mtblDMBoPhan(db).findAll().then(async department => {
+                            for (let d = 0; d < department.length; d++) {
+                                let array = []
+                                for (let year = Number(body.dateStart); year <= Number(body.dateEnd); year++) {
+                                    let total = 0;
+                                    for (let month = 1; month < 12; month++) {
+                                        let result = await ctlBangLuong.getDetailPayrollForMonthYear(db, year + '-' + await convertNumber(month), department[d].ID)
+                                        total += Number(result.totalFooter.totalRealField)
+                                    }
+                                    array.push(total)
+                                }
+                                let objResult = {
+                                    data: array,
+                                    label: department[d].DepartmentName,
+                                    stack: 'a',
+                                }
+                                arrayResult.push(objResult)
+                            }
+                        })
                     }
                     var result = {
                         arrayResult: arrayResult,

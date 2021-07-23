@@ -2451,7 +2451,7 @@ async function getMinWageConfig(db, year, month) {
             }
         }
     }).then(data => {
-        minimumWage = data.MinimumWage
+        minimumWage = data ? data.MinimumWage : 1
     })
     return minimumWage
 }
