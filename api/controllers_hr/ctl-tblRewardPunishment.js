@@ -175,6 +175,8 @@ module.exports = {
                                 await mtblRewardPunishmentRStaff(db).create({
                                     StaffID: body.staffID[staff].id,
                                     RewardPunishmentID: data.ID,
+                                    Date: data.Date,
+                                    SalaryIncrease: data.SalaryIncrease,
                                 })
                             }
 
@@ -211,10 +213,25 @@ module.exports = {
                         await mtblRewardPunishmentRStaff(db).destroy({ where: { RewardPunishmentID: body.id, } })
 
                         for (let staff = 0; staff < body.staffID.length; staff++) {
-                            await mtblRewardPunishmentRStaff(db).create({
+                            let objCreate = {
                                 StaffID: body.staffID[staff].id,
                                 RewardPunishmentID: body.id,
+                            }
+                            let rewardPunishment = await mtblRewardPunishment(db).findOne({
+                                where: { ID: body.id }
                             })
+                            if (body.date || body.date === '') {
+                                objCreate['Date'] = body.date
+                            } else {
+                                objCreate['Date'] = rewardPunishment.Date
+
+                            }
+                            if (body.amountMoney) {
+                                objCreate['SalaryIncrease'] = body.amountMoney
+                            } else {
+                                objCreate['SalaryIncrease'] = rewardPunishment.SalaryIncrease
+                            }
+                            await mtblRewardPunishmentRStaff(db).create(objCreate)
                         }
                     }
                     if (body.idStaff || body.idStaff === '') {

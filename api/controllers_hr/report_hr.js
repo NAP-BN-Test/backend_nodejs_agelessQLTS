@@ -10,6 +10,7 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 const Sequelize = require('sequelize');
 var mtblLoaiHopDong = require('../tables/hrmanage/tblLoaiHopDong')
+var mModules = require('../constants/modules');
 
 let ctlBangLuong = require('./ctl-tblBangLuong')
 
@@ -88,6 +89,132 @@ async function numberStaffInYear(db, year, departmentID) {
     return arrayStaff.length
 }
 
+async function getRewardPunishmentByMonth(db, staffID, monthYear, year, departmentID = null) {
+    let total = 0;
+    let tblRewardPunishmentRStaff = mtblRewardPunishmentRStaff(db);
+    tblRewardPunishmentRStaff.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
+    let obj = {}
+    if (monthYear) {
+        obj['Date'] = { [Op.substring]: monthYear }
+    } else if (monthYear) {
+        obj['Date'] = { [Op.substring]: year }
+    }
+    if (staffID) {
+        obj['StaffID'] = staffID
+    }
+    if (departmentID) {
+        let staffIDs = []
+        await mtblDMNhanvien(db).findAll({
+            where: { IDBoPhan: departmentID }
+        }).then(data => {
+            data.forEach(item => {
+                staffIDs.push(item.ID)
+            })
+        })
+        obj['StaffID'] = { [Op.in]: staffIDs }
+    }
+    await tblRewardPunishmentRStaff.findAll({
+        where: obj,
+        include: [
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'staff'
+            },
+        ],
+    }).then(data => {
+        data.forEach(item => {
+            total += (item.SalaryIncrease ? item.SalaryIncrease : 0)
+        })
+    })
+    return total
+}
+
+async function getObjDetailStaffFollowTime(db, staffID, date, year) {
+    let objResult = {}
+    let staff = await mtblDMNhanvien(db).findOne({
+        where: { ID: staffID }
+    })
+    let totalStaff = await getRewardPunishmentByMonth(db, staffID, date, year)
+    let array = []
+    array.push(totalStaff)
+    let arrayPercent = [100]
+    objResult = {
+        data: array,
+        dataPercent: arrayPercent,
+        label: staff ? staff.StaffName : '',
+        stack: 'a',
+    }
+    return objResult
+}
+async function convertNumber(number) {
+    if (number < 10) {
+        return '0' + number
+    } else
+        return number
+}
+
+async function handleYearOrther(monthStart, yearStart, monthEnd, yearEnd, type = 'query') {
+    let array = []
+    let yearDifference = yearEnd - yearStart
+    if (type == 'query') {
+        if (yearDifference <= 0) {
+            for (let month = monthStart; month <= monthEnd; month++) {
+                array.push(yearStart + '-' + await convertNumber(month))
+            }
+        } else {
+            if (yearDifference == 1) {
+                for (let month = monthStart; month <= 12; month++) {
+                    array.push(yearStart + '-' + await convertNumber(month))
+                }
+                for (let month = 1; month <= monthEnd; month++) {
+                    array.push(yearEnd + '-' + await convertNumber(month))
+                }
+            } else {
+                for (let month = monthStart; month <= 12; month++) {
+                    array.push(yearStart + '-' + await convertNumber(month))
+                }
+                for (let year = 1; year <= yearDifference - 1; year++) {
+                    for (let month = 1; month <= 12; month++) {
+                        array.push((yearStart + year) + '-' + await convertNumber(month))
+                    }
+                }
+                for (let month = 1; month <= monthEnd; month++) {
+                    array.push(yearEnd + '-' + await convertNumber(month))
+                }
+            }
+        }
+    } else {
+        if (yearDifference <= 0) {
+            for (let month = monthStart; month <= monthEnd; month++) {
+                array.push(await convertNumber(month) + '/' + yearStart)
+            }
+        } else {
+            if (yearDifference == 1) {
+                for (let month = monthStart; month <= 12; month++) {
+                    array.push(await convertNumber(month) + '/' + yearStart)
+                }
+                for (let month = 1; month <= monthEnd; month++) {
+                    array.push(await convertNumber(month) + '/' + yearEnd)
+                }
+            } else {
+                for (let month = monthStart; month <= 12; month++) {
+                    array.push(await convertNumber(month) + '/' + yearStart)
+                }
+                for (let year = 1; year <= yearDifference - 1; year++) {
+                    for (let month = 1; month <= 12; month++) {
+                        array.push(await convertNumber(month) + '/' + (yearStart + year))
+                    }
+                }
+                for (let month = 1; month <= monthEnd; month++) {
+                    array.push(await convertNumber(month) + '/' + yearEnd)
+                }
+            }
+        }
+    }
+
+    return array
+}
 module.exports = {
     // report_personnel_structure
     reportPersonnelStructure: async (req, res) => {
@@ -589,6 +716,198 @@ module.exports = {
                     arrayResult = await ctlBangLuong.getDetailSyntheticTimkeeping(db, null, body.dateStart, body.dateEnd)
                     var result = {
                         arrayResult: arrayResult,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+
+    },
+    // report_reward_punishment
+    reportRewardPunishment: async (req, res) => {
+        let body = req.body;
+        console.log(body);
+        body = JSON.parse(body.obj)
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let arrayResult = []
+                    let arrayMonthYear = []
+                    if (!body.monthEnd && body.monthStart) {
+                        if (body.staffID) {
+                            let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                            let yearStart = Number(body.monthStart.slice(0, 4));
+                            arrayMonthYear.push(await convertNumber(monthStart) + '/' + yearStart)
+                            let objResult = await getObjDetailStaffFollowTime(db, body.staffID, body.monthStart, null)
+                            arrayResult.push(objResult)
+                        } else {
+                            let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                            let yearStart = Number(body.monthStart.slice(0, 4));
+                            arrayMonthYear.push(await convertNumber(monthStart) + '/' + yearStart)
+                            await mtblDMNhanvien(db).findAll({
+                                where: { IDBoPhan: body.departmentID }
+                            }).then(async staff => {
+                                for (let s = 0; s < staff.length; s++) {
+                                    let array = []
+                                    let arrayPercent = []
+                                    let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, body.monthStart, null)
+                                    let total = await getRewardPunishmentByMonth(db, null, body.monthStart, null, body.departmentID)
+                                    array.push(totalStaff)
+                                    arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    let objResult = {
+                                        data: array,
+                                        dataPercent: arrayPercent,
+                                        label: staff[s] ? staff[s].StaffName : '',
+                                        stack: 'a',
+                                    }
+                                    arrayResult.push(objResult)
+                                }
+                            })
+
+                        }
+                    } else if (body.monthEnd && body.monthStart) {
+                        let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                        let yearStart = Number(body.monthStart.slice(0, 4)); // January
+                        let monthEnd = Number(body.monthEnd.slice(5, 7));
+                        let yearEnd = Number(body.monthEnd.slice(0, 4));
+                        let arrayDistanceMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd)
+                        arrayMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd, 'format')
+                        if (body.staffID) {
+                            let array = []
+                            let arrayPercent = []
+                            for (let month = 0; month < arrayDistanceMonthYear.length; month++) {
+                                let totalStaff = await getRewardPunishmentByMonth(db, body.staffID, arrayDistanceMonthYear[month], null)
+                                array.push(totalStaff)
+                                arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                            }
+                            let staff = await mtblDMNhanvien(db).findOne({
+                                where: { ID: body.staffID }
+                            })
+                            let objResult = {
+                                data: array,
+                                dataPercent: arrayPercent,
+                                label: staff ? staff.StaffName : '',
+                                stack: 'a',
+                            }
+                            arrayResult.push(objResult)
+                        } else {
+                            let monthStart = Number(body.monthStart.slice(5, 7)); // January
+                            let yearStart = Number(body.monthStart.slice(0, 4)); // January
+                            let monthEnd = Number(body.monthEnd.slice(5, 7));
+                            let yearEnd = Number(body.monthEnd.slice(0, 4));
+                            let arrayDistanceMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd)
+                            arrayMonthYear = await handleYearOrther(monthStart, yearStart, monthEnd, yearEnd, 'format')
+                            await mtblDMNhanvien(db).findAll({
+                                where: { IDBoPhan: body.departmentID }
+                            }).then(async staff => {
+                                for (let s = 0; s < staff.length; s++) {
+                                    let array = []
+                                    let arrayPercent = []
+                                    for (let month = 0; month < arrayDistanceMonthYear.length; month++) {
+                                        let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, arrayDistanceMonthYear[month], null)
+                                        let total = await getRewardPunishmentByMonth(db, null, arrayDistanceMonthYear[month], body.departmentID)
+                                        console.log(total);
+                                        array.push(totalStaff)
+                                        arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    }
+                                    let objResult = {
+                                        data: array,
+                                        dataPercent: arrayPercent,
+                                        label: staff[s].StaffName,
+                                        stack: 'a',
+                                    }
+                                    arrayResult.push(objResult)
+                                }
+                            })
+                        }
+                    } else if (!body.yearEnd && body.yearStart) {
+                        if (body.staffID) {
+                            arrayMonthYear.push(body.yearStart)
+                            let objResult = await getObjDetailStaffFollowTime(db, body.staffID, null, body.yearStart)
+                            arrayResult.push(objResult)
+                        } else {
+                            arrayMonthYear.push(body.yearStart)
+                            await mtblDMNhanvien(db).findAll({
+                                where: { IDBoPhan: body.departmentID }
+                            }).then(async staff => {
+                                for (let s = 0; s < staff.length; s++) {
+                                    let array = []
+                                    let arrayPercent = []
+                                    let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, null, body.yearStart)
+                                    let total = await getRewardPunishmentByMonth(db, null, null, body.yearStart, body.departmentID)
+                                    array.push(totalStaff)
+                                    arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    let objResult = {
+                                        data: array,
+                                        dataPercent: arrayPercent,
+                                        label: staff[s] ? staff[s].StaffName : '',
+                                        stack: 'a',
+                                    }
+                                    arrayResult.push(objResult)
+                                }
+                            })
+
+                        }
+                    } else if (body.yearEnd && body.yearStart) {
+                        if (body.staffID) {
+                            let array = []
+                            let arrayPercent = []
+                            for (let year = Number(body.yearStart); year < Number(body.yearEnd); year++) {
+                                arrayMonthYear.push(year)
+                                let totalStaff = await getRewardPunishmentByMonth(db, body.staffID, null, year)
+                                array.push(totalStaff)
+                                arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                            }
+                            let staff = await mtblDMNhanvien(db).findOne({
+                                where: { ID: body.staffID }
+                            })
+                            let objResult = {
+                                data: array,
+                                dataPercent: arrayPercent,
+                                label: staff ? staff.StaffName : '',
+                                stack: 'a',
+                            }
+                            arrayResult.push(objResult)
+                        } else {
+                            await mtblDMNhanvien(db).findAll({
+                                where: { IDBoPhan: body.departmentID }
+                            }).then(async staff => {
+                                for (let year = Number(body.yearStart); year <= Number(body.yearEnd); year++) {
+                                    arrayMonthYear.push(year)
+
+                                }
+                                for (let s = 0; s < staff.length; s++) {
+                                    let array = []
+                                    let arrayPercent = []
+                                    for (let year = Number(body.yearStart); year <= Number(body.yearEnd); year++) {
+                                        let totalStaff = await getRewardPunishmentByMonth(db, staff[s].ID, null, year)
+                                        let total = await getRewardPunishmentByMonth(db, null, null, year, body.departmentID)
+                                        array.push(totalStaff)
+                                        arrayPercent.push(totalStaff / (total != 0 ? total : 1) * 100)
+                                    }
+                                    let objResult = {
+                                        data: array,
+                                        dataPercent: arrayPercent,
+                                        label: staff[s].StaffName,
+                                        stack: 'a',
+                                    }
+                                    arrayResult.push(objResult)
+                                }
+                            })
+                        }
+                    }
+                    console.log(arrayResult);
+                    var result = {
+                        arrayResult: arrayResult,
+                        arrayMonthYear: arrayMonthYear,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
