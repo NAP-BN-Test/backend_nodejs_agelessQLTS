@@ -142,7 +142,6 @@ module.exports = {
     // add_tbl_reward_punishment
     addtblRewardPunishment: (req, res) => {
         let body = req.body;
-        console.log(body);
         body.staffID = JSON.parse(body.staffID)
         database.connectDatabase().then(async db => {
             if (db) {
@@ -203,7 +202,6 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    console.log(body);
                     if (body.fileAttach) {
                         body.fileAttach = JSON.parse(body.fileAttach)
                         await mModules.updateForFileAttach(db, 'IDRewardPunishment', body.fileAttach, body.id)
