@@ -105,7 +105,7 @@ async function getRewardPunishmentByMonth(db, staffID, monthYear, year, departme
     let obj = {}
     if (monthYear) {
         obj['Date'] = { [Op.substring]: monthYear }
-    } else if (monthYear) {
+    } else if (year) {
         obj['Date'] = { [Op.substring]: year }
     }
     if (staffID) {
@@ -304,7 +304,7 @@ module.exports = {
                             }).then(async staff => {
                                 let count = 0
                                 if (body.dateStart) {
-                                    var date = body.dateStart + '-01 07:00:00.000';
+                                    var date = body.dateStart + '-30 07:00:00.000';
                                     for (let s = 0; s < staff.length; s++) {
                                         await mtblHopDongNhanSu(db).findOne({
                                             where: {
@@ -328,7 +328,7 @@ module.exports = {
                                     count1 += count
                                 }
                                 if (body.dateEnd) {
-                                    var dateEnd = body.dateEnd + '-01 07:00:00.000';
+                                    var dateEnd = body.dateEnd + '-30 07:00:00.000';
                                     for (let s = 0; s < staff.length; s++) {
                                         await mtblHopDongNhanSu(db).findOne({
                                             where: {
@@ -561,7 +561,6 @@ module.exports = {
                         obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + dateStart) : ''
                         obj['dateEnd'] = body.dateEnd ? (await convertNumber(monthEnd) + '/' + dateEnd) : ''
                     })
-                    console.log(obj);
                     var result = {
                         obj: obj,
                         status: Constant.STATUS.SUCCESS,
@@ -603,7 +602,6 @@ module.exports = {
                                     label: department[d].DepartmentName ? department[d].DepartmentName : '',
                                     stack: 'a',
                                 }
-                                console.log(objResult);
                                 arrayResult.push(objResult)
                             }
 
@@ -665,22 +663,22 @@ module.exports = {
                     }).then(async contractType => {
                         if (!body.dateEnd && body.dateStart) {
                             arrayYear.push(body.dateStart)
+                            var date = body.dateStart + '-12-30 07:00:00.000';
+                            let total = await mtblHopDongNhanSu(db).count({
+                                where: {
+                                    IDLoaiHopDong: { [Op.ne]: null },
+                                    Status: 'Có hiệu lực',
+                                    ContractDateStart: { [Op.lte]: date },
+
+                                }
+                            })
                             for (let c = 0; c < contractType.length; c++) {
                                 let array = []
                                 let arrayPercent = []
                                 let countInForce;
-                                var date = body.dateStart + '-12-30 07:00:00.000';
                                 countInForce = await mtblHopDongNhanSu(db).count({
                                     where: {
                                         IDLoaiHopDong: contractType[c].ID,
-                                        Status: 'Có hiệu lực',
-                                        ContractDateStart: { [Op.lte]: date },
-
-                                    }
-                                })
-                                let total = await mtblHopDongNhanSu(db).count({
-                                    where: {
-                                        // IDLoaiHopDong: contractType[c].ID,
                                         Status: 'Có hiệu lực',
                                         ContractDateStart: { [Op.lte]: date },
 
