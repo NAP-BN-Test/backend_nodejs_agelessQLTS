@@ -2369,7 +2369,7 @@ module.exports = {
                 else
                     row = i + 5
                 checkMaxRow += 1;
-                ws.cell(row, 1).number(stt).style(stylecellNumber)
+                ws.cell(row, 1).number(stt).style(stylecell)
                 ws.cell(row, 2).string(data[i].departmentName).style(stylecell)
                 ws.cell(row, 3).string(data[i].staffCode).style(stylecell)
                 ws.cell(row, 4).string(data[i].staffName).style(stylecell)
