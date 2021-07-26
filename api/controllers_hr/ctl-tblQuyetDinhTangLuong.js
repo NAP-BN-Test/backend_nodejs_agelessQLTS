@@ -110,6 +110,7 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id) {
                 }).then(data => {
                     productivityWages = data[0].staff ? data[0].staff.ProductivityWages : 0
                     obj = {
+                        id: data[0].StaffID ? data[0].StaffID : null,
                         staffName: data[0].staff ? data[0].staff.StaffName : '',
                         staffCode: data[0].staff ? data[0].staff.StaffCode : '',
                         productivityWages: data[0].staff ? data[0].staff.ProductivityWages : 0,

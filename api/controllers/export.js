@@ -2307,6 +2307,12 @@ module.exports = {
         ]
         var month = Number(body.dateStart.slice(5, 7));
         var year = Number(body.dateStart.slice(0, 4));
+        let monthEnd;
+        let yearEnd;
+        if (body.dateEnd) {
+            monthEnd = Number(body.dateEnd.slice(5, 7));
+            yearEnd = Number(body.dateEnd.slice(0, 4));
+        }
         try {
             var ws = wb.addWorksheet('Sheet 1');
             var row = 1
