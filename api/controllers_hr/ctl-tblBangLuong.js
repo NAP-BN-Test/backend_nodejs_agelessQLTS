@@ -2855,7 +2855,6 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
                 bhtnCTTotal += (bhxhSalary * objInsurance['companyBHTN'] / 100)
                 bhtnldTotal += (bhxhSalary * objInsurance['staffBHTNLD'] / 100)
                 let total = bhxhSalary * (objInsurance['companyBHXH'] + objInsurance['staffBHXH'] + objInsurance['companyBHYT'] + objInsurance['staffBHYT'] + objInsurance['staffBHTN'] + objInsurance['companyBHTN'] + objInsurance['staffBHTNLD']) / 100
-                tongTotal += total
                 if (dateString) {
                     console.log(Number(dateString.slice(5, 7)) - 1, Number(dateResponse.slice(5, 7)));
                     if (Number(dateString.slice(5, 7)) - 1 > Number(dateResponse.slice(5, 7)))
@@ -3310,9 +3309,7 @@ module.exports = {
                     }
                     let result = {}
                     if (body.dateEnd) {
-                        console.log(body.dateStart);
                         let arrayMonth = await applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd)
-                        console.log(arrayMonth);
                         for (let my = 0; my < arrayMonth.length; my += 2) {
                             let nextMonth = null
                             if (arrayMonth[my + 1])

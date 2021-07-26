@@ -348,7 +348,6 @@ module.exports = {
                         monthEnd = Number(body.dateEnd.slice(5, 7)); // January
                         dateEnd = Number(body.dateEnd.slice(0, 4));
                     }
-
                     obj['array1'] = array1
                     obj['count1'] = count1
                     obj['dateStart'] = body.dateStart ? (await convertNumber(monthStart) + '/' + dateStart) : ''
