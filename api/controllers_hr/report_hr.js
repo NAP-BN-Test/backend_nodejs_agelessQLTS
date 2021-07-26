@@ -1114,6 +1114,22 @@ module.exports = {
                             }
                         })
                     }
+                    let total = []
+                    let length = arrayResult[0].data.length ? arrayResult[0].data.length : 0
+                    for (let d = 0; d < length; d++) {
+                        let totalNumber = 0
+                        for (let a = 0; a < arrayResult.length; a++) {
+                            totalNumber += arrayResult[a].data[d]
+                        }
+                        total.push(totalNumber)
+                    }
+                    for (let d = 0; d < arrayResult.length; d++) {
+                        let dataPercent = []
+                        for (let i = 0; i < arrayResult[d].data.length; i++) {
+                            dataPercent.push((arrayResult[d].data[i] / total[i] * 100) ? (Math.round((arrayResult[d].data[i] / total[i] * 100) * 100) / 100) : 0)
+                        }
+                        arrayResult[d]['dataPercent'] = dataPercent
+                    }
                     var result = {
                         arrayResult: arrayResult,
                         arrayMonthYear: arrayMonthYear,
