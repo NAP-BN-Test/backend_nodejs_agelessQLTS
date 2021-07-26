@@ -575,9 +575,9 @@ module.exports = {
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
-                                        id: item.staff.ID,
-                                        staffName: item.staff.StaffName,
-                                        staffCode: item.staff.StaffCode,
+                                        id: item.staff ? item.staff.ID : null,
+                                        staffName: item.staff ? item.staff.StaffName : '',
+                                        staffCode: item.staff ? item.staff.StaffCode : '',
                                         productivityWages: item.staff ? item.staff.ProductivityWages : 0,
                                     })
                                 })

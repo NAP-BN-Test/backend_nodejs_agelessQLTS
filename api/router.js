@@ -406,7 +406,7 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.addtblQuyetDinhTangLuong);
     app.route('/qlnb/update_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.updatetblQuyetDinhTangLuong);
     app.route('/qlnb/delete_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.deletetblQuyetDinhTangLuong);
-    app.route('/qlnb/get_list_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.getListtblQuyetDinhTangLuong);
+    // app.route('/qlnb/get_list_tbl_quyetdinh_tangluong').post(checkToken.checkToken, tblQuyetDinhTangLuong.getListtblQuyetDinhTangLuong);
     //---------------------------------------------------------------- Quyết định thưởng/phạt --------------------------------------------------------------------------------------
     var tblRewardPunishment = require('./controllers_hr/ctl-tblRewardPunishment');
     app.route('/qlnb/add_tbl_reward_punishment').post(checkToken.checkToken, tblRewardPunishment.addtblRewardPunishment);
