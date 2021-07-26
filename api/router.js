@@ -39,6 +39,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/export_tofile_excel_insurance_premiums').post(exportPDF.exportToFileExcelInsutancePremiums);
 
+    app.route('/qlnb/export_excel_synthetic_timekeeping').post(exportPDF.exportToFileExcelSyntheticTimekeeping);
+
     app.route('/qlnb/export_excel_Detail_YCMS').post(exportPDF.exportExcelInDetailYCMS);
 
     app.route('/qlnb/convert_base64_img').post(exportPDF.converBase64ToImg);

@@ -1158,8 +1158,6 @@ module.exports = {
                     // dùng để check bản ghi chiếm nhiều nhất bao nhiêu dòng
                     var checkMaxRow = 1;
                     for (let i = 0; i < data.length; i++) {
-
-                        var max = 1;
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
                             row = checkMaxRow + 4
@@ -1486,7 +1484,7 @@ module.exports = {
             }
         })
     },
-    // export_to_file_excel_payroll
+    // export_to_file_excel_timekeeping
     exportToFileExcelTimekeeping: (req, res) => {
 
     },
@@ -2151,5 +2149,251 @@ module.exports = {
             res.json(result);
         }, 500);
 
+    },
+
+
+    //  tổng hợp chấm công
+    // export_excel_synthetic_timekeeping
+    exportToFileExcelSyntheticTimekeeping: async (req, res) => {
+        var wb = new xl.Workbook();
+        // Create a reusable style
+        var styleHearder = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var styleHearderNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 14,
+                bold: true,
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecell = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'center',
+                // Dọc
+                vertical: 'center',
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        var stylecellNumber = wb.createStyle({
+            font: {
+                // color: '#FF0800',
+                size: 13,
+                bold: false,
+            },
+            alignment: {
+                wrapText: true,
+                // ngang
+                horizontal: 'right',
+                // Dọc
+                vertical: 'center',
+            },
+            border: {
+                left: {
+                    style: 'thin',
+                    color: '#000000' // HTML style hex value
+                },
+                right: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                top: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+                bottom: {
+                    style: 'thin',
+                    color: '#000000'
+                },
+            },
+            // numberFormat: '$#,##0.00; ($#,##0.00); -',
+        });
+        let body = req.body;
+        var row = 0;
+        var checkMaxRow = 1;
+        let data = JSON.parse(body.data);
+        let arrayHeader = [
+            'STT',
+            'BỘ PHẬN',
+            'MÃ NHÂN VIÊN',
+            'TÊN NHÂN VIÊN',
+            'TỒN PHÉP THÁNG TRƯỚC',
+            'NGÀY LÀM THÊM',
+            'NGÀY VỀ SỚM, ĐI MUỘN',
+            'NGÀY NGHỈ PHÉP',
+            'NGHỈ KHÔNG LƯƠNG',
+            'PHÉP CÒN LẠI',
+        ]
+        var month = Number(body.dateStart.slice(5, 7));
+        var year = Number(body.dateStart.slice(0, 4));
+        try {
+            var ws = wb.addWorksheet('Sheet 1');
+            var row = 1
+            ws.column(row).setWidth(5);
+            let strFile = '';
+            let department;
+            let strDepartment = ''
+            if (body.departmentID) {
+                await database.connectDatabase().then(async db => {
+                    department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                    strDepartment = ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                })
+            }
+            let str = ''
+            if (!body.dateEnd) {
+                if (!body.departmentID) {
+                    strFile = 'Bảng tổng hợp chấm công ' + month + '.' + year + '.xlsx'
+                    str = 'BẢNG TỔNG HỢP CHẤM CÔNG ' + month + '.' + year + strDepartment;
+                } else {
+                    await database.connectDatabase().then(async db => {
+                        if (db) {
+                            let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            strFile = 'Bảng tổng hợp chấm công ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP CHẤM CÔNG ' + month + '.' + year + strDepartment;
+                        }
+                    })
+                }
+            } else {
+                if (!body.departmentID) {
+                    strFile = 'Bảng tổng hợp chấm công ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + '.xlsx'
+                } else {
+                    await database.connectDatabase().then(async db => {
+                        if (db) {
+                            let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            strFile = 'Bảng tổng hợp chấm công ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+                            str = 'BẢNG TỔNG HỢP CHẤM CÔNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + strDepartment;
+                        }
+                    })
+                }
+
+            }
+            ws.cell(1, 1, 1, 10, true)
+                .string(str)
+                .style(styleHearder);
+            arrayHeader.forEach(element => {
+                ws.cell(4, row)
+                    .string(element)
+                    .style(styleHearder);
+                row += 1
+                ws.column(row).setWidth(20);
+            });
+            let stt = 1;
+            for (let i = 0; i < data.length; i++) {
+
+                var max = 1;
+                // Hàng lớn nhất của bản ghi trước
+                if (i > 0)
+                    row = checkMaxRow + 4
+                // bản ghi đầu tiên
+                else
+                    row = i + 5
+                checkMaxRow += 1;
+                ws.cell(row, 1).number(stt).style(stylecellNumber)
+                ws.cell(row, 2).string(data[i].departmentName).style(stylecell)
+                ws.cell(row, 3).string(data[i].staffCode).style(stylecell)
+                ws.cell(row, 4).string(data[i].staffName).style(stylecell)
+                ws.cell(row, 5).number(data[i].remainingPreviousYear).style(stylecellNumber)
+                ws.cell(row, 6).number(data[i].overtime).style(stylecellNumber)
+                ws.cell(row, 7).number(data[i].lateDay).style(stylecellNumber)
+                ws.cell(row, 8).number(data[i].numberHoliday).style(stylecellNumber)
+                ws.cell(row, 9).number(data[i].freeBreak).style(stylecellNumber)
+                ws.cell(row, 10).number(data[i].remaining).style(stylecellNumber)
+                stt += 1
+            }
+            await wb.write('D:/images_services/ageless_sendmail/' + strFile);
+            setTimeout(() => {
+                var result = {
+                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            }, 500);
+
+        } catch (error) {
+            console.log(error);
+            res.json(Result.SYS_ERROR_RESULT)
+        }
     },
 }
