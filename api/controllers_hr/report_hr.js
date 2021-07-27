@@ -574,7 +574,8 @@ module.exports = {
                                 let total = await numberStaffInYear(db, body.dateStart ? body.dateStart : '2021', null)
                                 let obj = await numberStaffInYear(db, body.dateStart ? body.dateStart : '2021', department[d].ID)
                                 array.push(obj)
-                                arrayPercent.push(Math.round((obj / (total != 0 ? total : 1)) * 100));
+                                total = (total != 0 ? total : 1)
+                                arrayPercent.push(Math.round((obj / total) * 10000) / 100);
                                 let objResult = {
                                     data: array,
                                     dataPercent: arrayPercent,
@@ -596,7 +597,8 @@ module.exports = {
                                 for (let y = Number(body.dateStart); y <= Number(body.dateEnd); y++) {
                                     let obj = await numberStaffInYear(db, y, department[d].ID)
                                     let total = await numberStaffInYear(db, y, null)
-                                    arrayPercent.push(Math.round((obj / (total != 0 ? total : 1)) * 100));
+                                    total = (total != 0 ? total : 1)
+                                    arrayPercent.push(Math.round((obj / total) * 10000) / 100);
                                     array.push(obj)
                                 }
                                 let objResult = {
@@ -672,7 +674,7 @@ module.exports = {
                                     }
                                 })
                                 array.push(countInForce ? countInForce : 0)
-                                arrayPercent.push(Math.round((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100))
+                                arrayPercent.push(Math.round(countInForce / (total != 0 ? total : 1) * 10000) / 100)
                                 let objResult = {
                                     // total: total,
                                     data: array,
@@ -717,7 +719,7 @@ module.exports = {
                                         }
                                     })
                                     array.push(countInForce ? countInForce : 0)
-                                    arrayPercent.push(Math.round((countInForce / (total != 0 ? total : 1)).toFixed(4) * 100))
+                                    arrayPercent.push(Math.round(countInForce / (total != 0 ? total : 1) * 10000) / 100)
                                 }
                                 let objResult = {
                                     data: array,
