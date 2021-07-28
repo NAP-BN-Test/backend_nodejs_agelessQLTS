@@ -1393,6 +1393,7 @@ module.exports = {
         var styleHearderN = wb.createStyle(styleHearderNumber);
         var stylecellT = wb.createStyle(styleCellText);
         var stylecellN = wb.createStyle(stylecellNumber);
+        var styleHearderTitle = wb.createStyle(styleHearderTitle);
         let body = req.body;
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
@@ -1460,7 +1461,7 @@ module.exports = {
                     }
                     ws.cell(1, 1, 1, 15, true)
                         .string('BẢNG TỔNG HỢP LƯƠNG')
-                        .style(styleHearderT);
+                        .style(styleHearderTitle);
                     ws.cell(3, 6, 3, 8, true)
                         .string(strMonth)
                         .style(stylecellT);
@@ -2117,6 +2118,7 @@ module.exports = {
         var styleHearderN = wb.createStyle(styleHearderNumber);
         var stylecellT = wb.createStyle(styleCellText);
         var stylecellN = wb.createStyle(stylecellNumber);
+        var styleHearderTitle = wb.createStyle(styleHearderTitle);
         let body = req.body;
         var row = 0;
         var checkMaxRow = 1;
@@ -2187,7 +2189,7 @@ module.exports = {
             }
             ws.cell(1, 1, 1, 10, true)
                 .string('BẢNG TỔNG HỢP CHẤM CÔNG')
-                .style(styleHearderT);
+                .style(styleHearderTitle);
             ws.cell(3, 3, 3, 5, true)
                 .string(strMonth)
                 .style(stylecellT);
