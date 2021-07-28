@@ -2221,7 +2221,7 @@ module.exports = {
                 ws.cell(row, 10).number(data[i].remaining).style(stylecellT)
                 stt += 1
             }
-            await wb.write('D:/images_services/ageless_sendmail/' + strFile);
+            await wb.write('C:/images_services/ageless_sendmail/' + strFile);
             setTimeout(() => {
                 var result = {
                     link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
