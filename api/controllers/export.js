@@ -11,7 +11,6 @@ var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 
 // Require library
 var xl = require('excel4node');
-var XlsxTemplate = require('xlsx-template');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 
 // Create a new instance of a Workbook class
@@ -41,6 +40,7 @@ const path = require('path');
 const unoconv = require('awesome-unoconv');
 const libre = require('libreoffice-convert-win');
 var moment = require('moment');
+var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 
 function transform(amount, decimalCount = 2, decimal = '.', thousands = ',') {
     if (amount >= 100) {
@@ -192,6 +192,200 @@ async function getDetailYCMS(db, id) {
         obj['arrayFile'] = arrayFile;
     })
     return obj
+}
+let styleHearderTitle = {
+    font: {
+        // color: '#FF0800',
+        size: 18,
+        bold: true,
+    },
+    alignment: {
+        wrapText: true,
+        // ngang
+        horizontal: 'center',
+        // Dọc
+        vertical: 'center',
+    },
+    border: {
+        left: {
+            style: 'thin',
+            color: '#000000' // HTML style hex value
+        },
+        right: {
+            style: 'thin',
+            color: '#000000'
+        },
+        top: {
+            style: 'thin',
+            color: '#000000'
+        },
+        bottom: {
+            style: 'thin',
+            color: '#000000'
+        },
+    },
+    // numberFormat: '$#,##0.00; ($#,##0.00); -',
+}
+let styleHearderText = {
+    font: {
+        // color: '#FF0800',
+        size: 10,
+        bold: true,
+    },
+    alignment: {
+        wrapText: true,
+        // ngang
+        horizontal: 'center',
+        // Dọc
+        vertical: 'center',
+    },
+    border: {
+        left: {
+            style: 'thin',
+            color: '#000000' // HTML style hex value
+        },
+        right: {
+            style: 'thin',
+            color: '#000000'
+        },
+        top: {
+            style: 'thin',
+            color: '#000000'
+        },
+        bottom: {
+            style: 'thin',
+            color: '#000000'
+        },
+    },
+    // numberFormat: '$#,##0.00; ($#,##0.00); -',
+}
+let styleHearderNumber = {
+    font: {
+        // color: '#FF0800',
+        size: 10,
+        bold: true,
+    },
+    numberFormat: '#,##0; (#,##0); 0',
+    alignment: {
+        wrapText: true,
+        horizontal: 'right',
+        vertical: 'center',
+    },
+    border: {
+        left: {
+            style: 'thin',
+            color: '#000000' // HTML style hex value
+        },
+        right: {
+            style: 'thin',
+            color: '#000000'
+        },
+        top: {
+            style: 'thin',
+            color: '#000000'
+        },
+        bottom: {
+            style: 'thin',
+            color: '#000000'
+        },
+    },
+}
+let styleCellText = {
+    font: {
+        size: 9,
+        bold: false,
+    },
+    alignment: {
+        wrapText: true,
+        // ngang
+        horizontal: 'center',
+        // Dọc
+        vertical: 'center',
+    },
+    border: {
+        left: {
+            style: 'thin',
+            color: '#000000' // HTML style hex value
+        },
+        right: {
+            style: 'thin',
+            color: '#000000'
+        },
+        top: {
+            style: 'thin',
+            color: '#000000'
+        },
+        bottom: {
+            style: 'thin',
+            color: '#000000'
+        },
+    },
+}
+let stylecellNumber = {
+    font: {
+        // color: '#FF0800',
+        size: 9,
+        bold: false,
+    },
+    numberFormat: '#,##0; (#,##0); 0',
+    alignment: {
+        wrapText: true,
+        // ngang
+        horizontal: 'right',
+        // Dọc
+        vertical: 'center',
+    },
+    border: {
+        left: {
+            style: 'thin',
+            color: '#000000' // HTML style hex value
+        },
+        right: {
+            style: 'thin',
+            color: '#000000'
+        },
+        top: {
+            style: 'thin',
+            color: '#000000'
+        },
+        bottom: {
+            style: 'thin',
+            color: '#000000'
+        },
+    },
+}
+let stylecellNumberSpecial = {
+    font: {
+        // color: '#FF0800',
+        size: 9,
+        bold: false,
+    },
+    numberFormat: '#,##0.00; (#,##0.00); -',
+    alignment: {
+        wrapText: true,
+        // ngang
+        horizontal: 'right',
+        // Dọc
+        vertical: 'center',
+    },
+    border: {
+        left: {
+            style: 'thin',
+            color: '#000000' // HTML style hex value
+        },
+        right: {
+            style: 'thin',
+            color: '#000000'
+        },
+        top: {
+            style: 'thin',
+            color: '#000000'
+        },
+        bottom: {
+            style: 'thin',
+            color: '#000000'
+        },
+    },
 }
 module.exports = {
     // convert_docx_to_pdf
@@ -1195,140 +1389,11 @@ module.exports = {
     exportToFileExcelPayroll: (req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
-        var styleHearder = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 14,
-                bold: true,
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var styleHearderNumber = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 14,
-                bold: true,
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'right',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var stylecell = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 13,
-                bold: false,
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var stylecellNumber = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 13,
-                bold: false,
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'right',
-                // Dọc
-                vertical: 'center',
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
+        var styleHearderT = wb.createStyle(styleHearderText);
+        var styleHearderN = wb.createStyle(styleHearderNumber);
+        var stylecellT = wb.createStyle(styleCellText);
+        var stylecellN = wb.createStyle(stylecellNumber);
         let body = req.body;
-        console.log(body);
         let data = JSON.parse(body.data);
         let objInsurance = JSON.parse(body.objInsurance);
         let totalFooter = JSON.parse(body.totalFooter)
@@ -1363,35 +1428,45 @@ module.exports = {
                     var ws = wb.addWorksheet('Sheet 1');
                     var row = 1
                     ws.column(row).setWidth(5);
-                    ws.cell(3, 7, 3, 12, true)
+                    ws.cell(4, 7, 4, 11, true)
                         .string('CÁC KHOẢN GIẢM TRỪ')
-                        .style(styleHearder);
-                    let str = '';
+                        .style(styleHearderT);
                     let strFile = '';
+                    let strDepartment = ''
+                    let strMonth = ''
                     if (!body.dateEnd) {
+                        strMonth = 'Tháng: ' + month + '/' + year
                         if (!body.departmentID) {
                             strFile = 'Bảng lương tháng ' + month + '.' + year + '.xlsx'
                             str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year
                         } else {
-                            let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
+                            strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
                             strFile = 'Bảng lương tháng ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + ' NĂM ' + year + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
                         }
                     } else {
+                        strMonth = 'Tháng: ' + month + '/' + year + '-' + monthEnd + '/' + yearEnd
                         if (!body.departmentID) {
                             strFile = 'Bảng lương tháng ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd
                         } else {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                            let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
+                            strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
                             strFile = 'Bảng lương tháng ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP LƯƠNG THÁNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+
                         }
 
                     }
                     ws.cell(1, 1, 1, 15, true)
-                        .string(str)
-                        .style(styleHearder);
-
+                        .string('BẢNG TỔNG HỢP LƯƠNG')
+                        .style(styleHearderT);
+                    ws.cell(3, 6, 3, 8, true)
+                        .string(strMonth)
+                        .style(stylecellT);
+                    ws.cell(3, 9, 3, 12, true)
+                        .string(strDepartment)
+                        .style(stylecellT);
                     // push vào các khoản trừ %
                     var arrayReduct = []
                     arrayReduct.push(1)
@@ -1406,64 +1481,63 @@ module.exports = {
                     arrayReduct.push(objInsurance.union)
                     for (var i = 0; i < arrayHeader.length; i++) {
                         if (i <= 5) {
-                            ws.cell(3, row, 4, row, true)
+                            ws.cell(4, row, 5, row, true)
                                 .string(arrayHeader[i])
-                                .style(styleHearder);
+                                .style(styleHearderT);
                         } else if (i > 5 && i <= 10) {
                             if (i < 10)
-                                ws.cell(4, row)
+                                ws.cell(5, row)
                                     .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                                    .style(styleHearder);
+                                    .style(styleHearderT);
                             else if (i = 10) {
-                                ws.cell(4, row)
+                                ws.cell(5, row)
                                     .string(arrayHeader[i])
-                                    .style(styleHearder);
+                                    .style(styleHearderT);
                             } else
-                                ws.cell(4, row)
+                                ws.cell(5, row)
                                     .string(arrayHeader[i])
-                                    .style(styleHearder);
+                                    .style(styleHearderT);
                         } else {
-                            ws.cell(3, row, 4, row, true)
+                            ws.cell(4, row, 5, row, true)
                                 .string(arrayHeader[i])
-                                .style(styleHearder);
+                                .style(styleHearderT);
                         }
                         row += 1
-                        ws.column(row).setWidth(20);
+                        ws.column(row).setWidth(15);
                     }
                     // console.log(data);
                     for (var i = 0; i < data.length; i++) {
-                        ws.cell(5 + i, 1).number(data[i].stt).style(stylecell)
-                        ws.cell(5 + i, 2).string(data[i].staffCode ? data[i].staffCode : '').style(stylecell)
-                        ws.cell(5 + i, 3).string(data[i].staffName ? data[i].staffName : '').style(stylecell)
-                        ws.cell(5 + i, 4).string(data[i].departmentName ? data[i].departmentName : '').style(stylecell)
-                        // ws.cell(5 + i, 3).number(data[i].workingSalary ? data[i].workingSalary : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 5).number(data[i].productivityWages ? Number(data[i].productivityWages) : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 6).number(data[i].bhxhSalary ? Number(data[i].bhxhSalary) : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 7).number(Number(data[i].staffBHXH)).style(stylecellNumber)
-                        ws.cell(5 + i, 8).number(Number(data[i].staffBHYT)).style(stylecellNumber)
-                        ws.cell(5 + i, 9).number(Number(data[i].staffBHTN)).style(stylecellNumber)
-                        ws.cell(5 + i, 10).number(Number(data[i].union)).style(stylecellNumber)
-                        ws.cell(5 + i, 12).number(data[i].personalTaxSalary ? Number(data[i].personalTaxSalary) : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 13).number(data[i].personalTax ? Number(data[i].personalTax) : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 11).number(data[i].reduce ? Number(data[i].reduce) : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 14).number(data[i].totalReduce ? Number(data[i].totalReduce) : 0).style(stylecellNumber)
-                        ws.cell(5 + i, 15).number(data[i].realField ? Number(data[i].realField) : 0).style(stylecellNumber)
+                        ws.cell(6 + i, 1).number(data[i].stt).style(stylecellT)
+                        ws.cell(6 + i, 2).string(data[i].staffCode ? data[i].staffCode : '').style(stylecellT)
+                        ws.cell(6 + i, 3).string(data[i].staffName ? data[i].staffName : '').style(stylecellT)
+                        ws.cell(6 + i, 4).string(data[i].departmentName ? data[i].departmentName : '').style(stylecellT)
+                        ws.cell(6 + i, 5).number(data[i].productivityWages ? Number(data[i].productivityWages) : 0).style(stylecellN)
+                        ws.cell(6 + i, 6).number(data[i].bhxhSalary ? Number(data[i].bhxhSalary) : 0).style(stylecellN)
+                        ws.cell(6 + i, 7).number(Number(data[i].staffBHXH)).style(stylecellN)
+                        ws.cell(6 + i, 8).number(Number(data[i].staffBHYT)).style(stylecellN)
+                        ws.cell(6 + i, 9).number(Number(data[i].staffBHTN)).style(stylecellN)
+                        ws.cell(6 + i, 10).number(Number(data[i].union)).style(stylecellN)
+                        ws.cell(6 + i, 11).number(data[i].reduce ? Number(data[i].reduce) : 0).style(stylecellN)
+                        ws.cell(6 + i, 12).number(data[i].personalTaxSalary ? Number(data[i].personalTaxSalary) : 0).style(stylecellN)
+                        ws.cell(6 + i, 13).number(data[i].personalTax ? Number(data[i].personalTax) : 0).style(stylecellN)
+                        ws.cell(6 + i, 14).number(data[i].totalReduce ? Number(data[i].totalReduce) : 0).style(stylecellN)
+                        ws.cell(6 + i, 15).number(data[i].realField ? Number(data[i].realField) : 0).style(stylecellN)
                     }
                     // Tổng cộng
-                    ws.cell(5 + data.length, 1, 5 + data.length, 4, true)
+                    ws.cell(6 + data.length, 1, 6 + data.length, 4, true)
                         .string('TỔNG CỘNG')
-                        .style(styleHearder);
-                    ws.cell(5 + data.length, 5).number(Number(totalFooter.totalProductivityWages)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 6).number(Number(totalFooter.totalBHXHSalary)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 7).number(Number(totalFooter.totalStaffBHXH)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 8).number(Number(totalFooter.totalStaffBHYT)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 9).number(Number(totalFooter.totalStaffBHTN)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 10).number(Number(totalFooter.totalUnion)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 11).number(Number(totalFooter.totelReduce)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 12).number(Number(totalFooter.totalPersonalTaxSalary)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 13).number(Number(totalFooter.totalPersonalTax)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 14).number(Number(totalFooter.totalAllReduce)).style(styleHearderNumber)
-                    ws.cell(5 + data.length, 15).number(Number(totalFooter.totalRealField)).style(styleHearderNumber)
+                        .style(styleHearderT);
+                    ws.cell(6 + data.length, 5).number(Number(totalFooter.totalProductivityWages)).style(styleHearderN)
+                    ws.cell(6 + data.length, 6).number(Number(totalFooter.totalBHXHSalary)).style(styleHearderN)
+                    ws.cell(6 + data.length, 7).number(Number(totalFooter.totalStaffBHXH)).style(styleHearderN)
+                    ws.cell(6 + data.length, 8).number(Number(totalFooter.totalStaffBHYT)).style(styleHearderN)
+                    ws.cell(6 + data.length, 9).number(Number(totalFooter.totalStaffBHTN)).style(styleHearderN)
+                    ws.cell(6 + data.length, 10).number(Number(totalFooter.totalUnion)).style(styleHearderN)
+                    ws.cell(6 + data.length, 11).number(Number(totalFooter.totelReduce)).style(styleHearderN)
+                    ws.cell(6 + data.length, 12).number(Number(totalFooter.totalPersonalTaxSalary)).style(styleHearderN)
+                    ws.cell(6 + data.length, 13).number(Number(totalFooter.totalPersonalTax)).style(styleHearderN)
+                    ws.cell(6 + data.length, 14).number(Number(totalFooter.totalAllReduce)).style(styleHearderN)
+                    ws.cell(6 + data.length, 15).number(Number(totalFooter.totalRealField)).style(styleHearderN)
 
                     await wb.write('C:/images_services/ageless_sendmail/' + strFile);
                     setTimeout(() => {
@@ -1492,132 +1566,11 @@ module.exports = {
     exportToFileExcelInsutancePremiums: async (req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
-        var styleHearder = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 14,
-                bold: true,
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var styleHearderNumber = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 14,
-                bold: true,
-            },
-            alignment: {
-                wrapText: true,
-                horizontal: 'right',
-                vertical: 'center',
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-        });
-        var stylecell = wb.createStyle({
-            font: {
-                size: 13,
-                bold: false,
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-        });
-        var stylecellNumber = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 13,
-                bold: false,
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'right',
-                // Dọc
-                vertical: 'center',
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-        });
+        var styleHearderT = wb.createStyle(styleHearderText);
+        var styleHearderN = wb.createStyle(styleHearderNumber);
+        var stylecellT = wb.createStyle(styleCellText);
+        var stylecellN = wb.createStyle(stylecellNumber);
+        var stylecellNS = wb.createStyle(stylecellNumberSpecial);
         let body = req.body;
         let dataResponse = JSON.parse(body.data);
         var month = Number(body.dateStart.slice(5, 7)); // January
@@ -1677,36 +1630,39 @@ module.exports = {
             let strDepartment = ''
             if (body.departmentID) {
                 await database.connectDatabase().then(async db => {
-
                     department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                    strDepartment = ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                    let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
+                    strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
                 })
             }
             for (let d = 0; d < dataResponse.length; d++) {
-
-                str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM THÁNG ' + dataResponse[d].monthString.toUpperCase() + strDepartment;
+                let strMonth = 'Tháng: ' + dataResponse[d].strMonthExcel
+                str = 'BẢNG THEO DÕI ĐÓNG BẢO HIỂM';
                 let objInsurance = dataResponse[d].objInsurance
                 let totalFooter = dataResponse[d].totalFooter
                 data = dataResponse[d].array
                 let arrayCheckExcel = dataResponse[d].arrayCheckExcel
-                // Add Worksheets to the workbook
-                let stringSheet = dataResponse[d].monthString
-                console.log(dataResponse[d].monthString);
                 var ws = wb.addWorksheet('sheet-' + (d + 1));
                 var row = 1
                 ws.column(row).setWidth(5);
                 ws.cell(1, 1, 1, 16, true)
                     .string(str)
-                    .style(styleHearder);
-                ws.cell(3, 9, 3, 10, true)
+                    .style(styleHearderTitle);
+                ws.cell(3, 6, 3, 8, true)
+                    .string(strMonth)
+                    .style(stylecellT);
+                ws.cell(3, 9, 3, 12, true)
+                    .string(strDepartment)
+                    .style(stylecellT);
+                ws.cell(4, 9, 4, 10, true)
                     .string('BHXH')
-                    .style(styleHearder);
-                ws.cell(3, 11, 3, 12, true)
+                    .style(styleHearderT);
+                ws.cell(4, 11, 4, 12, true)
                     .string('BHYT')
-                    .style(styleHearder);
-                ws.cell(3, 13, 3, 14, true)
+                    .style(styleHearderT);
+                ws.cell(4, 13, 4, 14, true)
                     .string('BHTN')
-                    .style(styleHearder);
+                    .style(styleHearderT);
                 // // push vào các khoản trừ %
                 var arrayReduct = []
                 arrayReduct.push(1)
@@ -1727,56 +1683,56 @@ module.exports = {
                 arrayReduct.push(objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD)
                 for (var i = 0; i < arrayHeader.length; i++) {
                     if (i <= 7) {
-                        ws.cell(3, row, 4, row, true)
+                        ws.cell(4, row, 5, row, true)
                             .string(arrayHeader[i])
-                            .style(styleHearder);
+                            .style(styleHearderT);
                     } else if (i > 7 && i < 14) {
-                        ws.cell(4, row)
+                        ws.cell(5, row)
                             .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                            .style(styleHearder);
+                            .style(styleHearderT);
                     } else {
-                        ws.cell(3, row, 4, row, true)
+                        ws.cell(4, row, 5, row, true)
                             .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                            .style(styleHearder);
+                            .style(styleHearderT);
                     }
                     row += 1
-                    ws.column(row).setWidth(20);
+                    ws.column(row).setWidth(15);
                 }
                 for (let c = 0; c < arrayCheckExcel.length;) {
-                    ws.cell(5 + c, 1, 5 + c + arrayCheckExcel[c] - 1, 1, true).number(data[c].stt).style(stylecell)
-                    ws.cell(5 + c, 2, 5 + c + arrayCheckExcel[c] - 1, 2, true).string(data[c].staffCode).style(stylecell)
-                    ws.cell(5 + c, 3, 5 + c + arrayCheckExcel[c] - 1, 3, true).string(data[c].nameStaff).style(stylecell)
-                    ws.cell(5 + c, 4, 5 + c + arrayCheckExcel[c] - 1, 4, true).string(data[c].nameDepartment).style(stylecell)
+                    ws.cell(6 + c, 1, 6 + c + arrayCheckExcel[c] - 1, 1, true).number(data[c].stt).style(stylecellT)
+                    ws.cell(6 + c, 2, 6 + c + arrayCheckExcel[c] - 1, 2, true).string(data[c].staffCode).style(stylecellT)
+                    ws.cell(6 + c, 3, 6 + c + arrayCheckExcel[c] - 1, 3, true).string(data[c].nameStaff).style(stylecellT)
+                    ws.cell(6 + c, 4, 6 + c + arrayCheckExcel[c] - 1, 4, true).string(data[c].nameDepartment).style(stylecellT)
                     c += arrayCheckExcel[c]
                 }
                 for (var i = 0; i < data.length; i++) {
                     let wages = data[i].bhxhSalary ? data[i].bhxhSalary : 0;
-                    ws.cell(5 + i, 5).string(data[i].monthOfChange ? data[i].monthOfChange : '').style(stylecell)
-                    ws.cell(5 + i, 6).number(data[i].minimumWage ? data[i].minimumWage : 0).style(stylecellNumber)
-                    ws.cell(5 + i, 7).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNumber)
-                    ws.cell(5 + i, 8).number(wages).style(stylecellNumber)
-                    ws.cell(5 + i, 9).number(wages * objInsurance.companyBHXH / 100).style(stylecellNumber)
-                    ws.cell(5 + i, 10).number(wages * objInsurance.staffBHXH / 100).style(stylecellNumber)
-                    ws.cell(5 + i, 11).number(wages * objInsurance.companyBHYT / 100).style(stylecellNumber)
-                    ws.cell(5 + i, 12).number(wages * objInsurance.staffBHYT / 100).style(stylecellNumber)
-                    ws.cell(5 + i, 13).number(wages * objInsurance.companyBHTN / 100).style(stylecellNumber)
-                    ws.cell(5 + i, 14).number(wages * objInsurance.staffBHTN / 100).style(stylecellNumber)
-                    ws.cell(5 + i, 15).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellNumber)
-                    ws.cell(5 + i, 16).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellNumber)
+                    ws.cell(6 + i, 5).string(data[i].monthOfChange ? data[i].monthOfChange : '').style(stylecellT)
+                    ws.cell(6 + i, 6).number(data[i].minimumWage ? data[i].minimumWage : 0).style(stylecellN)
+                    ws.cell(6 + i, 7).number(data[i].coefficientsSalary ? data[i].coefficientsSalary : 0).style(stylecellNS)
+                    ws.cell(6 + i, 8).number(wages).style(stylecellN)
+                    ws.cell(6 + i, 9).number(wages * objInsurance.companyBHXH / 100).style(stylecellN)
+                    ws.cell(6 + i, 10).number(wages * objInsurance.staffBHXH / 100).style(stylecellN)
+                    ws.cell(6 + i, 11).number(wages * objInsurance.companyBHYT / 100).style(stylecellN)
+                    ws.cell(6 + i, 12).number(wages * objInsurance.staffBHYT / 100).style(stylecellN)
+                    ws.cell(6 + i, 13).number(wages * objInsurance.companyBHTN / 100).style(stylecellN)
+                    ws.cell(6 + i, 14).number(wages * objInsurance.staffBHTN / 100).style(stylecellN)
+                    ws.cell(6 + i, 15).number(wages * objInsurance.staffBHTNLD / 100).style(stylecellN)
+                    ws.cell(6 + i, 16).number(wages * (objInsurance.staffBHXH + objInsurance.companyBHXH + objInsurance.staffBHYT + objInsurance.companyBHYT + objInsurance.staffBHTN + objInsurance.companyBHTN + objInsurance.staffBHTNLD) / 100).style(stylecellN)
                 }
                 // Tổng cộng
-                ws.cell(5 + data.length, 1, 5 + data.length, 7, true)
+                ws.cell(6 + data.length, 1, 6 + data.length, 7, true)
                     .string('TỔNG CỘNG')
-                    .style(styleHearder);
-                ws.cell(5 + data.length, 8).number(totalFooter.bhxhSalaryTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 9).number(totalFooter.bhxhCTTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 10).number(totalFooter.bhxhNVTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 11).number(totalFooter.bhytCTTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 12).number(totalFooter.bhytNVTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 13).number(totalFooter.bhtnCTTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 14).number(totalFooter.bhtnNVTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 15).number(totalFooter.bhtnldTotal).style(styleHearderNumber)
-                ws.cell(5 + data.length, 16).number(totalFooter.tongTotal).style(styleHearderNumber)
+                    .style(styleHearderT);
+                ws.cell(6 + data.length, 8).number(totalFooter.bhxhSalaryTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 9).number(totalFooter.bhxhCTTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 10).number(totalFooter.bhxhNVTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 11).number(totalFooter.bhytCTTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 12).number(totalFooter.bhytNVTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 13).number(totalFooter.bhtnCTTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 14).number(totalFooter.bhtnNVTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 15).number(totalFooter.bhtnldTotal).style(styleHearderN)
+                ws.cell(6 + data.length, 16).number(totalFooter.tongTotal).style(styleHearderN)
             }
 
             await wb.write('C:/images_services/ageless_sendmail/' + strFile);
@@ -2157,138 +2113,10 @@ module.exports = {
     exportToFileExcelSyntheticTimekeeping: async (req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
-        var styleHearder = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 14,
-                bold: true,
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var styleHearderNumber = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 14,
-                bold: true,
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'right',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var stylecell = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 13,
-                bold: false,
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'center',
-                // Dọc
-                vertical: 'center',
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
-        var stylecellNumber = wb.createStyle({
-            font: {
-                // color: '#FF0800',
-                size: 13,
-                bold: false,
-            },
-            alignment: {
-                wrapText: true,
-                // ngang
-                horizontal: 'right',
-                // Dọc
-                vertical: 'center',
-            },
-            border: {
-                left: {
-                    style: 'thin',
-                    color: '#000000' // HTML style hex value
-                },
-                right: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                top: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-                bottom: {
-                    style: 'thin',
-                    color: '#000000'
-                },
-            },
-            // numberFormat: '$#,##0.00; ($#,##0.00); -',
-        });
+        var styleHearderT = wb.createStyle(styleHearderText);
+        var styleHearderN = wb.createStyle(styleHearderNumber);
+        var stylecellT = wb.createStyle(styleCellText);
+        var stylecellN = wb.createStyle(stylecellNumber);
         let body = req.body;
         var row = 0;
         var checkMaxRow = 1;
@@ -2320,14 +2148,17 @@ module.exports = {
             let strFile = '';
             let department;
             let strDepartment = ''
+            let strMonth = ''
             if (body.departmentID) {
                 await database.connectDatabase().then(async db => {
                     department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                    strDepartment = ' BỘ PHẬN ' + department.DepartmentName.toUpperCase()
+                    let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
+                    strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
                 })
             }
-            let str = ''
             if (!body.dateEnd) {
+                strMonth = 'Tháng: ' + month + '/' + year
+
                 if (!body.departmentID) {
                     strFile = 'Bảng tổng hợp chấm công ' + month + '.' + year + '.xlsx'
                     str = 'BẢNG TỔNG HỢP CHẤM CÔNG ' + month + '.' + year + strDepartment;
@@ -2341,6 +2172,7 @@ module.exports = {
                     })
                 }
             } else {
+                strMonth = 'Tháng: ' + month + '/' + year + '-' + monthEnd + '/' + yearEnd
                 if (!body.departmentID) {
                     strFile = 'Bảng tổng hợp chấm công ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + '.xlsx'
                 } else {
@@ -2348,46 +2180,48 @@ module.exports = {
                         if (db) {
                             let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
                             strFile = 'Bảng tổng hợp chấm công ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + ' Bộ phận ' + department.DepartmentName + '.xlsx'
-                            str = 'BẢNG TỔNG HỢP CHẤM CÔNG ' + month + '.' + year + ' - ' + monthEnd + '.' + yearEnd + strDepartment;
                         }
                     })
                 }
 
             }
             ws.cell(1, 1, 1, 10, true)
-                .string(str)
-                .style(styleHearder);
+                .string('BẢNG TỔNG HỢP CHẤM CÔNG')
+                .style(styleHearderT);
+            ws.cell(3, 3, 3, 5, true)
+                .string(strMonth)
+                .style(stylecellT);
+            ws.cell(3, 6, 3, 8, true)
+                .string(strDepartment)
+                .style(stylecellT);
             arrayHeader.forEach(element => {
                 ws.cell(4, row)
                     .string(element)
-                    .style(styleHearder);
+                    .style(styleHearderT);
                 row += 1
-                ws.column(row).setWidth(20);
+                ws.column(row).setWidth(15);
             });
             let stt = 1;
             for (let i = 0; i < data.length; i++) {
-
-                var max = 1;
-                // Hàng lớn nhất của bản ghi trước
                 if (i > 0)
                     row = checkMaxRow + 4
                 // bản ghi đầu tiên
                 else
                     row = i + 5
                 checkMaxRow += 1;
-                ws.cell(row, 1).number(stt).style(stylecell)
-                ws.cell(row, 2).string(data[i].departmentName).style(stylecell)
-                ws.cell(row, 3).string(data[i].staffCode).style(stylecell)
-                ws.cell(row, 4).string(data[i].staffName).style(stylecell)
-                ws.cell(row, 5).number(data[i].remainingPreviousYear).style(stylecellNumber)
-                ws.cell(row, 6).number(data[i].overtime).style(stylecellNumber)
-                ws.cell(row, 7).number(data[i].lateDay).style(stylecellNumber)
-                ws.cell(row, 8).number(data[i].numberHoliday).style(stylecellNumber)
-                ws.cell(row, 9).number(data[i].freeBreak).style(stylecellNumber)
-                ws.cell(row, 10).number(data[i].remaining).style(stylecellNumber)
+                ws.cell(row, 1).number(stt).style(stylecellT)
+                ws.cell(row, 2).string(data[i].departmentName).style(stylecellT)
+                ws.cell(row, 3).string(data[i].staffCode).style(stylecellT)
+                ws.cell(row, 4).string(data[i].staffName).style(stylecellT)
+                ws.cell(row, 5).number(data[i].remainingPreviousYear).style(stylecellT)
+                ws.cell(row, 6).number(data[i].overtime).style(stylecellT)
+                ws.cell(row, 7).number(data[i].lateDay).style(stylecellT)
+                ws.cell(row, 8).number(data[i].numberHoliday).style(stylecellT)
+                ws.cell(row, 9).number(data[i].freeBreak).style(stylecellT)
+                ws.cell(row, 10).number(data[i].remaining).style(stylecellT)
                 stt += 1
             }
-            await wb.write('C:/images_services/ageless_sendmail/' + strFile);
+            await wb.write('D:/images_services/ageless_sendmail/' + strFile);
             setTimeout(() => {
                 var result = {
                     link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,

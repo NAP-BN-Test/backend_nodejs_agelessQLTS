@@ -115,7 +115,7 @@ const Constant = require('./api/constants/constant');
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 var mtblDMHangHoa = require('./api/tables/qlnb/tblDMHangHoa');
 var mtblDMLoaiTaiSan = require('./api/tables/qlnb/tblDMLoaiTaiSan');
-var mtblDMChiNhanh = require('./api/tables/qlnb/tblDMLoaiTaiSan')
+var mtblDMChiNhanh = require('./api/tables/constants/tblDMChiNhanh')
 var mtblMucDongBaoHiem = require('./api/tables/hrmanage/tblMucDongBaoHiem')
 
 var moment = require('moment');

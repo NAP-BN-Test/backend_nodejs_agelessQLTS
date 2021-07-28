@@ -3299,6 +3299,7 @@ module.exports = {
                     var yearStart;
                     var monthEnd;
                     var yearEnd;
+                    let strMonthExcel = ''
                     if (body.dateStart) {
                         monthStart = Number(body.dateStart.slice(5, 7)); // January
                         yearStart = Number(body.dateStart.slice(0, 4));
@@ -3315,16 +3316,24 @@ module.exports = {
                             if (arrayMonth[my + 1])
                                 nextMonth = (arrayMonth[my + 1] > arrayMonth[my] + 1) ? arrayMonth[my + 1] : null
                             resultOfMonth = await getDetailTrackInsurancePremiums(db, arrayMonth[my], body.departmentID, nextMonth)
-                            if (arrayMonth[my + 1] && arrayMonth[my].slice(5, 7) != arrayMonth[my + 1].slice(5, 7))
+                            if (arrayMonth[my + 1] && arrayMonth[my].slice(5, 7) != arrayMonth[my + 1].slice(5, 7)) {
                                 resultOfMonth['monthString'] = 'Từ tháng ' + arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + ' đến tháng ' + Number(arrayMonth[my + 1].slice(5, 7)) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
-                            else
+                                strMonthExcel = arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + '-' + Number(arrayMonth[my + 1].slice(5, 7)) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
+                                resultOfMonth['strMonthExcel'] = strMonthExcel
+                            }
+                            else {
+                                strMonthExcel = arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4)
                                 resultOfMonth['monthString'] = arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4)
+                                resultOfMonth['strMonthExcel'] = strMonthExcel
+                            }
                             if (resultOfMonth.array.length > 0)
                                 arrayResult.push(resultOfMonth)
                         }
                     } else {
                         let resultOfMonth = await getDetailTrackInsurancePremiums(db, body.dateStart, body.departmentID, null)
                         resultOfMonth['monthString'] = await convertNumber(monthStart) + '/' + yearStart
+                        resultOfMonth['strMonthExcel'] = strMonthExcel
+                        strMonthExcel = await convertNumber(monthStart) + '/' + yearStart
                         if (resultOfMonth.array.length > 0)
                             arrayResult.push(resultOfMonth)
                     }
