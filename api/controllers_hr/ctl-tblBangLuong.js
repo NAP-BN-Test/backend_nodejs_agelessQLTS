@@ -3332,8 +3332,8 @@ module.exports = {
                     } else {
                         let resultOfMonth = await getDetailTrackInsurancePremiums(db, body.dateStart, body.departmentID, null)
                         resultOfMonth['monthString'] = await convertNumber(monthStart) + '/' + yearStart
-                        resultOfMonth['strMonthExcel'] = strMonthExcel
                         strMonthExcel = await convertNumber(monthStart) + '/' + yearStart
+                        resultOfMonth['strMonthExcel'] = strMonthExcel
                         if (resultOfMonth.array.length > 0)
                             arrayResult.push(resultOfMonth)
                     }
