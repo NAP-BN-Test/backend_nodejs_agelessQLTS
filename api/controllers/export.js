@@ -1602,16 +1602,17 @@ module.exports = {
             var row = 1
             ws.column(row).setWidth(5);
             let strFile = '';
-            let department;
             let strDepartment = ''
-            let strMonth = 'Tháng: ' + convertNumber(month) + '/' + year
-            if (body.departmentID) {
-                await database.connectDatabase().then(async db => {
-                    department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                    let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
-                    strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
-                })
+            if (!body.departmentID) {
+                strFile = 'Bảng lương tháng ' + month + '.' + year + '.xlsx'
+            } else {
+                let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
+                strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
+                strFile = 'Bảng lương tháng ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+
             }
+            let strMonth = 'Tháng: ' + convertNumber(month) + '/' + year
             ws.cell(1, 1, 1, dateFinal + 1, true)
                 .string('BẢNG CHẤM CÔNG')
                 .style(styleHearderTitle);
@@ -1640,7 +1641,8 @@ module.exports = {
                 row += 2
 
             }
-            await wb.write('C:/images_services/ageless_sendmail/' + 'strFile.xlsx');
+            console.log(strFile, 1234);
+            await wb.write('C:/images_services/ageless_sendmail/' + strFile);
             setTimeout(() => {
                 var result = {
                     link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
