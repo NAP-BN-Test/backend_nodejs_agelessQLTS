@@ -387,6 +387,22 @@ let stylecellNumberSpecial = {
         },
     },
 }
+
+function getDateFinal(monthYear) {
+    var month = Number(monthYear.slice(5, 7)); // January
+    var year = Number(monthYear.slice(0, 4));
+    var date = new Date(year, month, 0);
+    var dateFinal = Number(date.toISOString().slice(8, 10))
+    dateFinal += 1
+    return dateFinal
+}
+var mModules = require('../constants/modules');
+function convertNumber(number) {
+    if (number < 10) {
+        return '0' + number
+    } else
+        return number
+}
 module.exports = {
     // convert_docx_to_pdf
     convertDocxToPDF: (req, res) => {
@@ -1559,8 +1575,84 @@ module.exports = {
         })
     },
     // export_to_file_excel_timekeeping
-    exportToFileExcelTimekeeping: (req, res) => {
+    exportToFileExcelTimekeeping: async (req, res) => {
+        var wb = new xl.Workbook();
+        var styleHearderT = wb.createStyle(styleHearderText);
+        var styleHearderN = wb.createStyle(styleHearderNumber);
+        var stylecellT = wb.createStyle(styleCellText);
+        var stylecellN = wb.createStyle(stylecellNumber);
+        let body = req.body;
+        var row = 0;
+        let dateFinal = getDateFinal(body.date)
+        var month = Number(body.date.slice(5, 7));
+        var year = Number(body.date.slice(0, 4));
+        let now = Number(moment().add(7, 'hours').format('MM'));
+        let dateNow = Number(moment().add(7, 'hours').format('DD'));
+        if (month == now) {
+            dateFinal = dateNow
+        }
+        let data = JSON.parse(body.data);
+        let arrayHeader = []
+        arrayHeader.push('STT')
+        for (let date = 1; date <= dateFinal; date++) {
+            arrayHeader.push(convertNumber(date) + '/' + convertNumber(month))
+        }
+        try {
+            var ws = wb.addWorksheet('Sheet 1');
+            var row = 1
+            ws.column(row).setWidth(5);
+            let strFile = '';
+            let department;
+            let strDepartment = ''
+            let strMonth = 'Tháng: ' + convertNumber(month) + '/' + year
+            if (body.departmentID) {
+                await database.connectDatabase().then(async db => {
+                    department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                    let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
+                    strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
+                })
+            }
+            ws.cell(1, 1, 1, dateFinal + 1, true)
+                .string('BẢNG CHẤM CÔNG')
+                .style(styleHearderTitle);
+            let middle = Math.round((dateFinal + 1) / 2)
+            ws.cell(3, middle - 2, 3, middle, true)
+                .string(strMonth)
+                .style(stylecellT);
+            ws.cell(3, middle + 1, 3, middle + 3, true)
+                .string(strDepartment)
+                .style(stylecellT);
+            arrayHeader.forEach(element => {
+                ws.cell(4, row)
+                    .string(element)
+                    .style(styleHearderT);
+                row += 1
+                ws.column(row).setWidth(15);
+            });
+            row = 5
+            for (let i = 0; i < data.length; i++) {
+                ws.cell(row, 1, row + 1, 1, true).number(data[i].stt).style(stylecellT)
+                for (let date = 1; date < arrayHeader.length; date++) {
+                    let dateMonth = arrayHeader[date]
+                    ws.cell(row, date + 1).string(data[i][dateMonth]['S']).style(stylecellT)
+                    ws.cell(row + 1, date + 1).string(data[i][dateMonth]['C']).style(stylecellT)
+                }
+                row += 2
 
+            }
+            await wb.write('D:/images_services/ageless_sendmail/' + 'strFile.xlsx');
+            setTimeout(() => {
+                var result = {
+                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            }, 500);
+        } catch (error) {
+            console.log(error);
+            res.json(Result.SYS_ERROR_RESULT)
+        }
     },
     // export_tofile_excel_insurance_premiums
     exportToFileExcelInsutancePremiums: async (req, res) => {
