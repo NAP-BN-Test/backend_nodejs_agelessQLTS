@@ -1640,7 +1640,7 @@ module.exports = {
                 row += 2
 
             }
-            await wb.write('D:/images_services/ageless_sendmail/' + 'strFile.xlsx');
+            await wb.write('C:/images_services/ageless_sendmail/' + 'strFile.xlsx');
             setTimeout(() => {
                 var result = {
                     link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
