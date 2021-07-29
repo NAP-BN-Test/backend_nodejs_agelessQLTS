@@ -1644,12 +1644,12 @@ module.exports = {
                     ws.cell(row, 4, row + 1, 4, true).string(data[i].staffName).style(stylecellT)
                     for (let date = 4; date < arrayHeader.length; date++) {
                         let dateMonth = arrayHeader[date]
-                        if (data[i][dateMonth]['S'] == ' ')
+                        if (data[i][dateMonth]['S'] == 'plus')
                             ws.cell(row, date + 1).string('+').style(stylecellT)
                         else
                             ws.cell(row, date + 1).string(data[i][dateMonth]['S']).style(stylecellT)
 
-                        if (data[i][dateMonth]['C'] == ' ')
+                        if (data[i][dateMonth]['C'] == 'plus')
                             ws.cell(row + 1, date + 1).string('+').style(stylecellT)
                         else
                             ws.cell(row + 1, date + 1).string(data[i][dateMonth]['C']).style(stylecellT)
