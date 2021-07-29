@@ -1628,7 +1628,7 @@ module.exports = {
                     .string(element)
                     .style(styleHearderT);
                 row += 1
-                ws.column(row).setWidth(15);
+                ws.column(row).setWidth(7);
             });
             row = 5
             for (let i = 0; i < data.length; i++) {
