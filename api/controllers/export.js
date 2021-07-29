@@ -1594,67 +1594,76 @@ module.exports = {
         let data = JSON.parse(body.data);
         let arrayHeader = []
         arrayHeader.push('STT')
-        for (let date = 1; date <= dateFinal; date++) {
-            arrayHeader.push(convertNumber(date) + '/' + convertNumber(month))
-        }
-        try {
-            var ws = wb.addWorksheet('Sheet 1');
-            var row = 1
-            ws.column(row).setWidth(5);
-            let strFile = '';
-            let strDepartment = ''
-            if (!body.departmentID) {
-                strFile = 'Bảng lương tháng ' + month + '.' + year + '.xlsx'
-            } else {
-                let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
-                let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
-                strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
-                strFile = 'Bảng lương tháng ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
+        arrayHeader.push('Phòng ban')
+        arrayHeader.push('Mã nhân viên')
+        arrayHeader.push('Tên nhân viên')
+        database.connectDatabase().then(async db => {
 
+            for (let date = 1; date <= dateFinal; date++) {
+                arrayHeader.push(convertNumber(date) + '/' + convertNumber(month))
             }
-            let strMonth = 'Tháng: ' + convertNumber(month) + '/' + year
-            ws.cell(1, 1, 1, dateFinal + 1, true)
-                .string('BẢNG CHẤM CÔNG')
-                .style(styleHearderTitle);
-            let middle = Math.round((dateFinal + 1) / 2)
-            ws.cell(3, middle - 2, 3, middle, true)
-                .string(strMonth)
-                .style(stylecellT);
-            ws.cell(3, middle + 1, 3, middle + 3, true)
-                .string(strDepartment)
-                .style(stylecellT);
-            arrayHeader.forEach(element => {
-                ws.cell(4, row)
-                    .string(element)
-                    .style(styleHearderT);
-                row += 1
-                ws.column(row).setWidth(7);
-            });
-            row = 5
-            for (let i = 0; i < data.length; i++) {
-                ws.cell(row, 1, row + 1, 1, true).number(data[i].stt).style(stylecellT)
-                for (let date = 1; date < arrayHeader.length; date++) {
-                    let dateMonth = arrayHeader[date]
-                    ws.cell(row, date + 1).string(data[i][dateMonth]['S']).style(stylecellT)
-                    ws.cell(row + 1, date + 1).string(data[i][dateMonth]['C']).style(stylecellT)
-                }
-                row += 2
+            try {
+                var ws = wb.addWorksheet('Sheet 1');
+                var row = 1
+                ws.column(row).setWidth(5);
+                let strFile = '';
+                let strDepartment = ''
+                if (!body.departmentID) {
+                    strFile = 'Bảng chấm công ' + month + '.' + year + '.xlsx'
+                } else {
+                    let department = await mtblDMBoPhan(db).findOne({ where: { ID: body.departmentID } })
+                    let branch = await mtblDMChiNhanh(db).findOne({ where: { ID: department.IDChiNhanh } })
+                    strDepartment = 'Bộ phận: ' + department.DepartmentName + ' - ' + (branch ? branch.BranchName : '')
+                    strFile = 'Bảng chấm công ' + month + '.' + year + ' Bộ phận ' + department.DepartmentName + '.xlsx'
 
-            }
-            console.log(strFile, 1234);
-            await wb.write('C:/images_services/ageless_sendmail/' + strFile);
-            setTimeout(() => {
-                var result = {
-                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
                 }
-                res.json(result);
-            }, 500);
-        } catch (error) {
-            console.log(error);
-            res.json(Result.SYS_ERROR_RESULT)
-        }
+                let strMonth = 'Tháng: ' + convertNumber(month) + '/' + year
+                ws.cell(1, 1, 1, dateFinal + 4, true)
+                    .string('BẢNG CHẤM CÔNG')
+                    .style(styleHearderTitle);
+                let middle = Math.round((dateFinal + 1) / 2)
+                ws.cell(3, middle - 2, 3, middle + 1, true)
+                    .string(strMonth)
+                    .style(stylecellT);
+                ws.cell(3, middle + 2, 3, middle + 6, true)
+                    .string(strDepartment)
+                    .style(stylecellT);
+                arrayHeader.forEach(element => {
+                    ws.cell(4, row)
+                        .string(element)
+                        .style(styleHearderT);
+                    row += 1
+                    ws.column(row).setWidth(7);
+                });
+                row = 5
+                for (let i = 0; i < data.length; i++) {
+                    console.log(data[i]);
+                    ws.cell(row, 1, row + 1, 1, true).number(data[i].stt).style(stylecellT)
+                    ws.cell(row, 2, row + 1, 2, true).string(data[i].departmentName).style(stylecellT)
+                    ws.cell(row, 3, row + 1, 3, true).string(data[i].staffCode).style(stylecellT)
+                    ws.cell(row, 4, row + 1, 4, true).string(data[i].staffName).style(stylecellT)
+                    for (let date = 4; date < arrayHeader.length; date++) {
+                        let dateMonth = arrayHeader[date]
+                        ws.cell(row, date + 1).string(data[i][dateMonth]['S']).style(stylecellT)
+                        ws.cell(row + 1, date + 1).string(data[i][dateMonth]['C']).style(stylecellT)
+                    }
+                    row += 2
+
+                }
+                await wb.write('D:/images_services/ageless_sendmail/' + strFile);
+                setTimeout(() => {
+                    var result = {
+                        link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                }, 500);
+            } catch (error) {
+                console.log(error);
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
     },
     // export_tofile_excel_insurance_premiums
     exportToFileExcelInsutancePremiums: async (req, res) => {
