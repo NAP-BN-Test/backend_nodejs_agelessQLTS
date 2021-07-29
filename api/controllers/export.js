@@ -1644,8 +1644,15 @@ module.exports = {
                     ws.cell(row, 4, row + 1, 4, true).string(data[i].staffName).style(stylecellT)
                     for (let date = 4; date < arrayHeader.length; date++) {
                         let dateMonth = arrayHeader[date]
-                        ws.cell(row, date + 1).string(data[i][dateMonth]['S']).style(stylecellT)
-                        ws.cell(row + 1, date + 1).string(data[i][dateMonth]['C']).style(stylecellT)
+                        if (data[i][dateMonth]['S'] == '+')
+                            ws.cell(row, date + 1).string('+ ').style(stylecellT)
+                        else
+                            ws.cell(row + 1, date + 1).string(data[i][dateMonth]['S']).style(stylecellT)
+
+                        if (data[i][dateMonth]['C'] == '+')
+                            ws.cell(row, date + 1).string('+ ').style(stylecellT)
+                        else
+                            ws.cell(row + 1, date + 1).string(data[i][dateMonth]['C']).style(stylecellT)
                     }
                     row += 2
 
