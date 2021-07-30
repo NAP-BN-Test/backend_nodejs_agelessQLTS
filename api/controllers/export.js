@@ -198,6 +198,7 @@ let styleHearderTitle = {
         // color: '#FF0800',
         size: 18,
         bold: true,
+        name: 'Times New Roman',
     },
     alignment: {
         wrapText: true,
@@ -231,6 +232,7 @@ let styleHearderText = {
         // color: '#FF0800',
         size: 10,
         bold: true,
+        name: 'Times New Roman',
     },
     alignment: {
         wrapText: true,
@@ -264,6 +266,7 @@ let styleHearderNumber = {
         // color: '#FF0800',
         size: 10,
         bold: true,
+        name: 'Times New Roman',
     },
     numberFormat: '#,##0; (#,##0); 0',
     alignment: {
@@ -294,6 +297,7 @@ let styleCellText = {
     font: {
         size: 9,
         bold: false,
+        name: 'Times New Roman',
     },
     alignment: {
         wrapText: true,
@@ -326,6 +330,7 @@ let stylecellNumber = {
         // color: '#FF0800',
         size: 9,
         bold: false,
+        name: 'Times New Roman',
     },
     numberFormat: '#,##0; (#,##0); 0',
     alignment: {
@@ -359,6 +364,8 @@ let stylecellNumberSpecial = {
         // color: '#FF0800',
         size: 9,
         bold: false,
+        name: 'Times New Roman',
+
     },
     numberFormat: '#,##0.00; (#,##0.00); -',
     alignment: {
