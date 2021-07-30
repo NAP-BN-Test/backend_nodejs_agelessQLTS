@@ -45,24 +45,6 @@ module.exports = {
 
                 var job = schedule.scheduleJob({ hour: 23, minute: 59 }, async function () {
                     await ctlTimeAttendanceSummary.createTimeAttendanceSummary()
-
-                    await mtblCurrency(db).findAll().then(async data => {
-                        for (let i = 0; i < data.length; i++) {
-                            let rate = await mtblRate(db).findOne({
-                                where: {
-                                    IDCurrency: data[i].ID,
-                                },
-                                order: [
-                                    ['ID', 'DESC']
-                                ],
-                            })
-                            await mtblRate(db).create({
-                                Date: now,
-                                ExchangeRate: rate.ExchangeRate,
-                                IDCurrency: data[i].ID,
-                            })
-                        }
-                    })
                     await mtblHopDongNhanSu(db).update({
                         Status: 'Hết hiệu lực'
                     }, {
@@ -91,7 +73,7 @@ module.exports = {
                             })
                             await mtblRate(db).create({
                                 Date: now,
-                                ExchangeRate: rate.ExchangeRate,
+                                ExchangeRate: rate ? rate.ExchangeRate : 1,
                                 IDCurrency: data[i].ID,
                             })
                         }

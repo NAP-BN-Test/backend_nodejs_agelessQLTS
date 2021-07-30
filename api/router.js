@@ -611,4 +611,11 @@ module.exports = function (app) {
     app.route('/qlnb/report_time_attendance_summary').post(reportHR.reportTimeAttendanceSummary);
     app.route('/qlnb/report_reward_punishment').post(reportHR.reportRewardPunishment);
     app.route('/qlnb/report_salary_fund').post(reportHR.reportSalaryFund);
+
+
+
+
+    // report tài chính
+    var reportFinance = require('./controller_finance/report-finance')
+    app.route('/qlnb/export_excel_report_aggregate_revenue').post(reportFinance.exportExcelReportAggregateRevenue);
 }

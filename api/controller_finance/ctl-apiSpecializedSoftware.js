@@ -1289,6 +1289,7 @@ module.exports = {
                             IDSpecializedSoftware: data[i].id,
                             Status: data[i].statusName
                         })
+                        console.log(data[i].statusName);
                         if (data[i].statusName == 'Chờ thanh toán') {
                             array.push(data[i])
                             arrayCreate.push(data[i])
@@ -1320,16 +1321,12 @@ module.exports = {
                 var result = {
                     arrayCreate: arrayCreate,
                     arrayUpdate: array,
-                    // array: data.data.data.list,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10,
                     totalMoney: totalMoney,
                     totalMoneyVND: totalMoneyVND,
-
-                    // all: data.data.data.pager.rowsCount
                 }
-                console.log(result);
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
