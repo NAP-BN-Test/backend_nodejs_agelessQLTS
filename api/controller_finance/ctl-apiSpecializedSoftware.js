@@ -1283,13 +1283,14 @@ module.exports = {
                         totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                     }
                     data[i]['totalMoneyVND'] = totalMoneyVND
+                    data[i]['totalMoneyDisplay'] = totalMoneyVND
+                    data[i]['typeMoney'] = 'VND'
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
                             Status: data[i].statusName
                         })
-                        console.log(data[i].statusName);
                         if (data[i].statusName == 'Chờ thanh toán') {
                             array.push(data[i])
                             arrayCreate.push(data[i])

@@ -42,8 +42,6 @@ let styleHearderTitle = {
         wrapText: true,
         // ngang
         horizontal: 'center',
-        // Dọc
-        vertical: 'center',
     },
     border: {
         left: {
@@ -68,16 +66,13 @@ let styleHearderTitle = {
 let styleHearderText = {
     font: {
         // color: '#FF0800',
-        size: 12,
+        size: 10,
         bold: true,
         name: 'Times New Roman',
     },
     alignment: {
         wrapText: true,
-        // ngang
         horizontal: 'center',
-        // Dọc
-        vertical: 'center',
     },
     border: {
         left: {
@@ -133,16 +128,14 @@ let styleHearderNumber = {
 }
 let styleCellText = {
     font: {
-        size: 12,
-        bold: false,
+        size: 8,
+        bold: true,
         name: 'Times New Roman',
     },
     alignment: {
         wrapText: true,
         // ngang
         horizontal: 'center',
-        // Dọc
-        vertical: 'center',
     },
     border: {
         left: {
@@ -231,6 +224,26 @@ let stylecellNumberSpecial = {
         },
     },
 }
+let stylePublic = {
+    border: {
+        left: {
+            style: 'thin',
+            color: '#000000' // HTML style hex value
+        },
+        right: {
+            style: 'thin',
+            color: '#000000'
+        },
+        top: {
+            style: 'thin',
+            color: '#000000'
+        },
+        bottom: {
+            style: 'thin',
+            color: '#000000'
+        },
+    },
+}
 module.exports = {
     // report_average_votes
     reportAverageVotes: (req, res) => {
@@ -290,16 +303,34 @@ module.exports = {
                 try {
                     // Add Worksheets to the workbook
                     var ws = wb.addWorksheet('Sheet 1');
-                    ws.column(1).setWidth(3);
-                    ws.cell(1, 1, 1, arrayHeader.length * 4 - 6, true)
+                    ws.column(1).setWidth(5);
+                    ws.row(1).setHeight(25);
+                    ws.row(2).setHeight(25);
+                    ws.row(3).setHeight(25);
+                    ws.row(4).setHeight(25);
+                    ws.cell(1, 1, 1, 6, true)
                         .string('TỔNG HỢP DOANH THU SHTT NĂM 2020')
                         .style(styleHearderTitle);
-                    ws.cell(2, 1, 2, 5, true)
+                    stylePublic['font'] = {
+                        size: 11,
+                        bold: true,
+                        underline: true,
+                        name: 'Times New Roman',
+                    }
+                    stylePublic['alignment'] = {
+                        wrapText: true,
+                        // ngang
+                        // horizontal: 'center',
+                        // Dọc
+                        // vertical: 'center',
+                    }
+                    ws.cell(2, 1, 2, 6, true)
                         .string('DOANH THU TRÊN DEBINOTE')
-                        .style(stylecellT);
+                        .style(stylePublic);
                     var row = 1
                     for (let width = 2; width < 1000; width++) {
-                        ws.column(width).setWidth(10);
+                        ws.column(width).setWidth(20);
+                        // ws.row(width).setWidth(20);
                     }
                     for (let hd = 0; hd < arrayHeader.length; hd++) {
                         if (hd < 2) {
@@ -357,6 +388,7 @@ module.exports = {
                             row += 4
                         }
                     }
+                    ws.column(2).setWidth(30);
                     await wb.write('D:/images_services/ageless_sendmail/' + 'test.xlsx');
                     setTimeout(() => {
                         var result = {
