@@ -25,25 +25,15 @@ data = [{
         total: '100',
         typeMoney: 'USD',
     },
-    {
-        total: '100',
-        typeMoney: 'NDT',
-    },
-    {
-        total: '100',
-        typeMoney: 'JPY',
-    },
-    {
-        total: '100',
-        typeMoney: 'FRA',
-    },
+
     ],
     statusName: 'Đã thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 1',
     request: '',
-    departmentName: 'Hà Nội',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
 },
 {
     id: 2,
@@ -58,17 +48,14 @@ data = [{
         total: '10',
         typeMoney: 'USD',
     },
-    {
-        total: '15',
-        typeMoney: 'NDT',
-    },
     ],
     statusName: 'Đã thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 2',
     request: 'Yêu cầu xóa',
-    departmentName: 'Hà Nội',
+    departmentName: 'KẾ TOÁN',
+    departmentID: 10026,
 },
 {
     id: 3,
@@ -79,21 +66,15 @@ data = [{
         total: '1200000',
         typeMoney: 'VND',
     },
-    {
-        total: '120',
-        typeMoney: 'JPY',
-    },
-    {
-        total: '150',
-        typeMoney: 'FRA',
-    },
+
     ],
     statusName: 'Đã thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 3',
     request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
 },
 {
     id: 4,
@@ -108,25 +89,16 @@ data = [{
         total: '100',
         typeMoney: 'USD',
     },
-    {
-        total: '100',
-        typeMoney: 'NDT',
-    },
-    {
-        total: '100',
-        typeMoney: 'JPY',
-    },
-    {
-        total: '120',
-        typeMoney: 'FRA',
-    },
+
     ],
     statusName: 'Đã thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 4',
     request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
+    departmentName: 'HÀNH CHÍNH NHÂN SỰ',
+    departmentID: 10027,
+
 },
 {
     id: 5,
@@ -137,25 +109,15 @@ data = [{
         total: '1400000',
         typeMoney: 'VND',
     },
-    {
-        total: '150',
-        typeMoney: 'USD',
-    },
-    {
-        total: '170',
-        typeMoney: 'NDT',
-    },
-    {
-        total: '10',
-        typeMoney: 'JPY',
-    },
+
     ],
     statusName: 'Đã thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 5',
     request: '',
-    departmentName: 'Hà Nội',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
 },
 {
     id: 6,
@@ -176,7 +138,8 @@ data = [{
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 6',
     request: 'Yêu cầu xóa',
-    departmentName: 'Hà Nội',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
 },
 {
     id: 7,
@@ -187,21 +150,15 @@ data = [{
         total: '1600000',
         typeMoney: 'VND',
     },
-    {
-        total: '100',
-        typeMoney: 'USD',
-    },
-    {
-        total: '170',
-        typeMoney: 'FRA',
-    },
+
     ],
     statusName: 'Chờ thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 7',
     request: 'Yêu cầu xóa',
-    departmentName: 'Hà Nội',
+    departmentName: 'KẾ TOÁN',
+    departmentID: 10026,
 },
 {
     id: 8,
@@ -212,21 +169,15 @@ data = [{
         total: '100',
         typeMoney: 'USD',
     },
-    {
-        total: '100',
-        typeMoney: 'NDT',
-    },
-    {
-        total: '100',
-        typeMoney: 'JPY',
-    },
+
     ],
     statusName: 'Chờ thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 8',
     request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
 },
 {
     id: 9,
@@ -238,28 +189,18 @@ data = [{
         typeMoney: 'VND',
     },
     {
-        total: '100',
+        total: '130',
         typeMoney: 'USD',
     },
-    {
-        total: '100',
-        typeMoney: 'NDT',
-    },
-    {
-        total: '100',
-        typeMoney: 'JPY',
-    },
-    {
-        total: '100',
-        typeMoney: 'FRA',
-    },
+
     ],
     statusName: 'Chờ thanh toán',
     idCustomer: 1,
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 9',
     request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
+    departmentName: 'Ban NH3',
+    departmentID: 10035,
 },
 {
     id: 10,
@@ -267,7 +208,7 @@ data = [{
     refNumber: 'REF0010',
     invoiceNumber: 'INV0010',
     arrayMoney: [{
-        total: '1000000',
+        total: '123',
         typeMoney: 'VND',
     },],
     statusName: 'Chờ thanh toán',
@@ -275,7 +216,8 @@ data = [{
     customerName: 'Công ty tnhh An Phú',
     content: 'Demo 10',
     request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
+    departmentName: 'Ban NH3',
+    departmentID: 10035,
 },
 ];
 totalMoney = [{

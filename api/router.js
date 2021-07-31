@@ -616,6 +616,8 @@ module.exports = function (app) {
 
 
     // report tài chính
-    var reportFinance = require('./controller_finance/report-finance')
+    var reportFinance = require('./controller_finance/export-finance')
     app.route('/qlnb/export_excel_report_aggregate_revenue').post(reportFinance.exportExcelReportAggregateRevenue);
+    app.route('/qlnb/export_excel_report_money_revenue').post(reportFinance.exportExcelReportMoneyRevenue);
+    app.route('/qlnb/export_excel_report_average_monthly_revenue_by_year').post(reportFinance.exportExcelReportAverageMonthlyRevenueByYear);
 }

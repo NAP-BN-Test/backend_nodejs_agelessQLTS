@@ -11,401 +11,278 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var fs = require('fs');
 var xl = require('excel4node');
 var database = require('../database');
+data = [{
+    id: 1,
+    createdDate: '01/05/2020',
+    refNumber: 'REF0001',
+    invoiceNumber: 'INV0001',
+    arrayMoney: [{
+        total: '1000000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '100',
+        typeMoney: 'USD',
+    },
 
-async function getAverageVotesFromDepartment(departmentID) {
-    let result = 0;
-    let arrayStaffID = []
-    await mtblDMNhanvien(db).findAll({
-        where: {
-            IDBoPhan: departmentID
-        }
-    }).then(data => {
-        data.forEach(element => {
-            arrayStaffID.push(element.ID)
-        });
-    })
-    await mtblReceiptsPayment(db).findAll({
-        where: {
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 1',
+    request: '',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 2,
+    createdDate: '02/05/2020',
+    refNumber: 'REF0002',
+    invoiceNumber: 'INV0002',
+    arrayMoney: [{
+        total: '1100000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '10',
+        typeMoney: 'USD',
+    },
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 2',
+    request: 'Yêu cầu xóa',
+    departmentName: 'KẾ TOÁN',
+    departmentID: 10026,
+},
+{
+    id: 3,
+    createdDate: '03/05/2020',
+    refNumber: 'REF0003',
+    invoiceNumber: 'INV0003',
+    arrayMoney: [{
+        total: '1200000',
+        typeMoney: 'VND',
+    },
 
-        }
-    })
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 3',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 4,
+    createdDate: '04/05/2020',
+    refNumber: 'REF0004',
+    invoiceNumber: 'INV0004',
+    arrayMoney: [{
+        total: '1300000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '100',
+        typeMoney: 'USD',
+    },
 
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 4',
+    request: 'Yêu cầu sửa',
+    departmentName: 'HÀNH CHÍNH NHÂN SỰ',
+    departmentID: 10027,
+
+},
+{
+    id: 5,
+    createdDate: '05/05/2020',
+    refNumber: 'REF0005',
+    invoiceNumber: 'INV0005',
+    arrayMoney: [{
+        total: '1400000',
+        typeMoney: 'VND',
+    },
+
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 5',
+    request: '',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 6,
+    createdDate: '06/05/2020',
+    refNumber: 'REF0006',
+    invoiceNumber: 'INV0006',
+    arrayMoney: [{
+        total: '1500000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '100',
+        typeMoney: 'USD',
+    },
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 6',
+    request: 'Yêu cầu xóa',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 7,
+    createdDate: '07/05/2020',
+    refNumber: 'REF0007',
+    invoiceNumber: 'INV0007',
+    arrayMoney: [{
+        total: '1600000',
+        typeMoney: 'VND',
+    },
+
+    ],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 7',
+    request: 'Yêu cầu xóa',
+    departmentName: 'KẾ TOÁN',
+    departmentID: 10026,
+},
+{
+    id: 8,
+    createdDate: '08/05/2020',
+    refNumber: 'REF0008',
+    invoiceNumber: 'INV0008',
+    arrayMoney: [{
+        total: '100',
+        typeMoney: 'USD',
+    },
+
+    ],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 8',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 9,
+    createdDate: '09/05/2020',
+    refNumber: 'REF0009',
+    invoiceNumber: 'INV0009',
+    arrayMoney: [{
+        total: '2000000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '130',
+        typeMoney: 'USD',
+    },
+
+    ],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 9',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Ban NH3',
+    departmentID: 10035,
+},
+{
+    id: 10,
+    createdDate: '10/05/2020',
+    refNumber: 'REF0010',
+    invoiceNumber: 'INV0010',
+    arrayMoney: [{
+        total: '123',
+        typeMoney: 'VND',
+    },],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 10',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Ban NH3',
+    departmentID: 10035,
+},
+];
+function convertNumber(number) {
+    if (number < 10) {
+        return '0' + number
+    } else
+        return number
 }
-let styleHearderTitle = {
-    font: {
-        // color: '#FF0800',
-        size: 12,
-        bold: true,
-        name: 'Times New Roman',
-    },
-    alignment: {
-        wrapText: true,
-        // ngang
-        horizontal: 'center',
-    },
-    border: {
-        left: {
-            style: 'thin',
-            color: '#000000' // HTML style hex value
-        },
-        right: {
-            style: 'thin',
-            color: '#000000'
-        },
-        top: {
-            style: 'thin',
-            color: '#000000'
-        },
-        bottom: {
-            style: 'thin',
-            color: '#000000'
-        },
-    },
-    // numberFormat: '$#,##0.00; ($#,##0.00); -',
-}
-let styleHearderText = {
-    font: {
-        // color: '#FF0800',
-        size: 10,
-        bold: true,
-        name: 'Times New Roman',
-    },
-    alignment: {
-        wrapText: true,
-        horizontal: 'center',
-    },
-    border: {
-        left: {
-            style: 'thin',
-            color: '#000000' // HTML style hex value
-        },
-        right: {
-            style: 'thin',
-            color: '#000000'
-        },
-        top: {
-            style: 'thin',
-            color: '#000000'
-        },
-        bottom: {
-            style: 'thin',
-            color: '#000000'
-        },
-    },
-    // numberFormat: '$#,##0.00; ($#,##0.00); -',
-}
-let styleHearderNumber = {
-    font: {
-        // color: '#FF0800',
-        size: 12,
-        bold: true,
-        name: 'Times New Roman',
-    },
-    numberFormat: '#,##0; (#,##0); 0',
-    alignment: {
-        wrapText: true,
-        horizontal: 'right',
-        vertical: 'center',
-    },
-    border: {
-        left: {
-            style: 'thin',
-            color: '#000000' // HTML style hex value
-        },
-        right: {
-            style: 'thin',
-            color: '#000000'
-        },
-        top: {
-            style: 'thin',
-            color: '#000000'
-        },
-        bottom: {
-            style: 'thin',
-            color: '#000000'
-        },
-    },
-}
-let styleCellText = {
-    font: {
-        size: 8,
-        bold: true,
-        name: 'Times New Roman',
-    },
-    alignment: {
-        wrapText: true,
-        // ngang
-        horizontal: 'center',
-    },
-    border: {
-        left: {
-            style: 'thin',
-            color: '#000000' // HTML style hex value
-        },
-        right: {
-            style: 'thin',
-            color: '#000000'
-        },
-        top: {
-            style: 'thin',
-            color: '#000000'
-        },
-        bottom: {
-            style: 'thin',
-            color: '#000000'
-        },
-    },
-}
-let stylecellNumber = {
-    font: {
-        // color: '#FF0800',
-        size: 12,
-        bold: false,
-        name: 'Times New Roman',
-    },
-    numberFormat: '#,##0; (#,##0); 0',
-    alignment: {
-        wrapText: true,
-        // ngang
-        horizontal: 'right',
-        // Dọc
-        vertical: 'center',
-    },
-    border: {
-        left: {
-            style: 'thin',
-            color: '#000000' // HTML style hex value
-        },
-        right: {
-            style: 'thin',
-            color: '#000000'
-        },
-        top: {
-            style: 'thin',
-            color: '#000000'
-        },
-        bottom: {
-            style: 'thin',
-            color: '#000000'
-        },
-    },
-}
-let stylecellNumberSpecial = {
-    font: {
-        // color: '#FF0800',
-        size: 12,
-        bold: false,
-        name: 'Times New Roman',
-    },
-    numberFormat: '#,##0.00; (#,##0.00); -',
-    alignment: {
-        wrapText: true,
-        // ngang
-        horizontal: 'right',
-        // Dọc
-        vertical: 'center',
-    },
-    border: {
-        left: {
-            style: 'thin',
-            color: '#000000' // HTML style hex value
-        },
-        right: {
-            style: 'thin',
-            color: '#000000'
-        },
-        top: {
-            style: 'thin',
-            color: '#000000'
-        },
-        bottom: {
-            style: 'thin',
-            color: '#000000'
-        },
-    },
-}
-let stylePublic = {
-    border: {
-        left: {
-            style: 'thin',
-            color: '#000000' // HTML style hex value
-        },
-        right: {
-            style: 'thin',
-            color: '#000000'
-        },
-        top: {
-            style: 'thin',
-            color: '#000000'
-        },
-        bottom: {
-            style: 'thin',
-            color: '#000000'
-        },
-    },
+
+function getDataInvoiceFromDepartmentFollowYear(db, departmentID, year) {
+    if (data[d].departmentID == department[dp].ID) {
+
+    }
 }
 module.exports = {
-    // report_average_votes
-    reportAverageVotes: (req, res) => {
-        let body = req.body;
+    // get_list_invoice_from_customer
+    getListInvoiceFromCustomer: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging": {
+                "pageSize": 10,
+                "currentPage": 1,
+            },
+            "type": body.type
+        }
+        // console.log(body);
+        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
-                try {
-                    mtblDMBoPhan(db).findAll({
+                if (data) {
+                    let arrayResult = []
+                    let arrayHeader = []
+                    arrayHeader.push('STT')
+                    arrayHeader.push('NỘI DUNG')
+                    for (let month = 1; month <= 12; month++) {
+                        arrayHeader.push('THÁNG ' + convertNumber(month) + '/' + body.year)
+                    }
+                    let stt = 1
+                    await mtblDMBoPhan(db).findAll({
                         order: [
                             ['ID', 'DESC']
                         ],
                     }).then(async department => {
-                        for (let d = 0; d < department.length; d++) {
-                            let receipt = await mtblReceiptsPayment(db).findAll({})
+                        for (let dp = 0; dp < department.length; dp++) {
+                            let array = []
+                            arrayResult.push({
+                                stt: stt,
+                                departmentName: department[dp].DepartmentName,
+                                array: array,
+                            })
+                            stt += 1
                         }
                     })
-                } catch (error) {
-                    console.log(error);
+                    for (let d = 0; d < data.length; d++) {
+
+                    }
+                    res.json(result);
+                    // } else {
+                    //     res.json(Result.SYS_ERROR_RESULT)
+                    // }
+                } else {
                     res.json(Result.SYS_ERROR_RESULT)
                 }
             } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
+                res.json(Result.SYS_ERROR_RESULT)
             }
         })
     },
-    // TỔNG HỢP DOANH THU SHTT
-    // export_excel_report_aggregate_revenue
-    exportExcelReportAggregateRevenue: (req, res) => {
-        var wb = new xl.Workbook();
-        // Create a reusable style
-        styleHearderText['fill'] = {
-            type: 'pattern',
-            patternType: 'solid',
-            bgColor: '#CCFFFF',
-            fgColor: '#CCFFFF',
-        }
-        var styleHearderT = wb.createStyle(styleHearderText);
-        var styleHearderN = wb.createStyle(styleHearderNumber);
-        var stylecellT = wb.createStyle(styleCellText);
-        var stylecellN = wb.createStyle(stylecellNumber);
-        let body = req.body;
-        // let data = JSON.parse(body.data);
-        // let objInsurance = JSON.parse(body.objInsurance);
-        // let totalFooter = JSON.parse(body.totalFooter)
-        let arrayHeader = [
-            'STT',
-            'NỘI DUNG',
-            'THÁNG 01/2020',
-            'THÁNG 02/2020',
-            'THÁNG 03/2020',
-            'THÁNG 04/2020',
-            'THÁNG 05/2020',
-            'THÁNG 06/2020',
-        ]
-        database.connectDatabase().then(async db => {
-            if (db) {
-                try {
-                    // Add Worksheets to the workbook
-                    var ws = wb.addWorksheet('Sheet 1');
-                    ws.column(1).setWidth(5);
-                    ws.row(1).setHeight(25);
-                    ws.row(2).setHeight(25);
-                    ws.row(3).setHeight(25);
-                    ws.row(4).setHeight(25);
-                    ws.cell(1, 1, 1, 6, true)
-                        .string('TỔNG HỢP DOANH THU SHTT NĂM 2020')
-                        .style(styleHearderTitle);
-                    stylePublic['font'] = {
-                        size: 11,
-                        bold: true,
-                        underline: true,
-                        name: 'Times New Roman',
-                    }
-                    stylePublic['alignment'] = {
-                        wrapText: true,
-                        // ngang
-                        // horizontal: 'center',
-                        // Dọc
-                        // vertical: 'center',
-                    }
-                    ws.cell(2, 1, 2, 6, true)
-                        .string('DOANH THU TRÊN DEBINOTE')
-                        .style(stylePublic);
-                    var row = 1
-                    for (let width = 2; width < 1000; width++) {
-                        ws.column(width).setWidth(20);
-                        // ws.row(width).setWidth(20);
-                    }
-                    for (let hd = 0; hd < arrayHeader.length; hd++) {
-                        if (hd < 2) {
-                            ws.cell(3, row)
-                                .string(arrayHeader[hd])
-                                .style(styleHearderT);
-                            styleCellText['fill'] = {
-                                type: 'pattern',
-                                patternType: 'solid',
-                                bgColor: '#FFFF99',
-                                fgColor: '#FFFF99',
-                            }
-                            let style = wb.createStyle(styleCellText)
-                            ws.cell(4, row)
-                                .number(hd + 1)
-                                .style(style);
-                            row += 1
-                        } else {
-                            ws.cell(3, row, 3, row + 3, true)
-                                .string(arrayHeader[hd])
-                                .style(styleHearderT);
-                            styleCellText['fill'] = {
-                                type: 'pattern',
-                                patternType: 'solid',
-                                bgColor: '#FFC000',
-                                fgColor: '#FFC000',
-                            }
-                            let style1 = wb.createStyle(styleCellText)
-                            ws.cell(4, row)
-                                .string(arrayHeader[hd])
-                                .style(style1);
-                            styleCellText['fill'] = {
-                                type: 'pattern',
-                                patternType: 'solid',
-                                bgColor: '#92D050',
-                                fgColor: '#92D050',
-                            }
-                            let style2 = wb.createStyle(styleCellText)
-                            ws.cell(4, row + 1)
-                                .string(arrayHeader[hd])
-                                .style(style2);
-                            styleCellText['fill'] = {
-                                type: 'pattern',
-                                patternType: 'solid',
-                                bgColor: '#FFFF99',
-                                fgColor: '#FFFF99',
-                            }
-                            let style3 = wb.createStyle(styleCellText)
-                            ws.cell(4, row + 2)
-                                .string('CHÊNH LỆCH')
-                                .style(style3);
-                            ws.cell(4, row + 3)
-                                .string('TỈ LỆ (%)')
-                                .style(style3);
-                            row += 4
-                        }
-                    }
-                    ws.column(2).setWidth(30);
-                    await wb.write('D:/images_services/ageless_sendmail/' + 'test.xlsx');
-                    setTimeout(() => {
-                        var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'test.xlsx',
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
-                    }, 500);
-
-                } catch (error) {
-                    console.log(error);
-                    res.json(Result.SYS_ERROR_RESULT)
-                }
-            } else {
-                res.json(Constant.MESSAGE.USER_FAIL)
-            }
-        })
-    }
 }

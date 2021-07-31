@@ -63,6 +63,7 @@ module.exports = {
                             }
                         }
                     })
+                    now = moment().add(21, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
                     await mtblCurrency(db).findAll().then(async data => {
                         for (let i = 0; i < data.length; i++) {
                             let rate = await mtblRate(db).findAll({
