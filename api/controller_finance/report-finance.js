@@ -313,7 +313,58 @@ async function getDataInvoiceFromDepartmentFollowYear(db, departmentID, year) {
     }
     return totalMoneyVND
 }
+async function getCurrencyFromMonth(db, month) {
+    let result = 0;
+    let count = 0;
+    await mtblRate(db).findAll({
+        where: { Date: month }
+    }).then(data => {
+        data.forEach(item => {
+            result += Number(item.ExchangeRate)
+            count += 1
+        })
+    })
+    return count ? (result / count) : 0
+}
+
+async function getListTypeMoneyFollowYear(db, year) {
+    let arrayResult = []
+    await mtblReceiptsPayment(db).findAll({
+        where: [
+            { type: 'receipt' },
+            {
+                [Op.or]: [
+                    { Date: { [Op.substring]: year } },
+                    { Date: { [Op.substring]: (Number(year) - 1) } },
+                ]
+            }
+        ]
+    }).then(data => {
+        data.forEach(item => {
+            if (!checkDuplicate(arrayResult, item.IDCurrency))
+                arrayResult.push(item.IDCurrency)
+        })
+    })
+    return arrayResult
+}
+
+async function getMoneyMoneyRevenueFollowMonthAndTypeMoney(db, month, idTypeMoney) {
+    let result = 0;
+    await mtblReceiptsPayment(db).findAll({
+        where: {
+            IDCurrency: idTypeMoney,
+            type: 'receipt',
+            Date: { [Op.substring]: month },
+        }
+    }).then(data => {
+        data.forEach(item => {
+            result += item.Amount
+        })
+    })
+    return result
+}
 module.exports = {
+    // TỔNG HỢP DOANH THU SHTT
     // get_data_report_aggregate_revenue_shtt
     getDataReportAggregateRevenueSHTT: async (req, res) => {
         var body = req.body
@@ -333,6 +384,8 @@ module.exports = {
                     let arrayHeader = []
                     arrayHeader.push('STT')
                     arrayHeader.push('NỘI DUNG')
+                    let arrayHeaderExcel = []
+                    let objTotal = {}
                     for (let month = 1; month <= 12; month++) {
                         arrayHeader.push('THÁNG ' + convertNumber(month) + '/' + body.year)
                     }
@@ -342,28 +395,184 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                     }).then(async department => {
+                        let stt = 1;
                         for (let dp = 0; dp < department.length; dp++) {
-                            let obj = {};
-                            for (let month = 1; month <= 12; month++) {
-                                let objElement = {}
-                                let year = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + body.year)
-                                let lastYear = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + (Number(body.year) - 1))
-                                objElement[convertNumber(month) + '/' + body.year] = year;
-                                objElement[convertNumber(month) + '/' + (Number(body.year) - 1)] = lastYear;
-                                objElement['difference'] = year - lastYear;
-                                objElement['ratio'] = lastYear ? (year - lastYear) / lastYear : 0;
-                                obj['THÁNG ' + convertNumber(month) + '/' + body.year] = objElement;
-                            }
-                            arrayResult.push({
+                            let obj = {
                                 stt: stt,
                                 departmentName: department[dp].DepartmentName,
-                                obj: obj,
+                            }
+                            arrayHeaderExcel.push('1')
+                            arrayHeaderExcel.push('2')
+                            for (let month = 1; month <= 12; month++) {
+                                let year = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + body.year)
+                                let lastYear = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + (Number(body.year) - 1))
+                                obj['monthBefore' + convertNumber(month)] = year;
+                                obj['monthAfter' + convertNumber(month)] = lastYear;
+                                obj['difference' + month] = year - lastYear;
+                                obj['ratio' + month] = lastYear ? (year - lastYear) / lastYear : 0;
+                                arrayHeaderExcel.push('THÁNG ' + convertNumber(month) + '/' + (Number(body.year) - 1))
+                                arrayHeaderExcel.push('THÁNG ' + convertNumber(month) + '/' + body.year)
+                                arrayHeaderExcel.push('CHÊNH LỆCH')
+                                arrayHeaderExcel.push('TỈ LỆ (%)')
+                                objTotal['monthBefore' + convertNumber(month)] = Number(objTotal['monthBefore' + convertNumber(month)] ? objTotal['monthBefore' + convertNumber(month)] : 0) + year;
+                                objTotal['monthAfter' + convertNumber(month)] = Number(objTotal['monthAfter' + convertNumber(month)] ? objTotal['monthAfter' + convertNumber(month)] : 0) + lastYear;
+                                objTotal['difference' + month] = Number(objTotal['difference' + month] ? objTotal['difference' + month] : 0) + (year - lastYear);
+                                objTotal['ratio' + month] = Number(objTotal['ratio' + month] ? objTotal['ratio' + month] : 0) + (lastYear ? (year - lastYear) / lastYear : 0);
+                            }
+                            arrayResult.push(obj)
+                            stt += 1
+                        }
+                        let obj = {
+                            stt: null,
+                            departmentName: 'Tỉ giá',
+                        }
+                        for (let month = 1; month <= 12; month++) {
+                            let rate = await getCurrencyFromMonth(db, body.year + '/' + convertNumber(month));
+                            let lastRate = await getCurrencyFromMonth(db, (Number(body.year) - 1) + '/' + convertNumber(month));
+                            obj['monthBefore' + convertNumber(month)] = rate;
+                            obj['monthAfter' + convertNumber(month)] = lastRate;
+                            obj['difference' + month] = rate - lastRate;
+                            obj['ratio' + month] = lastRate ? (Math.round(((rate - lastRate) / lastRate) * 100) / 100) : 0;
+                        }
+                        arrayResult.push(obj)
+                        objTotal['stt'] = null
+                        objTotal['departmentName'] = 'Tổng doanh thu'
+                        arrayResult.unshift(objTotal)
+                    })
+                    let result = {
+                        arrayResult: arrayResult,
+                        arrayHeader: arrayHeader,
+                        arrayHeaderExcel: arrayHeaderExcel,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // DOANH THU TRÊN TIỀN VỀ
+    // get_data_report_money_revenue
+    getDataReportMoneyRevenue: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging": {
+                "pageSize": 10,
+                "currentPage": 1,
+            },
+            "type": body.type
+        }
+        // console.log(body);
+        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                if (data) {
+                    let arrayResult = {}
+                    let objResult = {}
+                    let arrayHeader = []
+                    arrayHeader.push('STT')
+                    arrayHeader.push('NỘI DUNG')
+                    objResult['stt'] = 1
+                    objResult['name'] = 'Doanh thu trên tiền về'
+                    let arrayCurrencyID = await getListTypeMoneyFollowYear(db, '2021')
+                    let arrayCurrency = []
+                    for (let month = 1; month <= 12; month++) {
+                        arrayHeader.push('THÁNG ' + convertNumber(month) + '/' + (Number(body.year) - 1))
+                        arrayHeader.push('THÁNG ' + convertNumber(month) + '/' + body.year)
+                        let arrayMonthBefore = [];
+                        let arrayMonthAfter = [];
+                        for (let type = 0; type < arrayCurrencyID.length; type++) {
+                            let objCurrency = await mtblCurrency(db).findOne({
+                                where: {
+                                    ID: arrayCurrencyID[type]
+                                }
                             })
+                            if (objCurrency) {
+                                if (!checkDuplicate(arrayCurrency, objCurrency.ShortName)) {
+                                    arrayCurrency.push(objCurrency.ShortName)
+                                }
+                                let valueBefore = await getMoneyMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
+                                let valueAfter = await getMoneyMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
+                                objResult[objCurrency.ShortName + 'b' + month] = valueBefore
+                                objResult[objCurrency.ShortName + 'a' + month] = valueBefore
+                                arrayMonthBefore.push({
+                                    key: objCurrency.ShortName + 'b' + month,
+                                    name: objCurrency.ShortName,
+                                    value: valueBefore,
+                                })
+                                arrayMonthAfter.push({
+                                    key: objCurrency.ShortName + 'a' + month,
+                                    name: objCurrency.ShortName,
+                                    value: valueAfter,
+                                })
+                            }
+                        }
+                        arrayResult['monthBefore' + convertNumber(month)] = arrayMonthBefore
+                        arrayResult['monthAfter' + convertNumber(month)] = arrayMonthAfter
+                    }
+                    let result = {
+                        arrayData: [objResult],
+                        arrayResult: arrayResult,
+                        arrayHeader: arrayHeader,
+                        arrayCurrency: arrayCurrency,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } else {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // DOANH THU BÌNH QUÂN THÁNG CỦA CÁC BAN HOẶC CẢ CÔNG TY THEO NĂM
+    // get_data_report_average_revenue
+    getDataReportAverageRevenue: async (req, res) => {
+        var body = req.body
+        var obj = {
+            "paging": {
+                "pageSize": 10,
+                "currentPage": 1,
+            },
+            "type": body.type
+        }
+        // console.log(body);
+        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                if (data) {
+                    let arrayResult = []
+                    await mtblDMBoPhan(db).findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async department => {
+                        let stt = 1;
+                        let lastYearAverage = 0;
+                        let monthlyRevenue = 0;
+                        for (let dp = 0; dp < department.length; dp++) {
+                            let obj = {
+                                stt: stt,
+                                departmentName: department[dp].DepartmentName,
+                                lastYearAverage: lastYearAverage,
+                                monthlyRevenue: monthlyRevenue,
+                                difference: monthlyRevenue - lastYearAverage,
+                                ratio: lastYearAverage != 0 ? ((monthlyRevenue - lastYearAverage) / lastYearAverage) : 0,
+                            }
+                            arrayResult.push(obj)
                             stt += 1
                         }
                     })
                     let result = {
                         arrayResult: arrayResult,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
                     res.json(result);
                 } else {
