@@ -349,7 +349,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
         }
     }).then(async leave => {
         for (let i = 0; i < leave.length; i++) {
-            if (leave[i].Status == 'KL') {
+            if (leave[i].Status == 'KL' && leave[i].Reason == 'Nghỉ không phép') {
                 leaveFree += 1
             } else if (leave[i].Status == '0.5') {
                 leaveFree += 1
@@ -364,9 +364,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
     let numberHoliday = await calculateNumberLeave(db, staffID, date, 'productivityWage')
     let sunSta = 0
     for (let i = 1; i <= dateFinal; i++) {
-        console.log(1234, moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'));
         var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-        console.log(mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')));
         if (datetConvert.slice(0, 8) == 'Chủ nhật' || datetConvert.slice(0, 5) == 'Thứ 7') {
             sunSta += 1
         }
@@ -1084,27 +1082,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 01 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-1 8:00:00",
+            'Verify Date': "2021-7-1 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-1 17:30:30",
+            'Verify Date': "2021-7-1 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-1 8:00:16",
+            'Verify Date': "2021-7-1 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-1 17:30:20",
+            'Verify Date': "2021-7-1 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1112,27 +1110,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 02 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-2 8:00:00",
+            'Verify Date': "2021-7-2 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-2 17:30:30",
+            'Verify Date': "2021-7-2 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-2 8:00:16",
+            'Verify Date': "2021-7-2 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-2 17:30:20",
+            'Verify Date': "2021-7-2 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1140,27 +1138,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 03 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-3 8:00:00",
+            'Verify Date': "2021-7-3 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-3 17:30:30",
+            'Verify Date': "2021-7-3 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-3 8:00:16",
+            'Verify Date': "2021-7-3 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-3 16:00:20",
+            'Verify Date': "2021-7-3 16:00:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1168,27 +1166,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 04 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-4 8:00:00",
+            'Verify Date': "2021-7-4 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-4 17:30:30",
+            'Verify Date': "2021-7-4 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-4 8:00:16",
+            'Verify Date': "2021-7-4 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-4 17:30:20",
+            'Verify Date': "2021-7-4 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1196,27 +1194,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 05 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-5 8:00:00",
+            'Verify Date': "2021-7-5 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-5 17:30:30",
+            'Verify Date': "2021-7-5 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-5 8:00:16",
+            'Verify Date': "2021-7-5 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-5 17:30:20",
+            'Verify Date': "2021-7-5 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1224,27 +1222,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 06 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-6 8:00:00",
+            'Verify Date': "2021-7-6 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-6 17:30:30",
+            'Verify Date': "2021-7-6 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-6 8:00:16",
+            'Verify Date': "2021-7-6 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-6 17:30:20",
+            'Verify Date': "2021-7-6 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1252,27 +1250,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 07 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-7 8:00:00",
+            'Verify Date': "2021-7-7 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-7 17:30:30",
+            'Verify Date': "2021-7-7 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-7 8:00:16",
+            'Verify Date': "2021-7-7 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-7 17:30:20",
+            'Verify Date': "2021-7-7 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1280,27 +1278,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 08 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-8 8:00:00",
+            'Verify Date': "2021-7-8 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-1 17:30:30",
+            'Verify Date': "2021-7-1 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-8 8:00:16",
+            'Verify Date': "2021-7-8 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-8 17:30:20",
+            'Verify Date': "2021-7-8 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1308,27 +1306,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 10 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-10 8:00:00",
+            'Verify Date': "2021-7-10 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-10 17:30:30",
+            'Verify Date': "2021-7-10 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-10 8:00:16",
+            'Verify Date': "2021-7-10 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-10 17:30:20",
+            'Verify Date': "2021-7-10 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1336,27 +1334,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 11 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-11 8:30:00",
+            'Verify Date': "2021-7-11 8:30:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-1 17:30:30",
+            'Verify Date': "2021-7-1 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-11 8:00:16",
+            'Verify Date': "2021-7-11 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-11 17:30:20",
+            'Verify Date': "2021-7-11 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1364,27 +1362,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 12 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-12 8:00:00",
+            'Verify Date': "2021-7-12 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-12 17:30:30",
+            'Verify Date': "2021-7-12 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-12 8:00:16",
+            'Verify Date': "2021-7-12 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-12 17:30:20",
+            'Verify Date': "2021-7-12 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1392,27 +1390,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 13 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-13 8:00:00",
+            'Verify Date': "2021-7-13 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-13 17:30:30",
+            'Verify Date': "2021-7-13 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-13 8:00:16",
+            'Verify Date': "2021-7-13 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-13 17:00:20",
+            'Verify Date': "2021-7-13 17:00:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1421,27 +1419,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 14 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-14 8:00:00",
+            'Verify Date': "2021-7-14 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-14 17:30:30",
+            'Verify Date': "2021-7-14 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-14 8:00:16",
+            'Verify Date': "2021-7-14 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-14 17:30:20",
+            'Verify Date': "2021-7-14 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1449,27 +1447,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 15 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-15 8:00:00",
+            'Verify Date': "2021-7-15 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-15 17:30:30",
+            'Verify Date': "2021-7-15 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-15 8:00:16",
+            'Verify Date': "2021-7-15 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-15 17:30:20",
+            'Verify Date': "2021-7-15 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1478,27 +1476,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 16 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-16 8:00:00",
+            'Verify Date': "2021-7-16 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-16 17:30:30",
+            'Verify Date': "2021-7-16 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-16 8:00:16",
+            'Verify Date': "2021-7-16 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-16 17:30:20",
+            'Verify Date': "2021-7-16 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1507,27 +1505,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 17 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-17 8:00:00",
+            'Verify Date': "2021-7-17 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-17 17:30:30",
+            'Verify Date': "2021-7-17 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-17 8:00:16",
+            'Verify Date': "2021-7-17 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-17 17:30:20",
+            'Verify Date': "2021-7-17 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1535,27 +1533,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 18 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-18 8:00:00",
+            'Verify Date': "2021-7-18 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-18 17:30:30",
+            'Verify Date': "2021-7-18 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-18 8:00:16",
+            'Verify Date': "2021-7-18 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-18 17:00:20",
+            'Verify Date': "2021-7-18 17:00:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1564,27 +1562,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 19 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-19 8:00:00",
+            'Verify Date': "2021-7-19 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-19 17:30:30",
+            'Verify Date': "2021-7-19 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-19 8:30:16",
+            'Verify Date': "2021-7-19 8:30:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-19 17:30:20",
+            'Verify Date': "2021-7-19 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1593,27 +1591,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 20 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-20 8:00:00",
+            'Verify Date': "2021-7-20 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-20 17:30:30",
+            'Verify Date': "2021-7-20 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-20 8:00:16",
+            'Verify Date': "2021-7-20 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-20 17:30:20",
+            'Verify Date': "2021-7-20 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1621,27 +1619,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 21 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-21 8:00:00",
+            'Verify Date': "2021-7-21 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-21 17:30:30",
+            'Verify Date': "2021-7-21 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-21 8:00:16",
+            'Verify Date': "2021-7-21 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-21 17:30:20",
+            'Verify Date': "2021-7-21 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1650,27 +1648,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 24 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-24 8:00:00",
+            'Verify Date': "2021-7-24 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-14 17:30:30",
+            'Verify Date': "2021-7-14 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-24 10:00:16",
+            'Verify Date': "2021-7-24 10:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-24 17:30:20",
+            'Verify Date': "2021-7-24 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1679,27 +1677,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 25----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-25 8:00:00",
+            'Verify Date': "2021-7-25 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-25 17:30:30",
+            'Verify Date': "2021-7-25 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-25 8:00:16",
+            'Verify Date': "2021-7-25 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-25 17:30:20",
+            'Verify Date': "2021-7-25 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1707,27 +1705,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 26 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-26 8:00:00",
+            'Verify Date': "2021-7-26 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-14 17:30:30",
+            'Verify Date': "2021-7-14 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-26 8:00:16",
+            'Verify Date': "2021-7-26 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-26 17:30:20",
+            'Verify Date': "2021-7-26 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1736,27 +1734,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 27 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-27 8:00:00",
+            'Verify Date': "2021-7-27 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-27 17:30:30",
+            'Verify Date': "2021-7-27 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-27 8:00:16",
+            'Verify Date': "2021-7-27 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-27 17:30:20",
+            'Verify Date': "2021-7-27 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1765,27 +1763,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 28 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-28 8:00:00",
+            'Verify Date': "2021-7-28 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-28 17:30:30",
+            'Verify Date': "2021-7-28 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-28 8:00:16",
+            'Verify Date': "2021-7-28 8:00:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-28 17:30:20",
+            'Verify Date': "2021-7-28 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
@@ -1793,27 +1791,27 @@ async function getDataTimeKeeping(dateRes, departmentID) {
         // 31 ----------------------------------------------------------------------------------------------------------------------------------
         {
             'User ID': 1,
-            'Verify Date': "2021-6-31 8:00:00",
+            'Verify Date': "2021-7-31 8:00:00",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 1,
-            'Verify Date': "2021-6-31 17:30:30",
+            'Verify Date': "2021-7-31 17:30:30",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         }, {
             'User ID': 2,
-            'Verify Date': "2021-6-31 8:30:16",
+            'Verify Date': "2021-7-31 8:30:16",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
         },
         {
             'User ID': 2,
-            'Verify Date': "2021-6-31 17:30:20",
+            'Verify Date': "2021-7-31 17:30:20",
             'Verify Type': 1,
             'Verify State': 1,
             'Work Code': 1
