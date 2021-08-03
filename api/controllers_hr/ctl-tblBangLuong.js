@@ -3636,7 +3636,7 @@ module.exports = {
     syntheticInformationMonthly: async (req, res) => {
         let body = req.body;
         console.log(body);
-        await createTimeAttendanceSummary()
+        // await createTimeAttendanceSummary()
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
