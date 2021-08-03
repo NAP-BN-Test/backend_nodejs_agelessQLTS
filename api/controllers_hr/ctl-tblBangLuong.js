@@ -2998,21 +2998,25 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                 if (nextMonthYear) {
                     var nextMonth = Number(nextMonthYear.slice(5, 7));
                     var nextYear = Number(nextMonthYear.slice(0, 4));
+                    let check = 0;
                     for (let month = monthFirst; month <= nextMonth; month++) {
                         let resultNew = await getDetailPayroll(db, nextYear + '-' + await convertNumber(month), departmentID, minimumWage[0])
                         Array.prototype.push.apply(result.array, resultNew.array)
                         if (resultNew.objInsurance.companyBHTN)
                             result.objInsurance = resultNew.objInsurance
-                        result.totalFooter.bhxhSalaryTotal += resultNew.totalFooter.bhxhSalaryTotal
-                        result.totalFooter.bhxhCTTotal += resultNew.totalFooter.bhxhCTTotal
-                        result.totalFooter.bhxhNVTotal += resultNew.totalFooter.bhxhNVTotal
-                        result.totalFooter.bhytCTTotal += resultNew.totalFooter.bhytCTTotal
-                        result.totalFooter.bhytNVTotal += resultNew.totalFooter.bhytNVTotal
-                        result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
-                        result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
-                        result.totalFooter.bhtnNVTotal += resultNew.totalFooter.bhtnNVTotal
-                        result.totalFooter.bhtnldTotal += resultNew.totalFooter.bhtnldTotal
-                        result.totalFooter.tongTotal += resultNew.totalFooter.tongTotal
+                        if (check != 1) {
+                            result.totalFooter.bhxhSalaryTotal += resultNew.totalFooter.bhxhSalaryTotal
+                            result.totalFooter.bhxhCTTotal += resultNew.totalFooter.bhxhCTTotal
+                            result.totalFooter.bhxhNVTotal += resultNew.totalFooter.bhxhNVTotal
+                            result.totalFooter.bhytCTTotal += resultNew.totalFooter.bhytCTTotal
+                            result.totalFooter.bhytNVTotal += resultNew.totalFooter.bhytNVTotal
+                            result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
+                            result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
+                            result.totalFooter.bhtnNVTotal += resultNew.totalFooter.bhtnNVTotal
+                            result.totalFooter.bhtnldTotal += resultNew.totalFooter.bhtnldTotal
+                            result.totalFooter.tongTotal += resultNew.totalFooter.tongTotal
+                        }
+                        check = 1
                     }
                     let arrayInvalid = []
                     let arrayStaffInvalid = []
@@ -3024,7 +3028,6 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                             arrayInvalid.push(result.array[r])
                         }
                     }
-
                     result.array = arrayInvalid
                 } else {
                     result = await getDetailPayroll(db, await convertNumber(monthFirst) + '-' + yearFirst, departmentID, minimumWage[0])
@@ -3333,7 +3336,6 @@ module.exports = {
                     let result = {}
                     if (body.dateEnd) {
                         let arrayMonth = await applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd)
-                        console.log(arrayMonth);
                         for (let my = 0; my < arrayMonth.length; my += 2) {
                             let nextMonth = null
                             if (arrayMonth[my + 1])
