@@ -3011,7 +3011,6 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                             result.totalFooter.bhytCTTotal += resultNew.totalFooter.bhytCTTotal
                             result.totalFooter.bhytNVTotal += resultNew.totalFooter.bhytNVTotal
                             result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
-                            result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
                             result.totalFooter.bhtnNVTotal += resultNew.totalFooter.bhtnNVTotal
                             result.totalFooter.bhtnldTotal += resultNew.totalFooter.bhtnldTotal
                             result.totalFooter.tongTotal += resultNew.totalFooter.tongTotal
