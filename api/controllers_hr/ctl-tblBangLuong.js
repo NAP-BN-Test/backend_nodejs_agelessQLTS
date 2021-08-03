@@ -2573,6 +2573,7 @@ async function getDetailPayrollForMonthYear(db, monthYear, departmentID) {
             },
             ]
         }
+        console.log(whereArray);
         let whereObj = {
             [Op.or]: whereArray
         }
@@ -2846,6 +2847,7 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
                         reduce += Number(element.Reduce);
                     });
                 })
+                console.log(reduce);
                 bhxhSalaryTotal += bhxhSalary
                 bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
                 bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
@@ -3224,6 +3226,7 @@ module.exports = {
     // get_list_tbl_bangluong
     getListtblBangLuong: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -3297,10 +3300,33 @@ module.exports = {
                     }
                     // thêm số thứ tự
                     let stt = 1
-                    result.array.forEach(item => {
-                        item['stt'] = stt
-                        stt += 1
-                    })
+                    if (result)
+                        result.array.forEach(item => {
+                            item['stt'] = stt
+                            stt += 1
+                        })
+                    else {
+                        result = {
+                            objInsurance: { staffBHXH: 0, staffBHYT: 0, staffBHTN: 0, union: 0 },
+                            totalFooter: {
+                                totalRealField: '0',
+                                totalBHXHSalary: '0',
+                                totalProductivityWages: '0',
+                                totalStaffBHXH: '0',
+                                totalStaffBHYT: '0',
+                                totalStaffBHTN: '0',
+                                totalUnion: '0',
+                                totalPersonalTax: '0',
+                                totalPersonalTaxSalary: '0',
+                                totalAllReduce: '0',
+                                totelReduce: '0'
+                            },
+                            array: [],
+                            status: 1,
+                            message: 'Thao tác thành công!',
+                            all: 0
+                        }
+                    }
                     res.json(result);
                 } catch (error) {
                     console.log(error);
