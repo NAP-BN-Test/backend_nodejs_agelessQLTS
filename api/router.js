@@ -599,7 +599,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_detail_tbl_role').post(tblRole.detailtblRole);
     app.route('/qlnb/delete_tbl_role').post(checkToken.checkToken, tblRole.deletetblRole);
     app.route('/qlnb/get_list_tbl_role').post(tblRole.getListtblRole);
-    app.route('/qlnb/get_list_name_tbl_role').post(checkToken.checkToken, tblRole.getListNametblRole);
+    app.route('/qlnb/get_list_name_tbl_role').post(tblRole.getListNametblRole);
 
     // report nhân sự
     var reportHR = require('./controllers_hr/report_hr')
