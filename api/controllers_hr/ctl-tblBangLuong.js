@@ -951,7 +951,7 @@ async function aggregateTimekeepingForEachMonth(db, staff, date) {
         staffName: staff.StaffName ? staff.StaffName : '',
         staffCode: staff.StaffCode ? staff.StaffCode : '',
         departmentName: staff.department ? staff.department.DepartmentName : '',
-        overtime: Number((overtime / 8).toFixed(2)),
+        overtime: Math.round((overtime / 8) * 100) / 100,
         numberHoliday: numberHoliday,
         freeBreak: Math.round(freeBreak / 2),
         lateDay: lateDay,
@@ -3150,6 +3150,7 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
                                 arrayResult[ar].lateDay += array[ch].lateDay
                                 arrayResult[ar].remainingPreviousYear = array[ch].remainingPreviousYear
                             }
+                            arrayResult[ar].overtime = Math.round(arrayResult[ar].overtime * 100) / 100
                         }
                     }
                 }
