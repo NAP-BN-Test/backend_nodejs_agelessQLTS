@@ -2957,9 +2957,19 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
             // Lấy danh sách lương của hai khoảng
             var nextMonth = Number(nextMonthYear.slice(5, 7));
             var nextYear = Number(nextMonthYear.slice(0, 4));
-            arrayMonthMinWage = await applicationIntervalDivision(db, monthFirst, nextMonth, yearFirst, nextYear, type = 'MLTT')
-            for (let month = 0; month < arrayMonthMinWage.length; month++) {
-                minimumWage.push(await getMinWageConfig(db, Number(arrayMonthMinWage[month].slice(0, 4)), Number(arrayMonthMinWage[month].slice(5, 7))))
+            let arrayCheckMinWage = await applicationIntervalDivision(db, monthFirst, nextMonth, yearFirst, nextYear, type = 'MLTT')
+            arrayMonthMinWage = []
+            for (let month = 0; month < arrayCheckMinWage.length; month++) {
+                let wage = await getMinWageConfig(db, Number(arrayCheckMinWage[month].slice(0, 4)), Number(arrayCheckMinWage[month].slice(5, 7)))
+                let wageS1 = 0
+                if (month > 0) {
+                    wageS1 = await getMinWageConfig(db, Number(arrayCheckMinWage[month - 1].slice(0, 4)), Number(arrayCheckMinWage[month - 1].slice(5, 7)))
+                }
+                console.log(wageS1, wage, 12345);
+                if (wageS1 != wage) {
+                    arrayMonthMinWage.push(arrayCheckMinWage[month])
+                    minimumWage.push(wage)
+                }
             }
         } else {
             minimumWage.push(await getMinWageConfig(db, Number(monthYear.slice(0, 4)), Number(monthYear.slice(5, 7))))
@@ -2991,7 +3001,6 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                     for (let month = monthFirst; month <= nextMonth; month++) {
                         let resultNew = await getDetailPayroll(db, nextYear + '-' + await convertNumber(month), departmentID, minimumWage[0])
                         Array.prototype.push.apply(result.array, resultNew.array)
-                        console.log(month);
                         if (resultNew.objInsurance.companyBHTN)
                             result.objInsurance = resultNew.objInsurance
                         result.totalFooter.bhxhSalaryTotal += resultNew.totalFooter.bhxhSalaryTotal
@@ -3005,6 +3014,18 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                         result.totalFooter.bhtnldTotal += resultNew.totalFooter.bhtnldTotal
                         result.totalFooter.tongTotal += resultNew.totalFooter.tongTotal
                     }
+                    let arrayInvalid = []
+                    let arrayStaffInvalid = []
+                    // check lỗi tháng 7-8
+                    for (let r = 0; r < result.array.length; r++) {
+                        if (!checkDuplicate(arrayStaffInvalid, result.array[r].idStaff)) {
+                            arrayStaffInvalid.push(result.array[r].idStaff)
+                            result.array[r].monthOfChange = monthFirst + '/' + yearFirst + '-' + nextMonth + '/' + nextYear
+                            arrayInvalid.push(result.array[r])
+                        }
+                    }
+
+                    result.array = arrayInvalid
                 } else {
                     result = await getDetailPayroll(db, await convertNumber(monthFirst) + '-' + yearFirst, departmentID, minimumWage[0])
                 }
@@ -3159,7 +3180,8 @@ async function applicationIntervalDivision(db, monthStart, monthEnd, yearStart, 
                 let year = Number(data[i].ApplicableDate.slice(0, 4));
                 if (!checkDuplicate(arrayMonth, year + '-' + await convertNumber(month))) {
                     arrayMonth.push(year + '-' + await convertNumber(month))
-                    arrayMonth.push(year + '-' + await convertNumber(month - 1))
+                    if (!checkDuplicate(arrayMonth, year + '-' + await convertNumber(month - 1)))
+                        arrayMonth.push(year + '-' + await convertNumber(month - 1))
                 }
                 if (year + '-' + await convertNumber(month) == yearEnd + '-' + await convertNumber(monthEnd)) {
                     arrayMonth.push(year + '-' + await convertNumber(month - 1))
@@ -3311,14 +3333,15 @@ module.exports = {
                     let result = {}
                     if (body.dateEnd) {
                         let arrayMonth = await applicationIntervalDivision(db, monthStart, monthEnd, yearStart, yearEnd)
+                        console.log(arrayMonth);
                         for (let my = 0; my < arrayMonth.length; my += 2) {
                             let nextMonth = null
                             if (arrayMonth[my + 1])
                                 nextMonth = (arrayMonth[my + 1] > arrayMonth[my] + 1) ? arrayMonth[my + 1] : null
                             resultOfMonth = await getDetailTrackInsurancePremiums(db, arrayMonth[my], body.departmentID, nextMonth)
                             if (arrayMonth[my + 1] && arrayMonth[my].slice(5, 7) != arrayMonth[my + 1].slice(5, 7)) {
-                                resultOfMonth['monthString'] = 'Từ tháng ' + arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + ' đến tháng ' + Number(arrayMonth[my + 1].slice(5, 7)) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
-                                strMonthExcel = arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + '-' + Number(arrayMonth[my + 1].slice(5, 7)) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
+                                resultOfMonth['monthString'] = 'Từ tháng ' + arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + ' đến tháng ' + await convertNumber(Number(arrayMonth[my + 1].slice(5, 7))) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
+                                strMonthExcel = arrayMonth[my].slice(5, 7) + '/' + arrayMonth[my].slice(0, 4) + '-' + await convertNumber(Number(arrayMonth[my + 1].slice(5, 7))) + '/' + Number(arrayMonth[my + 1].slice(0, 4))
                                 resultOfMonth['strMonthExcel'] = strMonthExcel
                             }
                             else {
@@ -3586,7 +3609,7 @@ module.exports = {
     syntheticInformationMonthly: async (req, res) => {
         let body = req.body;
         console.log(body);
-        // await createTimeAttendanceSummary()
+        await createTimeAttendanceSummary()
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
