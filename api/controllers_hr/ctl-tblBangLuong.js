@@ -3411,7 +3411,7 @@ module.exports = {
                                 }
                             if (body.array[i].status != 1) {
                                 if (body.array[i].status == 'KL')
-                                    reason = 'Nghỉ không lương'
+                                    reason = 'Nghỉ không phép'
                                 obj['Reason'] = reason
                             }
                             let now = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
