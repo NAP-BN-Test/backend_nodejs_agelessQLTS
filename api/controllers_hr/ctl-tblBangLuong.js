@@ -388,8 +388,8 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
         result = 0
     if (result < 0)
         result = 0
-    // if (work <= 0 && (dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB)) < 15)
-    //     result = 0
+    if ((dateFinal - numberHoliday - leaveFree / 2 - (sunSta - array7thDB)) < 0)
+        result = productivityWages / Number(workingDay) * (work / 2)
     return result
 }
 async function getListHoliday(db, year, month, dateFinal) {
