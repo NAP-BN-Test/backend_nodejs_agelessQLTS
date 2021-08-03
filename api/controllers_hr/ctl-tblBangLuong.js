@@ -3410,6 +3410,8 @@ module.exports = {
                                     Status: body.array[i].status,
                                 }
                             if (body.array[i].status != 1) {
+                                if (body.array[i].status == 'KL')
+                                    reason = 'Nghỉ không lương'
                                 obj['Reason'] = reason
                             }
                             let now = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
