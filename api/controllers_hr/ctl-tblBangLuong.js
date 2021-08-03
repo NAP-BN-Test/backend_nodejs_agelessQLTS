@@ -349,7 +349,7 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
         }
     }).then(async leave => {
         for (let i = 0; i < leave.length; i++) {
-            if (leave[i].Status == 'KL' && leave[i].Reason == 'Nghỉ không phép') {
+            if (leave[i].Status == 'KL') {
                 leaveFree += 1
             } else if (leave[i].Status == '0.5') {
                 leaveFree += 1
@@ -363,8 +363,10 @@ async function realProductivityWageCalculation(db, staffID, date, productivityWa
     array7thDB = array7thDB.length
     let numberHoliday = await calculateNumberLeave(db, staffID, date, 'productivityWage')
     let sunSta = 0
-    for (let i = 0; i < dateFinal; i++) {
+    for (let i = 1; i <= dateFinal; i++) {
+        console.log(1234, moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'));
         var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+        console.log(mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(i)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS')));
         if (datetConvert.slice(0, 8) == 'Chủ nhật' || datetConvert.slice(0, 5) == 'Thứ 7') {
             sunSta += 1
         }
@@ -2588,7 +2590,7 @@ async function getDetailPayrollForMonthYear(db, monthYear, departmentID) {
                 }]
             },],
             order: [
-                ['ID', 'DESC']
+                ['ID', 'ASC']
             ],
             // offset: Number(body.itemPerPage) * (Number(body.page) - 1),
             // limit: Number(body.itemPerPage),

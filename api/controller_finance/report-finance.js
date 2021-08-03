@@ -348,7 +348,7 @@ async function getListTypeMoneyFollowYear(db, year) {
     return arrayResult
 }
 
-async function getMoneyMoneyRevenueFollowMonthAndTypeMoney(db, month, idTypeMoney) {
+async function getMoneyRevenueFollowMonthAndTypeMoney(db, month, idTypeMoney) {
     let result = 0;
     await mtblReceiptsPayment(db).findAll({
         where: {
@@ -362,6 +362,47 @@ async function getMoneyMoneyRevenueFollowMonthAndTypeMoney(db, month, idTypeMone
         })
     })
     return result
+}
+
+async function getAverageRateFollowYear(db, year, idCurrency) {
+    let result = 0;
+    await mtblRate(db).findAll({
+        where: {
+            Date: { [Op.substring]: year },
+            IDCurrency: idCurrency,
+        }
+    }).then(data => {
+        data.forEach(element => {
+            result += element.ExchangeRate
+        })
+    })
+    let count = await mtblRate(db).count({
+        where: {
+            Date: { [Op.substring]: year },
+            IDCurrency: idCurrency,
+        }
+    })
+    return result / count
+}
+async function getAverageRateFollowMonth(db, month, idCurrency) {
+    let result = 0;
+    await mtblRate(db).findAll({
+        where: {
+            Date: { [Op.substring]: month },
+            IDCurrency: idCurrency,
+        }
+    }).then(data => {
+        data.forEach(element => {
+            result += element.ExchangeRate
+        })
+    })
+    let count = await mtblRate(db).count({
+        where: {
+            Date: { [Op.substring]: month },
+            IDCurrency: idCurrency,
+        }
+    })
+    return result / count
 }
 module.exports = {
     // TỔNG HỢP DOANH THU SHTT
@@ -495,8 +536,8 @@ module.exports = {
                                 if (!checkDuplicate(arrayCurrency, objCurrency.ShortName)) {
                                     arrayCurrency.push(objCurrency.ShortName)
                                 }
-                                let valueBefore = await getMoneyMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
-                                let valueAfter = await getMoneyMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
+                                let valueBefore = await getMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
+                                let valueAfter = await getMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
                                 objResult[objCurrency.ShortName + 'b' + month] = valueBefore
                                 objResult[objCurrency.ShortName + 'a' + month] = valueBefore
                                 arrayMonthBefore.push({
@@ -547,6 +588,8 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (data) {
+                    let yearNow = Number(moment().format('YYYY'));
+                    yearNow = yearNow - 1
                     let arrayResult = []
                     await mtblDMBoPhan(db).findAll({
                         order: [
@@ -556,11 +599,34 @@ module.exports = {
                         let stt = 1;
                         let lastYearAverage = 0;
                         let monthlyRevenue = 0;
+                        await mtblReceiptsPayment(db).findAll({
+                            where: {
+                                type: 'receipt',
+                                Date: { [Op.substring]: yearNow },
+                            }
+                        }).then(async data => {
+                            for (let d = 0; d < data.length; d++) {
+                                let rate = await getAverageRateFollowYear(db, yearNow, data[d].IDCurrency)
+                                lastYearAverage += (data[d].Amount * rate)
+                            }
+                        })
+                        await mtblReceiptsPayment(db).findAll({
+                            where: {
+                                type: 'receipt',
+                                Date: { [Op.substring]: body.date },
+                            }
+                        }).then(async data => {
+                            for (let d = 0; d < data.length; d++) {
+                                let rate = await getAverageRateFollowMonth(db, body.date, data[d].IDCurrency)
+                                monthlyRevenue += (data[d].Amount * rate)
+                            }
+                        })
+                        console.log(monthlyRevenue);
                         for (let dp = 0; dp < department.length; dp++) {
                             let obj = {
                                 stt: stt,
                                 departmentName: department[dp].DepartmentName,
-                                lastYearAverage: lastYearAverage,
+                                lastYearAverage: Math.round(lastYearAverage * 100) / 100,
                                 monthlyRevenue: monthlyRevenue,
                                 difference: monthlyRevenue - lastYearAverage,
                                 ratio: lastYearAverage != 0 ? ((monthlyRevenue - lastYearAverage) / lastYearAverage) : 0,
