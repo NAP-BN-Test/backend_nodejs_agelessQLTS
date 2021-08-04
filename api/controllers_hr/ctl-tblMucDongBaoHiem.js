@@ -26,33 +26,48 @@ module.exports = {
     // add_tbl_mucdong_baohiem
     addtblMucDongBaoHiem: async (req, res) => {
         let body = req.body;
+        console.log(body);
         var year = Number(body.applicableDate.slice(3, 7)); // January
         var month = Number(body.applicableDate.slice(0, 2));
         let applicableDate = null
         if (body.applicableDate)
             applicableDate = year + '-' + await convertNumber(month) + '-' + '01';
+        let date = year + '-' + await convertNumber(month) + '-' + '01';
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblMucDongBaoHiem(db).create({
-                        CompanyBHXH: body.companyBHXH ? body.companyBHXH : null,
-                        CompanyBHYT: body.companyBHYT ? body.companyBHYT : null,
-                        CompanyBHTN: body.companyBHTN ? body.companyBHTN : null,
-                        StaffUnion: body.union ? body.union : null,
-                        StaffBHXH: body.staffBHXH ? body.staffBHXH : null,
-                        StaffBHTNLD: body.staffBHTNLD ? body.staffBHTNLD : null,
-                        StaffBHYT: body.staffBHYT ? body.staffBHYT : null,
-                        StaffBHTN: body.staffBHTN ? body.staffBHTN : null,
-                        DateStart: body.dateStart ? body.dateStart : null,
-                        DateEnd: body.dateEnd ? body.dateEnd : null,
-                        ApplicableDate: applicableDate,
-                    }).then(data => {
+                    let check = await mtblMucDongBaoHiem(db).findOne({
+                        where: {
+                            ApplicableDate: { [Op.gte]: date }
+                        }
+                    })
+                    if (!check)
+                        mtblMucDongBaoHiem(db).create({
+                            CompanyBHXH: body.companyBHXH ? body.companyBHXH : null,
+                            CompanyBHYT: body.companyBHYT ? body.companyBHYT : null,
+                            CompanyBHTN: body.companyBHTN ? body.companyBHTN : null,
+                            StaffUnion: body.union ? body.union : null,
+                            StaffBHXH: body.staffBHXH ? body.staffBHXH : null,
+                            StaffBHTNLD: body.staffBHTNLD ? body.staffBHTNLD : null,
+                            StaffBHYT: body.staffBHYT ? body.staffBHYT : null,
+                            StaffBHTN: body.staffBHTN ? body.staffBHTN : null,
+                            DateStart: body.dateStart ? body.dateStart : null,
+                            DateEnd: body.dateEnd ? body.dateEnd : null,
+                            ApplicableDate: applicableDate,
+                        }).then(data => {
+                            var result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                            res.json(result);
+                        })
+                    else {
                         var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            status: Constant.STATUS.FAIL,
+                            message: 'Đã cấu hình mức đóng bảo hiểm của tháng ' + body.applicableDate + '. Vui lòng kiểm tra lại!',
                         }
                         res.json(result);
-                    })
+                    }
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
