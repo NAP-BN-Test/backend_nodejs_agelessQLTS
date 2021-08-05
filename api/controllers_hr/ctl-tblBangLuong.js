@@ -2417,7 +2417,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                     // Lấy dố ngày lm việc thưc tế
                                     if (timeKeepingA && timeKeepingA.Status != 'Sun' && timeKeepingA.Status != 'Sat') {
                                         let timeKeepingAS = timeKeepingA ? timeKeepingA.Status ? (timeKeepingA.Status.slice(0, 1)) : 'false' : 'false'
-                                        if (timeKeepingAS == 'S' || timeKeepingAS == 'M' || timeKeepingM.Status == '+' || timeKeepingM.Status == ' ') {
+                                        if (timeKeepingAS == 'S' || timeKeepingAS == 'M' || timeKeepingA.Status == '+' || timeKeepingA.Status == ' ') {
                                             numberOfWorkingDays += 0.5
                                         }
                                     }
@@ -2453,15 +2453,12 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                             if (timeKeepingM.Status && timeKeepingM.Status != '0.5' && timeKeepingM.Status != 'Sat' && timeKeepingM.Status != 'Sun') {
                                                 if (Number(timeKeepingM.Status.slice(1, 10))) {
                                                     lateDay += (Number(timeKeepingM.Status.slice(1, 10)))
-                                                    numberOfWorkingDays += 0.5
                                                 }
                                             }
                                             // lấy thời gian về sớm
                                             if (timeKeepingA.Status && timeKeepingA.Status != '0.5' && timeKeepingA.Status != 'Sat' && timeKeepingA.Status != 'Sun') {
                                                 if (Number(timeKeepingA.Status.slice(1, 10))) {
-                                                    numberOfWorkingDays += 0.5
                                                     lateDay += (Number(timeKeepingA.Status.slice(1, 10)))
-
                                                 }
                                             }
                                             if (checkFor == 0)
