@@ -273,7 +273,6 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
         arrayRegimeLeave: arrayRegimeLeave,
         arrayKL: arrayKL,
     }
-    console.log(objResult);
     return objResult
 }
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
@@ -2383,6 +2382,26 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                             { Type: false },
                                         ]
                                     })
+                                    // Lấy dố ngày lm việc thưc tế
+                                    if (timeKeepingM && timeKeepingM.Status != 'Sun' && timeKeepingM.Status != 'Sat') {
+                                        let timeKeepingMS = timeKeepingM ? timeKeepingM.Status ? (timeKeepingM.Status.slice(0, 1)) : 'false' : 'false'
+                                        if (timeKeepingMS == 'S' || timeKeepingMS == 'M' || timeKeepingM.Status == '+' || timeKeepingM.Status == ' ') {
+                                            numberOfWorkingDays += 0.5
+                                        }
+
+                                    }
+                                    if (timeKeepingM.Status == null)
+                                        numberOfWorkingDays += 0.5
+                                    if (timeKeepingA.Status == null)
+                                        numberOfWorkingDays += 0.5
+                                    // Lấy dố ngày lm việc thưc tế
+                                    if (timeKeepingA && timeKeepingA.Status != 'Sun' && timeKeepingA.Status != 'Sat') {
+                                        let timeKeepingAS = timeKeepingA ? timeKeepingA.Status ? (timeKeepingA.Status.slice(0, 1)) : 'false' : 'false'
+                                        if (timeKeepingAS == 'S' || timeKeepingAS == 'M' || timeKeepingM.Status == '+' || timeKeepingM.Status == ' ') {
+                                            numberOfWorkingDays += 0.5
+                                        }
+                                    }
+
                                     if (timeKeepingM) {
                                         if (timeKeepingM.Status == 'KL') {
                                             freeBreak += 1;
@@ -2410,9 +2429,6 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                                 obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
                                             }
                                         } else {
-                                            if (timeKeepingM.Status == '+') {
-                                                numberOfWorkingDays += 1
-                                            }
                                             // LẤy thời gian đi muộn
                                             if (timeKeepingM.Status && timeKeepingM.Status != '0.5' && timeKeepingM.Status != 'Sat' && timeKeepingM.Status != 'Sun') {
                                                 if (Number(timeKeepingM.Status.slice(1, 10)))
@@ -2443,13 +2459,14 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                     }
                                 }
                             }
+                            console.log(numberOfWorkingDays);
                             obj['takeLeave'] = numberLeave;
                             obj['regimeLeave'] = arrayLeaveDay ? arrayLeaveDay.arrayRegimeLeave.length : 0;
                             obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
                             obj['freeBreak'] = freeBreak;
                             obj['workingDay'] = workingDay;
                             obj['lateDay'] = lateDay;
-                            obj['numberOfWorkingDays'] = numberOfWorkingDays / 2;
+                            obj['numberOfWorkingDays'] = numberOfWorkingDays;
                             obj['dayOff'] = Number(Number(summary) + Number(freeBreak)).toFixed(3);
                             obj['staffName'] = staff[i] ? staff[i].StaffName : '';
                             obj['staffCode'] = staff[i] ? staff[i].StaffCode : '';
