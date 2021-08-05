@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = function(db) {
+module.exports = function (db) {
     var table = db.define('tblTimeAttendanceSummary', {
         ID: {
             type: Sequelize.BIGINT,
@@ -18,6 +18,9 @@ module.exports = function(db) {
         Remaining: Sequelize.BIGINT,
         RemainingPreviousYear: Sequelize.BIGINT,
         Month: Sequelize.STRING,
+        SickLeave: Sequelize.BIGINT,
+        RegimeLeave: Sequelize.BIGINT,
+
     });
 
     return table;

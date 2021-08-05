@@ -212,6 +212,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     var arrayObj = [];
     let listID = []
     let arrayRegimeLeave = [];
+    let arrayO = [];
     let arrayKL = [];
     let tblNghiPhep = mtblNghiPhep(db);
     let ListSign = [];
@@ -241,6 +242,9 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                 signLeave = signObj ? signObj.Code : ''
                 if (signObj && signObj.Code == 'O' || signObj.Code == 'CT' || signObj.Code == 'TS' || signObj.Code == 'CÐ') {
                     arrayRegimeLeave.push(signObj.Code)
+                }
+                if (signObj && signObj.Code == 'O') {
+                    arrayO.push(signObj.Code)
                 }
                 if (signObj && signObj.Code == 'KL') {
                     arrayKL.push(signObj.Code)
@@ -272,6 +276,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
         arrayObj: arrayObj,
         arrayRegimeLeave: arrayRegimeLeave,
         arrayKL: arrayKL,
+        arrayO: arrayO,
     }
     return objResult
 }
@@ -996,8 +1001,12 @@ async function createTimeAttendanceSummary() {
             })
             let now = moment().format('MM');
             let yearNow = Number(moment().format('YYYY'));
+
             for (let month = 1; month <= Number(now); month++) {
                 var year = yearNow
+                var date = new Date(year, month, 0);
+                var dateFinal = Number(date.toISOString().slice(8, 10))
+                dateFinal += 1
                 let tblDMNhanvien = mtblDMNhanvien(db);
                 tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
                 await tblDMNhanvien.findAll({
@@ -1013,6 +1022,7 @@ async function createTimeAttendanceSummary() {
                         let remaining = Number(remainingPreviousYear) + Number(objResult.overtime) - Number(objResult.lateDay) - Number(objResult.numberHoliday)
                         objResult['remaining'] = remaining.toFixed(2)
                         objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
+                        let objLeave = await getListleaveDate(db, month, year, data[i].ID, dateFinal)
                         console.log({
                             StaffID: objResult.staffID,
                             StaffName: objResult.staffName,
@@ -1024,7 +1034,9 @@ async function createTimeAttendanceSummary() {
                             LateDay: objResult.lateDay,
                             Remaining: objResult.remaining,
                             RemainingPreviousYear: objResult.remainingPreviousYear,
-                            Month: year + '-' + await convertNumber(month)
+                            Month: year + '-' + await convertNumber(month),
+                            SickLeave: objLeave.arrayO.length,
+                            RegimeLeave: objLeave.arrayRegimeLeave.length - objLeave.arrayO.length,
                         });
                         await mtblTimeAttendanceSummary(db).create({
                             StaffID: objResult.staffID,
@@ -1037,7 +1049,9 @@ async function createTimeAttendanceSummary() {
                             LateDay: objResult.lateDay,
                             Remaining: objResult.remaining,
                             RemainingPreviousYear: objResult.remainingPreviousYear,
-                            Month: year + '-' + await convertNumber(month)
+                            Month: year + '-' + await convertNumber(month),
+                            SickLeave: objLeave.arrayO.length,
+                            RegimeLeave: objLeave.arrayRegimeLeave.length - objLeave.arrayO.length,
                         })
                     }
                 })
@@ -1050,6 +1064,9 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
         if (db) {
             let now = moment().format('MM');
             for (let month = monthRespone; month <= Number(now); month++) {
+                var date = new Date(year, month, 0);
+                var dateFinal = Number(date.toISOString().slice(8, 10))
+                dateFinal += 1
                 await mtblTimeAttendanceSummary(db).destroy({
                     where: {
                         Month: {
@@ -1083,6 +1100,8 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
                         let remaining = Number(remainingPreviousYear) + Number(objResult.overtime) - Number(objResult.lateDay) - Number(objResult.numberHoliday)
                         objResult['remaining'] = remaining.toFixed(2)
                         objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
+                        let objLeave = await getListleaveDate(db, month, year, data[i].ID, dateFinal)
+
                         await mtblTimeAttendanceSummary(db).create({
                             StaffID: objResult.staffID,
                             StaffName: objResult.staffName,
@@ -1094,7 +1113,9 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
                             LateDay: objResult.lateDay,
                             Remaining: objResult.remaining,
                             RemainingPreviousYear: objResult.remainingPreviousYear,
-                            Month: year + '-' + await convertNumber(month)
+                            Month: year + '-' + await convertNumber(month),
+                            SickLeave: objLeave.arrayO.length,
+                            RegimeLeave: objLeave.arrayRegimeLeave.length - objLeave.arrayO.length,
                         })
                     }
                 })
@@ -2358,7 +2379,6 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                             var freeBreak = 0;
                             var workingDay = 0;
                             var lateDay = 0;
-                            let regimeLeave = 0
                             let numberOfWorkingDays = 0;
                             var obj = {}
                             let objTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
@@ -2459,7 +2479,6 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                     }
                                 }
                             }
-                            console.log(numberOfWorkingDays);
                             obj['takeLeave'] = numberLeave;
                             obj['regimeLeave'] = arrayLeaveDay ? arrayLeaveDay.arrayRegimeLeave.length : 0;
                             obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
@@ -3190,6 +3209,8 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
                 freeBreak: data[i].FreeBreak,
                 lateDay: data[i].LateDay,
                 remaining: data[i].Remaining,
+                sickLeave: data[i].SickLeave,
+                regimeLeave: data[i].RegimeLeave,
                 remainingPreviousYear: data[i].RemainingPreviousYear,
                 month: data[i].Month
             })
@@ -3214,6 +3235,8 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
                                 arrayResult[ar].numberHoliday += array[ch].numberHoliday
                                 arrayResult[ar].freeBreak += array[ch].freeBreak
                                 arrayResult[ar].lateDay += array[ch].lateDay
+                                arrayResult[ar].regimeLeave += array[ch].regimeLeave
+                                arrayResult[ar].sickLeave += array[ch].sickLeave
                                 arrayResult[ar].remainingPreviousYear = array[ch].remainingPreviousYear
                             }
                             arrayResult[ar].overtime = Math.round(arrayResult[ar].overtime * 100) / 100
@@ -3225,7 +3248,6 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
     } else {
         arrayResult = array
     }
-
     return arrayResult
 }
 
