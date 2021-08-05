@@ -166,6 +166,7 @@ async function converFromSecondsToHourAftersoon(number) {
 }
 async function getDateTakeLeave(db, month, year, idNhanVien) {
     var array = [];
+    var arrayRegimeLeave = [];
     var yearMonth = year + '-' + await convertNumber(month);
     await mtblNghiPhep(db).findAll({
         where: {
@@ -181,15 +182,28 @@ async function getDateTakeLeave(db, month, year, idNhanVien) {
                 IDNhanVien: idNhanVien,
             },
         }
-    }).then(data => {
+    }).then(async data => {
         if (data) {
-            data.forEach(element => {
-                array.push(moment(element.DateStart).date())
-                array.push(moment(element.DateEnd).date())
-            })
+            for (let d = 0; d < data.length; d++) {
+                if (data[d].IDLoaiChamCong) {
+                    let type = await mtblLoaiChamCong(db).findOne({
+                        where: {
+                            ID: data[d].IDLoaiChamCong,
+                        }
+                    })
+                    if (type && type.Code == 'O' || type.Code == 'CT' || type.Code == 'TS' || type.Code == 'CÐ')
+                        arrayRegimeLeave.push(moment(data[d].DateStart).date())
+                }
+                array.push(moment(data[d].DateStart).date())
+                array.push(moment(data[d].DateEnd).date())
+            }
         }
     })
-    return array
+    let obj = {
+        array: array,
+        arrayRegimeLeave: arrayRegimeLeave,
+    }
+    return obj
 
 }
 async function getListleaveDate(db, month, year, staffID, dateFinal) {
@@ -197,6 +211,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     var array = [];
     var arrayObj = [];
     let listID = []
+    let arrayRegimeLeave = [];
     let tblNghiPhep = mtblNghiPhep(db);
     let ListSign = [];
     await tblNghiPhep.findAll({
@@ -223,6 +238,9 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                 // lấy tháng bị trừ 1
                 let signObj = await mtblLoaiChamCong(db).findOne({ where: { ID: date[i].IDLoaiChamCong } })
                 signLeave = signObj ? signObj.Code : ''
+                if (signObj && signObj.Code == 'O' || signObj.Code == 'CT' || signObj.Code == 'TS' || signObj.Code == 'CÐ') {
+                    arrayRegimeLeave.push(signObj.Code)
+                }
                 dateEndMonth += 1
                 if (dateEndMonth != month) {
                     dateEnd = dateFinal
@@ -247,6 +265,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     objResult = {
         array: array,
         arrayObj: arrayObj,
+        arrayRegimeLeave: arrayRegimeLeave,
     }
     return objResult
 }
@@ -2306,6 +2325,8 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                     yearMonth = year + '-' + await convertNumber(month);
                     var stt = 1;
                     for (var i = 0; i < staff.length; i++) {
+                        var arrayLeaveDay = await getListleaveDate(db, month, year, staff[i].ID, dateFinal)
+
                         if (checkDuplicate(arrayStaff, staff[i].ID)) {
                             let objWhere = {};
                             let arraySearchAnd = [];
@@ -2330,8 +2351,12 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                 checkFor = 1;
                             var freeBreak = 0;
                             var workingDay = 0;
+                            var lateDay = 0;
+                            let regimeLeave = 0
+                            let numberOfWorkingDays = 0;
                             var obj = {}
-                            var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
+                            let objTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
+                            var arrayTakeLeave = objTakeLeave.array
                             var timeKeeping = await mtblChamCong(db).findOne({
                                 where: objWhere,
                             })
@@ -2352,6 +2377,9 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                         ]
                                     })
                                     if (timeKeepingM) {
+                                        if (timeKeepingM.Status == 'KL') {
+                                            freeBreak += 1;
+                                        }
                                         if (timeKeepingM.Status == 'KL' && timeKeepingM.Reason == 'Nghỉ không phép') {
                                             if (checkDuplicate(arrayTakeLeave, j)) {
                                                 if (checkFor == 0)
@@ -2363,7 +2391,6 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                                 objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
                                                 objDay['status'] = 'H';
                                                 obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
-                                                freeBreak += 1;
                                             } else {
                                                 if (checkFor == 0)
                                                     arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
@@ -2374,9 +2401,19 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                                 objDay['idC'] = timeKeepingA ? timeKeepingA.ID : ' ';
                                                 objDay['status'] = 'F';
                                                 obj[await convertNumber(j) + "/" + await convertNumber(month)] = objDay;
-                                                freeBreak += 1;
                                             }
                                         } else {
+                                            if (timeKeepingM.Status == '+') {
+                                                numberOfWorkingDays += 1
+                                            }
+                                            if (timeKeepingM.Status && timeKeepingM.Status != '0.5' && timeKeepingM.Status != 'Sat' && timeKeepingM.Status != 'Sun') {
+                                                if (Number(timeKeepingM.Status.slice(1, 10)))
+                                                    lateDay += (Number(timeKeepingM.Status.slice(1, 10)))
+                                            }
+                                            if (timeKeepingA.Status && timeKeepingA.Status != '0.5' && timeKeepingA.Status != 'Sat' && timeKeepingA.Status != 'Sun') {
+                                                if (Number(timeKeepingA.Status.slice(1, 10)))
+                                                    lateDay += (Number(timeKeepingA.Status.slice(1, 10)))
+                                            }
                                             if (checkFor == 0)
                                                 arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
                                             let objDay = {};
@@ -2397,10 +2434,13 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                     }
                                 }
                             }
-                            obj['takeLeave'] = arrayTakeLeave ? arrayTakeLeave.length : 0;
-                            // obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
+                            obj['takeLeave'] = arrayLeaveDay ? (arrayLeaveDay.array.length - arrayLeaveDay.arrayRegimeLeave.length) : 0;
+                            obj['regimeLeave'] = arrayLeaveDay ? arrayLeaveDay.arrayRegimeLeave.length : 0;
+                            obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
                             obj['freeBreak'] = freeBreak;
                             obj['workingDay'] = workingDay;
+                            obj['lateDay'] = lateDay;
+                            obj['numberOfWorkingDays'] = numberOfWorkingDays / 2;
                             obj['dayOff'] = Number(Number(summary) + Number(freeBreak)).toFixed(3);
                             obj['staffName'] = staff[i] ? staff[i].StaffName : '';
                             obj['staffCode'] = staff[i] ? staff[i].StaffCode : '';
@@ -3537,6 +3577,7 @@ module.exports = {
                         var freeBreak = 0;
                         var workingDay = 0;
                         var arrayTakeLeave = await getDateTakeLeave(db, month, year, staff[i].ID)
+                        arrayTakeLeave = arrayTakeLeave.array
                         var yearMonth = year + '-' + await convertNumber(month);
                         var timeKeeping = await mtblChamCong(db).findOne({
                             where: [
