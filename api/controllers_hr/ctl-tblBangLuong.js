@@ -2405,7 +2405,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                     // Lấy dố ngày lm việc thưc tế
                                     if (timeKeepingM && timeKeepingM.Status != 'Sun' && timeKeepingM.Status != 'Sat') {
                                         let timeKeepingMS = timeKeepingM ? timeKeepingM.Status ? (timeKeepingM.Status.slice(0, 1)) : 'false' : 'false'
-                                        if (timeKeepingMS == 'S' || timeKeepingMS == 'M' || timeKeepingM.Status == '+' || timeKeepingM.Status == ' ') {
+                                        if (timeKeepingMS == 'S' || timeKeepingMS == 'M' || timeKeepingM.Status == '+' || timeKeepingM.Status == '') {
                                             numberOfWorkingDays += 0.5
                                         }
 
@@ -2417,7 +2417,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                     // Lấy dố ngày lm việc thưc tế
                                     if (timeKeepingA && timeKeepingA.Status != 'Sun' && timeKeepingA.Status != 'Sat') {
                                         let timeKeepingAS = timeKeepingA ? timeKeepingA.Status ? (timeKeepingA.Status.slice(0, 1)) : 'false' : 'false'
-                                        if (timeKeepingAS == 'S' || timeKeepingAS == 'M' || timeKeepingA.Status == '+' || timeKeepingA.Status == ' ') {
+                                        if (timeKeepingAS == 'S' || timeKeepingAS == 'M' || timeKeepingA.Status == '+' || timeKeepingA.Status == '') {
                                             numberOfWorkingDays += 0.5
                                         }
                                     }
