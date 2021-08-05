@@ -2451,13 +2451,18 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                         } else {
                                             // LẤy thời gian đi muộn
                                             if (timeKeepingM.Status && timeKeepingM.Status != '0.5' && timeKeepingM.Status != 'Sat' && timeKeepingM.Status != 'Sun') {
-                                                if (Number(timeKeepingM.Status.slice(1, 10)))
+                                                if (Number(timeKeepingM.Status.slice(1, 10))) {
                                                     lateDay += (Number(timeKeepingM.Status.slice(1, 10)))
+                                                    numberOfWorkingDays += 0.5
+                                                }
                                             }
                                             // lấy thời gian về sớm
                                             if (timeKeepingA.Status && timeKeepingA.Status != '0.5' && timeKeepingA.Status != 'Sat' && timeKeepingA.Status != 'Sun') {
-                                                if (Number(timeKeepingA.Status.slice(1, 10)))
+                                                if (Number(timeKeepingA.Status.slice(1, 10))) {
+                                                    numberOfWorkingDays += 0.5
                                                     lateDay += (Number(timeKeepingA.Status.slice(1, 10)))
+
+                                                }
                                             }
                                             if (checkFor == 0)
                                                 arrayDays.push(await convertNumber(j) + "/" + await convertNumber(month))
