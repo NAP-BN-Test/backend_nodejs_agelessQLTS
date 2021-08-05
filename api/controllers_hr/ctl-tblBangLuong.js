@@ -212,6 +212,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     var arrayObj = [];
     let listID = []
     let arrayRegimeLeave = [];
+    let arrayKL = [];
     let tblNghiPhep = mtblNghiPhep(db);
     let ListSign = [];
     await tblNghiPhep.findAll({
@@ -241,6 +242,9 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                 if (signObj && signObj.Code == 'O' || signObj.Code == 'CT' || signObj.Code == 'TS' || signObj.Code == 'CÐ') {
                     arrayRegimeLeave.push(signObj.Code)
                 }
+                if (signObj && signObj.Code == 'KL') {
+                    arrayKL.push(signObj.Code)
+                }
                 dateEndMonth += 1
                 if (dateEndMonth != month) {
                     dateEnd = dateFinal
@@ -250,6 +254,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                     }
                 }
                 for (let d = dateStart; d <= dateEnd; d++) {
+
                     array.push(d)
                     arrayObj.push({
                         date: d,
@@ -266,7 +271,9 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
         array: array,
         arrayObj: arrayObj,
         arrayRegimeLeave: arrayRegimeLeave,
+        arrayKL: arrayKL,
     }
+    console.log(objResult);
     return objResult
 }
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
@@ -2326,7 +2333,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                     var stt = 1;
                     for (var i = 0; i < staff.length; i++) {
                         var arrayLeaveDay = await getListleaveDate(db, month, year, staff[i].ID, dateFinal)
-
+                        let numberLeave = await calculateNumberLeave(db, staff[i].ID, year + '-' + month)
                         if (checkDuplicate(arrayStaff, staff[i].ID)) {
                             let objWhere = {};
                             let arraySearchAnd = [];
@@ -2406,10 +2413,12 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                             if (timeKeepingM.Status == '+') {
                                                 numberOfWorkingDays += 1
                                             }
+                                            // LẤy thời gian đi muộn
                                             if (timeKeepingM.Status && timeKeepingM.Status != '0.5' && timeKeepingM.Status != 'Sat' && timeKeepingM.Status != 'Sun') {
                                                 if (Number(timeKeepingM.Status.slice(1, 10)))
                                                     lateDay += (Number(timeKeepingM.Status.slice(1, 10)))
                                             }
+                                            // lấy thời gian về sớm
                                             if (timeKeepingA.Status && timeKeepingA.Status != '0.5' && timeKeepingA.Status != 'Sat' && timeKeepingA.Status != 'Sun') {
                                                 if (Number(timeKeepingA.Status.slice(1, 10)))
                                                     lateDay += (Number(timeKeepingA.Status.slice(1, 10)))
@@ -2434,7 +2443,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                     }
                                 }
                             }
-                            obj['takeLeave'] = arrayLeaveDay ? (arrayLeaveDay.array.length - arrayLeaveDay.arrayRegimeLeave.length) : 0;
+                            obj['takeLeave'] = numberLeave;
                             obj['regimeLeave'] = arrayLeaveDay ? arrayLeaveDay.arrayRegimeLeave.length : 0;
                             obj['holiday'] = arrayHoliday ? arrayHoliday.length : 0;
                             obj['freeBreak'] = freeBreak;
