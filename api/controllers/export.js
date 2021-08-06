@@ -2246,6 +2246,8 @@ module.exports = {
             'TỒN PHÉP THÁNG TRƯỚC',
             'NGÀY LÀM THÊM',
             'NGÀY VỀ SỚM, ĐI MUỘN',
+            'NGHỈ ỐM',
+            'NGÀY CHẾ ĐỘ',
             'NGÀY NGHỈ PHÉP',
             'NGHỈ KHÔNG LƯƠNG',
             'PHÉP CÒN LẠI',
@@ -2302,13 +2304,13 @@ module.exports = {
                 }
 
             }
-            ws.cell(1, 1, 1, 10, true)
+            ws.cell(1, 1, 1, 12, true)
                 .string('BẢNG TỔNG HỢP CHẤM CÔNG')
                 .style(styleHearderTitle);
-            ws.cell(3, 3, 3, 5, true)
+            ws.cell(3, 3, 3, 6, true)
                 .string(strMonth)
                 .style(stylecellT);
-            ws.cell(3, 6, 3, 8, true)
+            ws.cell(3, 7, 3, 9, true)
                 .string(strDepartment)
                 .style(stylecellT);
             arrayHeader.forEach(element => {
@@ -2333,9 +2335,11 @@ module.exports = {
                 ws.cell(row, 5).number(data[i].remainingPreviousYear).style(stylecellT)
                 ws.cell(row, 6).number(data[i].overtime).style(stylecellT)
                 ws.cell(row, 7).number(data[i].lateDay).style(stylecellT)
-                ws.cell(row, 8).number(data[i].numberHoliday).style(stylecellT)
-                ws.cell(row, 9).number(data[i].freeBreak).style(stylecellT)
-                ws.cell(row, 10).number(data[i].remaining).style(stylecellT)
+                ws.cell(row, 8).number(data[i].sickLeave).style(stylecellT)
+                ws.cell(row, 9).number(data[i].regimeLeave).style(stylecellT)
+                ws.cell(row, 10).number(data[i].numberHoliday).style(stylecellT)
+                ws.cell(row, 11).number(data[i].freeBreak).style(stylecellT)
+                ws.cell(row, 12).number(data[i].remaining).style(stylecellT)
                 stt += 1
             }
             await wb.write('C:/images_services/ageless_sendmail/' + strFile);
