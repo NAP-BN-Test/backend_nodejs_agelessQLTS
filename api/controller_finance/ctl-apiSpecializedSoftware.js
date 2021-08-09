@@ -1589,8 +1589,7 @@ module.exports = {
 
                     for (let m = 0; m < data[i].arrayMoney.length; m++) {
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
+                        // totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                     }
                     data[i]['totalMoneyVND'] = totalMoneyVND
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
@@ -1603,7 +1602,6 @@ module.exports = {
                         if (data[i].statusName == 'Chờ thanh toán')
                             array.push(data[i])
                     } else {
-                        console.log(check.Status);
                         if (check.Status == 'Chờ thanh toán')
                             array.push(data[i])
                     }
@@ -1658,9 +1656,7 @@ module.exports = {
 
                     for (let m = 0; m < data[i].arrayMoney.length; m++) {
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-
+                        // totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                     }
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
                     data[i]['totalMoneyVND'] = totalMoneyVND
@@ -1702,7 +1698,6 @@ module.exports = {
     // get_list_invoice_edit_request
     getListInvoiceEditRequest: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": body.itemPerPage ? body.itemPerPage : 0,
@@ -1726,9 +1721,7 @@ module.exports = {
 
                     for (let m = 0; m < data[i].arrayMoney.length; m++) {
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-
+                        // totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                     }
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
 
@@ -1796,9 +1789,7 @@ module.exports = {
 
                     for (let m = 0; m < data[i].arrayMoney.length; m++) {
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-
+                        // totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                     }
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
 

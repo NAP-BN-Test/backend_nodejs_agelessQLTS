@@ -215,7 +215,6 @@ module.exports = {
         if (dataSearch.accountSystemOtherID)
             arrayIDAccount.push(dataSearch.accountSystemOtherID)
         const currentYear = new Date().getFullYear()
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -297,6 +296,15 @@ module.exports = {
                             }
                         })
                     }
+                    let totalCreditIncurred = 0;
+                    let totalDebtIncurred = 0;
+                    let totalCreaditSurplus = 0;
+                    let totalDebtSurplus = 0;
+                    let arisingPeriod = 0;
+                    let openingBalanceCredit = 0;
+                    let openingBalanceDebit = 0;
+                    let endingBalanceDebit = 0;
+                    let endingBalanceCredit = 0;
                     let stt = 1;
                     let tblAccountingBooks = mtblAccountingBooks(db);
                     tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
@@ -367,16 +375,24 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            debtIncurred: item.CreditIncurred ? item.CreditIncurred : null,
-                                            creditIncurred: item.DebtIncurred ? item.DebtIncurred : null,
+                                            creditIncurred: item.CreditIncurred ? item.CreditIncurred : null,
+                                            debtIncurred: item.DebtIncurred ? item.DebtIncurred : null,
                                             debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
                                             creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
                                         }
                                         if (arrayIDAccount.length <= 1) {
+                                            totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                            totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                             array.push(obj);
                                             stt += 1;
                                         } else {
                                             if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                 array.push(obj);
                                                 stt += 1;
                                             }
@@ -385,8 +401,29 @@ module.exports = {
                                 }
                             })
                         }
+                        let accountBooks = await tblAccountingBooks.findOne({
+                            where: {
+                                ID: dataSearch.accountSystemID
+                            }
+                        })
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
+                        arisingPeriod = totalDebtIncurred - totalCreditIncurred;
+                        openingBalanceDebit = accountBooks ? (accountBooks.accounting ? accountBooks.accounting.MoneyDebit : 0) : 0
+                        openingBalanceCredit = accountBooks ? (accountBooks.accounting ? accountBooks.accounting.MoneyCredit : 0) : 0
+                        endingBalanceDebit = openingBalanceDebit + (totalDebtSurplus - totalCreaditSurplus)
+                        endingBalanceCredit = openingBalanceCredit + (totalDebtSurplus - totalCreaditSurplus)
                         var result = {
+                            total: {
+                                totalCreditIncurred,
+                                totalDebtIncurred,
+                                totalCreaditSurplus,
+                                totalDebtSurplus,
+                                arisingPeriod,
+                                openingBalanceDebit,
+                                openingBalanceCredit,
+                                endingBalanceDebit,
+                                endingBalanceCredit,
+                            },
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

@@ -98,6 +98,8 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
                 nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
                 idLevelAbove: idLevelAbove ? idLevelAbove : '',
                 levels: level ? level : '',
+                moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
             })
         }
     })
@@ -125,12 +127,16 @@ module.exports = {
                         res.json(result);
                         return
                     }
+                    let yearNow = Number(moment().format('YYYY'));
                     mtblDMTaiKhoanKeToan(db).create({
                         AccountingCode: body.accountingCode ? body.accountingCode : '',
                         AccountingName: body.accountingName ? body.accountingName : '',
                         IDLoaiTaiKhoanKeToan: body.idLoaiTaiKhoanKeToan ? body.idLoaiTaiKhoanKeToan : null,
                         Levels: body.levels ? body.levels : 1,
                         IDLevelAbove: body.idLevelAbove ? body.idLevelAbove : null,
+                        MoneyDebit: body.moneyDebit ? body.moneyDebit : null,
+                        MoneyCredit: body.moneyCredit ? body.moneyCredit : null,
+                        YearStart: yearNow,
                     }).then(data => {
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -163,6 +169,18 @@ module.exports = {
                             update.push({ key: 'IDLoaiTaiKhoanKeToan', value: null });
                         else
                             update.push({ key: 'IDLoaiTaiKhoanKeToan', value: body.idLoaiTaiKhoanKeToan });
+                    }
+                    if (body.moneyDebit || body.moneyDebit === '') {
+                        if (body.moneyDebit === '')
+                            update.push({ key: 'MoneyDebit', value: null });
+                        else
+                            update.push({ key: 'MoneyDebit', value: body.moneyDebit });
+                    }
+                    if (body.moneyCredit || body.moneyCredit === '') {
+                        if (body.moneyCredit === '')
+                            update.push({ key: 'MoneyCredit', value: null });
+                        else
+                            update.push({ key: 'MoneyCredit', value: body.moneyCredit });
                     }
                     database.updateTable(update, mtblDMTaiKhoanKeToan(db), body.id).then(response => {
                         if (response == 1) {
@@ -306,6 +324,7 @@ module.exports = {
                             whereObj[Op.not] = arraySearchNot
                     }
                     let stt = 1;
+                    let yearStart = Number(moment().format('YYYY'));
                     let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
                     tblDMTaiKhoanKeToan.belongsTo(mtblDMLoaiTaiKhoanKeToan(db), { foreignKey: 'IDLoaiTaiKhoanKeToan', sourceKey: 'IDLoaiTaiKhoanKeToan', as: 'Loai' })
                     tblDMTaiKhoanKeToan.findAll({
@@ -325,6 +344,8 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
+                            if (data[i].YearStart)
+                                yearStart = data[i].YearStart
                             var arrayChildern2 = []
                             arrayChildern2 = await findAcountingFollowLevel(db, 2, data[i].ID)
                             if (arrayChildern2.length > 0) {
@@ -352,6 +373,8 @@ module.exports = {
                                                     nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
                                                     idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
                                                     levels: data[i].Levels ? data[i].Levels : '',
+                                                    moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                                    moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
                                                     children: arrayChildern2
                                                 }
                                             }
@@ -365,6 +388,8 @@ module.exports = {
                                             nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
                                             idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
                                             levels: data[i].Levels ? data[i].Levels : '',
+                                            moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                            moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
                                             children: arrayChildern2
                                         }
                                     }
@@ -378,6 +403,8 @@ module.exports = {
                                     nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
                                     idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
                                     levels: data[i].Levels ? data[i].Levels : '',
+                                    moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                    moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
                                     children: arrayChildern2
                                 }
                             }
@@ -386,6 +413,7 @@ module.exports = {
                         }
                         var count = await mtblDMTaiKhoanKeToan(db).count({ where: whereObj, })
                         var result = {
+                            yearStart: yearStart,
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

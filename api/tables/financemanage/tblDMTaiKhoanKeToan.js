@@ -12,7 +12,9 @@ module.exports = function (db) {
         IDLoaiTaiKhoanKeToan: Sequelize.BIGINT,
         Levels: Sequelize.INTEGER,
         IDLevelAbove: Sequelize.BIGINT,
-
+        MoneyDebit: Sequelize.FLOAT,
+        MoneyCredit: Sequelize.FLOAT,
+        YearStart: Sequelize.STRING,
     });
 
     return table;
