@@ -621,7 +621,6 @@ module.exports = {
                                 monthlyRevenue += (data[d].Amount * rate)
                             }
                         })
-                        console.log(monthlyRevenue);
                         for (let dp = 0; dp < department.length; dp++) {
                             let obj = {
                                 stt: stt,

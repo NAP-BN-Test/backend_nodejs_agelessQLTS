@@ -36,6 +36,7 @@ function checkDuplicate(array, elm) {
 }
 let ctlFileAttach = require('../controllers/ctl-tblFileAttach');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+const libre = require('libreoffice-convert-win');
 
 var dayInWeek = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 module.exports = {
@@ -253,6 +254,23 @@ module.exports = {
                 var buf = doc.getZip().generate({ type: 'nodebuffer' });
                 fs.writeFileSync(path.resolve(pathTo, writeName), buf);
                 return 'C:/images_services/ageless_sendmail/' + writeName
+            });
+        } catch (error) {
+            console.log(error);
+            return ''
+        }
+
+    },
+    convertDocxToPDF: async function (readName, writeName) {
+        try {
+            const extend = '.pdf'
+            const file = fs.readFileSync(readName);
+            libre.convert(file, extend, undefined, (err, done) => {
+                if (err) {
+                    console.log(`Error converting file: ${err}`);
+                }
+                // Here in done you have pdf file which you can save or transfer in another stream
+                fs.writeFileSync(writeName, done);
             });
         } catch (error) {
             console.log(error);
