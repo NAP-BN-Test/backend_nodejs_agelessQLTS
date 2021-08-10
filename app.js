@@ -33,7 +33,7 @@ app.use(session({
 }))
 
 app.use(cors({
-    origin: 'http://dbdev.namanphu.vn:8694'
+    origin: '*'
 }))
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
 app.use(bodyParser.json({ limit: '100mb' }))
