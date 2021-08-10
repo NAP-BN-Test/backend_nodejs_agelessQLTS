@@ -411,8 +411,8 @@ module.exports = {
                         arisingPeriod = totalDebtIncurred - totalCreditIncurred;
                         openingBalanceDebit = accountBooks ? accountBooks.MoneyDebit : 0
                         openingBalanceCredit = accountBooks ? accountBooks.MoneyCredit : 0
-                        endingBalanceDebit = openingBalanceDebit + (totalDebtSurplus - totalCreaditSurplus)
-                        endingBalanceCredit = openingBalanceCredit + (totalDebtSurplus - totalCreaditSurplus)
+                        endingBalanceDebit = openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)
+                        endingBalanceCredit = openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)
                         var result = {
                             total: {
                                 totalCreditIncurred,
