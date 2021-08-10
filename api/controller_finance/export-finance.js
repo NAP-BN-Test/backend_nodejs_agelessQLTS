@@ -636,9 +636,9 @@ async function getDetailReceiptsPayment(db, idPayment) {
         }).then(async data => {
             if (data) {
                 let obj = {
-                    "NGÀY": data.Date ? data.Date : null,
-                    "THÁNG": data.Date ? data.Date : null,
-                    "NĂM": data.Date ? data.Date : null,
+                    "NGÀY": data.Date ? moment(data.Date).add(7, 'hours').format('DD') : null,
+                    "THÁNG": data.Date ? moment(data.Date).add(7, 'hours').format('MM') : null,
+                    "NĂM": data.Date ? moment(data.Date).add(7, 'hours').format('YYYY') : null,
                     "SỐ PHIẾU": data.CodeNumber ? data.CodeNumber : '',
                     "ĐỊA CHỈ": data.Address ? data.Address : '',
                     "LÝ DO": data.Reason ? data.Reason : '',
@@ -1048,14 +1048,51 @@ module.exports = {
         let body = req.body;
         console.log(body);
         var objKey = {}
-        await database.connectDatabase().then(async db => {
-            if (db) {
-                objKey = await getDetailReceiptsPayment(db, body.id)
+        if (body.id)
+            await database.connectDatabase().then(async db => {
+                if (db) {
+                    objKey = await getDetailReceiptsPayment(db, body.id)
+                }
+            })
+        else {
+            let objRequest = JSON.parse(body.obj)
+            let type = 'receipt'
+            if (objRequest.isReceipt == false) {
+                type = 'payment'
             }
-        })
+            let debtAccount = ''
+            let creditAccount = ''
+            for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {
+                if (debt < objRequest.debtFormArr.length - 1)
+                    debtAccount += objRequest.debtFormArr[debt].accountingCode + ', '
+                else
+                    debtAccount += objRequest.debtFormArr[debt].accountingCode
+            }
+            for (let cre = 0; cre < objRequest.hasFormArr.length; cre++) {
+                if (cre < objRequest.hasFormArr.length - 1)
+                    creditAccount += objRequest.hasFormArr[cre].accountingCode + ', '
+                else
+                    creditAccount += objRequest.hasFormArr[cre].accountingCode
+            }
+            objKey = {
+                "NGÀY": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('DD') : null,
+                "THÁNG": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('MM') : null,
+                "NĂM": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('YYYY') : null,
+                "SỐ PHIẾU": objRequest.codeNumber ? objRequest.codeNumber : '',
+                "ĐỊA CHỈ": objRequest.address ? objRequest.address : '',
+                "LÝ DO": objRequest.reason ? objRequest.reason : '',
+                "SỐ TIỀN": objRequest.moneyNumber ? objRequest.moneyNumber : null,
+                "SỐ TIỀN BẰNG CHỮ": objRequest.moneyText ? objRequest.moneyText : '',
+                "ĐỐI TƯỢNG": objRequest.object ? objRequest.object.displayName : '',
+                "NỢ TK": debtAccount,
+                "CÓ TK": creditAccount,
+                "type": type,
+            }
+        }
         let type = '02-TT.docx'
         let nameFile = 'Phiếu chi.docx'
         let nameFilePDF = 'Phiếu chi pdf.pdf'
+        console.log(objKey);
         if (objKey != {} && objKey.type == 'receipt') {
             type = '01-TT.docx'
             nameFile = 'Phiếu thu.docx'

@@ -156,9 +156,44 @@ module.exports = {
     // update_tbl_dm_taikhoanketoan
     updatetblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    if (body.moneyDebit && body.moneyCredit) {
+                        let check = true;
+                        let moneyOldCredit = 0;
+                        let moneyOlddebt = 0;
+                        let accountID = await mtblDMTaiKhoanKeToan(db).findOne({
+                            where: { ID: body.id }
+                        })
+                        moneyOldCredit = accountID.MoneyCredit
+                        moneyOlddebt = accountID.MoneyDebit
+                        accountID = accountID.IDLevelAbove ? accountID.IDLevelAbove : null
+                        if (accountID) {
+                            do {
+                                await mtblDMTaiKhoanKeToan(db).findOne({
+                                    where: { ID: accountID }
+                                }).then(async data => {
+                                    if (data) {
+                                        await mtblDMTaiKhoanKeToan(db).update({
+                                            MoneyCredit: body.moneyDebit,
+                                            MoneyDebit: body.moneyCredit,
+                                        }, {
+                                            where: { ID: accountID }
+                                        })
+                                        if (!data.IDLevelAbove)
+                                            check == false
+                                        else
+                                            accountID = data.IDLevelAbove
+                                    } else {
+                                        check == false
+                                    }
+                                })
+
+                            } while (check == false);
+                        }
+                    }
                     let update = [];
                     if (body.accountingCode || body.accountingCode === '')
                         update.push({ key: 'AccountingCode', value: body.accountingCode });
@@ -169,18 +204,6 @@ module.exports = {
                             update.push({ key: 'IDLoaiTaiKhoanKeToan', value: null });
                         else
                             update.push({ key: 'IDLoaiTaiKhoanKeToan', value: body.idLoaiTaiKhoanKeToan });
-                    }
-                    if (body.moneyDebit || body.moneyDebit === '') {
-                        if (body.moneyDebit === '')
-                            update.push({ key: 'MoneyDebit', value: null });
-                        else
-                            update.push({ key: 'MoneyDebit', value: body.moneyDebit });
-                    }
-                    if (body.moneyCredit || body.moneyCredit === '') {
-                        if (body.moneyCredit === '')
-                            update.push({ key: 'MoneyCredit', value: null });
-                        else
-                            update.push({ key: 'MoneyCredit', value: body.moneyCredit });
                     }
                     database.updateTable(update, mtblDMTaiKhoanKeToan(db), body.id).then(response => {
                         if (response == 1) {
