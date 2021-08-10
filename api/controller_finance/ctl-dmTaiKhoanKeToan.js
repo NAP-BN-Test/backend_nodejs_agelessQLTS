@@ -127,6 +127,7 @@ module.exports = {
                         res.json(result);
                         return
                     }
+                    console.log(body);
                     let yearNow = Number(moment().format('YYYY'));
                     mtblDMTaiKhoanKeToan(db).create({
                         AccountingCode: body.accountingCode ? body.accountingCode : '',
@@ -137,7 +138,36 @@ module.exports = {
                         MoneyDebit: body.moneyDebit ? body.moneyDebit : null,
                         MoneyCredit: body.moneyCredit ? body.moneyCredit : null,
                         YearStart: yearNow,
-                    }).then(data => {
+                    }).then(async data => {
+                        if (body.moneyDebit && body.moneyCredit) {
+                            let check = true;
+                            let moneyOldCredit = 0;
+                            let moneyOlddebt = 0;
+                            accountID = body.IDLevelAbove ? body.IDLevelAbove : null
+                            if (accountID) {
+                                do {
+                                    await mtblDMTaiKhoanKeToan(db).findOne({
+                                        where: { ID: accountID }
+                                    }).then(async data => {
+                                        if (data) {
+                                            await mtblDMTaiKhoanKeToan(db).update({
+                                                MoneyCredit: Number(data.MoneyCredit ? data.MoneyCredit : 0) + Number(body.moneyCredit) - Number(moneyOldCredit),
+                                                MoneyDebit: Number(data.MoneyDebit ? data.MoneyDebit : 0) + Number(body.moneyDebit) - Number(moneyOlddebt),
+                                            }, {
+                                                where: { ID: accountID }
+                                            })
+                                            if (!data.IDLevelAbove)
+                                                check = false
+                                            else
+                                                accountID = data.IDLevelAbove
+                                        } else {
+                                            check = false
+                                        }
+                                    })
+
+                                } while (check == true);
+                            }
+                        }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,

@@ -1062,17 +1062,22 @@ module.exports = {
             }
             let debtAccount = ''
             let creditAccount = ''
+            console.log(objRequest.hasFormArr);
             for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {
-                if (debt < objRequest.debtFormArr.length - 1)
-                    debtAccount += objRequest.debtFormArr[debt].accountingCode + ', '
-                else
-                    debtAccount += objRequest.debtFormArr[debt].accountingCode
+                if (objRequest.debtFormArr[debt].debtAccount != '') {
+                    if (debt < objRequest.debtFormArr.length - 1)
+                        debtAccount += objRequest.debtFormArr[debt].debtAccount.accountingCode + ', '
+                    else
+                        debtAccount += objRequest.debtFormArr[debt].debtAccount.accountingCode
+                }
             }
             for (let cre = 0; cre < objRequest.hasFormArr.length; cre++) {
-                if (cre < objRequest.hasFormArr.length - 1)
-                    creditAccount += objRequest.hasFormArr[cre].accountingCode + ', '
-                else
-                    creditAccount += objRequest.hasFormArr[cre].accountingCode
+                if (objRequest.hasFormArr[cre].hasAccount) {
+                    if (cre < objRequest.hasFormArr.length - 1)
+                        creditAccount += objRequest.hasFormArr[cre].hasAccount.accountingCode + ', '
+                    else
+                        creditAccount += objRequest.hasFormArr[cre].hasAccount.accountingCode
+                }
             }
             objKey = {
                 "NGÀY": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('DD') : null,
