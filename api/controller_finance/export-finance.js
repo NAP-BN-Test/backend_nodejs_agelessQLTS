@@ -1094,12 +1094,12 @@ module.exports = {
             }
         }
         let type = '02-TT.docx'
-        let nameFile = 'Phiếu chi.docx'
-        let nameFilePDF = 'Phiếu chi pdf.pdf'
+        let nameFile = 'payment.docx'
+        let nameFilePDF = 'paymentpdf.pdf'
         if (objKey != {} && objKey.type == 'receipt') {
             type = '01-TT.docx'
-            nameFile = 'Phiếu thu.docx'
-            nameFilePDF = 'Phiếu thu pdf.pdf'
+            nameFile = 'receipts.docx'
+            nameFilePDF = 'receiptspdf.pdf'
         }
         var pathTo = 'C:/images_services/ageless_sendmail/'
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
