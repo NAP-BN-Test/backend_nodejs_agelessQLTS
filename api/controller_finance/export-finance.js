@@ -1098,7 +1098,7 @@ module.exports = {
             nameFile = 'Phiếu thu.docx'
             nameFilePDF = 'Phiếu thu pdf.pdf'
         }
-        var pathTo = 'D:/images_services/ageless_sendmail/'
+        var pathTo = 'C:/images_services/ageless_sendmail/'
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
             try {
                 if (err) {
@@ -1116,8 +1116,8 @@ module.exports = {
                     doc.render()
                     var buf = doc.getZip().generate({ type: 'nodebuffer' });
                     fs.writeFileSync(path.resolve(pathTo, nameFile), buf);
-                    var pathlink = 'D:/images_services/ageless_sendmail/' + nameFile;
-                    var pathEx = 'D:/images_services/ageless_sendmail/' + nameFilePDF;
+                    var pathlink = 'C:/images_services/ageless_sendmail/' + nameFile;
+                    var pathEx = 'C:/images_services/ageless_sendmail/' + nameFilePDF;
                     await mModules.convertDocxToPDF(pathlink, pathEx)
                     var result = {
                         link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + nameFilePDF,
