@@ -167,9 +167,15 @@ module.exports = {
                         let accountID = await mtblDMTaiKhoanKeToan(db).findOne({
                             where: { ID: body.id }
                         })
-                        moneyOldCredit = accountID.MoneyCredit
-                        moneyOlddebt = accountID.MoneyDebit
+                        moneyOldCredit = accountID.MoneyCredit ? accountID.MoneyCredit : 0
+                        moneyOlddebt = accountID.MoneyDebit ? accountID.MoneyDebit : 0
                         accountID = accountID.IDLevelAbove ? accountID.IDLevelAbove : null
+                        await mtblDMTaiKhoanKeToan(db).update({
+                            MoneyCredit: body.moneyCredit,
+                            MoneyDebit: body.moneyDebit,
+                        }, {
+                            where: { ID: body.id }
+                        })
                         if (accountID) {
                             do {
                                 await mtblDMTaiKhoanKeToan(db).findOne({
@@ -177,21 +183,21 @@ module.exports = {
                                 }).then(async data => {
                                     if (data) {
                                         await mtblDMTaiKhoanKeToan(db).update({
-                                            MoneyCredit: body.moneyDebit,
-                                            MoneyDebit: body.moneyCredit,
+                                            MoneyCredit: Number(data.MoneyCredit ? data.MoneyCredit : 0) + Number(body.moneyCredit) - Number(moneyOldCredit),
+                                            MoneyDebit: Number(data.MoneyDebit ? data.MoneyDebit : 0) + Number(body.moneyDebit) - Number(moneyOlddebt),
                                         }, {
                                             where: { ID: accountID }
                                         })
                                         if (!data.IDLevelAbove)
-                                            check == false
+                                            check = false
                                         else
                                             accountID = data.IDLevelAbove
                                     } else {
-                                        check == false
+                                        check = false
                                     }
                                 })
 
-                            } while (check == false);
+                            } while (check == true);
                         }
                     }
                     let update = [];

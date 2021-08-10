@@ -401,15 +401,16 @@ module.exports = {
                                 }
                             })
                         }
-                        let accountBooks = await tblAccountingBooks.findOne({
+                        let accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
                             where: {
                                 ID: dataSearch.accountSystemID
                             }
                         })
+                        console.log(dataSearch.accountSystemID, accountBooks);
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
                         arisingPeriod = totalDebtIncurred - totalCreditIncurred;
-                        openingBalanceDebit = accountBooks ? (accountBooks.accounting ? accountBooks.accounting.MoneyDebit : 0) : 0
-                        openingBalanceCredit = accountBooks ? (accountBooks.accounting ? accountBooks.accounting.MoneyCredit : 0) : 0
+                        openingBalanceDebit = accountBooks ? accountBooks.MoneyDebit : 0
+                        openingBalanceCredit = accountBooks ? accountBooks.MoneyCredit : 0
                         endingBalanceDebit = openingBalanceDebit + (totalDebtSurplus - totalCreaditSurplus)
                         endingBalanceCredit = openingBalanceCredit + (totalDebtSurplus - totalCreaditSurplus)
                         var result = {
