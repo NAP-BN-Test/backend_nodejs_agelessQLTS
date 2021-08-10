@@ -1062,7 +1062,6 @@ module.exports = {
             }
             let debtAccount = ''
             let creditAccount = ''
-            console.log(objRequest.hasFormArr);
             for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {
                 if (objRequest.debtFormArr[debt].debtAccount != '') {
                     if (debt < objRequest.debtFormArr.length - 1)
@@ -1097,7 +1096,6 @@ module.exports = {
         let type = '02-TT.docx'
         let nameFile = 'Phiếu chi.docx'
         let nameFilePDF = 'Phiếu chi pdf.pdf'
-        console.log(objKey);
         if (objKey != {} && objKey.type == 'receipt') {
             type = '01-TT.docx'
             nameFile = 'Phiếu thu.docx'
@@ -1124,12 +1122,15 @@ module.exports = {
                     var pathlink = 'C:/images_services/ageless_sendmail/' + nameFile;
                     var pathEx = 'C:/images_services/ageless_sendmail/' + nameFilePDF;
                     await mModules.convertDocxToPDF(pathlink, pathEx)
-                    var result = {
-                        link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + nameFilePDF,
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                    }
-                    res.json(result);
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + nameFilePDF,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
+
                 }
             } catch (error) {
                 console.log(error);
