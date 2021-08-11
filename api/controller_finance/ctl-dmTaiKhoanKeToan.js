@@ -200,6 +200,16 @@ module.exports = {
                         moneyOldCredit = accountID.MoneyCredit ? accountID.MoneyCredit : 0
                         moneyOlddebt = accountID.MoneyDebit ? accountID.MoneyDebit : 0
                         accountID = accountID.IDLevelAbove ? accountID.IDLevelAbove : null
+                        let checkUpdate = await mtblDMTaiKhoanKeToan(db).findAll({
+                            where: { IDLevelAbove: body.id }
+                        })
+                        if (checkUpdate.length > 0) {
+                            let result = {
+                                status: Constant.STATUS.FAIL,
+                                message: 'Không thể thêm số dư cho tài khoản này. Vui lòng kiểm tra lại!'
+                            }
+                            return res.json(result);
+                        }
                         await mtblDMTaiKhoanKeToan(db).update({
                             MoneyCredit: body.moneyCredit,
                             MoneyDebit: body.moneyDebit,
