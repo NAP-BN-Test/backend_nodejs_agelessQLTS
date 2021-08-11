@@ -323,11 +323,14 @@ module.exports = {
                             where = [{
                                 ID: {
                                     [Op.ne]: null
-                                }
-                            },];
+                                },
+                            },
+                            { Levels: 1 }
+                            ];
                         }
                         whereObj[Op.and] = where
                         if (data.items) {
+                            arraySearchAnd.push({ Levels: 1 })
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÊN TÀI KHOẢN') {
@@ -371,13 +374,12 @@ module.exports = {
                         if (arraySearchOr.length > 0)
                             whereObj[Op.or] = arraySearchOr
                         if (arraySearchAnd.length > 0) {
-                            arraySearchAnd.push({ Levels: 1 })
                             whereObj[Op.and] = arraySearchAnd
-
                         }
                         if (arraySearchNot.length > 0)
                             whereObj[Op.not] = arraySearchNot
                     }
+                    console.log(whereObj);
                     let stt = 1;
                     let yearStart = Number(moment().format('YYYY'));
                     let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
