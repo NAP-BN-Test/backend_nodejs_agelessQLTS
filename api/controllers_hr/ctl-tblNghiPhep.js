@@ -472,18 +472,6 @@ module.exports = {
                         else
                             update.push({ key: 'IDHeads', value: body.idHeads });
                     }
-                    // if (body.dateEnd || body.dateEnd === '') {
-                    //     if (body.dateEnd === '')
-                    //         update.push({ key: 'DateEnd', value: null });
-                    //     else
-                    //         update.push({ key: 'DateEnd', value: moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') });
-                    // }
-                    // if (body.dateStart || body.dateStart === '') {
-                    //     if (body.dateStart === '')
-                    //         update.push({ key: 'DateStart', value: null });
-                    //     else
-                    //         update.push({ key: 'DateStart', value: moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') });
-                    // }
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });
@@ -919,6 +907,7 @@ module.exports = {
     // approval_head_department
     approvalHeadDepartment: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -950,10 +939,24 @@ module.exports = {
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ hành chính nhân sự phê duyệt',
                         }, { where: { ID: body.id } })
-                    else
+                    else {
+                        await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
+                        let arrayRespone = body.array;
+                        for (let i = 0; i < arrayRespone.length; i++) {
+                            await mtblDateOfLeave(db).create({
+                                DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
+                                DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
+                                WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : arrayRespone[i].timeStart),
+                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeEndReal ? arrayRespone[i].timeEndReal : arrayRespone[i].timeEnd),
+                                LeaveID: body.id,
+                            })
+                        }
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ trưởng bộ phận xác nhận',
                         }, { where: { ID: body.id } })
+                    }
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -971,6 +974,7 @@ module.exports = {
     // approval_administration_hr
     approvalAdministrationHR: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -981,11 +985,24 @@ module.exports = {
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ thủ trưởng phê duyệt',
                         }, { where: { ID: body.id } })
-                    } else
+                    } else {
+                        await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
+                        let arrayRespone = body.array;
+                        for (let i = 0; i < arrayRespone.length; i++) {
+                            await mtblDateOfLeave(db).create({
+                                DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
+                                DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
+                                WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal ? arrayRespone[i].timeStartReal : arrayRespone[i].timeStart),
+                                TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeEndReal ? arrayRespone[i].timeEndReal : arrayRespone[i].timeEnd),
+                                LeaveID: body.id,
+                            })
+                        }
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ thủ trưởng phê duyệt',
                         }, { where: { ID: body.id } })
-
+                    }
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
