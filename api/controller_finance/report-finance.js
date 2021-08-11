@@ -536,7 +536,7 @@ module.exports = {
                                 if (!checkDuplicate(arrayCurrency, objCurrency.ShortName)) {
                                     arrayCurrency.push(objCurrency.ShortName)
                                 }
-                                let valueBefore = await getMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
+                                let valueBefore = await getMoneyRevenueFollowMonthAndTypeMoney(db, (Number(body.year) - 1) + '-' + convertNumber(month), arrayCurrencyID[type])
                                 let valueAfter = await getMoneyRevenueFollowMonthAndTypeMoney(db, body.year + '-' + convertNumber(month), arrayCurrencyID[type])
                                 objResult[objCurrency.ShortName + 'b' + month] = valueBefore
                                 objResult[objCurrency.ShortName + 'a' + month] = valueBefore
