@@ -941,7 +941,7 @@ module.exports = {
                         }, { where: { ID: body.id } })
                     else {
                         await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
-                        let arrayRespone = body.array;
+                        let arrayRespone = JSON.parse(body.array);
                         for (let i = 0; i < arrayRespone.length; i++) {
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
@@ -987,7 +987,7 @@ module.exports = {
                         }, { where: { ID: body.id } })
                     } else {
                         await mtblDateOfLeave(db).destroy({ where: { LeaveID: body.id } })
-                        let arrayRespone = body.array;
+                        let arrayRespone = JSON.parse(body.array);
                         for (let i = 0; i < arrayRespone.length; i++) {
                             await mtblDateOfLeave(db).create({
                                 DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
