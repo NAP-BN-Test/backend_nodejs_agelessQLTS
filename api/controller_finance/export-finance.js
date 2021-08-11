@@ -643,6 +643,7 @@ async function getDetailReceiptsPayment(db, idPayment) {
                     "ĐỊA CHỈ": data.Address ? data.Address : '',
                     "LÝ DO": data.Reason ? data.Reason : '',
                     "SỐ TIỀN": data.Amount ? data.Amount : null,
+                    "SỐ PHIẾU": data.CodeNumber ? data.CodeNumber : null,
                     "SỐ TIỀN BẰNG CHỮ": data.AmountWords ? data.AmountWords : '',
                 };
                 let objName = ''
