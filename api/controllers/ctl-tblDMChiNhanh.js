@@ -69,6 +69,18 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    let check = await mtblDMChiNhanh(db).findOne({
+                        where: [{ BranchCode: body.branchCode }]
+                    })
+                    if (check) {
+                        if (check.ID == body.id) {
+                            var result = {
+                                status: Constant.STATUS.FAIL,
+                                message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
+                            }
+                            return res.json(result);
+                        }
+                    }
                     if (body.branchCode || body.branchCode === '')
                         update.push({ key: 'BranchCode', value: body.branchCode });
                     if (body.branchName || body.branchName === '')

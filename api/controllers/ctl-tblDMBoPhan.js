@@ -76,6 +76,19 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    let check = await mtblDMBoPhan(db).findOne({
+                        where: [{ DepartmentCode: body.departmentCode }]
+                    })
+                    if (check) {
+                        if (check.ID == body.ID) {
+                            var result = {
+                                status: Constant.STATUS.FAIL,
+                                message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
+                            }
+                            return res.json(result);
+                        }
+
+                    }
                     if (body.departmentCode || body.departmentCode === '')
                         update.push({ key: 'DepartmentCode', value: body.departmentCode });
                     if (body.departmentName || body.departmentName === '')
