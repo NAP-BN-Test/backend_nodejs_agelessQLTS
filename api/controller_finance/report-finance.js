@@ -452,16 +452,16 @@ module.exports = {
                                 let lastYear = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + body.year)
                                 obj['monthBefore' + convertNumber(month)] = year;
                                 obj['monthAfter' + convertNumber(month)] = lastYear;
-                                obj['difference' + month] = year - lastYear;
-                                obj['ratio' + month] = Math.round((year != 0 ? (year - lastYear) / year : 0) * 10000) / 100;
+                                obj['difference' + month] = lastYear - year;
+                                obj['ratio' + month] = Math.round((year != 0 ? (lastYear - year) / year : 0) * 10000) / 100;
                                 arrayHeaderExcel.push('THÁNG ' + convertNumber(month) + '/' + (Number(body.year) - 1))
                                 arrayHeaderExcel.push('THÁNG ' + convertNumber(month) + '/' + body.year)
                                 arrayHeaderExcel.push('CHÊNH LỆCH')
                                 arrayHeaderExcel.push('TỈ LỆ (%)')
                                 objTotal['monthBefore' + convertNumber(month)] = Number(objTotal['monthBefore' + convertNumber(month)] ? objTotal['monthBefore' + convertNumber(month)] : 0) + year;
                                 objTotal['monthAfter' + convertNumber(month)] = Number(objTotal['monthAfter' + convertNumber(month)] ? objTotal['monthAfter' + convertNumber(month)] : 0) + lastYear;
-                                objTotal['difference' + month] = Number(objTotal['difference' + month] ? objTotal['difference' + month] : 0) + (year - lastYear);
-                                objTotal['ratio' + month] = Math.round((objTotal['monthBefore' + convertNumber(month)] != 0 ? (objTotal['monthBefore' + convertNumber(month)] - objTotal['monthAfter' + convertNumber(month)]) / objTotal['monthBefore' + convertNumber(month)] : 0) * 10000) / 100;
+                                objTotal['difference' + month] = Number(objTotal['difference' + month] ? objTotal['difference' + month] : 0) + (lastYear - year);
+                                objTotal['ratio' + month] = Math.round((objTotal['monthBefore' + convertNumber(month)] != 0 ? (objTotal['monthAfter' + convertNumber(month)] - objTotal['monthBefore' + convertNumber(month)]) / objTotal['monthBefore' + convertNumber(month)] : 0) * 10000) / 100;
                             }
                             arrayResult.push(obj)
                             stt += 1
@@ -475,8 +475,8 @@ module.exports = {
                             let rate = await getCurrencyFromMonth(db, (Number(body.year) - 1) + '-' + convertNumber(month));
                             obj['monthBefore' + convertNumber(month)] = rate;
                             obj['monthAfter' + convertNumber(month)] = lastRate;
-                            obj['difference' + month] = rate - lastRate;
-                            obj['ratio' + month] = lastRate ? (Math.round(((rate - lastRate) / lastRate) * 10000) / 100) : 0;
+                            obj['difference' + month] = lastRate - rate;
+                            obj['ratio' + month] = rate ? (Math.round(((lastRate - rate) / rate) * 10000) / 100) : 0;
                         }
                         arrayResult.push(obj)
                         objTotal['stt'] = null
