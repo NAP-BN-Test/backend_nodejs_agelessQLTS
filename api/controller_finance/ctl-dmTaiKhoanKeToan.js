@@ -311,8 +311,8 @@ module.exports = {
                             };
                         } else {
                             where = [{
-                                Contents: {
-                                    [Op.ne]: '%%'
+                                ID: {
+                                    [Op.ne]: null
                                 }
                             },];
                         }
