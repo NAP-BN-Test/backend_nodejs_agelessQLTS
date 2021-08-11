@@ -80,7 +80,7 @@ module.exports = {
                         where: [{ DepartmentCode: body.departmentCode }]
                     })
                     if (check) {
-                        if (check.ID != body.ID) {
+                        if (check.ID != body.id) {
                             var result = {
                                 status: Constant.STATUS.FAIL,
                                 message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
