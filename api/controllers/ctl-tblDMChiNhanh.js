@@ -73,7 +73,7 @@ module.exports = {
                         where: [{ BranchCode: body.branchCode }]
                     })
                     if (check) {
-                        if (check.ID == body.id) {
+                        if (check.ID != body.id) {
                             var result = {
                                 status: Constant.STATUS.FAIL,
                                 message: "Mã này đã tồn tại. Vui lòng kiểm tra lại",
