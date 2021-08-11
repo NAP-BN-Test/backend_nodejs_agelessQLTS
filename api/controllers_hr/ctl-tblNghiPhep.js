@@ -955,6 +955,7 @@ module.exports = {
                         }
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ trưởng bộ phận xác nhận',
+                            Note: body.note ? body.note : '',
                         }, { where: { ID: body.id } })
                     }
                     var result = {
@@ -1001,6 +1002,7 @@ module.exports = {
                         }
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ thủ trưởng phê duyệt',
+                            Note: body.note ? body.note : '',
                         }, { where: { ID: body.id } })
                     }
                     var result = {
