@@ -445,8 +445,8 @@ module.exports = {
                             arrayHeaderExcel.push('1')
                             arrayHeaderExcel.push('2')
                             for (let month = 1; month <= 12; month++) {
-                                let year = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + body.year)
-                                let lastYear = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + (Number(body.year) - 1))
+                                let year = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + (Number(body.year) - 1))
+                                let lastYear = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + body.year)
                                 obj['monthBefore' + convertNumber(month)] = year;
                                 obj['monthAfter' + convertNumber(month)] = lastYear;
                                 obj['difference' + month] = year - lastYear;
