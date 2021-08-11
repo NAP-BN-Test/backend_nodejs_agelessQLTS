@@ -316,8 +316,9 @@ async function getDataInvoiceFromDepartmentFollowYear(db, departmentID, year) {
 async function getCurrencyFromMonth(db, month) {
     let result = 0;
     let count = 0;
+    console.log(1234567);
     await mtblRate(db).findAll({
-        where: { Date: month }
+        where: { Date: { [Op.substring]: month } }
     }).then(data => {
         data.forEach(item => {
             result += Number(item.ExchangeRate)
@@ -468,12 +469,12 @@ module.exports = {
                             departmentName: 'Tỉ giá',
                         }
                         for (let month = 1; month <= 12; month++) {
-                            let rate = await getCurrencyFromMonth(db, body.year + '/' + convertNumber(month));
-                            let lastRate = await getCurrencyFromMonth(db, (Number(body.year) - 1) + '/' + convertNumber(month));
+                            let rate = await getCurrencyFromMonth(db, body.year + '-' + convertNumber(month));
+                            let lastRate = await getCurrencyFromMonth(db, (Number(body.year) - 1) + '-' + convertNumber(month));
                             obj['monthBefore' + convertNumber(month)] = rate;
                             obj['monthAfter' + convertNumber(month)] = lastRate;
                             obj['difference' + month] = rate - lastRate;
-                            obj['ratio' + month] = lastRate ? (Math.round(((rate - lastRate) / lastRate) * 100) / 100) : 0;
+                            obj['ratio' + month] = lastRate ? (Math.round(((rate - lastRate) / lastRate) * 10000) / 100) : 0;
                         }
                         arrayResult.push(obj)
                         objTotal['stt'] = null
