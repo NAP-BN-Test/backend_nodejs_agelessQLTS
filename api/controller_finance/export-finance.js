@@ -1047,7 +1047,6 @@ module.exports = {
     // pour_data_into_work_file_and_convert_to_pdf
     pourDataIntoWorkFileAndConvertToPDF: async (req, res) => {
         let body = req.body;
-        console.log(body);
         var objKey = {}
         if (body.id)
             await database.connectDatabase().then(async db => {
