@@ -450,7 +450,7 @@ module.exports = {
                                 obj['monthBefore' + convertNumber(month)] = year;
                                 obj['monthAfter' + convertNumber(month)] = lastYear;
                                 obj['difference' + month] = year - lastYear;
-                                obj['ratio' + month] = lastYear ? (year - lastYear) / lastYear : 0;
+                                obj['ratio' + month] = Math.round((year != 0 ? (year - lastYear) / year : 0) * 10000) / 100;
                                 arrayHeaderExcel.push('THÁNG ' + convertNumber(month) + '/' + (Number(body.year) - 1))
                                 arrayHeaderExcel.push('THÁNG ' + convertNumber(month) + '/' + body.year)
                                 arrayHeaderExcel.push('CHÊNH LỆCH')
@@ -458,7 +458,7 @@ module.exports = {
                                 objTotal['monthBefore' + convertNumber(month)] = Number(objTotal['monthBefore' + convertNumber(month)] ? objTotal['monthBefore' + convertNumber(month)] : 0) + year;
                                 objTotal['monthAfter' + convertNumber(month)] = Number(objTotal['monthAfter' + convertNumber(month)] ? objTotal['monthAfter' + convertNumber(month)] : 0) + lastYear;
                                 objTotal['difference' + month] = Number(objTotal['difference' + month] ? objTotal['difference' + month] : 0) + (year - lastYear);
-                                objTotal['ratio' + month] = Number(objTotal['ratio' + month] ? objTotal['ratio' + month] : 0) + (lastYear ? (year - lastYear) / lastYear : 0);
+                                objTotal['ratio' + month] = Math.round((objTotal['monthBefore' + convertNumber(month)] != 0 ? (objTotal['monthBefore' + convertNumber(month)] - objTotal['monthAfter' + convertNumber(month)]) / objTotal['monthBefore' + convertNumber(month)] : 0) * 10000) / 100;
                             }
                             arrayResult.push(obj)
                             stt += 1
