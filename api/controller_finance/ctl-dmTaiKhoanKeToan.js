@@ -288,47 +288,31 @@ module.exports = {
                     let arraySearchAnd = [];
                     let arraySearchOr = [];
                     let arraySearchNot = [];
+                    let where = {}
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
-                        var list = [];
-                        await mtblDMLoaiTaiKhoanKeToan(db).findAll({
-                            order: [
-                                ['ID', 'DESC']
-                            ],
-                            where:
-                            {
-                                TypeName: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            }
-                        }).then(data => {
-                            data.forEach(item => {
-                                list.push(item.ID);
-                            })
-                        })
                         if (data.search) {
                             where = {
-                                [Op.or]: [{
-                                    IDLoaiTaiKhoanKeToan: {
-                                        [Op.in]: list
-                                    }
-                                },
-                                {
-                                    AccountingName: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    AccountingCode: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                }
-                                ]
+                                [Op.or]: [
+                                    {
+                                        AccountingName: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        AccountingCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                ],
+                                [Op.and]: [
+                                    { Levels: 1 }
+                                ],
                             };
                         } else {
                             where = [{
-                                ID: {
-                                    [Op.ne]: null
+                                Contents: {
+                                    [Op.ne]: '%%'
                                 }
                             },];
                         }
@@ -374,11 +358,13 @@ module.exports = {
                                 }
                             }
                         }
-                        arraySearchAnd.push({ Levels: 1 })
                         if (arraySearchOr.length > 0)
                             whereObj[Op.or] = arraySearchOr
-                        if (arraySearchAnd.length > 0)
+                        if (arraySearchAnd.length > 0) {
+                            arraySearchAnd.push({ Levels: 1 })
                             whereObj[Op.and] = arraySearchAnd
+
+                        }
                         if (arraySearchNot.length > 0)
                             whereObj[Op.not] = arraySearchNot
                     }

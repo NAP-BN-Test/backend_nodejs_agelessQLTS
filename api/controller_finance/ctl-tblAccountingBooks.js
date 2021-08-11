@@ -406,13 +406,12 @@ module.exports = {
                                 ID: dataSearch.accountSystemID
                             }
                         })
-                        console.log(dataSearch.accountSystemID, accountBooks);
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
                         arisingPeriod = totalDebtIncurred - totalCreditIncurred;
-                        openingBalanceDebit = accountBooks ? accountBooks.MoneyDebit : 0
-                        openingBalanceCredit = accountBooks ? accountBooks.MoneyCredit : 0
-                        endingBalanceDebit = openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)
-                        endingBalanceCredit = openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)
+                        openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : 0) : 0
+                        openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : 0) : 0
+                        endingBalanceDebit = openingBalanceDebit != 0 ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : 0
+                        endingBalanceCredit = openingBalanceCredit != 0 ? (openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)) : 0
                         var result = {
                             total: {
                                 totalCreditIncurred,
@@ -430,6 +429,7 @@ module.exports = {
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: count
                         }
+                        console.log(result);
                         res.json(result);
                     })
 
