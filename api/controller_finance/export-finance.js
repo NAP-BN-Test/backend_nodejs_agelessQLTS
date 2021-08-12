@@ -1027,10 +1027,23 @@ module.exports = {
                             ws.cell(row, checkCol + 1).number(data.arrayResult[monthAfter][arrIndex].value).style(stylecellN)
                             checkCol += numberTypeMoney
                         }
-                        ws.cell(row + 1, 1).string('').style(stylecellT)
-                        ws.cell(row + 1, 2).string('Cộng').style(stylecellT)
-                        ws.cell(row + 1, checkTotal, row + 1, checkTotal + 1, true).string(data.arrayTotal[monthBefore]).style(stylecellT)
-                        ws.cell(row + 1, checkTotal + 2, row + 1, checkTotal + 3, true).string(data.arrayTotal[monthAfter]).style(stylecellT)
+                        stylePublic['font'] = {
+                            size: 12,
+                            // bold: true,
+                            // underline: true,
+                            name: 'Times New Roman',
+                        }
+                        stylePublic['alignment'] = {
+                            wrapText: true,
+                            // ngang
+                            horizontal: 'center',
+                            // Dọc
+                            vertical: 'center',
+                        }
+                        ws.cell(row + 1, 1).string('').style(stylePublic)
+                        ws.cell(row + 1, 2).string('Cộng').style(stylePublic)
+                        ws.cell(row + 1, checkTotal, row + 1, checkTotal + 1, true).string(data.arrayTotal[monthBefore]).style(stylePublic)
+                        ws.cell(row + 1, checkTotal + 2, row + 1, checkTotal + 3, true).string(data.arrayTotal[monthAfter]).style(stylePublic)
                         checkTotal += 4
                     }
                     ws.column(2).setWidth(30);
