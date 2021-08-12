@@ -586,6 +586,7 @@ module.exports = {
             },
             "type": body.type
         }
+        console.log(body);
         // console.log(body);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
@@ -648,6 +649,25 @@ module.exports = {
                             let obj = {
                                 stt: 1,
                                 departmentName: 'Doanh thu tiền về',
+                                lastYearAverage: lastYearAverageTotal,
+                                monthlyRevenue: monthlyRevenueTotal,
+                                difference: differenceTotal,
+                                ratio: lastYearAverageTotal != 0 ? ((monthlyRevenueTotal - lastYearAverageTotal) / lastYearAverageTotal) : 0,
+                            }
+                            arrayResult.push(obj)
+                            obj = {
+                                // stt: 1,
+                                departmentName: 'Tổng cộng',
+                                lastYearAverage: lastYearAverageTotal,
+                                monthlyRevenue: monthlyRevenueTotal,
+                                difference: differenceTotal,
+                                ratio: lastYearAverageTotal != 0 ? ((monthlyRevenueTotal - lastYearAverageTotal) / lastYearAverageTotal) : 0,
+                            }
+                            arrayResult.push(obj)
+                        } else {
+                            let obj = {
+                                // stt: 1,
+                                departmentName: 'Tổng cộng',
                                 lastYearAverage: lastYearAverageTotal,
                                 monthlyRevenue: monthlyRevenueTotal,
                                 difference: differenceTotal,
