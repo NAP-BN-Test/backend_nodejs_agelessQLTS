@@ -711,6 +711,12 @@ async function getDetailReceiptsPayment(db, idPayment) {
     }
     return objResult
 }
+function convertNumber(number) {
+    if (number < 10) {
+        return '0' + number
+    } else
+        return number
+}
 module.exports = {
     // report_average_votes
     reportAverageVotes: (req, res) => {
@@ -740,6 +746,9 @@ module.exports = {
     // export_excel_report_aggregate_revenue
     exportExcelReportAggregateRevenue: (req, res) => {
         var wb = new xl.Workbook();
+        var body = req.body
+        let data = JSON.parse(body.data)
+        console.log(body);
         // Create a reusable style
         styleHearderText['fill'] = {
             type: 'pattern',
@@ -751,20 +760,7 @@ module.exports = {
         var styleHearderN = wb.createStyle(styleHearderNumber);
         var stylecellT = wb.createStyle(styleCellText);
         var stylecellN = wb.createStyle(stylecellNumber);
-        let body = req.body;
-        // let data = JSON.parse(body.data);
-        // let objInsurance = JSON.parse(body.objInsurance);
-        // let totalFooter = JSON.parse(body.totalFooter)
-        let arrayHeader = [
-            'STT',
-            'NỘI DUNG',
-            'THÁNG 01/2020',
-            'THÁNG 02/2020',
-            'THÁNG 03/2020',
-            'THÁNG 04/2020',
-            'THÁNG 05/2020',
-            'THÁNG 06/2020',
-        ]
+        let arrayHeader = data.arrayHeader
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -776,7 +772,7 @@ module.exports = {
                     ws.row(3).setHeight(25);
                     ws.row(4).setHeight(25);
                     ws.cell(1, 1, 1, 6, true)
-                        .string('TỔNG HỢP DOANH THU SHTT NĂM 2020')
+                        .string('TỔNG HỢP DOANH THU SHTT NĂM ' + body.year)
                         .style(styleHearderTitle);
                     stylePublic['font'] = {
                         size: 11,
@@ -855,11 +851,44 @@ module.exports = {
                             row += 4
                         }
                     }
+                    row = 5
+                    let stt = 1;
+                    for (let arr = 0; arr < data.arrayResult.length; arr++) {
+                        ws.cell(row, 1).number(stt).style(stylecellT)
+                        stt += 1
+                        stylePublic['font'] = {
+                            size: 12,
+                            // bold: true,
+                            // underline: true,
+                            name: 'Times New Roman',
+                        }
+                        stylePublic['alignment'] = {
+                            wrapText: true,
+                            // ngang
+                            horizontal: 'left',
+                            // Dọc
+                            vertical: 'center',
+                        }
+                        ws.cell(row, 2).string(data.arrayResult[arr]['departmentName']).style(stylePublic)
+                        let checkCol = 2;
+                        for (let col = 1; col <= 12; col++) {
+                            let monthBefore = 'monthBefore' + convertNumber(col)
+                            let monthAfter = 'monthAfter' + convertNumber(col)
+                            let difference = 'difference' + col
+                            let ratio = 'ratio' + col
+                            ws.cell(row, col + checkCol).number(data.arrayResult[arr][monthBefore]).style(stylecellN)
+                            ws.cell(row, col + checkCol + 1).number(data.arrayResult[arr][monthAfter]).style(stylecellN)
+                            ws.cell(row, col + checkCol + 2).number(data.arrayResult[arr][difference]).style(stylecellN)
+                            ws.cell(row, col + checkCol + 3).number(data.arrayResult[arr][ratio]).style(stylecellN)
+                            checkCol += 3
+                        }
+                        row += 1
+                    }
                     ws.column(2).setWidth(30);
-                    await wb.write('D:/images_services/ageless_sendmail/' + 'test.xlsx');
+                    await wb.write('C:/images_services/ageless_sendmail/' + 'Bảng tổng hợp doanh thi trên debinote năm ' + body.year + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'test.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Bảng tổng hợp doanh thi trên debinote năm ' + body.year + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

@@ -3054,7 +3054,6 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                 if (month > 0) {
                     wageS1 = await getMinWageConfig(db, Number(arrayCheckMinWage[month - 1].slice(0, 4)), Number(arrayCheckMinWage[month - 1].slice(5, 7)))
                 }
-                console.log(wageS1, wage, 12345);
                 if (wageS1 != wage) {
                     arrayMonthMinWage.push(arrayCheckMinWage[month])
                     minimumWage.push(wage)
@@ -3088,21 +3087,21 @@ async function getDetailTrackInsurancePremiums(db, monthYear, departmentID, next
                     var nextMonth = Number(nextMonthYear.slice(5, 7));
                     var nextYear = Number(nextMonthYear.slice(0, 4));
                     let check = 0;
-                    for (let month = monthFirst; month <= nextMonth; month++) {
+                    for (let month = nextMonth; month >= monthFirst; month--) {
                         let resultNew = await getDetailPayroll(db, nextYear + '-' + await convertNumber(month), departmentID, minimumWage[0])
                         Array.prototype.push.apply(result.array, resultNew.array)
                         if (resultNew.objInsurance.companyBHTN)
                             result.objInsurance = resultNew.objInsurance
                         if (check != 1) {
-                            result.totalFooter.bhxhSalaryTotal += resultNew.totalFooter.bhxhSalaryTotal
-                            result.totalFooter.bhxhCTTotal += resultNew.totalFooter.bhxhCTTotal
-                            result.totalFooter.bhxhNVTotal += resultNew.totalFooter.bhxhNVTotal
-                            result.totalFooter.bhytCTTotal += resultNew.totalFooter.bhytCTTotal
-                            result.totalFooter.bhytNVTotal += resultNew.totalFooter.bhytNVTotal
-                            result.totalFooter.bhtnCTTotal += resultNew.totalFooter.bhtnCTTotal
-                            result.totalFooter.bhtnNVTotal += resultNew.totalFooter.bhtnNVTotal
-                            result.totalFooter.bhtnldTotal += resultNew.totalFooter.bhtnldTotal
-                            result.totalFooter.tongTotal += resultNew.totalFooter.tongTotal
+                            result.totalFooter.bhxhSalaryTotal = resultNew.totalFooter.bhxhSalaryTotal
+                            result.totalFooter.bhxhCTTotal = resultNew.totalFooter.bhxhCTTotal
+                            result.totalFooter.bhxhNVTotal = resultNew.totalFooter.bhxhNVTotal
+                            result.totalFooter.bhytCTTotal = resultNew.totalFooter.bhytCTTotal
+                            result.totalFooter.bhytNVTotal = resultNew.totalFooter.bhytNVTotal
+                            result.totalFooter.bhtnCTTotal = resultNew.totalFooter.bhtnCTTotal
+                            result.totalFooter.bhtnNVTotal = resultNew.totalFooter.bhtnNVTotal
+                            result.totalFooter.bhtnldTotal = resultNew.totalFooter.bhtnldTotal
+                            result.totalFooter.tongTotal = resultNew.totalFooter.tongTotal
                         }
                         check = 1
                     }

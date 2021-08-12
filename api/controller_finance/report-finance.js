@@ -591,6 +591,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (data) {
+                    console.log(body);
                     let yearNow = Number(moment().format('YYYY'));
                     yearNow = yearNow - 1
                     let arrayResult = []
@@ -624,7 +625,13 @@ module.exports = {
                                 monthlyRevenue += (data[d].Amount * rate)
                             }
                         })
+                        let lastYearAverageTotal = 0;
+                        let monthlyRevenueTotal = 0;
+                        let differenceTotal = 0;
                         for (let dp = 0; dp < department.length; dp++) {
+                            lastYearAverageTotal += lastYearAverage;
+                            monthlyRevenueTotal += monthlyRevenue;
+                            differenceTotal += (monthlyRevenue - lastYearAverage);
                             let obj = {
                                 stt: stt,
                                 departmentName: department[dp].DepartmentName,
@@ -635,6 +642,18 @@ module.exports = {
                             }
                             arrayResult.push(obj)
                             stt += 1
+                        }
+                        if (body.type == 'company') {
+                            arrayResult = []
+                            let obj = {
+                                stt: 1,
+                                departmentName: 'Doanh thu tiền về',
+                                lastYearAverage: lastYearAverageTotal,
+                                monthlyRevenue: monthlyRevenueTotal,
+                                difference: differenceTotal,
+                                ratio: lastYearAverageTotal != 0 ? ((monthlyRevenueTotal - lastYearAverageTotal) / lastYearAverageTotal) : 0,
+                            }
+                            arrayResult.push(obj)
                         }
                     })
                     let result = {
