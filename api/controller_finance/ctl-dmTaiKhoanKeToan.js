@@ -291,6 +291,7 @@ module.exports = {
     // get_list_tbl_dm_taikhoanketoan
     getListtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -328,8 +329,9 @@ module.exports = {
                             { Levels: 1 }
                             ];
                         }
-                        whereObj[Op.and] = where
+                        whereObj = where
                         if (data.items) {
+                            whereObj = {}
                             arraySearchAnd.push({ Levels: 1 })
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
