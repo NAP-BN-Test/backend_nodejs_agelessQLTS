@@ -920,8 +920,10 @@ module.exports = {
         var stylecellT = wb.createStyle(styleCellText);
         var stylecellN = wb.createStyle(stylecellNumber);
         let body = req.body;
+        body.data = body.data.replace(/plus/g, '+');
         let data = JSON.parse(body.data);
         let arrayHeader = data.arrayHeader
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1015,16 +1017,21 @@ module.exports = {
                         vertical: 'center',
                     }
                     let checkCol = 3;
+                    let checkTotal = 3;
                     ws.cell(row, 2).string('Doanh thu tiền về').style(stylePublic)
                     for (let col = 1; col <= 12; col++) {
                         let monthBefore = 'monthBefore' + convertNumber(col)
                         let monthAfter = 'monthAfter' + convertNumber(col)
-                        console.log(data.arrayResult[monthBefore]);
                         for (let arrIndex = 0; arrIndex < numberTypeMoney; arrIndex++) {
                             ws.cell(row, checkCol).number(data.arrayResult[monthBefore][arrIndex].value).style(stylecellN)
                             ws.cell(row, checkCol + 1).number(data.arrayResult[monthAfter][arrIndex].value).style(stylecellN)
                             checkCol += numberTypeMoney
                         }
+                        ws.cell(row + 1, 1).string('').style(stylecellT)
+                        ws.cell(row + 1, 2).string('Cộng').style(stylecellT)
+                        ws.cell(row + 1, checkTotal, row + 1, checkTotal + 1, true).string(data.arrayTotal[monthBefore]).style(stylecellT)
+                        ws.cell(row + 1, checkTotal + 2, row + 1, checkTotal + 3, true).string(data.arrayTotal[monthAfter]).style(stylecellT)
+                        checkTotal += 4
                     }
                     ws.column(2).setWidth(30);
                     await wb.write('C:/images_services/ageless_sendmail/' + 'Doanh thu tiền về năm ' + body.year + '.xlsx');

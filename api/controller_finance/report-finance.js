@@ -524,6 +524,7 @@ module.exports = {
                     objResult['name'] = 'Doanh thu trên tiền về'
                     let arrayCurrencyID = await getListTypeMoneyFollowYear(db, '2021')
                     let arrayCurrency = []
+                    let arrayTotal = {}
                     for (let month = 1; month <= 12; month++) {
                         arrayHeader.push('THÁNG ' + convertNumber(month) + '/' + (Number(body.year) - 1))
                         arrayHeader.push('THÁNG ' + convertNumber(month) + '/' + body.year)
@@ -557,8 +558,32 @@ module.exports = {
                         }
                         arrayResult['monthBefore' + convertNumber(month)] = arrayMonthBefore
                         arrayResult['monthAfter' + convertNumber(month)] = arrayMonthAfter
+                        let valueBefore = ''
+                        for (let arrInd = 0; arrInd < arrayMonthBefore.length; arrInd++) {
+                            let typeMoney = arrayMonthBefore[arrInd].name == 'VND' ? 'đ' : (arrayMonthBefore[arrInd].name == 'USD' ? '$' : '?')
+                            if (arrInd == arrayMonthBefore.length - 1) {
+                                valueBefore += arrayMonthBefore[arrInd].value + typeMoney
+
+                            } else {
+                                valueBefore += arrayMonthBefore[arrInd].value + typeMoney + ' + '
+                            }
+                        }
+                        let valueAfter = ''
+                        for (let arrInd = 0; arrInd < arrayMonthAfter.length; arrInd++) {
+                            let typeMoney = arrayMonthAfter[arrInd].name == 'VND' ? 'đ' : (arrayMonthAfter[arrInd].name == 'USD' ? '$' : '?')
+                            if (arrInd == arrayMonthAfter.length - 1) {
+                                valueAfter += arrayMonthAfter[arrInd].value + typeMoney
+
+                            } else {
+                                valueAfter += arrayMonthAfter[arrInd].value + typeMoney + ' + '
+                            }
+                        }
+
+                        arrayTotal['monthBefore' + convertNumber(month)] = valueBefore
+                        arrayTotal['monthAfter' + convertNumber(month)] = valueAfter
                     }
                     let result = {
+                        arrayTotal: arrayTotal,
                         arrayData: [objResult],
                         arrayResult: arrayResult,
                         arrayHeader: arrayHeader,
