@@ -920,19 +920,8 @@ module.exports = {
         var stylecellT = wb.createStyle(styleCellText);
         var stylecellN = wb.createStyle(stylecellNumber);
         let body = req.body;
-        // let data = JSON.parse(body.data);
-        // let objInsurance = JSON.parse(body.objInsurance);
-        // let totalFooter = JSON.parse(body.totalFooter)
-        let arrayHeader = [
-            'STT',
-            'NỘI DUNG',
-            'THÁNG 01/2020',
-            'THÁNG 02/2020',
-            'THÁNG 03/2020',
-            'THÁNG 04/2020',
-            'THÁNG 05/2020',
-            'THÁNG 06/2020',
-        ]
+        let data = JSON.parse(body.data);
+        let arrayHeader = data.arrayHeader
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -944,12 +933,14 @@ module.exports = {
                     ws.row(3).setHeight(25);
                     ws.row(4).setHeight(25);
                     ws.cell(1, 1, 1, 6, true)
-                        .string('DOANH THU TRÊN TIỀN VỀ')
+                        .string('DOANH THU TRÊN TIỀN VỀ NĂM ' + body.year)
                         .style(styleHearderTitle);
                     var row = 1
                     for (let width = 2; width < 1000; width++) {
                         ws.column(width).setWidth(20);
                     }
+                    // Dùng để render ra hearder và dùng find dữ liệu
+                    let numberTypeMoney = data.arrayCurrency.length;
                     for (let hd = 0; hd < arrayHeader.length; hd++) {
                         if (hd < 2) {
                             ws.cell(3, row, 4, row, true)
@@ -975,12 +966,11 @@ module.exports = {
                                     .string(arrayHeader[hd])
                                     .style(styleHearderT);
                                 let style = wb.createStyle(styleCellText)
-                                ws.cell(4, row)
-                                    .string('USD')
-                                    .style(style);
-                                ws.cell(4, row + 1)
-                                    .string('VND')
-                                    .style(style);
+                                for (let i = 0; i < data.arrayCurrency.length; i++) {
+                                    ws.cell(4, row + i)
+                                        .string(data.arrayCurrency[i])
+                                        .style(style);
+                                }
                             } else {
                                 styleHearderText['fill'] = {
                                     type: 'pattern',
@@ -999,21 +989,48 @@ module.exports = {
                                     .string(arrayHeader[hd])
                                     .style(styleHearderT);
                                 let style = wb.createStyle(styleCellText)
-                                ws.cell(4, row)
-                                    .string('USD')
-                                    .style(style);
-                                ws.cell(4, row + 1)
-                                    .string('VND')
-                                    .style(style);
+                                for (let i = 0; i < data.arrayCurrency.length; i++) {
+                                    ws.cell(4, row + i)
+                                        .string(data.arrayCurrency[i])
+                                        .style(style);
+                                }
                             }
-                            row += 2
+                            row += numberTypeMoney
+                        }
+                    }
+                    let stt = 1;
+                    row = 5
+                    ws.cell(row, 1).number(stt).style(stylecellT)
+                    stylePublic['font'] = {
+                        size: 12,
+                        // bold: true,
+                        // underline: true,
+                        name: 'Times New Roman',
+                    }
+                    stylePublic['alignment'] = {
+                        wrapText: true,
+                        // ngang
+                        horizontal: 'left',
+                        // Dọc
+                        vertical: 'center',
+                    }
+                    let checkCol = 3;
+                    ws.cell(row, 2).string('Doanh thu tiền về').style(stylePublic)
+                    for (let col = 1; col <= 12; col++) {
+                        let monthBefore = 'monthBefore' + convertNumber(col)
+                        let monthAfter = 'monthAfter' + convertNumber(col)
+                        console.log(data.arrayResult[monthBefore]);
+                        for (let arrIndex = 0; arrIndex < numberTypeMoney; arrIndex++) {
+                            ws.cell(row, checkCol).number(data.arrayResult[monthBefore][arrIndex].value).style(stylecellN)
+                            ws.cell(row, checkCol + 1).number(data.arrayResult[monthAfter][arrIndex].value).style(stylecellN)
+                            checkCol += numberTypeMoney
                         }
                     }
                     ws.column(2).setWidth(30);
-                    await wb.write('D:/images_services/ageless_sendmail/' + 'Doanh thu tiền về.xlsx');
+                    await wb.write('C:/images_services/ageless_sendmail/' + 'Doanh thu tiền về năm ' + body.year + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Doanh thu tiền về.xlsx',
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Doanh thu tiền về năm ' + body.year + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
