@@ -586,13 +586,10 @@ module.exports = {
             },
             "type": body.type
         }
-        console.log(body);
-        // console.log(body);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (data) {
-                    console.log(body);
                     let yearNow = Number(moment().format('YYYY'));
                     yearNow = yearNow - 1
                     let arrayResult = []
