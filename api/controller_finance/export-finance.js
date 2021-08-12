@@ -1023,8 +1023,8 @@ module.exports = {
                         let monthBefore = 'monthBefore' + convertNumber(col)
                         let monthAfter = 'monthAfter' + convertNumber(col)
                         for (let arrIndex = 0; arrIndex < numberTypeMoney; arrIndex++) {
-                            ws.cell(row, checkCol).number(data.arrayResult[monthBefore][arrIndex].value).style(stylecellN)
-                            ws.cell(row, checkCol + 1).number(data.arrayResult[monthAfter][arrIndex].value).style(stylecellN)
+                            ws.cell(row, checkCol + 1).number(data.arrayResult[monthBefore][arrIndex].value).style(stylecellN)
+                            ws.cell(row, checkCol).number(data.arrayResult[monthAfter][arrIndex].value).style(stylecellN)
                             checkCol += numberTypeMoney
                         }
                         stylePublic['font'] = {
@@ -1042,8 +1042,8 @@ module.exports = {
                         }
                         ws.cell(row + 1, 1).string('').style(stylePublic)
                         ws.cell(row + 1, 2).string('Cộng').style(stylePublic)
-                        ws.cell(row + 1, checkTotal, row + 1, checkTotal + 1, true).string(data.arrayTotal[monthBefore]).style(stylePublic)
-                        ws.cell(row + 1, checkTotal + 2, row + 1, checkTotal + 3, true).string(data.arrayTotal[monthAfter]).style(stylePublic)
+                        ws.cell(row + 1, checkTotal, row + 1, checkTotal + 1, true).string(data.arrayTotal[monthAfter]).style(stylePublic)
+                        ws.cell(row + 1, checkTotal + 2, row + 1, checkTotal + 3, true).string(data.arrayTotal[monthBefore]).style(stylePublic)
                         checkTotal += 4
                     }
                     ws.column(2).setWidth(30);
