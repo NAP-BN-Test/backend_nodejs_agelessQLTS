@@ -415,7 +415,7 @@ async function getAverageRateFollowMonth(db, month, idCurrency) {
             IDCurrency: idCurrency,
         }
     })
-    return result / count
+    return count != 0 ? (result / count) : 0
 }
 async function getDetailInvoice(id) {
     let detail = {};
@@ -489,8 +489,11 @@ module.exports = {
                             departmentName: 'Tỉ giá',
                         }
                         for (let month = 1; month <= 12; month++) {
-                            let lastRate = await getCurrencyFromMonth(db, body.year + '-' + convertNumber(month));
-                            let rate = await getCurrencyFromMonth(db, (Number(body.year) - 1) + '-' + convertNumber(month));
+                            //  11 - USD
+                            let lastRate = await getAverageRateFollowMonth(db, body.year + '-' + convertNumber(month), 11);
+                            let rate = await getAverageRateFollowMonth(db, (Number(body.year) - 1) + '-' + convertNumber(month), 11);
+                            lastRate = Math.round(lastRate * 100) / 100
+                            rate = Math.round(rate * 100) / 100
                             obj['monthBefore' + convertNumber(month)] = rate;
                             obj['monthAfter' + convertNumber(month)] = lastRate;
                             obj['difference' + month] = lastRate - rate;
@@ -688,7 +691,7 @@ module.exports = {
                                 }
                             }).then(async data => {
                                 for (let d = 0; d < data.length; d++) {
-                                    let rate = await getAverageRateFollowYear(db, yearNow, data[d].IDCurrency)
+                                    let rate = await getAverageRateFollowMonth(db, body.date, data[d].IDCurrency)
                                     await mtblPaymentRInvoice(db).findAll({
                                         where: {
                                             IDPayment: data[d].ID
