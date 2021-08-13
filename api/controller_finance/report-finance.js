@@ -13,6 +13,7 @@ var xl = require('excel4node');
 var database = require('../database');
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
+var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
 
 data = [{
     id: 1,
@@ -353,11 +354,19 @@ async function getListTypeMoneyFollowYear(db, year) {
 
 async function getMoneyRevenueFollowMonthAndTypeMoney(db, month, idTypeMoney) {
     let result = 0;
+    let listID = []
+    await mtblVayTamUng(db).findAll().then(data => {
+        data.forEach(item => {
+            if (item.IDReceiptsPayment)
+                listID.push(item.IDReceiptsPayment)
+        })
+    })
     await mtblReceiptsPayment(db).findAll({
         where: {
             IDCurrency: idTypeMoney,
             type: 'receipt',
             Date: { [Op.substring]: month },
+            ID: { [Op.notIn]: listID },
         }
     }).then(data => {
         data.forEach(item => {
@@ -637,10 +646,18 @@ module.exports = {
                                 lastYearAverage += (data[d].Amount * rate)
                             }
                         })
+                        let listID = []
+                        await mtblVayTamUng(db).findAll().then(data => {
+                            data.forEach(item => {
+                                if (item.IDReceiptsPayment)
+                                    listID.push(item.IDReceiptsPayment)
+                            })
+                        })
                         await mtblReceiptsPayment(db).findAll({
                             where: {
                                 type: 'receipt',
                                 Date: { [Op.substring]: body.date },
+                                ID: { [Op.notIn]: listID },
                             }
                         }).then(async data => {
                             for (let d = 0; d < data.length; d++) {

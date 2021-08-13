@@ -94,6 +94,24 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
                 })
         }
     })
+    await mtblPaymentRInvoice(db).findAll({
+        where: {
+            IDPayment: {
+                [Op.in]: listID
+            }
+        }
+    }).then(async data => {
+        for (let d = 0; d < data.length; d++) {
+            if (data[d].IDSpecializedSoftware)
+                await mtblInvoice(db).update({
+                    Status: 'Chờ thanh toán'
+                }, {
+                    where: {
+                        IDSpecializedSoftware: data[d].IDSpecializedSoftware
+                    }
+                })
+        }
+    })
     await mtblPaymentRInvoice(db).destroy({
         where: {
             IDPayment: {
