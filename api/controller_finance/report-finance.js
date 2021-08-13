@@ -645,13 +645,13 @@ module.exports = {
                         ],
                     }).then(async department => {
                         let stt = 1;
-                        let lastYearAverage = 0;
-                        let monthlyRevenue = 0;
                         let lastYearAverageTotal = 0;
                         let monthlyRevenueTotal = 0;
                         let differenceTotal = 0;
                         for (let dp = 0; dp < department.length; dp++) {
                             let listID = []
+                            let monthlyRevenue = 0;
+                            let lastYearAverage = 0;
                             await mtblPaymentRInvoice(db).findAll().then(async data => {
                                 for (let d = 0; d < data.length; d++) {
                                     if (data[d].IDPayment && !checkDuplicate(listID, data[d].IDPayment))
