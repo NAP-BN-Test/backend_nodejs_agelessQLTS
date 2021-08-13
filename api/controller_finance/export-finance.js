@@ -923,7 +923,6 @@ module.exports = {
         body.data = body.data.replace(/plus/g, '+');
         let data = JSON.parse(body.data);
         let arrayHeader = data.arrayHeader
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1069,12 +1068,22 @@ module.exports = {
     // DOANH THU BÌNH QUÂN THÁNG CỦA CÁC BAN HOẶC CẢ CÔNG TY THEO NĂM
     // export_excel_report_average_monthly_revenue_by_year
     exportExcelReportAverageMonthlyRevenueByYear: (req, res) => {
-
+        let body = req.body;
+        let data = JSON.parse(body.data)
+        console.log(body);
+        let month = body.date.slice(5, 7); // January
+        let year = Number(body.date.slice(0, 4));
+        let yearLast = Number(body.date.slice(0, 4)) - 1;
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     var XlsxTemplate = require('xlsx-template');
-
+                    let values = {
+                        year: year,
+                        yearLast: yearLast,
+                        month: month + '/' + year,
+                        data: data.arrayResult,
+                    };
                     // Load an XLSX file into memory
                     fs.readFile(('D:/images_services/ageless_sendmail/template-average-monthly-revenue-by-year.xlsx'), function (err, data) {
 
@@ -1083,24 +1092,22 @@ module.exports = {
 
                         // Replacements take place on first sheet
                         var sheetNumber = 1;
-
                         // Set up some placeholder values matching the placeholders in the template
-                        var values = {
-                            extractDate: new Date(),
-                            dates: [new Date("2013-06-01"), new Date("2013-06-02"), new Date("2013-06-03")],
-                            people: [
-                                { name: "John Smith", age: 20 },
-                                { name: "Bob Johnson", age: 22 }
-                            ]
-                        };
-
                         // Perform substitution
                         template.substitute(sheetNumber, values);
 
                         // Get binary data
                         var data = template.generate();
-                        fs.writeFileSync('D:/images_services/ageless_sendmail/Doanh thu bình quân tháng của các ban theo năm.xlsx', data, 'binary')
+                        fs.writeFileSync('C:/images_services/ageless_sendmail/Doanh thu bình quân tháng của các ban theo năm.xlsx', data, 'binary')
                     })
+                    setTimeout(() => {
+                        var result = {
+                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Doanh thu bình quân tháng của các ban theo năm.xlsx',
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    }, 500);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
