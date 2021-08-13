@@ -410,7 +410,7 @@ module.exports = {
                         arisingPeriod = totalDebtIncurred - totalCreditIncurred;
                         openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : 0) : 0
                         openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : 0) : 0
-                        endingBalanceDebit = openingBalanceDebit != 0 ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : 0
+                        endingBalanceDebit = openingBalanceCredit != 0 ? 0 : (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred))
                         endingBalanceCredit = openingBalanceCredit != 0 ? (openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)) : 0
                         var result = {
                             total: {
@@ -429,7 +429,6 @@ module.exports = {
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: count
                         }
-                        console.log(result);
                         res.json(result);
                     })
 
