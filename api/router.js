@@ -629,5 +629,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_data_report_aggregate_revenue_shtt').post(reportFinance.getDataReportAggregateRevenueSHTT);
     app.route('/qlnb/get_data_report_money_revenue').post(reportFinance.getDataReportMoneyRevenue);
     app.route('/qlnb/get_data_report_average_revenue').post(reportFinance.getDataReportAverageRevenue);
+    app.route('/qlnb/get_data_report_aggregate_revenue_year').post(reportFinance.getDataReportAggregateRevenueYear);
+    app.route('/qlnb/get_data_reqort_average_sales_comparison_table').post(reportFinance.getDataReportAverageSalesComparison);
 
 }
