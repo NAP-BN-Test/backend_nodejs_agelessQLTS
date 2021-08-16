@@ -620,7 +620,6 @@ module.exports = function (app) {
     app.route('/qlnb/export_excel_report_aggregate_revenue').post(exportFileFinance.exportExcelReportAggregateRevenue);
     app.route('/qlnb/export_excel_report_money_revenue').post(exportFileFinance.exportExcelReportMoneyRevenue);
     app.route('/qlnb/export_excel_report_average_monthly_revenue_by_year').post(exportFileFinance.exportExcelReportAverageMonthlyRevenueByYear);
-
     app.route('/qlnb/pour_data_into_work_file_and_convert_to_pdf').post(exportFileFinance.pourDataIntoWorkFileAndConvertToPDF);
 
 

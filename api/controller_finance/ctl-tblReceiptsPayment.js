@@ -59,6 +59,15 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             }
         }
     })
+    await mtblTaiSan(db).update({
+        IDReceiptsPayment: null
+    }, {
+        where: {
+            IDReceiptsPayment: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblAccountingBooks(db).destroy({
         where: {
             IDPayment: {
