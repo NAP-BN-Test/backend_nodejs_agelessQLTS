@@ -406,6 +406,7 @@ async function getAverageRateFollowMonth(db, month, idCurrency) {
         }
     }).then(data => {
         data.forEach(element => {
+            console.log(element.ExchangeRate);
             result += element.ExchangeRate
         })
     })
@@ -454,7 +455,6 @@ async function getRevenueDataYear(db, year, listIDWhere, departmentID) {
     return lastYearAverage
 }
 async function getRevenueDataMonth(db, month, listIDWhere, departmentID) {
-    //  lấy doanh thu của năm ngoái
     let monthlyRevenue = 0;
     await mtblReceiptsPayment(db).findAll({
         where: {
@@ -464,13 +464,14 @@ async function getRevenueDataMonth(db, month, listIDWhere, departmentID) {
         }
     }).then(async data => {
         for (let d = 0; d < data.length; d++) {
-            let rate = await getAverageRateFollowMonth(db, month, data[d].IDCurrency)
             await mtblPaymentRInvoice(db).findAll({
                 where: {
                     IDPayment: data[d].ID
                 }
             }).then(async Invoice => {
                 for (let invoice = 0; invoice < Invoice.length; invoice++) {
+                    let rate = await getAverageRateFollowMonth(db, month, data[d].IDCurrency)
+
                     let objInvoice = await getDetailInvoice(Invoice[invoice].IDSpecializedSoftware)
                     if (objInvoice.departmentID == departmentID) {
                         monthlyRevenue += (data[d].Amount * rate)
@@ -751,6 +752,7 @@ module.exports = {
     // get_data_report_average_revenue
     getDataReportAverageRevenue: async (req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1009,7 +1011,7 @@ module.exports = {
                             lastYearAverage: rate,
                             monthlyRevenue: lastRate,
                             difference: lastRate - rate,
-                            ratio: rate != 0 ? ((lastRate - rate) / rate) : 0,
+                            ratio: rate != 0 ? Math.round(((lastRate - rate) / rate) * 10000) / 100 : 0,
                         }
                         arrayResult.push(obj)
                     })
@@ -1028,9 +1030,10 @@ module.exports = {
         })
     },
     // DOANH THU TIÊN VỀ VND
-    // get_data_report_aggregate_revenue_year
-    getDataReportAggregateRevenueYear: async (req, res) => {
+    // get_data_report_average_revenue_vnd
+    getDataReportAverageRevenueVND: async (req, res) => {
         var body = req.body
+        console.log(body, 'VND');
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1038,20 +1041,18 @@ module.exports = {
             },
             "type": body.type
         }
-        // console.log(body);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (data) {
                     let arrayResult = []
-                    let monthLast = body.date.slice(5, 7); // January
-                    let yearLast = Number(body.date.slice(0, 4));
+                    let month = Number(body.date.slice(5, 7)); // January
+                    let year = Number(body.date.slice(0, 4));
                     await mtblDMBoPhan(db).findAll({
                         order: [
                             ['ID', 'DESC']
                         ],
                     }).then(async department => {
-                        let stt = 1;
                         let lastYearAverageTotal = 0;
                         let monthlyRevenueTotal = 0;
                         let differenceTotal = 0;
@@ -1065,16 +1066,16 @@ module.exports = {
                                         listID.push(data[d].IDPayment)
                                 }
                             })
-                            //  lấy doanh thu của năm ngoái
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
                                     type: 'receipt',
-                                    Date: { [Op.substring]: (yearLast - 1) + '-' + monthLast },
+                                    Date: { [Op.substring]: (year - 1) + '-' + convertNumber(month) },
                                     ID: { [Op.in]: listID },
                                 }
                             }).then(async data => {
                                 for (let d = 0; d < data.length; d++) {
-                                    let rate = await getAverageRateFollowYear(db, (yearLast - 1) + '-' + monthLast, data[d].IDCurrency)
+                                    let rate = await getAverageRateFollowYear(db, (year - 1) + '-' + convertNumber(month), data[d].IDCurrency)
+                                    console.log(rate, data[d].IDCurrency);
                                     await mtblPaymentRInvoice(db).findAll({
                                         where: {
                                             IDPayment: data[d].ID
@@ -1117,18 +1118,16 @@ module.exports = {
                             monthlyRevenueTotal += monthlyRevenue;
                             differenceTotal += (monthlyRevenue - lastYearAverage);
                         }
+
                         let obj = {
                             // stt: 1,
-                            departmentName: 'TỔNG DOANH THU',
+                            departmentName: 'Doanh thu tiền về',
                             lastYearAverage: lastYearAverageTotal,
                             monthlyRevenue: monthlyRevenueTotal,
                             difference: differenceTotal,
                             ratio: lastYearAverageTotal != 0 ? ((monthlyRevenueTotal - lastYearAverageTotal) / lastYearAverageTotal) : 0,
                         }
-                        // let lastRate = await getAverageRateFollowMonth(db, body.date, 11);
-                        // let rate = await getAverageRateFollowMonth(db, (yearLast - 1) + '-' + monthLast, 11);
                         arrayResult.push(obj)
-
                     })
                     let result = {
                         arrayResult: arrayResult,
@@ -1148,6 +1147,7 @@ module.exports = {
     // get_data_reqort_average_sales_comparison_table
     getDataReportAverageSalesComparison: async (req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1182,6 +1182,7 @@ module.exports = {
                                 let year = Number(body.monthAfterStart.slice(0, 4));
                                 valueBefore = await getRevenueDataYear(db, year - 1, listID, department[dp].ID)
                                 for (let month = monthStart; month <= monthEnd; month++) {
+                                    console.log(month, 1234);
                                     valueAfter += await getRevenueDataMonth(db, year + '-' + convertNumber(month), listID, department[dp].ID)
                                 }
                             } else if (body.monthBeforeStart && body.monthAfterStart) {
