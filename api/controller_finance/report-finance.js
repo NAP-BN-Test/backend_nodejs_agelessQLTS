@@ -1205,10 +1205,10 @@ module.exports = {
                                 let yearBefore = Number(body.monthBefore.slice(0, 4));
                                 let monthAfter = Number(body.monthAfter.slice(5, 7));
                                 let yearAfter = Number(body.monthAfter.slice(0, 4));
-                                valueBefore += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, monthBefore + '/' + yearBefore)
-                                valueAfter += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, monthAfter + '/' + yearAfter)
+                                count += 1;
+                                valueBefore += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(monthBefore) + '/' + yearBefore)
+                                valueAfter += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(monthAfter) + '/' + yearAfter)
                             }
-
                             let obj = {
                                 stt: stt,
                                 departmentName: department[dp].DepartmentName,
