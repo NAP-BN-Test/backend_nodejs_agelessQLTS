@@ -1217,7 +1217,7 @@ module.exports = {
                                 valueBefore: Math.round(valueBefore * 100) / count / 100,
                                 valueAfter: valueAfter / count,
                                 difference: valueAfter / count - valueBefore / count,
-                                ratio: valueBefore != 0 ? ((valueAfter / count - valueBefore / count) / (valueBefore / count)) : 0,
+                                ratio: valueBefore != 0 ? ((valueAfter / count - valueBefore / count) / (valueBefore / count)) * 100 : 0,
                             }
                             arrayResult.push(obj)
                             stt += 1
