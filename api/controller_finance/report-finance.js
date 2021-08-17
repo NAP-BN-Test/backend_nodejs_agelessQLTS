@@ -1075,7 +1075,7 @@ module.exports = {
                             }).then(async data => {
                                 for (let d = 0; d < data.length; d++) {
                                     let rate = await getAverageRateFollowYear(db, (year - 1) + '-' + convertNumber(month), data[d].IDCurrency)
-                                    console.log(rate, data[d].IDCurrency);
+                                    rate = Math.round(rate * 100) / 100
                                     await mtblPaymentRInvoice(db).findAll({
                                         where: {
                                             IDPayment: data[d].ID
@@ -1100,6 +1100,7 @@ module.exports = {
                             }).then(async data => {
                                 for (let d = 0; d < data.length; d++) {
                                     let rate = await getAverageRateFollowMonth(db, body.date, data[d].IDCurrency)
+                                    rate = Math.round(rate * 100) / 100
                                     await mtblPaymentRInvoice(db).findAll({
                                         where: {
                                             IDPayment: data[d].ID
