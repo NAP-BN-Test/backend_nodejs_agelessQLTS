@@ -269,7 +269,7 @@ async function calculateMoneyFollowVND(db, typeMoney, total, date) {
     if (currency)
         await mtblRate(db).findOne({
             where: {
-                Date: { [Op.substring]: date },
+                Date: { [Op.substring]: date.slice(6, 10) + '-' + date.slice(3, 5) + '-' + date.slice(0, 2) },
                 IDCurrency: currency.ID
             },
             order: [
@@ -1174,7 +1174,7 @@ module.exports = {
                                 let monthStart = Number(body.monthAfterStart.slice(5, 7)); // January
                                 let monthEnd = Number(body.monthAfterEnd.slice(5, 7)); // January
                                 let year = Number(body.monthAfterStart.slice(0, 4));
-                                valueBefore = await getRevenueDataYear(db, year - 1, listID, department[dp].ID)
+                                valueBefore = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, monthStart + '/' + year)
                                 for (let month = monthStart; month <= monthEnd; month++) {
                                     valueAfter += await getRevenueDataMonth(db, year + '-' + convertNumber(month), listID, department[dp].ID)
                                     count += 1;
