@@ -301,18 +301,23 @@ async function calculateMoneyFollowVND(db, typeMoney, total, date) {
     return result
 }
 async function getDataInvoiceFromDepartmentFollowYear(db, departmentID, year) {
-    let dataResult = []
-    for (let d = 0; d < data.length; d++) {
-        let checkMonth = data[d].createdDate.slice(3, 10)
-        if (data[d].departmentID == departmentID && checkMonth == year) {
-            dataResult.push(data[d])
-        }
-    }
-    let totalMoney = await calculateTheTotalAmountOfEachCurrency(dataResult)
     let totalMoneyVND = 0
-    for (let a = 0; a < totalMoney.length; a++) {
-        totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+    try {
+        let dataResult = []
+        for (let d = 0; d < data.length; d++) {
+            let checkMonth = data[d].createdDate.slice(3, 10)
+            if (data[d].departmentID == departmentID && checkMonth == year) {
+                dataResult.push(data[d])
+            }
+        }
+        let totalMoney = await calculateTheTotalAmountOfEachCurrency(dataResult)
+        for (let a = 0; a < totalMoney.length; a++) {
+            totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+        }
+    } catch (error) {
+        console.log(error);
     }
+
     return totalMoneyVND
 }
 async function getCurrencyFromMonth(db, month) {
@@ -1175,8 +1180,9 @@ module.exports = {
                                 let monthEnd = Number(body.monthAfterEnd.slice(5, 7)); // January
                                 let year = Number(body.monthAfterStart.slice(0, 4));
                                 valueBefore = await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, monthStart + '/' + year)
+                                console.log(valueBefore);
                                 for (let month = monthStart; month <= monthEnd; month++) {
-                                    valueAfter += await getRevenueDataMonth(db, year + '-' + convertNumber(month), listID, department[dp].ID)
+                                    valueAfter += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(month) + '/' + year)
                                     count += 1;
                                 }
                             } else if (body.monthBeforeStart && body.monthAfterStart) {
@@ -1187,16 +1193,20 @@ module.exports = {
                                 let monthEndAfter = Number(body.monthBeforeEnd.slice(5, 7)); // January
                                 let yearAfter = Number(body.monthAfterStart.slice(0, 4));
                                 for (let monthBefore = monthStartBefore; monthBefore <= monthEndBefore; monthBefore++) {
-                                    valueBefore += await getRevenueDataMonth(db, yearBefore + '-' + convertNumber(monthBefore), listID, department[dp].ID)
+                                    valueBefore += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(monthBefore) + '/' + yearBefore)
                                     count += 1;
                                 }
                                 for (let monthAfter = monthStartAfter; monthAfter <= monthEndAfter; monthAfter++) {
-                                    valueAfter += await getRevenueDataMonth(db, yearAfter + '-' + convertNumber(monthAfter), listID, department[dp].ID)
+                                    valueAfter += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, convertNumber(monthAfter) + '/' + yearAfter)
                                     count += 1;
                                 }
                             } else {
-                                valueBefore = await getRevenueDataMonth(db, body.monthBefore, listID, department[dp].ID)
-                                valueAfter = await getRevenueDataMonth(db, body.monthAfter, listID, department[dp].ID)
+                                let monthBefore = Number(body.monthBefore.slice(5, 7));
+                                let yearBefore = Number(body.monthBefore.slice(0, 4));
+                                let monthAfter = Number(body.monthAfter.slice(5, 7));
+                                let yearAfter = Number(body.monthAfter.slice(0, 4));
+                                valueBefore += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, monthBefore + '/' + yearBefore)
+                                valueAfter += await getDataInvoiceFromDepartmentFollowYear(db, department[dp].ID, monthAfter + '/' + yearAfter)
                             }
 
                             let obj = {
