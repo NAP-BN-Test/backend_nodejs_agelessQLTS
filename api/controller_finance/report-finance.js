@@ -406,7 +406,6 @@ async function getAverageRateFollowMonth(db, month, idCurrency) {
         }
     }).then(data => {
         data.forEach(element => {
-            console.log(element.ExchangeRate);
             result += element.ExchangeRate
         })
     })
@@ -494,7 +493,6 @@ module.exports = {
             },
             "type": body.type
         }
-        // console.log(body);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
@@ -581,7 +579,6 @@ module.exports = {
     // get_data_report_money_revenue
     getDataReportMoneyRevenue: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -589,7 +586,6 @@ module.exports = {
             },
             "type": body.type
         }
-        // console.log(body);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
@@ -752,7 +748,6 @@ module.exports = {
     // get_data_report_average_revenue
     getDataReportAverageRevenue: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -905,7 +900,6 @@ module.exports = {
             },
             "type": body.type
         }
-        // console.log(body);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1033,7 +1027,6 @@ module.exports = {
     // get_data_report_average_revenue_vnd
     getDataReportAverageRevenueVND: async (req, res) => {
         var body = req.body
-        console.log(body, 'VND');
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1148,7 +1141,6 @@ module.exports = {
     // get_data_reqort_average_sales_comparison_table
     getDataReportAverageSalesComparison: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1171,6 +1163,7 @@ module.exports = {
                             let listID = []
                             let valueBefore = 0;
                             let valueAfter = 0;
+                            let count = 0;
                             await mtblPaymentRInvoice(db).findAll().then(async data => {
                                 for (let d = 0; d < data.length; d++) {
                                     if (data[d].IDPayment && !checkDuplicate(listID, data[d].IDPayment))
@@ -1183,8 +1176,8 @@ module.exports = {
                                 let year = Number(body.monthAfterStart.slice(0, 4));
                                 valueBefore = await getRevenueDataYear(db, year - 1, listID, department[dp].ID)
                                 for (let month = monthStart; month <= monthEnd; month++) {
-                                    console.log(month, 1234);
                                     valueAfter += await getRevenueDataMonth(db, year + '-' + convertNumber(month), listID, department[dp].ID)
+                                    count += 1;
                                 }
                             } else if (body.monthBeforeStart && body.monthAfterStart) {
                                 let monthStartBefore = Number(body.monthBeforeStart.slice(5, 7)); // January
@@ -1195,9 +1188,11 @@ module.exports = {
                                 let yearAfter = Number(body.monthAfterStart.slice(0, 4));
                                 for (let monthBefore = monthStartBefore; monthBefore <= monthEndBefore; monthBefore++) {
                                     valueBefore += await getRevenueDataMonth(db, yearBefore + '-' + convertNumber(monthBefore), listID, department[dp].ID)
+                                    count += 1;
                                 }
                                 for (let monthAfter = monthStartAfter; monthAfter <= monthEndAfter; monthAfter++) {
                                     valueAfter += await getRevenueDataMonth(db, yearAfter + '-' + convertNumber(monthAfter), listID, department[dp].ID)
+                                    count += 1;
                                 }
                             } else {
                                 valueBefore = await getRevenueDataMonth(db, body.monthBefore, listID, department[dp].ID)
@@ -1207,10 +1202,10 @@ module.exports = {
                             let obj = {
                                 stt: stt,
                                 departmentName: department[dp].DepartmentName,
-                                valueBefore: Math.round(valueBefore * 100) / 100,
-                                valueAfter: valueAfter,
-                                difference: valueAfter - valueBefore,
-                                ratio: valueBefore != 0 ? ((valueAfter - valueBefore) / valueBefore) : 0,
+                                valueBefore: Math.round(valueBefore * 100) / count / 100,
+                                valueAfter: valueAfter / count,
+                                difference: valueAfter / count - valueBefore / count,
+                                ratio: valueBefore != 0 ? ((valueAfter / count - valueBefore / count) / (valueBefore / count)) : 0,
                             }
                             arrayResult.push(obj)
                             stt += 1
