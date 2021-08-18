@@ -968,7 +968,9 @@ module.exports = {
                                 console.log(data.length);
                                 for (let d = 0; d < data.length; d++) {
                                     let rate = await getAverageRateFollowMonth(db, data[d].Date, data[d].IDCurrency)
-                                    rate != 0 ? (rate = rate) : 1
+                                    if (rate == 0) {
+                                        rate = 1
+                                    }
                                     await mtblPaymentRInvoice(db).findAll({
                                         where: {
                                             IDPayment: data[d].ID
