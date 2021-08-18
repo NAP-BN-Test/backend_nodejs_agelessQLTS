@@ -876,10 +876,10 @@ module.exports = {
                             let monthAfter = 'monthAfter' + convertNumber(col)
                             let difference = 'difference' + col
                             let ratio = 'ratio' + col
-                            ws.cell(row, col + checkCol).number(data.arrayResult[arr][monthBefore]).style(stylecellN)
-                            ws.cell(row, col + checkCol + 1).number(data.arrayResult[arr][monthAfter]).style(stylecellN)
-                            ws.cell(row, col + checkCol + 2).number(data.arrayResult[arr][difference]).style(stylecellN)
-                            ws.cell(row, col + checkCol + 3).number(data.arrayResult[arr][ratio]).style(stylecellN)
+                            ws.cell(row, col + checkCol).string(data.arrayResult[arr][monthBefore].toString()).style(stylecellN)
+                            ws.cell(row, col + checkCol + 1).string(data.arrayResult[arr][monthAfter].toString()).style(stylecellN)
+                            ws.cell(row, col + checkCol + 2).string(data.arrayResult[arr][difference].toString()).style(stylecellN)
+                            ws.cell(row, col + checkCol + 3).string(data.arrayResult[arr][ratio].toString()).style(stylecellN)
                             checkCol += 3
                         }
                         row += 1
