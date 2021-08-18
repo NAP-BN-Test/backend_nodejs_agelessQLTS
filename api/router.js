@@ -622,6 +622,8 @@ module.exports = function (app) {
     app.route('/qlnb/export_excel_report_average_monthly_revenue_by_year').post(exportFileFinance.exportExcelReportAverageMonthlyRevenueByYear);
     app.route('/qlnb/pour_data_into_work_file_and_convert_to_pdf').post(exportFileFinance.pourDataIntoWorkFileAndConvertToPDF);
 
+    app.route('/qlnb/push_data_to_excel_template').post(exportFileFinance.pushDataToExcelTemplate);
+
 
     // report tài chính
     var reportFinance = require('./controller_finance/report-finance')

@@ -261,6 +261,32 @@ module.exports = {
         }
 
     },
+    convertDataAndRenderExcelFile: async function (objKey, readLink, writeLink) {
+        try {
+            var XlsxTemplate = require('xlsx-template');
+            // Load an XLSX file into memory
+            fs.readFile((readLink), function (err, data) {
+
+                // Create a template
+                var template = new XlsxTemplate(data);
+
+                // Replacements take place on first sheet
+                var sheetNumber = 1;
+                // Set up some placeholder values matching the placeholders in the template
+                // Perform substitution
+                template.substitute(sheetNumber, objKey);
+
+                // Get binary data
+                var data = template.generate();
+                fs.writeFileSync(writeLink, data, 'binary')
+            })
+            return 1
+        } catch (error) {
+            console.log(error);
+            return 0
+        }
+
+    },
     convertDocxToPDF: async function (readName, writeName) {
         try {
             const extend = '.pdf'

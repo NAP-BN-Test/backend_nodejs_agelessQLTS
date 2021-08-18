@@ -1081,29 +1081,15 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var XlsxTemplate = require('xlsx-template');
                     let values = {
                         year: year,
                         yearLast: yearLast,
                         month: month + '/' + year,
                         data: data.arrayResult,
                     };
-                    // Load an XLSX file into memory
-                    fs.readFile(('C:/images_services/ageless_sendmail/template-average-monthly-revenue-by-year.xlsx'), function (err, data) {
-
-                        // Create a template
-                        var template = new XlsxTemplate(data);
-
-                        // Replacements take place on first sheet
-                        var sheetNumber = 1;
-                        // Set up some placeholder values matching the placeholders in the template
-                        // Perform substitution
-                        template.substitute(sheetNumber, values);
-
-                        // Get binary data
-                        var data = template.generate();
-                        fs.writeFileSync('C:/images_services/ageless_sendmail/Doanh thu bình quân tháng của các ban theo năm.xlsx', data, 'binary')
-                    })
+                    console.log(values);
+                    let path = 'C:/images_services/ageless_sendmail/'
+                    await mModules.convertDataAndRenderExcelFile(values, path + 'template-average-monthly-revenue-by-year.xlsx', path + 'Doanh thu bình quân tháng của các ban theo năm.xlsx')
                     setTimeout(() => {
                         var result = {
                             link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Doanh thu bình quân tháng của các ban theo năm.xlsx',
@@ -1111,7 +1097,7 @@ module.exports = {
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
                         res.json(result);
-                    }, 500);
+                    }, 3000);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -1216,5 +1202,63 @@ module.exports = {
         });
     },
     // xuất file báo cáo
+    // push_data_to_excel_template
+    pushDataToExcelTemplate: async (req, res) => {
+        let body = req.body;
+        body.data = body.data.replace(/plus/g, '+');
+        let data = JSON.parse(body.data)
+        try {
+            let path = 'C:/images_services/ageless_sendmail/'
+            var objKey = {}
+            let readName = ''
+            let writeName = ''
+            if (body.type == '12-months-revenue') {
+                readName = 'tonghopdoanhthu12thang.xlsx'
+                writeName = 'Tổng hợp doanh thu 12 tháng.xlsx'
+                let month = body.date.slice(5, 7); // January
+                let year = Number(body.date.slice(0, 4));
+                let yearLast = Number(body.date.slice(0, 4)) - 1;
+                objKey = {
+                    year: year,
+                    yearLast: yearLast,
+                    month: month,
+                    data: data.arrayResult,
+                };
+            } else if (body.type == 'revenue-in-vnd') {
+                readName = 'doanhthutienve.xlsx'
+                writeName = 'Doanh thu tiền về VND.xlsx'
+                let month = body.date.slice(5, 7); // January
+                let year = Number(body.date.slice(0, 4));
+                let yearLast = Number(body.date.slice(0, 4)) - 1;
+                objKey = {
+                    year: year,
+                    yearLast: yearLast,
+                    month: month,
+                    data: data.arrayResult,
+                    total: data.arrayTotal,
+                };
+            } else if (body.type == 'compare-average-revenue') {
+                readName = 'Doanhthubinhquantheothang.xlsx'
+                writeName = 'Bảng so sánh doanh thu bình quân tháng.xlsx'
+                let obj = JSON.parse(body.obj)
+                objKey = {
+                    data: data.arrayResult,
+                    obj: obj,
+                };
+            }
 
+            await mModules.convertDataAndRenderExcelFile(objKey, path + readName, path + writeName)
+            setTimeout(() => {
+                var result = {
+                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + writeName,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            }, 3000);
+        } catch (error) {
+            console.log(error);
+            res.json('Lỗi file export. Vui lòng cầu hình lại!')
+        }
+    },
 }
