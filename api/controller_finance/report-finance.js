@@ -420,7 +420,7 @@ async function getAverageRateFollowMonth(db, month, idCurrency) {
             IDCurrency: idCurrency,
         }
     })
-    return count != 0 ? (result / count) : 0
+    return count != 0 ? (result / count) : 1
 }
 async function getDetailInvoice(id) {
     let detail = {};
@@ -958,6 +958,7 @@ module.exports = {
                                 }
                             })
                             //  lấy doanh thui binhg quân của thnags năm hiện tại
+                            console.log(body);
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
                                     type: 'receipt',
@@ -965,8 +966,10 @@ module.exports = {
                                     ID: { [Op.in]: listID },
                                 }
                             }).then(async data => {
+                                console.log(data.length);
                                 for (let d = 0; d < data.length; d++) {
                                     let rate = await getAverageRateFollowMonth(db, data[d].Date, data[d].IDCurrency)
+                                    console.log(rate, data[d].Date);
                                     await mtblPaymentRInvoice(db).findAll({
                                         where: {
                                             IDPayment: data[d].ID

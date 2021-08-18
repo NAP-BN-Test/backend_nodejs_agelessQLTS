@@ -276,7 +276,7 @@ async function deleteAndCreateAllInvoice(db, id, listInvoiceID) {
             IDSpecializedSoftware: listInvoiceID[i]
         })
         await mtblInvoice(db).update({
-            Status: 'Đá thanh toán'
+            Status: 'Đã thanh toán'
         }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
     }
 
