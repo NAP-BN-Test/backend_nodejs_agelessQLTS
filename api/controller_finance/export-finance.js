@@ -1017,15 +1017,19 @@ module.exports = {
                     }
                     let checkCol = 3;
                     let checkTotal = 3;
+                    console.log(data.arrayResult);
                     ws.cell(row, 2).string('Doanh thu tiền về').style(stylePublic)
                     for (let col = 1; col <= 12; col++) {
                         let monthBefore = 'monthBefore' + convertNumber(col)
                         let monthAfter = 'monthAfter' + convertNumber(col)
                         for (let arrIndex = 0; arrIndex < numberTypeMoney; arrIndex++) {
-                            ws.cell(row, checkCol + 1).number(data.arrayResult[monthBefore][arrIndex].value).style(stylecellN)
-                            ws.cell(row, checkCol).number(data.arrayResult[monthAfter][arrIndex].value).style(stylecellN)
-                            checkCol += numberTypeMoney
+                            ws.cell(row, checkCol + arrIndex).number(data.arrayResult[monthBefore][arrIndex].value).style(stylecellN)
                         }
+                        checkCol += numberTypeMoney
+                        for (let arrIndex = 0; arrIndex < numberTypeMoney; arrIndex++) {
+                            ws.cell(row, checkCol + arrIndex).number(data.arrayResult[monthAfter][arrIndex].value).style(stylecellN)
+                        }
+                        checkCol += numberTypeMoney
                         stylePublic['font'] = {
                             size: 12,
                             // bold: true,
@@ -1041,8 +1045,8 @@ module.exports = {
                         }
                         ws.cell(row + 1, 1).string('').style(stylePublic)
                         ws.cell(row + 1, 2).string('Cộng').style(stylePublic)
-                        ws.cell(row + 1, checkTotal, row + 1, checkTotal + 1, true).string(data.arrayTotal[monthAfter]).style(stylePublic)
-                        ws.cell(row + 1, checkTotal + 2, row + 1, checkTotal + 3, true).string(data.arrayTotal[monthBefore]).style(stylePublic)
+                        ws.cell(row + 1, checkTotal, row + 1, checkTotal + 1, true).string(data.arrayTotal[monthBefore]).style(stylePublic)
+                        ws.cell(row + 1, checkTotal + 2, row + 1, checkTotal + 3, true).string(data.arrayTotal[monthAfter]).style(stylePublic)
                         checkTotal += 4
                     }
                     ws.column(2).setWidth(30);
