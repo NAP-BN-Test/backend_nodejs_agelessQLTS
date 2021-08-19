@@ -320,6 +320,8 @@ module.exports = {
                                     { Levels: 1 }
                                 ],
                             };
+                            whereObj = where
+                            console.log(whereObj);
                         } else {
                             where = [{
                                 ID: {
@@ -328,9 +330,9 @@ module.exports = {
                             },
                             { Levels: 1 }
                             ];
+                            whereObj = where
                         }
-                        whereObj = where
-                        if (data.items) {
+                        if (data.items.length >= 1) {
                             whereObj = {}
                             arraySearchAnd.push({ Levels: 1 })
                             for (var i = 0; i < data.items.length; i++) {
@@ -372,14 +374,14 @@ module.exports = {
                                     }
                                 }
                             }
+                            if (arraySearchOr.length > 0)
+                                whereObj[Op.or] = arraySearchOr
+                            if (arraySearchAnd.length > 0) {
+                                whereObj[Op.and] = arraySearchAnd
+                            }
+                            if (arraySearchNot.length > 0)
+                                whereObj[Op.not] = arraySearchNot
                         }
-                        if (arraySearchOr.length > 0)
-                            whereObj[Op.or] = arraySearchOr
-                        if (arraySearchAnd.length > 0) {
-                            whereObj[Op.and] = arraySearchAnd
-                        }
-                        if (arraySearchNot.length > 0)
-                            whereObj[Op.not] = arraySearchNot
                     }
                     console.log(whereObj);
                     let stt = 1;
