@@ -1446,10 +1446,11 @@ module.exports = {
                             } else {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
-                                if (dataCredit[i].statusName == 'Chờ thanh toán')
+                                if (check.Status == 'Chờ thanh toán')
                                     array.push(dataCredit[i])
                             }
                         }
+                        console.log(array);
                         let totalMoney = await calculateTheTotalForCredit(array)
                         var result = {
                             array: array,
@@ -1909,11 +1910,11 @@ module.exports = {
                     } else {
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
-                        if (check.Status == 'Chờ thanh toán')
+                        if (check.Status == 'Chờ thanh toán' && dataCredit[i].statusName == 'Chờ thanh toán')
                             array.push(dataCredit[i])
                     }
                 }
-                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                let totalMoney = await calculateTheTotalForCredit(array)
                 var result = {
                     array: array,
                     status: Constant.STATUS.SUCCESS,
