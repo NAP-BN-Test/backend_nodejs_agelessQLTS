@@ -519,6 +519,7 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_customer').post(tblCustomer.addtblCustomer);
     app.route('/qlnb/update_tbl_customer').post(tblCustomer.updatetblCustomer);
     app.route('/qlnb/get_list_tbl_customer').post(tblCustomer.getListtblCustomer);
+    app.route('/qlnb/get_list_tbl_customer_debt').post(tblCustomer.getListtblCustomerDebt);
     app.route('/qlnb/delete_tbl_customer').post(tblCustomer.deletetblCustomer);
     app.route('/qlnb/get_list_name_tbl_customer').post(tblCustomer.getListNametblCustomer);
 
