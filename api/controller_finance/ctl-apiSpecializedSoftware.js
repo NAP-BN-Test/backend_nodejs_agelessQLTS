@@ -1432,6 +1432,8 @@ module.exports = {
                         }
                     } else {
                         for (let i = 0; i < dataCredit.length; i++) {
+                            dataCredit[i]['totalMoneyVND'] = dataCredit[i].total
+                            dataCredit[i]['totalMoneyDisplay'] = dataCredit[i].total
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: dataCredit[i].id }
                             })
