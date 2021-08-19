@@ -5,6 +5,7 @@ var moment = require('moment');
 var mtblCustomer = require('../tables/financemanage/tblCustomer')
 var database = require('../database');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
+var mtblInvoice = require('../tables/financemanage/tblInvoice')
 
 async function deleteRelationshiptblCustomer(db, listID) {
     await mtblCustomer(db).destroy({
@@ -383,26 +384,54 @@ dataCredit = [{
     request: 'Yêu cầu sửa',
 },
 ]
-async function calculateTheTotalAmountOfEachCurrency(array) {
+async function calculateTheTotalAmountOfEachCurrency(db, array) {
     let arrayResult = []
     let arrayCheck = []
     for (let i = 0; i < array.length; i++) {
-        for (let j = 0; j < array[i].arrayMoney.length; j++) {
-            if (!checkDuplicate(arrayCheck, array[i].arrayMoney[j].typeMoney)) {
-                arrayCheck.push(array[i].arrayMoney[j].typeMoney)
-                arrayResult.push({
-                    total: Number(array[i].arrayMoney[j].total),
-                    typeMoney: array[i].arrayMoney[j].typeMoney,
-                    date: array[i].createdDate,
-                })
-            } else {
-                arrayResult.forEach(element => {
-                    if (element.typeMoney == array[i].arrayMoney[j].typeMoney) {
-                        element.total += Number(array[i].arrayMoney[j].total)
+        let check = await mtblInvoice(db).findOne({
+            where: { IDSpecializedSoftware: array[i].id }
+        })
+        if (check) {
+            if (check.Status == 'Chờ thanh toán') {
+                for (let j = 0; j < array[i].arrayMoney.length; j++) {
+                    if (!checkDuplicate(arrayCheck, array[i].arrayMoney[j].typeMoney)) {
+                        arrayCheck.push(array[i].arrayMoney[j].typeMoney)
+                        arrayResult.push({
+                            total: Number(array[i].arrayMoney[j].total),
+                            typeMoney: array[i].arrayMoney[j].typeMoney,
+                            date: array[i].createdDate,
+                        })
+                    } else {
+                        arrayResult.forEach(element => {
+                            if (element.typeMoney == array[i].arrayMoney[j].typeMoney) {
+                                element.total += Number(array[i].arrayMoney[j].total)
+                            }
+                        })
                     }
-                })
+                }
+            }
+        } else {
+            if (array[i].statusName == 'Chờ thanh toán') {
+                for (let j = 0; j < array[i].arrayMoney.length; j++) {
+                    if (!checkDuplicate(arrayCheck, array[i].arrayMoney[j].typeMoney)) {
+                        arrayCheck.push(array[i].arrayMoney[j].typeMoney)
+                        arrayResult.push({
+                            total: Number(array[i].arrayMoney[j].total),
+                            typeMoney: array[i].arrayMoney[j].typeMoney,
+                            date: array[i].createdDate,
+                        })
+                    } else {
+                        arrayResult.forEach(element => {
+                            if (element.typeMoney == array[i].arrayMoney[j].typeMoney) {
+                                element.total += Number(array[i].arrayMoney[j].total)
+                            }
+                        })
+                    }
+                }
             }
         }
+
+
     }
     return arrayResult
 }
@@ -413,11 +442,21 @@ function checkDuplicate(array, elm) {
     })
     return check;
 }
-async function calculateTheTotalForCredit(array) {
+async function calculateTheTotalForCredit(db, array) {
     let arrayResult = []
     let total = 0
     for (let i = 0; i < array.length; i++) {
-        total += Number(array[i].total)
+        let check = await mtblInvoice(db).findOne({
+            where: { IDSpecializedSoftware: dataCredit[i].id }
+        })
+        if (check) {
+            if (check.Status == 'Chờ thanh toán') {
+                total += Number(array[i].total)
+            }
+        }
+        else
+            if (array[i].statusName == 'Chờ thanh toán')
+                total += Number(array[i].total)
     }
     arrayResult.push({
         typeMoney: 'VND',
@@ -663,8 +702,8 @@ module.exports = {
                     let arrayCredit = []
                     for (var i = 0; i < array.length; i++) {
                         if (array[i].id == 1) {
-                            arrayInvoice = await calculateTheTotalAmountOfEachCurrency(data)
-                            arrayCredit = await calculateTheTotalForCredit(dataCredit)
+                            arrayInvoice = await calculateTheTotalAmountOfEachCurrency(db, data)
+                            arrayCredit = await calculateTheTotalForCredit(db, dataCredit)
                         } else {
                             arrayInvoice = [
                                 {
