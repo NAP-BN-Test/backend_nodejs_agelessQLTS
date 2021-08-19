@@ -1246,7 +1246,6 @@ module.exports = {
                     obj: obj,
                 };
             }
-
             await mModules.convertDataAndRenderExcelFile(objKey, path + readName, path + writeName)
             setTimeout(() => {
                 var result = {

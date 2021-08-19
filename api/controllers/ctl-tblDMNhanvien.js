@@ -536,7 +536,8 @@ module.exports = {
                             IDMayChamCong: body.idMayChamCong,
                         },
                     })
-                    body.fileAttach = JSON.parse(body.fileAttach)
+                    if (body.fileAttach)
+                        body.fileAttach = JSON.parse(body.fileAttach)
                     if (!check)
                         mtblDMNhanvien(db).create({
                             StaffCode: body.staffCode ? body.staffCode : '',
