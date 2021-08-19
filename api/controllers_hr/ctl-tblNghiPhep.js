@@ -287,7 +287,6 @@ module.exports = {
                         }
                     }
                     let checkErr = advancePayment - usedLeave
-                    console.log(deducted, checkErr);
                     if (checkErr < deducted && body.type == 'TakeLeave') {
                         var result = {
                             status: Constant.STATUS.FAIL,
