@@ -15,8 +15,225 @@ async function deleteRelationshiptblCustomer(db, listID) {
         }
     })
 }
-dataCredit = [{
+data = [{
     id: 1,
+    createdDate: '01/05/2020',
+    refNumber: 'REF0001',
+    invoiceNumber: 'INV0001',
+    arrayMoney: [{
+        total: '1000000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '100',
+        typeMoney: 'USD',
+    },
+
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 1',
+    request: '',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 2,
+    createdDate: '02/05/2021',
+    refNumber: 'REF0002',
+    invoiceNumber: 'INV0002',
+    arrayMoney: [{
+        total: '1100000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '10',
+        typeMoney: 'USD',
+    },
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 2',
+    request: 'Yêu cầu xóa',
+    departmentName: 'KẾ TOÁN',
+    departmentID: 10026,
+},
+{
+    id: 3,
+    createdDate: '03/05/2021',
+    refNumber: 'REF0003',
+    invoiceNumber: 'INV0003',
+    arrayMoney: [{
+        total: '1200000',
+        typeMoney: 'VND',
+    },
+
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 3',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 4,
+    createdDate: '04/05/2021',
+    refNumber: 'REF0004',
+    invoiceNumber: 'INV0004',
+    arrayMoney: [{
+        total: '1300000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '100',
+        typeMoney: 'USD',
+    },
+
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 4',
+    request: 'Yêu cầu sửa',
+    departmentName: 'HÀNH CHÍNH NHÂN SỰ',
+    departmentID: 10027,
+
+},
+{
+    id: 5,
+    createdDate: '05/05/2020',
+    refNumber: 'REF0005',
+    invoiceNumber: 'INV0005',
+    arrayMoney: [{
+        total: '1400000',
+        typeMoney: 'VND',
+    },
+
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 5',
+    request: '',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 6,
+    createdDate: '06/05/2020',
+    refNumber: 'REF0006',
+    invoiceNumber: 'INV0006',
+    arrayMoney: [{
+        total: '1500000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '100',
+        typeMoney: 'USD',
+    },
+    ],
+    statusName: 'Đã thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 6',
+    request: 'Yêu cầu xóa',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 7,
+    createdDate: '07/05/2021',
+    refNumber: 'REF0007',
+    invoiceNumber: 'INV0007',
+    arrayMoney: [{
+        total: '1600000',
+        typeMoney: 'VND',
+    },
+
+    ],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 7',
+    request: 'Yêu cầu xóa',
+    departmentName: 'KẾ TOÁN',
+    departmentID: 10026,
+},
+{
+    id: 8,
+    createdDate: '08/05/2020',
+    refNumber: 'REF0008',
+    invoiceNumber: 'INV0008',
+    arrayMoney: [{
+        total: '100',
+        typeMoney: 'USD',
+    },
+
+    ],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 8',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Sáng chế',
+    departmentID: 10025,
+},
+{
+    id: 9,
+    createdDate: '09/05/2020',
+    refNumber: 'REF0009',
+    invoiceNumber: 'INV0009',
+    arrayMoney: [{
+        total: '2000000',
+        typeMoney: 'VND',
+    },
+    {
+        total: '130',
+        typeMoney: 'USD',
+    },
+
+    ],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 9',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Ban NH3',
+    departmentID: 10035,
+},
+{
+    id: 10,
+    createdDate: '10/05/2020',
+    refNumber: 'REF0010',
+    invoiceNumber: 'INV0010',
+    arrayMoney: [{
+        total: '123',
+        typeMoney: 'VND',
+    },],
+    statusName: 'Chờ thanh toán',
+    idCustomer: 1,
+    customerName: 'Công ty tnhh An Phú',
+    content: 'Demo 10',
+    request: 'Yêu cầu sửa',
+    departmentName: 'Ban NH3',
+    departmentID: 10035,
+},
+];
+totalMoney = [{
+    total: 1000000000,
+    type: 'VND',
+},
+{
+    total: 1000,
+    type: 'USD',
+}
+];
+dataCredit = [{
+    id: 100,
     createdDate: '01/05/2020',
     invoiceNumber: 'INV0001',
     total: '1000000',
@@ -24,14 +241,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0001',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu Xóa',
 },
 {
-    id: 2,
+    id: 102,
     createdDate: '01/05/2020',
     invoiceNumber: 'INV0002',
     total: '1200000',
@@ -39,14 +256,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0002',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
 },
 {
-    id: 3,
+    id: 103,
     createdDate: '03/05/2020',
     invoiceNumber: 'INV0003',
     total: '1300000',
@@ -54,14 +271,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0003',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu xóa',
 },
 {
-    id: 4,
+    id: 104,
     createdDate: '04/05/2020',
     invoiceNumber: 'INV0004',
     total: '1400000',
@@ -69,14 +286,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0004',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu sửa',
 },
 {
-    id: 5,
+    id: 105,
     createdDate: '05/05/2020',
     invoiceNumber: 'INV0005',
     total: '1500000',
@@ -84,14 +301,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0005',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
 },
 {
-    id: 6,
+    id: 106,
     createdDate: '06/05/2020',
     invoiceNumber: 'INV0006',
     total: '1600000',
@@ -99,14 +316,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0006',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
 },
 {
-    id: 7,
+    id: 107,
     createdDate: '07/05/2020',
     invoiceNumber: 'INV0007',
     total: '1700000',
@@ -114,14 +331,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0007',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu xóa',
 },
 {
-    id: 8,
+    id: 108,
     createdDate: '08/05/2020',
     invoiceNumber: 'INV0008',
     total: '1800000',
@@ -129,14 +346,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0008',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
 },
 {
-    id: 9,
+    id: 109,
     createdDate: '10/05/2020',
     invoiceNumber: 'INV0009',
     total: '1900000',
@@ -144,14 +361,14 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0009',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
 },
 {
-    id: 10,
+    id: 110,
     createdDate: '12/05/2020',
     invoiceNumber: 'INV0010',
     total: '12000000',
@@ -159,156 +376,55 @@ dataCredit = [{
     idCustomer: 1,
     creditNumber: 'CRE0010',
     typeMoney: 'VND',
-    partnerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh An Phú',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu sửa',
 },
 ]
-dataInv = [{
-    id: 1,
-    createdDate: '01/05/2020',
-    refNumber: 'REF0001',
-    invoiceNumber: 'INV0001',
-    total: '1000000',
-    typeMoney: 'VND',
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 1',
-    request: '',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 2,
-    createdDate: '02/05/2020',
-    refNumber: 'REF0002',
-    invoiceNumber: 'INV0002',
-    total: '1100000',
-    typeMoney: 'VND',
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 2',
-    request: 'Chờ thanh toám',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 3,
-    createdDate: '03/05/2020',
-    refNumber: 'REF0003',
-    invoiceNumber: 'INV0003',
-    total: '1200000',
-    typeMoney: 'VND',
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 3',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 4,
-    createdDate: '04/05/2020',
-    refNumber: 'REF0004',
-    invoiceNumber: 'INV0004',
-    total: '1300000',
-    typeMoney: 'VND',
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 4',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 5,
-    createdDate: '05/05/2020',
-    refNumber: 'REF0005',
-    invoiceNumber: 'INV0005',
-    total: '1400000',
-    typeMoney: 'VND',
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 5',
-    request: '',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 6,
-    createdDate: '06/05/2020',
-    refNumber: 'REF0006',
-    invoiceNumber: 'INV0006',
-    total: '1500000',
-    typeMoney: 'VND',
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 6',
-    request: 'Chờ thanh toám',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 7,
-    createdDate: '07/05/2020',
-    refNumber: 'REF0007',
-    invoiceNumber: 'INV0007',
-    total: '1600000',
-    typeMoney: 'VND',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 7',
-    request: 'Chờ thanh toám',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 8,
-    createdDate: '08/05/2020',
-    refNumber: 'REF0008',
-    invoiceNumber: 'INV0008',
-    total: '1700000',
-    typeMoney: 'VND',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 8',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 9,
-    createdDate: '09/05/2020',
-    refNumber: 'REF0009',
-    invoiceNumber: 'INV0009',
-    total: '1800000',
-    typeMoney: 'VND',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 9',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
-},
-{
-    id: 10,
-    createdDate: '10/05/2020',
-    refNumber: 'REF0010',
-    invoiceNumber: 'INV0010',
-    total: '100000',
-    typeMoney: 'VND',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 10',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Hà Nội',
-},
-];
-var mtblCurrency = require('../tables/financemanage/tblCurrency')
-
+async function calculateTheTotalAmountOfEachCurrency(array) {
+    let arrayResult = []
+    let arrayCheck = []
+    for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < array[i].arrayMoney.length; j++) {
+            if (!checkDuplicate(arrayCheck, array[i].arrayMoney[j].typeMoney)) {
+                arrayCheck.push(array[i].arrayMoney[j].typeMoney)
+                arrayResult.push({
+                    total: Number(array[i].arrayMoney[j].total),
+                    typeMoney: array[i].arrayMoney[j].typeMoney,
+                    date: array[i].createdDate,
+                })
+            } else {
+                arrayResult.forEach(element => {
+                    if (element.typeMoney == array[i].arrayMoney[j].typeMoney) {
+                        element.total += Number(array[i].arrayMoney[j].total)
+                    }
+                })
+            }
+        }
+    }
+    return arrayResult
+}
+function checkDuplicate(array, elm) {
+    var check = false;
+    array.forEach(item => {
+        if (item === elm) check = true;
+    })
+    return check;
+}
+async function calculateTheTotalForCredit(array) {
+    let arrayResult = []
+    let total = 0
+    for (let i = 0; i < array.length; i++) {
+        total += Number(array[i].total)
+    }
+    arrayResult.push({
+        typeMoney: 'VND',
+        total: total
+    })
+    return arrayResult
+}
 const axios = require('axios');
 module.exports = {
     deleteRelationshiptblCustomer,
@@ -543,7 +659,24 @@ module.exports = {
                     var array = dataCustomer;
                     var arrayResult = [];
                     var stt = 1;
+                    let arrayInvoice = []
+                    let arrayCredit = []
                     for (var i = 0; i < array.length; i++) {
+                        if (array[i].id == 1) {
+                            arrayInvoice = await calculateTheTotalAmountOfEachCurrency(data)
+                            arrayCredit = await calculateTheTotalForCredit(dataCredit)
+                        } else {
+                            arrayInvoice = [
+                                {
+                                    typeMoney: 'VND',
+                                    total: 0
+                                }]
+                            arrayCredit = [
+                                {
+                                    typeMoney: 'VND',
+                                    total: 0
+                                }]
+                        }
                         var cus = await mtblCustomer(db).findOne({
                             where: {
                                 IDSpecializedSoftware: array[i].id
@@ -563,9 +696,9 @@ module.exports = {
                         await mtblCustomer(db).findOne({
                             where: { IDSpecializedSoftware: array[i].id },
                         }).then(async data => {
-                            for (var inv = 0; inv < dataInv.length; inv++) {
-                                if (dataInv[inv].idCustomer == array[i].id) {
-                                    totalInv += Number(dataInv[inv].total)
+                            for (var inv = 0; inv < data.length; inv++) {
+                                if (data[inv].idCustomer == array[i].id) {
+                                    totalInv += Number(data[inv].total)
                                 }
                             }
                             for (var cre = 0; cre < dataCredit.length; cre++) {
@@ -573,39 +706,17 @@ module.exports = {
                                     totalCredit += Number(dataCredit[cre].total)
                                 }
                             }
-                            let arrayCurrency = []
-                            let arrayUnspecified = []
-                            await mtblReceiptsPayment(db).findAll({
-                                where: {
-                                    IDCustomer: array[i].id,
-                                    Unknown: true,
-                                }
-                            }).then(async data => {
-                                for (let d = 0; d < data.length; d++) {
-                                    let currency = await mtblCurrency(db).findOne({
-                                        where: { ID: data[d].IDCurrency }
-                                    })
-                                    arrayCurrency.push({
-                                        total: 0,
-                                        id: data[d].IDCurrency,
-                                        typeMoney: currency ? currency.ShortName : ''
-                                    });
-                                }
-                            })
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
                                     IDCustomer: array[i].id,
                                     Unknown: true,
                                 }
                             }).then(data => {
-                                for (let d = 0; d < data.length; d++) {
-                                    for (let cur = 0; cur < arrayCurrency.length; cur++) {
-                                        if (arrayCurrency[cur].id == data[d].IDCurrency) {
-                                            arrayCurrency[cur].total += data[d].Amount
-                                        }
-                                    }
-                                }
+                                data.forEach(item => {
+                                    totalUndefind += Number(item.Amount);
+                                })
                             })
+                            console.log(arrayInvoice);
                             var obj = {
                                 stt: stt,
                                 id: Number(data.IDSpecializedSoftware),
@@ -613,9 +724,9 @@ module.exports = {
                                 code: array[i].customerCode ? array[i].customerCode : '',
                                 address: array[i].address ? array[i].address : '',
                                 idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : 0,
-                                amountUnspecified: arrayUnspecified,
-                                amountSpent: [{ total: totalCredit, typeMoney: 'VND' }, { total: 0, typeMoney: 'USD' }],
-                                amountReceivable: [{ total: totalInv, typeMoney: 'VND' }, { total: 0, typeMoney: 'USD' }],
+                                amountUnspecified: [{ total: totalUndefind, typeMoney: 'VND' }, { total: 0, typeMoney: 'USD' }],
+                                amountSpent: arrayCredit,
+                                amountReceivable: arrayInvoice,
                             }
                             arrayResult.push(obj);
                             stt += 1;
