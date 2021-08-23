@@ -797,6 +797,7 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -834,11 +835,11 @@ module.exports = {
                         objCreate['IDPartner'] = body.object.id
                     else
                         objCreate['IDCustomer'] = body.object.id
-                    console.log(objCreate);
                     mtblCreditDebtnotices(db).create(objCreate).then(async data => {
                         //  Hoàn ứng tạm ứng
                         if (body.loanAdvanceIDs) {
                             body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
+                            // for (let idNo = 0; idNo < body.loanAdvanceIDs.length; idNo++)
                             await createLoanAdvances(db, data.ID, body.loanAdvanceIDs, body.type)
                         }
                         if (body.loanAdvanceID) {
@@ -900,7 +901,10 @@ module.exports = {
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
                     if (body.loanAdvanceIDs) {
                         body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
+                        // for (let idNo = 0; idNo < body.loanAdvanceIDs.length; idNo++) {
                         await updateLoanAdvances(db, body.id, body.loanAdvanceIDs)
+
+                        // }
                     }
                     if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: body.id } })
