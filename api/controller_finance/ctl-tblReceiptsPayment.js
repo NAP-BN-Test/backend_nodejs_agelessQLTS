@@ -1356,49 +1356,73 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
-                    // if (body.dataSearch) {
-                    //     var data = JSON.parse(body.dataSearch)
-
-                    //     if (data.search) {
-                    //         where = [
-                    //             { FullName: { [Op.like]: '%' + data.search + '%' } },
-                    //             { Address: { [Op.like]: '%' + data.search + '%' } },
-                    //             { CMND: { [Op.like]: '%' + data.search + '%' } },
-                    //             { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                    //         ];
-                    //     } else {
-                    //         where = [
-                    //             { FullName: { [Op.ne]: '%%' } },
-                    //         ];
-                    //     }
-                    //     whereOjb = {
-                    //         [Op.and]: [{ [Op.or]: where }],
-                    //         [Op.or]: [{ ID: { [Op.ne]: null } }],
-                    //     };
-                    //     if (data.items) {
-                    //         for (var i = 0; i < data.items.length; i++) {
-                    //             let userFind = {};
-                    //             if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                    //                 userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                    //                 if (data.items[i].conditionFields['name'] == 'And') {
-                    //                     whereOjb[Op.and].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Or') {
-                    //                     whereOjb[Op.or].push(userFind)
-                    //                 }
-                    //                 if (data.items[i].conditionFields['name'] == 'Not') {
-                    //                     whereOjb[Op.not] = userFind
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                    var whereObj = {};
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
+                        if (data.search) {
+                            where = [
+                                { Type: body.type },
+                                {
+                                    CodeNumber: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                            ]
+                            whereObj[Op.and] = where
+                        } else {
+                            where = {
+                                Type: body.type
+                            };
+                            whereObj[Op.and] = where
+                        }
+                        if (data.items.length >= 1) {
+                            arraySearchAnd.push({ Type: body.type })
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'SỐ PHIẾU') {
+                                    userFind['CodeNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGÀY TẠO ĐƠN') {
+                                    let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
+                                    userFind['Date'] = {
+                                        [Op.substring]: date
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                            }
+                            if (arraySearchOr.length > 0)
+                                whereObj[Op.or] = arraySearchOr
+                            if (arraySearchAnd.length > 0)
+                                whereObj[Op.and] = arraySearchAnd
+                            if (arraySearchNot.length > 0)
+                                whereObj[Op.not] = arraySearchNot
+                        }
+                    }
                     let stt = 1;
                     mtblReceiptsPayment(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: { Type: body.type },
+                        where: whereObj,
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -1514,7 +1538,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         }
-                        var count = await mtblReceiptsPayment(db).count({ where: { Type: body.type } })
+                        var count = await mtblReceiptsPayment(db).count({ where: whereObj })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

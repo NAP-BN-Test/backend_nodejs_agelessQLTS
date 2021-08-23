@@ -76,7 +76,7 @@ module.exports = {
                             })
                             await mtblRate(db).create({
                                 Date: now,
-                                ExchangeRate: rate ? rate.ExchangeRate : 1,
+                                ExchangeRate: rate ? (rate.ExchangeRate ? rate.ExchangeRate : 1) : 1,
                                 IDCurrency: data[i].ID,
                             })
                         }
