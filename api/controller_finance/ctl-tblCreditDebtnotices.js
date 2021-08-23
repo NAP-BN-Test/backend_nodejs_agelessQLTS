@@ -599,6 +599,34 @@ async function createLoanAdvances(db, IDnoticesCD, loanAdvanceIDs, type) {
         }
     }
 }
+async function updateLoanAdvances(db, IDpayment, loanAdvanceIDs) {
+    let payment = await mtblReceiptsPayment(db).findOne({ where: { ID: IDpayment } })
+    await mtblVayTamUng(db).update({
+        Status: 'Tạo phiếu chi',
+        IDnoticesCD: null,
+    }, {
+        where: { IDnoticesCD: IDpayment }
+    })
+    if (loanAdvanceIDs.length > 0 && payment.Type == 'payment') {
+        for (var i = 0; i < loanAdvanceIDs.length; i++) {
+            await mtblVayTamUng(db).update({
+                Status: 'Chờ hoàn ứng',
+                IDnoticesCD: IDpayment,
+            }, {
+                where: { ID: loanAdvanceIDs[i] }
+            })
+        }
+    } else if (loanAdvanceIDs.length > 0 && payment.Type == 'receipt') {
+        for (var i = 0; i < loanAdvanceIDs.length; i++) {
+            await mtblVayTamUng(db).update({
+                Status: 'Đã hoàn ứng',
+                IDnoticesCD: IDpayment,
+            }, {
+                where: { ID: loanAdvanceIDs[i] }
+            })
+        }
+    }
+}
 module.exports = {
     deleteRelationshiptblCreditDebtnotices,
     //  get_detail_tbl_credit_debt_notices
@@ -769,7 +797,6 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -817,7 +844,7 @@ module.exports = {
                         if (body.loanAdvanceID) {
                             await mtblVayTamUng(db).update({
                                 Status: 'Chờ hoàn ứng',
-                                IDReceiptsPayment: data.ID,
+                                IDnoticesCD: data.ID,
                             }, {
                                 where: { ID: body.loanAdvanceID }
                             })
@@ -871,6 +898,10 @@ module.exports = {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
+                    if (body.loanAdvanceIDs) {
+                        body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
+                        await updateLoanAdvances(db, body.id, body.loanAdvanceIDs)
+                    }
                     if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblCreditsAccounting(db).destroy({ where: { IDCreditDebtnotices: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
