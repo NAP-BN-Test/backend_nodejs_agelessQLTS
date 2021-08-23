@@ -153,6 +153,8 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
 }
 async function handleCodeNumber(str) {
     var endCode = '';
+    if (!str)
+        str = 'PT0000'
     var behind = Number(str.slice(2, 10)) + 1
     if (behind < 10)
         endCode = '000' + behind
@@ -989,7 +991,7 @@ module.exports = {
                         automaticCode = 'PC0001'
                         codeNumber = 'PC0001'
                     } else {
-                        automaticCode = await handleCodeNumber(check.CodeNumber)
+                        automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
                     }
                     let objCreate = {
                         Type: body.type ? body.type : '',
@@ -1023,6 +1025,7 @@ module.exports = {
                         objCreate['IDPartner'] = body.object.id
                     else
                         objCreate['IDCustomer'] = body.object.id
+                    console.log(objCreate);
                     mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         if (body.assetLiquidationIDs) {
                             body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)

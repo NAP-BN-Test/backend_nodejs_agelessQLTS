@@ -11,6 +11,7 @@ module.exports = function (db) {
         IDCurrency: Sequelize.BIGINT,
         IDPartner: Sequelize.INTEGER,
         IDCustomer: Sequelize.INTEGER,
+        IDStaff: Sequelize.INTEGER,
         Reason: Sequelize.STRING,
         VoucherNumber: Sequelize.STRING,
         Date: Sequelize.DATE,
@@ -22,6 +23,7 @@ module.exports = function (db) {
         IDEstablishment: Sequelize.INTEGER,
         IDSubmitter: Sequelize.INTEGER,
         Undefined: Sequelize.BOOLEAN,
+        ApplicantReceiverName: Sequelize.STRING,
     });
 
     return table;

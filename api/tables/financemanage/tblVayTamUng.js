@@ -24,6 +24,7 @@ module.exports = function (db) {
         Refunds: Sequelize.BOOLEAN,
         Status: Sequelize.STRING,
         IDReceiptsPayment: Sequelize.BIGINT,
+        IDnoticesCD: Sequelize.BIGINT,
         IsNotification: Sequelize.BOOLEAN,
     });
 
