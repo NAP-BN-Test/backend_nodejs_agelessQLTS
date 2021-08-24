@@ -1280,11 +1280,8 @@ module.exports = {
                                 })
                             }
                         }
-                        console.log(result);
                         res.json(result);
                     })
-
-
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -109,8 +109,6 @@ module.exports = {
         // });
         (async function () {
             result = await getYoutubeChannelId(url);
-            console.log(result);
-
             if (result !== false) {
                 if (result.error) {
                     console.log(`Have a error, try again`);
