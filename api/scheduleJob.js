@@ -10,6 +10,112 @@ var mtblCurrency = require('./tables/financemanage/tblCurrency')
 var mtblRate = require('./tables/financemanage/tblRate')
 var mtblNghiPhep = require('./tables/hrmanage/tblNghiPhep')
 var mtblDateOfLeave = require('./tables/hrmanage/tblDateOfLeave')
+// ghi dữ liệu từ máy chấm công vào database
+async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, year, date, staffID) {
+    var summaryEndDateS = 0;
+    var summaryEndDateC = 0;
+    var statusMorning = '';
+    var statusAfternoon = '';
+    let seventeenH = 3600 * 17 + 30 * 60
+    let eightH = 3600 * 8
+    let twelveH = 3600 * 12 + 30 * 60
+    let thirteenH = 3600 * 13
+    let arrayTimeOfDate = await filterByDate(userID, date, arrayData, month, year)
+    let maxTime = await maxTimeArray(arrayTimeOfDate);
+    let minTime = await minTimeArray(arrayTimeOfDate);
+    if (arrayTimeOfDate.length == 1) {
+        if (minTime >= twelveH) {
+            // check chiều
+            if (thirteenH <= maxTime) {
+                statusAfternoon = await converFromSecondsToHourLate(maxTime - thirteenH)
+                summaryEndDateC = await roundNumberMinutes(maxTime - thirteenH)
+            } else {
+                statusAfternoon = null
+            }
+            statusMorning = '0.5'
+            summaryEndDateS = 0.5
+        } else {
+            // check sáng
+            if (minTime >= eightH) {
+                statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                summaryEndDateS = await roundNumberMinutes(minTime - eightH)
+            } else {
+                statusMorning = null
+            }
+            statusAfternoon = '0.5'
+            summaryEndDateC = 0.5
+        }
+    }
+    if (arrayTimeOfDate.length > 1) {
+        if (maxTime <= twelveH) {
+            // check sáng
+            if (minTime >= eightH) {
+                statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                summaryEndDateS = await roundNumberMinutes(minTime - eightH)
+
+            } else {
+                if (twelveH >= maxTime) {
+                    statusMorning = await converFromSecondsToHourLate(twelveH - maxTime)
+                    summaryEndDateS = await roundNumberMinutes(twelveH - maxTime)
+                } else {
+                    statusMorning = null
+                }
+            }
+            statusAfternoon = '0.5'
+            summaryEndDateC = 0.5
+        } else {
+            if (minTime >= thirteenH) {
+                statusMorning = '0.5'
+                summaryEndDateS = 0.5
+                // check chiều
+                if (thirteenH <= minTime) {
+                    statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
+                    summaryEndDateC = await roundNumberMinutes(minTime - thirteenH)
+                } else {
+                    if (seventeenH >= maxTime) {
+                        statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+                        summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
+                    } else {
+                        statusAfternoon = null
+                    }
+                }
+            } else {
+                // check sáng
+                if (minTime >= eightH) {
+                    statusMorning = await converFromSecondsToHourLate(minTime - eightH)
+                    summaryEndDateS = await roundNumberMinutes(minTime - eightH)
+                } else {
+                    statusMorning = null
+                }
+                // check chiều
+                if (seventeenH >= maxTime) {
+                    statusAfternoon = await converFromSecondsToHourAftersoon(seventeenH - maxTime)
+                    summaryEndDateC = await roundNumberMinutes(seventeenH - maxTime)
+
+                } else {
+                    statusAfternoon = null
+                }
+            }
+        }
+    }
+    let datedb = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+    let statusMorningDB = statusMorning ? statusMorning : null
+    let statusAfternoonDB = statusAfternoon ? statusAfternoon : null
+    if (arrayTimeOfDate.length >= 1) {
+        if (statusMorningDB == null && statusAfternoonDB == null) {
+            await createAttendanceData(db, staffID, datedb, null, '+', '+', true, summaryEndDateS)
+            await createAttendanceData(db, staffID, datedb, null, '+', '+', false, summaryEndDateC)
+        } else {
+            await createAttendanceData(db, staffID, datedb, null, statusMorningDB, null, true, summaryEndDateS)
+            await createAttendanceData(db, staffID, datedb, null, statusAfternoonDB, null, false, summaryEndDateC)
+        }
+
+    } else {
+        await createAttendanceData(db, staffID, datedb, null, 'KL', 'Nghỉ không phép', true, summaryEndDateS)
+        await createAttendanceData(db, staffID, datedb, null, 'KL', 'Nghỉ không phép', false, summaryEndDateC)
+    }
+}
+const axios = require('axios');
 
 module.exports = {
     editStatus24HourEveryday: async (req, res) => {
@@ -44,6 +150,30 @@ module.exports = {
                 }
 
                 var job = schedule.scheduleJob({ hour: 23, minute: 59 }, async function () {
+                    let arrayData = [];
+                    await axios.get(`http://192.168.23.16:1333/dulieuchamcong/index`).then(data => {
+                        if (data.length > 0)
+                            arrayData = JSON.parse(data)
+                    })
+                    for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
+                        let staff = await mtblDMNhanvien(db).findOne({
+                            IDMayChamCong: arrayData[dataTimeKp]['User ID']
+                        })
+                        if (staff) {
+                            let checkMonth = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M').format('YYYY-MM');
+                            let checkTimekeeping = await mtblChamCong(db).findOne({
+                                where: {
+                                    Time: { [Op.like]: checkMonth }
+                                }
+                            })
+                            if (!checkTimekeeping) {
+                                let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD')
+                                let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM')
+                                let year = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY')
+                                await writeDataFromTimekeeperToDatabase(db, arrayData[dataTimeKp]['User ID'], arrayData, month, year, date, staff.ID);
+                            }
+                        }
+                    }
                     await ctlTimeAttendanceSummary.createTimeAttendanceSummary()
                     await mtblHopDongNhanSu(db).update({
                         Status: 'Hết hiệu lực'
@@ -82,6 +212,32 @@ module.exports = {
                         }
                     })
                 });
+                schedule.scheduleJob({ hour: 11, minute: 59 }, async function () {
+                    let arrayData = [];
+                    await axios.get(`http://192.168.23.16:1333/dulieuchamcong/index`).then(data => {
+                        if (data.length > 0)
+                            arrayData = JSON.parse(data)
+                    })
+                    for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
+                        let staff = await mtblDMNhanvien(db).findOne({
+                            IDMayChamCong: arrayData[dataTimeKp]['User ID']
+                        })
+                        if (staff) {
+                            let checkMonth = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M').format('YYYY-MM');
+                            let checkTimekeeping = await mtblChamCong(db).findOne({
+                                where: {
+                                    Time: { [Op.like]: checkMonth }
+                                }
+                            })
+                            if (!checkTimekeeping) {
+                                let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD')
+                                let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM')
+                                let year = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY')
+                                await writeDataFromTimekeeperToDatabase(db, arrayData[dataTimeKp]['User ID'], arrayData, month, year, date, staff.ID);
+                            }
+                        }
+                    }
+                })
                 console.log(job);
             } catch (error) {
                 console.log(error);

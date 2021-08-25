@@ -1124,745 +1124,6 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
     })
 }
 async function getDataTimeKeeping(dateRes, departmentID) {
-    let arrayData = [
-        // 01 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-1 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-1 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-1 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-1 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 02 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-2 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-2 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-2 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-2 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 03 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-3 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-3 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-3 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-3 16:00:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 04 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-4 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-4 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-4 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-4 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 05 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-5 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-5 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-5 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-5 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 06 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-6 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-6 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-6 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-6 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 07 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-7 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-7 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-7 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-7 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 08 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-8 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-1 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-8 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-8 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 10 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-10 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-10 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-10 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-10 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 11 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-11 8:30:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-1 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-11 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-11 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 12 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-12 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-12 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-12 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-12 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 13 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-13 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-13 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-13 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-13 17:00:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 14 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-14 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-14 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-14 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-14 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 15 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-15 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-15 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-15 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-15 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 16 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-16 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-16 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-16 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-16 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 17 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-17 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-17 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-17 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-17 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 18 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-18 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-18 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-18 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-18 17:00:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 19 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-19 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-19 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-19 8:30:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-19 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 20 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-20 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-20 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-20 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-20 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 21 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-21 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-21 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-21 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-21 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 24 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-24 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-14 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-24 10:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-24 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 25----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-25 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-25 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-25 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-25 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 26 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-26 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-14 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-26 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-26 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 27 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-27 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-27 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-27 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-27 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-
-        // 28 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-28 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-28 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-28 8:00:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-28 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        // 31 ----------------------------------------------------------------------------------------------------------------------------------
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-31 8:00:00",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 1,
-            'Verify Date': "2021-7-31 17:30:30",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        }, {
-            'User ID': 2,
-            'Verify Date': "2021-7-31 8:30:16",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-        {
-            'User ID': 2,
-            'Verify Date': "2021-7-31 17:30:20",
-            'Verify Type': 1,
-            'Verify State': 1,
-            'Work Code': 1
-        },
-    ]
     var result = {}
     await database.connectDatabase().then(async db => {
         // await axios.get(`http://192.168.23.13:1333/dulieuchamcong/`).then(data => {
@@ -1886,197 +1147,8 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                 if (Number(now) == Number(month)) {
                     dateFinal = Number(dayNow)
                 }
-                var arrayUserID = await getUserIDExits(arrayData);
                 var yearMonth = dateRes;
-                var array7thDB = await take7thDataToWork(db, year, month);
                 var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                if (Number(month) == Number(now)) {
-                    console.log('==================================================================================================');
-                    await mtblDMNhanvien(db).findAll({
-                        where: {
-                            [Op.or]: [
-                                { IDMayChamCong: { [Op.notIn]: arrayUserID } },
-                                { IDMayChamCong: null },
-                            ]
-                        }
-                    }).then(async staff => {
-                        for (let s = 0; s < staff.length; s++) {
-                            var timeKeeping = await mtblChamCong(db).findOne({
-                                where: [{
-                                    Date: {
-                                        [Op.substring]: dateRes + '-' + dayNow
-                                    }
-                                },
-                                {
-                                    IDNhanVien: staff[s].ID
-                                }]
-                            })
-                            var timeKeepingFinal = await mtblChamCong(db).findOne({
-                                where: [{
-                                    Date: {
-                                        [Op.substring]: dateRes
-                                    }
-                                },
-                                {
-                                    IDNhanVien: staff[s].ID
-                                }],
-                                order: [
-                                    Sequelize.literal('max(Date) DESC'),
-                                ],
-                                group: ['ID', 'EditDate', 'SummaryEndDate', 'Type', 'Reason', 'Status', 'Time', 'IDNhanVien', 'Date'],
-                            })
-                            if (!timeKeeping) {
-                                var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
-                                if (timeKeepingFinal) {
-                                    let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
-                                    if (dateFinalSave < Number(dayNow)) {
-                                        console.log((dateFinalSave + 1, Number(dayNow)));
-                                        for (var j = (dateFinalSave + 1); j <= Number(dayNow); j++) {
-                                            var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                            let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                            let staffID = staff[s] ? staff[s].ID : null
-                                            if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                                await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                            } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                                await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                            } else if (checkDuplicate(arrayHoliday, j)) {
-                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                                await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                            } else {
-                                                // check xem có trong ngày nghỉ phép không ?
-                                                if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                    for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                        if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                            await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                        }
-                                                    }
-                                                } else {
-                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
-                                                }
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    for (var j = 1; j <= Number(dayNow); j++) {
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff[s] ? staff[s].ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                    }
-                                                }
-                                            } else {
-                                                await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
-                                                await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
-                                            }
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
-                    })
-                    if (arrayUserID.length > 0) {
-                        for (var i = 0; i < arrayUserID.length; i++) {
-                            var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
-                            var timeKeepingFinal = await mtblChamCong(db).findOne({
-                                where: [{
-                                    Date: {
-                                        [Op.substring]: dateRes
-                                    }
-                                },
-                                {
-                                    IDNhanVien: staff.ID
-                                }],
-                                order: [
-                                    Sequelize.literal('max(Date) DESC'),
-                                ],
-                                group: ['ID', 'EditDate', 'SummaryEndDate', 'Type', 'Reason', 'Status', 'Time', 'IDNhanVien', 'Date'],
-                            })
-                            var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                            var yearMonth = year + '-' + await convertNumber(month);
-                            if (timeKeepingFinal) {
-                                let dateFinalSave = Number(moment(timeKeepingFinal.Date).add(7, 'hours').format('DD'))
-
-                                if (dateFinalSave < Number(dayNow)) {
-                                    for (var j = (dateFinalSave + 1); j <= Number(dayNow); j++) {
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff ? staff.ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                    }
-                                                }
-                                            } else {
-                                                await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                for (var j = 1; j <= Number(dayNow); j++) {
-                                    var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                    let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                    let staffID = staff ? staff.ID : null
-                                    if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                        await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                        await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                    } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                        await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                        await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                    } else if (checkDuplicate(arrayHoliday, j)) {
-                                        await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                        await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                    } else {
-                                        // check xem có trong ngày nghỉ phép không ?
-                                        if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                            for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                    await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                }
-                                            }
-                                        } else {
-                                            await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
                 // lấy danh sách thứ 7 đi làm
                 var arrayDays = [];
                 let checkFor = 0;
@@ -2093,261 +1165,6 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                         arrayStaff.push(element.IDNhanVien)
                     })
                 })
-                // taopj cho nhân viên có id chấm công sai hoặc không có
-                await mtblDMNhanvien(db).findAll({
-                    where: {
-                        [Op.or]: [
-                            { IDMayChamCong: { [Op.notIn]: arrayUserID } },
-                            { IDMayChamCong: null },
-                        ]
-                    }
-                }).then(async staff => {
-                    for (let s = 0; s < staff.length; s++) {
-                        if (checkDuplicate(arrayStaff, staff[s].ID)) {
-                            var timeKeeping = await mtblChamCong(db).findAll({
-                                where: [{
-                                    Date: {
-                                        [Op.substring]: dateRes
-                                    }
-                                },
-                                {
-                                    IDNhanVien: staff[s].ID
-                                }]
-                            })
-                            if (timeKeeping.length <= 0) {
-                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                if (staff[s].ID) {
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
-                                    for (var j = 1; j <= dateFinal; j++) {
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff[s] ? staff[s].ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                    }
-                                                }
-                                            } else {
-                                                await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
-                                                await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                if (staff[s].ID) {
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff[s].ID, dateFinal)
-                                    for (var j = 1; j <= dateFinal; j++) {
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff[s] ? staff[s].ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && checkDuplicate(array7thDB, j)) {
-                                            let timeKeeping = await mtblChamCong(db).findOne({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            if (timeKeeping && timeKeeping.Status == 'Sat') {
-                                                await mtblChamCong(db).destroy({
-                                                    where: {
-                                                        ID: timeKeeping.ID
-                                                    }
-                                                })
-                                                await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', false, 0)
-                                                await createAttendanceData(db, staffID, date, null, 'KL', 'Nghỉ không phép', true, 0)
-                                            }
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await mtblChamCong(db).destroy({
-                                                            where: {
-                                                                Date: date,
-                                                                IDNhanVien: staffID
-                                                            }
-                                                        })
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                })
-                if (arrayUserID.length > 0) {
-                    for (var i = 0; i < arrayUserID.length; i++) {
-                        var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
-                        if (checkDuplicate(arrayStaff, staff.ID)) {
-                            var timeKeeping;
-                            if (staff)
-                                timeKeeping = await mtblChamCong(db).findAll({
-                                    where: [{
-                                        Date: {
-                                            [Op.substring]: '%' + yearMonth + '%'
-                                        }
-                                    },
-                                    {
-                                        IDNhanVien: staff.ID
-                                    }]
-                                })
-                            if (timeKeeping.length <= 0) {
-                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                if (staff) {
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                                    var yearMonth = year + '-' + await convertNumber(month);
-                                    for (var j = 1; j <= dateFinal; j++) {
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff ? staff.ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                    }
-                                                }
-                                            } else {
-                                                await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
-                                var staff = await mtblDMNhanvien(db).findOne({ where: { IDMayChamCong: arrayUserID[i] } })
-                                if (staff) {
-                                    var arrayLeaveDay = await getListleaveDate(db, month, year, staff.ID, dateFinal)
-                                    var yearMonth = year + '-' + await convertNumber(month);
-                                    for (var j = 1; j <= dateFinal; j++) {
-                                        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(j)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-                                        let date = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(j)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-                                        let staffID = staff ? staff.ID : null
-                                        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, j)) {
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-                                        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && checkDuplicate(array7thDB, j)) {
-                                            let timeKeeping = await mtblChamCong(db).findOne({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            if (timeKeeping && timeKeeping.Status == 'Sat') {
-                                                await mtblChamCong(db).destroy({
-                                                    where: {
-                                                        ID: timeKeeping.ID
-                                                    }
-                                                })
-                                                await writeDataFromTimekeeperToDatabase(db, arrayUserID[i], arrayData, month, year, j, staff.ID)
-                                            }
-                                        } else if (checkDuplicate(arrayHoliday, j)) {
-
-                                            await mtblChamCong(db).destroy({
-                                                where: {
-                                                    Date: date,
-                                                    IDNhanVien: staffID
-                                                }
-                                            })
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', true, 0)
-                                            await createAttendanceData(db, staffID, date, null, 'Holiday', 'Nghỉ lễ', false, 0)
-                                        } else {
-                                            // check xem có trong ngày nghỉ phép không ?
-                                            if (checkDuplicate(arrayLeaveDay.array, j)) {
-                                                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                                                    if (arrayLeaveDay.arrayObj[i].date == j) {
-                                                        await mtblChamCong(db).destroy({
-                                                            where: {
-                                                                Date: date,
-                                                                IDNhanVien: staffID
-                                                            }
-                                                        })
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                                                        await createAttendanceData(db, staffID, date, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
                 await mtblDMNhanvien(db).findAll({ where: whereobj }).then(async staff => {
                     yearMonth = year + '-' + await convertNumber(month);
                     var stt = 1;
@@ -2363,7 +1180,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                 arraySearchAnd.push({ IDNhanVien: staff[i].ID });
                                 arraySearchAnd.push({
                                     Date: {
-                                        [Op.substring]: '%' + yearMonth + '%'
+                                        [Op.substring]: yearMonth
                                     }
                                 });
                             }
@@ -2387,6 +1204,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                 where: objWhere,
                             })
                             if (timeKeeping) {
+                                console.log(timeKeeping.ID, 123456789);
                                 for (var j = 1; j <= dateFinal; j++) {
                                     var timeKeepingM = await mtblChamCong(db).findOne({
                                         where: [
@@ -2410,9 +1228,9 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                         }
 
                                     }
-                                    if (timeKeepingM.Status == null)
+                                    if (timeKeepingM && timeKeepingM.Status == null)
                                         numberOfWorkingDays += 0.5
-                                    if (timeKeepingA.Status == null)
+                                    if (timeKeepingA && timeKeepingA.Status == null)
                                         numberOfWorkingDays += 0.5
                                     // Lấy dố ngày lm việc thưc tế
                                     if (timeKeepingA && timeKeepingA.Status != 'Sun' && timeKeepingA.Status != 'Sat') {
@@ -2507,6 +1325,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                         }
                     }
                 })
+                console.log(array);
                 result = {
                     array: array,
                     status: Constant.STATUS.SUCCESS,
@@ -3307,6 +2126,39 @@ async function applicationIntervalDivision(db, monthStart, monthEnd, yearStart, 
     arrayMonth.sort()
     return arrayMonth
 }
+
+async function createDataTimeKeeping(db, year, month, date, staffID, IDMayChamCong, arrayData) {
+    var dateFi = new Date(year, month, 0);
+    var dateFinal = Number(dateFi.toISOString().slice(8, 10))
+    dateFinal += 1
+    var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
+    var array7thDB = await take7thDataToWork(db, year, month);
+    var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(date)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+    let dateMonth = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+    if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+        await createAttendanceData(db, staffID, dateMonth, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+        await createAttendanceData(db, staffID, dateMonth, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+    } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, date)) {
+        await createAttendanceData(db, staffID, dateMonth, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+        await createAttendanceData(db, staffID, dateMonth, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+    } else if (checkDuplicate(arrayHoliday, date)) {
+        await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', true, 0)
+        await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', false, 0)
+    } else {
+        var arrayLeaveDay = await getListleaveDate(db, month, year, staffID, dateFinal)
+        // check xem có trong ngày nghỉ phép không ?
+        if (checkDuplicate(arrayLeaveDay.array, date)) {
+            for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                if (arrayLeaveDay.arrayObj[i].date == date) {
+                    await createAttendanceData(db, staffID, dateMonth, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                    await createAttendanceData(db, staffID, dateMonth, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                }
+            }
+        } else {
+            await writeDataFromTimekeeperToDatabase(db, IDMayChamCong, arrayData, month, year, date, staffID)
+        }
+    }
+}
 module.exports = {
     createTimeAttendanceSummaryFollowMonth,
     createTimeAttendanceSummary,
@@ -3747,4 +2599,776 @@ module.exports = {
             }
         })
     },
+
+
+
+    // delete_and_create_data_timekeeping
+    deleteAndCreateDataTimeKeeping: async (req, res) => {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                let arrayData = [
+                    // 01 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-1 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-1 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-1 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-1 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 02 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-2 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-2 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-2 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-2 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 03 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-3 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-3 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-3 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-3 16:00:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 04 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-4 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-4 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-4 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-4 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 05 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-5 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-5 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-5 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-5 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 06 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-6 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-6 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-6 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-6 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 07 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-7 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-7 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-7 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-7 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 08 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-8 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-1 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-8 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-8 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 10 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-10 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-10 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-10 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-10 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 11 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-11 8:30:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-1 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-11 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-11 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 12 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-12 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-12 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-12 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-12 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 13 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-13 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-13 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-13 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-13 17:00:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 14 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-14 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-14 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-14 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-14 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 15 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-15 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-15 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-15 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-15 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 16 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-16 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-16 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-16 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-16 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 17 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-17 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-17 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-17 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-17 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 18 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-18 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-18 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-18 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-18 17:00:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 19 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-19 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-19 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-19 8:30:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-19 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 20 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-20 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-20 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-20 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-20 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 21 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-21 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-21 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-21 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-21 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 24 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-24 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-14 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-24 10:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-24 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 25----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-25 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-25 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-25 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-25 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 26 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-26 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-14 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-26 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-26 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 27 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-27 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-27 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-27 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-27 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+
+                    // 28 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-28 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-28 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-28 8:00:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-28 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    // 31 ----------------------------------------------------------------------------------------------------------------------------------
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-31 8:00:00",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 1,
+                        'Verify Date': "2021-7-31 17:30:30",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    }, {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-31 8:30:16",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                    {
+                        'User ID': 2,
+                        'Verify Date': "2021-7-31 17:30:20",
+                        'Verify Type': 1,
+                        'Verify State': 1,
+                        'Work Code': 1
+                    },
+                ]
+                for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
+                    let staff = await mtblDMNhanvien(db).findOne({
+                        IDMayChamCong: arrayData[dataTimeKp]['User ID']
+                    })
+                    if (staff) {
+                        let Time = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY-MM-DD hh:mm:ss');
+                        let checkMonth = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M').format('YYYY-MM');
+                        let checkTimekeeping = await mtblChamCong(db).findOne({
+                            where: {
+                                Time: { [Op.like]: checkMonth }
+                            }
+                        })
+                        if (!checkTimekeeping) {
+                            let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD')
+                            let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM')
+                            let year = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY')
+                            await createDataTimeKeeping(db, year, month, date, staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
+                        }
+                    }
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+
 }

@@ -1,6 +1,5 @@
 var moment = require('moment');
 const Sequelize = require('sequelize');
-
 async function connectDatabase(dbname) {
     const db = new Sequelize(dbname, 'struck_user', '123456a$', {
         host: 'dbdev.namanphu.vn',
