@@ -502,6 +502,34 @@ async function take7thDataToWork(db, year, month, dateRequest = 10) {
     return array7thDB
     // ----------------------------------------------------------------------
 }
+// lấy dữ liệu ngày đi lm
+async function takeDataToWork(db, year, month, dateRequest = 10) {
+    //  lấy danh sách thứ 7 đi làm ------------------------------------
+    let array7thDB = []
+    var date = new Date(year, month, 0);
+    var dateFinal = Number(date.toISOString().slice(8, 10))
+    dateFinal += 1
+    let dateWhere = year + '-' + await convertNumber(month) + '-' + await convertNumber(dateFinal)
+    let dateMonthFirst = year + '-' + await convertNumber(month) + '-' + '01'
+    dateWhere = moment(dateWhere).add(7, 'hours')
+    dateMonthFirst = moment(dateMonthFirst).add(7, 'hours')
+    await mtblConfigWorkday(db).findAll({
+        where: {
+            Date: { [Op.between]: [dateMonthFirst, dateWhere] },
+        },
+        order: [
+            ['Date', 'DESC']
+        ],
+    }).then(async data => {
+        if (data.length > 0)
+            for (var saturday = 0; saturday < data.length; saturday++) {
+                // var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(Number(data[saturday].Date.slice(8, 10)))).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+                array7thDB.push(Number(data[saturday].Date.slice(8, 10)))
+            }
+    })
+    return array7thDB
+    // ----------------------------------------------------------------------
+}
 
 // Tạo dữ liệu chấm công
 async function createAttendanceData(db, staffID, date, Time, status, reason, type, SummaryEndDate) {
@@ -2131,29 +2159,37 @@ async function createDataTimeKeeping(db, year, month, date, staffID, IDMayChamCo
     dateFinal += 1
     var arrayHoliday = await getListHoliday(db, year, month, dateFinal)
     var array7thDB = await take7thDataToWork(db, year, month);
-    var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(date)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
-    let dateMonth = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
-    if (datetConvert.slice(0, 8) == 'Chủ nhật') {
-        await createAttendanceData(db, staffID, dateMonth, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
-        await createAttendanceData(db, staffID, dateMonth, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
-    } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, date)) {
-        await createAttendanceData(db, staffID, dateMonth, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
-        await createAttendanceData(db, staffID, dateMonth, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
-    } else if (checkDuplicate(arrayHoliday, date)) {
-        await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', true, 0)
-        await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', false, 0)
-    } else {
-        var arrayLeaveDay = await getListleaveDate(db, month, year, staffID, dateFinal)
-        // check xem có trong ngày nghỉ phép không ?
-        if (checkDuplicate(arrayLeaveDay.array, date)) {
-            for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
-                if (arrayLeaveDay.arrayObj[i].date == date) {
-                    await createAttendanceData(db, staffID, dateMonth, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
-                    await createAttendanceData(db, staffID, dateMonth, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
-                }
-            }
+    var arraythDB = await takeDataToWork(db, year, month);
+    // tháng nào chưa cấu hình chưa tạo
+    if (arraythDB.length >= 0) {
+        var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(date)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
+        let dateMonth = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
+        if (datetConvert.slice(0, 8) == 'Chủ nhật') {
+            await createAttendanceData(db, staffID, dateMonth, null, 'Sun', 'Nghỉ chủ nhật', true, 0)
+            await createAttendanceData(db, staffID, dateMonth, null, 'Sun', 'Nghỉ chủ nhật', false, 0)
+        } else if (datetConvert.slice(0, 5) == 'Thứ 7' && !checkDuplicate(array7thDB, date)) {
+            await createAttendanceData(db, staffID, dateMonth, null, 'Sat', 'Nghỉ thứ bảy', true, 0)
+            await createAttendanceData(db, staffID, dateMonth, null, 'Sat', 'Nghỉ thứ bảy', false, 0)
+        } else if (checkDuplicate(arrayHoliday, date)) {
+            await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', true, 0)
+            await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', false, 0)
         } else {
-            await writeDataFromTimekeeperToDatabase(db, IDMayChamCong, arrayData, month, year, date, staffID)
+            var arrayLeaveDay = await getListleaveDate(db, month, year, staffID, dateFinal)
+            // check xem có trong ngày nghỉ phép không ?
+            if (checkDuplicate(arrayLeaveDay.array, date)) {
+                for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
+                    if (arrayLeaveDay.arrayObj[i].date == date) {
+                        await createAttendanceData(db, staffID, dateMonth, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', false, 0)
+                        await createAttendanceData(db, staffID, dateMonth, null, arrayLeaveDay.arrayObj[i].sign, 'Nghỉ phép', true, 0)
+                    }
+                }
+                // check ngày làm việc
+            } else if (!checkDuplicate(arraythDB, date)) {
+                await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', false, 0)
+                await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', true, 0)
+            } else {
+                await writeDataFromTimekeeperToDatabase(db, IDMayChamCong, arrayData, month, year, date, staffID)
+            }
         }
     }
 }
@@ -2604,746 +2640,19 @@ module.exports = {
     deleteAndCreateDataTimeKeeping: async (req, res) => {
         database.connectDatabase().then(async db => {
             if (db) {
-                let arrayData = [
-                    // 01 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-1 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-1 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-1 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-1 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 02 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-2 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-2 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-2 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-2 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 03 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-3 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-3 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-3 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-3 16:00:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 04 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-4 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-4 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-4 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-4 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 05 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-5 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-5 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-5 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-5 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 06 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-6 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-6 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-6 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-6 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 07 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-7 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-7 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-7 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-7 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 08 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-8 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-1 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-8 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-8 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 10 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-10 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-10 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-10 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-10 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 11 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-11 8:30:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-1 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-11 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-11 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 12 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-12 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-12 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-12 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-12 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 13 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-13 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-13 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-13 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-13 17:00:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 14 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-14 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-14 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-14 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-14 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 15 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-15 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-15 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-15 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-15 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 16 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-16 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-16 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-16 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-16 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 17 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-17 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-17 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-17 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-17 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 18 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-18 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-18 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-18 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-18 17:00:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 19 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-19 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-19 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-19 8:30:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-19 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 20 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-20 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-20 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-20 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-20 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 21 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-21 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-21 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-21 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-21 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 24 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-24 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-14 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-24 10:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-24 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 25----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-25 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-25 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-25 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-25 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 26 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-26 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-14 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-26 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-26 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 27 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-27 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-27 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-27 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-27 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-
-                    // 28 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-28 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-28 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-28 8:00:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-28 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    // 31 ----------------------------------------------------------------------------------------------------------------------------------
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-31 8:00:00",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 1,
-                        'Verify Date': "2021-7-31 17:30:30",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    }, {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-31 8:30:16",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                    {
-                        'User ID': 2,
-                        'Verify Date': "2021-7-31 17:30:20",
-                        'Verify Type': 1,
-                        'Verify State': 1,
-                        'Work Code': 1
-                    },
-                ]
+                let arrayData = [];
+                await axios.get(`http://192.168.23.16:1333/dulieuchamcong/index`).then(data => {
+                    if (data.data.length > 0)
+                        arrayData = data.data
+                })
+                let arrayMonthCheck = [];
                 for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
+                    let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD');
+                    let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM');
+                    let year = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY');
+                    let monthYear = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY-MM');
+                    if (!checkDuplicate(arrayMonthCheck, monthYear))
+                        arrayMonthCheck.push(monthYear);
                     let staff = await mtblDMNhanvien(db).findOne({
                         where: { IDMayChamCong: arrayData[dataTimeKp]['User ID'] }
                     })
@@ -3358,11 +2667,34 @@ module.exports = {
                             }
                         })
                         if (!checkTimekeeping) {
-                            let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD')
-                            let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM')
-                            let year = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY')
-                            await createDataTimeKeeping(db, year, month, date, staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
+                            await createDataTimeKeeping(db, year, month, Number(date), staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
                         }
+                    }
+                }
+                arrayMonthCheck = arrayMonthCheck.sort();
+                for (let monthYear = 0; monthYear < arrayMonthCheck.length; monthYear++) {
+                    month = Number(arrayMonthCheck[monthYear].slice(5, 7)); // January
+                    year = Number(arrayMonthCheck[monthYear].slice(0, 4));
+                    var dateFi = new Date(year, month, 0);
+                    var dateFinal = Number(dateFi.toISOString().slice(8, 10))
+                    dateFinal += 1
+                    for (let date = 1; date <= dateFinal; date++) {
+                        let dateCheck = year + '-' + await convertNumber(month) + '-' + await convertNumber(date)
+                        await mtblDMNhanvien(db).findAll().then(async staffObj => {
+                            for (let staff = 0; staff < staffObj.length; staff++) {
+                                if (staffObj[staff].IDMayChamCong) {
+                                    let timeKeeping = await mtblChamCong(db).findOne({
+                                        where: {
+                                            IDNhanVien: staffObj[staff].ID,
+                                            Date: { [Op.substring]: dateCheck },
+                                        }
+                                    })
+                                    if (!timeKeeping) {
+                                        await createDataTimeKeeping(db, year, month, date, staffObj[staff].ID, staffObj[staff].IDMayChamCong, arrayData);
+                                    }
+                                }
+                            }
+                        })
                     }
                 }
             } else {
