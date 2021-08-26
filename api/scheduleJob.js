@@ -353,14 +353,16 @@ module.exports = {
                     })
                     for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
                         let staff = await mtblDMNhanvien(db).findOne({
-                            IDMayChamCong: arrayData[dataTimeKp]['User ID']
+                            where: { IDMayChamCong: arrayData[dataTimeKp]['User ID'] }
                         })
                         if (staff) {
-                            let Time = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY-MM-DD hh:mm:ss');
-                            let checkMonth = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M').format('YYYY-MM');
+                            let checkMonth = await moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D').format('YYYY-MM-DD');
                             let checkTimekeeping = await mtblChamCong(db).findOne({
                                 where: {
-                                    Time: { [Op.like]: checkMonth }
+                                    Date: {
+                                        [Op.substring]: checkMonth
+                                    },
+                                    IDNhanVien: staff.ID,
                                 }
                             })
                             if (!checkTimekeeping) {
@@ -417,14 +419,16 @@ module.exports = {
                     })
                     for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
                         let staff = await mtblDMNhanvien(db).findOne({
-                            IDMayChamCong: arrayData[dataTimeKp]['User ID']
+                            where: { IDMayChamCong: arrayData[dataTimeKp]['User ID'] }
                         })
                         if (staff) {
-                            let Time = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY-MM-DD hh:mm:ss');
-                            let checkMonth = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M').format('YYYY-MM');
+                            let checkMonth = await moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D').format('YYYY-MM-DD');
                             let checkTimekeeping = await mtblChamCong(db).findOne({
                                 where: {
-                                    Time: { [Op.like]: checkMonth }
+                                    Date: {
+                                        [Op.substring]: checkMonth
+                                    },
+                                    IDNhanVien: staff.ID,
                                 }
                             })
                             if (!checkTimekeeping) {

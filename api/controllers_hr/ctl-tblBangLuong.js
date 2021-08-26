@@ -1204,7 +1204,6 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                                 where: objWhere,
                             })
                             if (timeKeeping) {
-                                console.log(timeKeeping.ID, 123456789);
                                 for (var j = 1; j <= dateFinal; j++) {
                                     var timeKeepingM = await mtblChamCong(db).findOne({
                                         where: [
@@ -1325,7 +1324,6 @@ async function getDataTimeKeeping(dateRes, departmentID) {
                         }
                     }
                 })
-                console.log(array);
                 result = {
                     array: array,
                     status: Constant.STATUS.SUCCESS,
@@ -3347,14 +3345,16 @@ module.exports = {
                 ]
                 for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
                     let staff = await mtblDMNhanvien(db).findOne({
-                        IDMayChamCong: arrayData[dataTimeKp]['User ID']
+                        where: { IDMayChamCong: arrayData[dataTimeKp]['User ID'] }
                     })
                     if (staff) {
-                        let Time = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY-MM-DD hh:mm:ss');
-                        let checkMonth = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M').format('YYYY-MM');
+                        let checkMonth = await moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D').format('YYYY-MM-DD');
                         let checkTimekeeping = await mtblChamCong(db).findOne({
                             where: {
-                                Time: { [Op.like]: checkMonth }
+                                Date: {
+                                    [Op.substring]: checkMonth
+                                },
+                                IDNhanVien: staff.ID,
                             }
                         })
                         if (!checkTimekeeping) {
