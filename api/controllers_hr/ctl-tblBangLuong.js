@@ -3381,12 +3381,21 @@ module.exports = {
                 ]
                 let arrayMonthCheck = [];
                 for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
-                    let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD');
-                    let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM');
-                    let year = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY');
                     let monthYear = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY-MM');
                     if (!checkDuplicate(arrayMonthCheck, monthYear))
                         arrayMonthCheck.push(monthYear);
+                }
+                for (let monthYear = 0; monthYear < arrayMonthCheck.length; monthYear++) {
+                    await mtblChamCong(db).destroy({
+                        where: {
+                            Date: { [Op.substring]: arrayMonthCheck[monthYear] }
+                        }
+                    })
+                }
+                for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
+                    let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD');
+                    let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM');
+                    let year = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('YYYY');
                     let staff = await mtblDMNhanvien(db).findOne({
                         where: { IDMayChamCong: arrayData[dataTimeKp]['User ID'] }
                     })
@@ -3401,7 +3410,7 @@ module.exports = {
                             }
                         })
                         if (!checkTimekeeping) {
-                            await createDataTimeKeeping(db, year, month, Number(date), staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
+                            await createDataTimeKeeping(db, year, month, date, staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
                         }
                     }
                 }
