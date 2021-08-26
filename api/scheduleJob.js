@@ -410,7 +410,7 @@ async function createDataTimeKeeping(db, year, month, date, staffID, IDMayChamCo
     var array7thDB = await take7thDataToWork(db, year, month);
     var arraythDB = await takeDataToWork(db, year, month);
     // tháng nào chưa cấu hình chưa tạo
-    if (arraythDB.length >= 0) {
+    if (arraythDB.length > 0) {
         var datetConvert = mModules.toDatetimeDay(moment(year + '-' + await convertNumber(month) + '-' + await convertNumber(date)).add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS'))
         let dateMonth = moment(year + '/' + await convertNumber(month) + ' / ' + await convertNumber(date)).add(7, 'hours').format('YYYY/MM/DD HH:MM:SS')
         if (datetConvert.slice(0, 8) == 'Chủ nhật') {
