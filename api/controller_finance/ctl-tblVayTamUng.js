@@ -284,7 +284,7 @@ module.exports = {
             if (db) {
                 try {
                     mtblVayTamUng(db).create({
-                        AdvanceCode: await mModules.automaticCode(mtblVayTamUng(db), 'AdvanceCode', 'HT'),
+                        AdvanceCode: await mModules.automaticCode(mtblVayTamUng(db), 'AdvanceCode', 'TU'),
                         IDNhanVienCreate: body.idNhanVienCreate ? body.idNhanVienCreate : null,
                         IDBoPhanNVCreate: body.idBoPhanNVCreate ? body.idBoPhanNVCreate : null,
                         IDNhanVienAdvance: body.idNhanVienAdvance ? body.idNhanVienAdvance : null,
