@@ -1629,7 +1629,7 @@ module.exports = {
                                 }
                             }
                             ],
-                            ID: { [Op.ne]: (body.idReceiptsPayment ? body.idReceiptsPayment : null) }
+                            ID: { [Op.ne]: (body.receiptID ? body.receiptID : null) }
                         },
                         order: [
                             ['ID', 'DESC']
@@ -1642,6 +1642,18 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
+                            let amount = 0;
+                            if (body.receiptID) {
+                                console.log(1234);
+                                await mtblPaymentRPayment(db).findOne({
+                                    where: {
+                                        IDPaymentR: data[i].ID,
+                                        IDPayment: body.receiptID,
+                                    }
+                                }).then(data => {
+                                    amount = data ? data.Amount : 0;
+                                })
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -1649,7 +1661,7 @@ module.exports = {
                                 unpaidAmount: data[i].UnpaidAmount ? data[i].UnpaidAmount : 0,
                                 paidAmount: data[i].PaidAmount ? data[i].PaidAmount : 0,
                                 initialAmount: data[i].InitialAmount ? data[i].InitialAmount : 0,
-                                amount: data[i].Amount ? data[i].Amount : 0,
+                                amount: amount,
                                 reason: data[i].Reason ? data[i].Reason : '',
                                 date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : 0,
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : 0,
