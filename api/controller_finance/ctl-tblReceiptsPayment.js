@@ -993,6 +993,7 @@ module.exports = {
                     } else {
                         automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
                     }
+                    let unpaidAmount = body.amount ? (Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
                     let objCreate = {
                         Type: body.type ? body.type : '',
                         RPType: body.rpType ? body.rpType : '',
@@ -1013,7 +1014,10 @@ module.exports = {
                         VoucherDate: body.voucherDate ? body.voucherDate : null,
                         // Số tiền ban đầu
                         InitialAmount: body.amount ? body.amount : null,
-                        UnpaidAmount: body.amount ? body.amount : null,
+                        // số tiền đã dùng
+                        PaidAmount: body.amountInvCre ? body.amountInvCre : 0,
+                        //  số tiền chưa dùng
+                        UnpaidAmount: unpaidAmount,
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
                         Unknown: body.isUndefined ? body.isUndefined : null,
                         ExchangeRate: body.exchangeRate ? body.exchangeRate : 0,
@@ -1025,7 +1029,11 @@ module.exports = {
                         objCreate['IDPartner'] = body.object.id
                     else
                         objCreate['IDCustomer'] = body.object.id
-                    console.log(objCreate);
+                    if (unpaidAmount == 0) {
+                        objCreate['Undefined'] = false;
+                    } else {
+                        objCreate['Undefined'] = true;
+                    }
                     mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         if (body.assetLiquidationIDs) {
                             body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)
@@ -1620,8 +1628,8 @@ module.exports = {
                                     [Op.in]: listUndefinedID
                                 }
                             }
-
-                            ]
+                            ],
+                            ID: { [Op.ne]: (body.idReceiptsPayment ? body.idReceiptsPayment : null) }
                         },
                         order: [
                             ['ID', 'DESC']

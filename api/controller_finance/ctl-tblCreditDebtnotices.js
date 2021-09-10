@@ -682,7 +682,6 @@ module.exports = {
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
                         VoucherNumber: voucherNumber,
-                        // IDCustomer: body.idCustomer ? body.idCustomer : null,
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',
                         Reason: body.reason ? body.reason : '',
@@ -691,8 +690,7 @@ module.exports = {
                         IDTreasurer: body.idTreasurer ? body.idTreasurer : null,
                         IDEstablishment: body.idEstablishment ? body.idEstablishment : null,
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
-                        // IDPartner: body.idCustomer ? body.idCustomer : null,
-                        Undefined: body.isUndefined ? body.isUndefined : null,
+                        // Undefined: body.isUndefined ? body.isUndefined : null,
                     }
                     body.object = JSON.parse(body.object)
                     if (body.object.type == 'staff')
