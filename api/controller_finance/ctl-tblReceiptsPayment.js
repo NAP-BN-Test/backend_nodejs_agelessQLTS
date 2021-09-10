@@ -993,7 +993,11 @@ module.exports = {
                     } else {
                         automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
                     }
-                    let unpaidAmount = body.amount ? (Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
+                    let unpaidAmount = 0;
+                    if ((Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) > 0) {
+                        unpaidAmount = body.amount ? (Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
+                    }
+                    console.log(unpaidAmount);
                     let objCreate = {
                         Type: body.type ? body.type : '',
                         RPType: body.rpType ? body.rpType : '',
@@ -1019,7 +1023,7 @@ module.exports = {
                         //  số tiền chưa dùng
                         UnpaidAmount: unpaidAmount,
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
-                        Unknown: body.isUndefined ? body.isUndefined : null,
+                        Unknown: unpaidAmount == 0 ? true : false,
                         ExchangeRate: body.exchangeRate ? body.exchangeRate : 0,
                     }
                     body.object = JSON.parse(body.object)
@@ -1029,11 +1033,6 @@ module.exports = {
                         objCreate['IDPartner'] = body.object.id
                     else
                         objCreate['IDCustomer'] = body.object.id
-                    if (unpaidAmount == 0) {
-                        objCreate['Undefined'] = false;
-                    } else {
-                        objCreate['Undefined'] = true;
-                    }
                     mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         if (body.assetLiquidationIDs) {
                             body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)

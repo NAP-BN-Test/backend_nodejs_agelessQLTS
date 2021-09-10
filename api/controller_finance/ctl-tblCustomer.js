@@ -752,7 +752,7 @@ module.exports = {
                                 }
                             }).then(data => {
                                 data.forEach(item => {
-                                    totalUndefind += Number(item.Amount);
+                                    totalUndefind += Number(item.UnpaidAmount);
                                 })
                             })
                             console.log(arrayInvoice);
