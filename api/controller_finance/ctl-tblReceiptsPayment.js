@@ -994,11 +994,9 @@ module.exports = {
                         automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
                     }
                     let unpaidAmount = 0;
-                    if ((Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) > 0) {
-                        unpaidAmount = body.amount ? (Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
-                    }
+                    unpaidAmount = body.amount ? Math.abs(Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
+                    console.log(unpaidAmount, unpaidAmount == 0 ? true : false);
                     let paidAmount = body.amountInvCre ? body.amountInvCre : 0;
-                    console.log(unpaidAmount);
                     let objCreate = {
                         Type: body.type ? body.type : '',
                         RPType: body.rpType ? body.rpType : '',
@@ -1024,7 +1022,7 @@ module.exports = {
                         //  số tiền chưa dùng
                         UnpaidAmount: paidAmount != 0 ? unpaidAmount : (body.amount ? body.amount : 0),
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
-                        Unknown: unpaidAmount == 0 ? true : false,
+                        Unknown: unpaidAmount == 0 ? false : true,
                         ExchangeRate: body.exchangeRate ? body.exchangeRate : 0,
                     }
                     body.object = JSON.parse(body.object)
