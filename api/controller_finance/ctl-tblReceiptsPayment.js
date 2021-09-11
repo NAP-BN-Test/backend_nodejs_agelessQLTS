@@ -1675,7 +1675,7 @@ module.exports = {
                             for (var i = 0; i < data.length; i++) {
                                 await mtblReceiptsPayment(db).findAll({
                                     attributes: [
-                                        [Sequelize.fn('SUM', Sequelize.col('Amount')), 'total_amount'],
+                                        [Sequelize.fn('SUM', Sequelize.col('UnpaidAmount')), 'total_amount'],
                                     ],
                                     // group: ['ID', 'Unknown', 'Withdrawal', 'InitialAmount', 'PaidAmount', 'UnpaidAmount', 'VoucherDate', 'VoucherNumber', 'IDManager', 'Reason', 'AmountWords', 'Amount', 'Address', 'IDCustomer', 'Date', 'IDCurrency', 'CodeNumber', 'Type'],
                                     where: {
@@ -1767,7 +1767,7 @@ module.exports = {
                             for (var i = 0; i < data.length; i++) {
                                 await mtblReceiptsPayment(db).findAll({
                                     attributes: [
-                                        [Sequelize.fn('SUM', Sequelize.col('Amount')), 'total_amount'],
+                                        [Sequelize.fn('SUM', Sequelize.col('UnpaidAmount')), 'total_amount'],
                                     ],
                                     // group: ['ID', 'Unknown', 'Withdrawal', 'InitialAmount', 'PaidAmount', 'UnpaidAmount', 'VoucherDate', 'VoucherNumber', 'IDManager', 'Reason', 'AmountWords', 'Amount', 'Address', 'IDCustomer', 'Date', 'IDCurrency', 'CodeNumber', 'Type'],
                                     where: {
