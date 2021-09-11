@@ -997,6 +997,7 @@ module.exports = {
                     if ((Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) > 0) {
                         unpaidAmount = body.amount ? (Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
                     }
+                    let paidAmount = body.amountInvCre ? body.amountInvCre : 0;
                     console.log(unpaidAmount);
                     let objCreate = {
                         Type: body.type ? body.type : '',
@@ -1019,9 +1020,9 @@ module.exports = {
                         // Số tiền ban đầu
                         InitialAmount: body.amount ? body.amount : null,
                         // số tiền đã dùng
-                        PaidAmount: body.amountInvCre ? body.amountInvCre : 0,
+                        PaidAmount: paidAmount,
                         //  số tiền chưa dùng
-                        UnpaidAmount: body.amountInvCre ? unpaidAmount : (body.amount ? body.amount : 0),
+                        UnpaidAmount: paidAmount != 0 ? unpaidAmount : (body.amount ? body.amount : 0),
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
                         Unknown: unpaidAmount == 0 ? true : false,
                         ExchangeRate: body.exchangeRate ? body.exchangeRate : 0,
