@@ -1021,7 +1021,7 @@ module.exports = {
                         // số tiền đã dùng
                         PaidAmount: body.amountInvCre ? body.amountInvCre : 0,
                         //  số tiền chưa dùng
-                        UnpaidAmount: unpaidAmount,
+                        UnpaidAmount: body.amountInvCre ? unpaidAmount : (body.amount ? body.amount : 0),
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
                         Unknown: unpaidAmount == 0 ? true : false,
                         ExchangeRate: body.exchangeRate ? body.exchangeRate : 0,
