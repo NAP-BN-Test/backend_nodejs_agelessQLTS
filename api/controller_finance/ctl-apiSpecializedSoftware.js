@@ -235,14 +235,16 @@ dataCredit = [{
     invoiceNumber: 'INV0001',
     total: '1000000',
     statusName: 'Chờ thanh toám',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0001',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu Xóa',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 102,
@@ -250,14 +252,16 @@ dataCredit = [{
     invoiceNumber: 'INV0002',
     total: '1200000',
     statusName: 'Chờ thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0002',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 103,
@@ -265,14 +269,16 @@ dataCredit = [{
     invoiceNumber: 'INV0003',
     total: '1300000',
     statusName: 'Đã thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0003',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu xóa',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 104,
@@ -280,14 +286,16 @@ dataCredit = [{
     invoiceNumber: 'INV0004',
     total: '1400000',
     statusName: 'Đã thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0004',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu sửa',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 105,
@@ -295,14 +303,16 @@ dataCredit = [{
     invoiceNumber: 'INV0005',
     total: '1500000',
     statusName: 'Chờ thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0005',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 106,
@@ -310,14 +320,16 @@ dataCredit = [{
     invoiceNumber: 'INV0006',
     total: '1600000',
     statusName: 'Chờ thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0006',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 107,
@@ -325,14 +337,16 @@ dataCredit = [{
     invoiceNumber: 'INV0007',
     total: '1700000',
     statusName: 'Đã thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0007',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu xóa',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 108,
@@ -340,14 +354,16 @@ dataCredit = [{
     invoiceNumber: 'INV0008',
     total: '1800000',
     statusName: 'Chờ thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0008',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 109,
@@ -355,14 +371,16 @@ dataCredit = [{
     invoiceNumber: 'INV0009',
     total: '1900000',
     statusName: 'Chờ thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0009',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: '',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 {
     id: 110,
@@ -370,14 +388,16 @@ dataCredit = [{
     invoiceNumber: 'INV0010',
     total: '12000000',
     statusName: 'Đã thanh toán',
-    idCustomer: 1,
+    idCustomer: 10,
     creditNumber: 'CRE0010',
     typeMoney: 'VND',
-    customerName: 'Công ty tnhh An Phú',
+    customerName: 'Công ty tnhh Hòa Phát',
     employeeName: 'Lê Thị Thảo',
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu sửa',
+    accountingDebt: '331',
+    accountingCredit: '642',
 },
 ]
 dataStaff = [
@@ -1114,7 +1134,7 @@ module.exports = {
             if (db) {
                 if (data) {
                     // if (data.data.status_code == 200) {
-                    if (body.idCustomer != '1') {
+                    if (body.idCustomer != '1' && body.idCustomer != '10') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,
@@ -1360,7 +1380,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (dataCredit) {
-                    if (body.idCustomer != '1') {
+                    if (body.idCustomer != '1' && body.idCustomer != '10') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,
@@ -1422,7 +1442,7 @@ module.exports = {
             if (db) {
                 let array = []
                 if (dataCredit) {
-                    if (body.idCustomer != '1') {
+                    if (body.idCustomer != '1' && body.idCustomer != '10') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,
@@ -1487,7 +1507,7 @@ module.exports = {
             if (db) {
                 let array = []
                 if (dataCredit) {
-                    if (body.idCustomer != '1') {
+                    if (body.idCustomer != '1' && body.idCustomer != '10') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,

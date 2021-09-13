@@ -663,7 +663,6 @@ module.exports = {
     // add_tbl_credit_debt_notices
     addtblCreditDebtnotices: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -692,6 +691,7 @@ module.exports = {
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
                         // Undefined: body.isUndefined ? body.isUndefined : null,
                     }
+                    console.log(objCreate);
                     body.object = JSON.parse(body.object)
                     if (body.object.type == 'staff')
                         objCreate['IDStaff'] = body.object.id

@@ -375,8 +375,8 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            creditIncurred: item.CreditIncurred ? item.CreditIncurred : null,
-                                            debtIncurred: item.DebtIncurred ? item.DebtIncurred : null,
+                                            creditIncurred: data[i].CreditIncurred ? data[i].CreditIncurred : null,
+                                            debtIncurred: data[i].DebtIncurred ? data[i].DebtIncurred : null,
                                             debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
                                             creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
                                         }
