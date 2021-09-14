@@ -1134,7 +1134,7 @@ module.exports = {
             if (db) {
                 if (data) {
                     // if (data.data.status_code == 200) {
-                    if (body.idCustomer != '1' && body.idCustomer != '10') {
+                    if (body.idCustomer != '1') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,
@@ -1380,7 +1380,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (dataCredit) {
-                    if (body.idCustomer != '1' && body.idCustomer != '10') {
+                    if (body.idCustomer != '10') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,
@@ -1442,7 +1442,7 @@ module.exports = {
             if (db) {
                 let array = []
                 if (dataCredit) {
-                    if (body.idCustomer != '1' && body.idCustomer != '10') {
+                    if (body.idCustomer != '10') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,
@@ -1507,7 +1507,7 @@ module.exports = {
             if (db) {
                 let array = []
                 if (dataCredit) {
-                    if (body.idCustomer != '1' && body.idCustomer != '10') {
+                    if (body.idCustomer != '10') {
                         var result = {
                             array: [],
                             status: Constant.STATUS.SUCCESS,
