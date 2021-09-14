@@ -1150,7 +1150,7 @@ module.exports = {
                                 where: { IDSpecializedSoftware: data[i].id }
                             })
                             let totalMoneyVND = 0
-                            let = arrayExchangeRate = []
+                            let arrayExchangeRate = []
                             for (let m = 0; m < data[i].arrayMoney.length; m++) {
                                 totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                                 arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
