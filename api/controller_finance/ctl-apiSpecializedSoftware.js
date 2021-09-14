@@ -1081,16 +1081,16 @@ module.exports = {
                         type: 'customer',
                     })
                 }
-                for (p = 0; p < dataPartner.length; p++) {
-                    array.push({
-                        name: dataPartner[p].name,
-                        code: dataPartner[p].partnerCode,
-                        displayName: '[' + dataPartner[p].partnerCode + '] ' + dataPartner[p].name,
-                        address: dataPartner[p].address,
-                        id: dataPartner[p].id,
-                        type: 'partner',
-                    })
-                }
+                // for (p = 0; p < dataPartner.length; p++) {
+                //     array.push({
+                //         name: dataPartner[p].name,
+                //         code: dataPartner[p].partnerCode,
+                //         displayName: '[' + dataPartner[p].partnerCode + '] ' + dataPartner[p].name,
+                //         address: dataPartner[p].address,
+                //         id: dataPartner[p].id,
+                //         type: 'partner',
+                //     })
+                // }
                 await mtblDMNhanvien(db).findAll().then(data => {
                     data.forEach(element => {
                         array.push({
@@ -1211,85 +1211,98 @@ module.exports = {
         //         if (data.data.status_code == 200) {
         database.connectDatabase().then(async db => {
             if (db) {
-                var array = []
-                var arrayCreate = []
-                let totalMoney = []
-                let arrayInvoice = []
-                if (body.idReceiptPayment) {
+                if (body.idCustomer != '1') {
+                    var result = {
+                        arrayCreate: [],
+                        arrayUpdate: [],
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: 0,
+                        totalMoney: 0,
+                        totalMoneyVND: 0,
+                    }
+                    res.json(result);
+                } else {
+                    var array = []
+                    var arrayCreate = []
+                    let totalMoney = []
+                    let arrayInvoice = []
+                    if (body.idReceiptPayment) {
 
-                    await mtblReceiptsPayment(db).findOne({
-                        where: {
-                            ID: body.idReceiptPayment
-                        }
-                    }).then(async data => {
-                        await mtblPaymentRInvoice(db).findAll({
+                        await mtblReceiptsPayment(db).findOne({
                             where: {
-                                IDPayment: data.ID
+                                ID: body.idReceiptPayment
                             }
-                        }).then(invoice => {
-                            invoice.forEach(element => {
-                                arrayInvoice.push(Number(element.IDSpecializedSoftware))
+                        }).then(async data => {
+                            await mtblPaymentRInvoice(db).findAll({
+                                where: {
+                                    IDPayment: data.ID
+                                }
+                            }).then(invoice => {
+                                invoice.forEach(element => {
+                                    arrayInvoice.push(Number(element.IDSpecializedSoftware))
+                                })
                             })
                         })
-                    })
-                }
-                for (var i = 0; i < data.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: data[i].id }
-                    })
-                    let totalMoneyVND = 0
-                    let = arrayExchangeRate = []
-                    for (let m = 0; m < data[i].arrayMoney.length; m++) {
-                        arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                     }
-                    data[i]['totalMoneyVND'] = totalMoneyVND
-                    data[i]['totalMoneyDisplay'] = totalMoneyVND
-                    data[i]['typeMoney'] = 'VND'
-                    data[i]['arrayExchangeRate'] = arrayExchangeRate
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: data[i].id,
-                            Status: data[i].statusName
+                    for (var i = 0; i < data.length; i++) {
+                        let check = await mtblInvoice(db).findOne({
+                            where: { IDSpecializedSoftware: data[i].id }
                         })
-                        if (data[i].statusName == 'Chờ thanh toán') {
-                            array.push(data[i])
-                            arrayCreate.push(data[i])
+                        let totalMoneyVND = 0
+                        let = arrayExchangeRate = []
+                        for (let m = 0; m < data[i].arrayMoney.length; m++) {
+                            arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
+                            totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                         }
-                        else {
-                            console.log(arrayInvoice, data[i].id);
-                            if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                        data[i]['totalMoneyVND'] = totalMoneyVND
+                        data[i]['totalMoneyDisplay'] = totalMoneyVND
+                        data[i]['typeMoney'] = 'VND'
+                        data[i]['arrayExchangeRate'] = arrayExchangeRate
+                        if (!check) {
+                            await mtblInvoice(db).create({
+                                IDSpecializedSoftware: data[i].id,
+                                Status: data[i].statusName
+                            })
+                            if (data[i].statusName == 'Chờ thanh toán') {
                                 array.push(data[i])
-
+                                arrayCreate.push(data[i])
                             }
-                        }
-                    } else {
-                        if (check.Status == 'Chờ thanh toán') {
-                            array.push(data[i])
-                            arrayCreate.push(data[i])
-                        }
-                        else {
-                            if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                            else {
+                                console.log(arrayInvoice, data[i].id);
+                                if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                                    array.push(data[i])
+
+                                }
+                            }
+                        } else {
+                            if (check.Status == 'Chờ thanh toán') {
                                 array.push(data[i])
+                                arrayCreate.push(data[i])
+                            }
+                            else {
+                                if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                                    array.push(data[i])
+                                }
                             }
                         }
                     }
+                    totalMoney = await calculateTheTotalAmountOfEachCurrency(arrayCreate)
+                    let totalMoneyVND = 0
+                    for (let a = 0; a < totalMoney.length; a++) {
+                        totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                    }
+                    var result = {
+                        arrayCreate: arrayCreate,
+                        arrayUpdate: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: 10,
+                        totalMoney: totalMoney,
+                        totalMoneyVND: totalMoneyVND,
+                    }
+                    res.json(result);
                 }
-                totalMoney = await calculateTheTotalAmountOfEachCurrency(arrayCreate)
-                let totalMoneyVND = 0
-                for (let a = 0; a < totalMoney.length; a++) {
-                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                }
-                var result = {
-                    arrayCreate: arrayCreate,
-                    arrayUpdate: array,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                    totalMoneyVND: totalMoneyVND,
-                }
-                res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
 
@@ -1429,7 +1442,6 @@ module.exports = {
     // get_list_credit_wait_for_pay_from_customer
     getListCreditWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
