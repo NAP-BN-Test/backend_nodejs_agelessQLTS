@@ -669,18 +669,12 @@ module.exports = {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
-                    var voucherNumber = '';
-                    if (body.type == 'spending') {
-                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBC', 'spending')
-                    } else {
-                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBN', 'debit')
-                    }
                     let objCreate = {
                         Type: body.type ? body.type : '',
                         ApplicantReceiverName: body.applicantReceiverName ? body.applicantReceiverName : '',
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
-                        VoucherNumber: voucherNumber,
+                        VoucherNumber: body.voucherNumber ? body.voucherNumber : 'GBN/GBC',
                         Amount: body.amount ? body.amount : null,
                         AmountWords: body.amountWords ? body.amountWords : '',
                         Reason: body.reason ? body.reason : '',
@@ -691,7 +685,6 @@ module.exports = {
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
                         // Undefined: body.isUndefined ? body.isUndefined : null,
                     }
-                    console.log(objCreate);
                     body.object = JSON.parse(body.object)
                     if (body.object.type == 'staff')
                         objCreate['IDStaff'] = body.object.id
@@ -1066,6 +1059,63 @@ module.exports = {
                         res.json(result);
                     })
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_automatically_increasing_voucher_number_credit_debt_notices
+    getAutomaticallyIncreasingVoucherNumberCDN: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var voucherNumber = '';
+                    if (body.type == 'spending') {
+                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBC', 'spending')
+                    } else {
+                        voucherNumber = await mModules.automaticCode(mtblCreditDebtnotices(db), 'VoucherNumber', 'GBN', 'debit')
+                    }
+                    var result = {
+                        voucherNumber: voucherNumber,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // check_duplicate_voucher_number_credit_debt_notices
+    checkDuplicateVoucherNumberCDN: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var check = false;
+                    if (body.voucherNumber)
+                        await mtblCreditDebtnotices(db).findOne({
+                            where: { VoucherNumber: body.voucherNumber }
+                        }).then(data => {
+                            if (data) {
+                                check = true
+                            }
+                        })
+                    var result = {
+                        check: check,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

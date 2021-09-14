@@ -952,6 +952,7 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
+        console.log(body);
         var listUndefinedID = []
         var listInvoiceID = []
         if (body.listUndefinedID)
@@ -964,44 +965,14 @@ module.exports = {
             if (db) {
                 try {
                     await createRate(db, body.exchangeRate, body.idCurrency)
-                    if (body.voucherNumber)
-                        var check = await mtblReceiptsPayment(db).findOne({
-                            where: { VoucherNumber: body.voucherNumber }
-                        })
-                    if (check) {
-                        var result = {
-                            status: Constant.STATUS.FAIL,
-                            message: "Số chứng từ đã tồn tại",
-                        }
-                        res.json(result);
-                        return
-                    }
-                    var check = await mtblReceiptsPayment(db).findOne({
-                        order: [
-                            ['CodeNumber', 'DESC']
-                        ],
-                        where: {
-                            Type: body.type,
-                        }
-                    })
-                    var automaticCode = 'PT0001';
-                    if (!check && body.type == 'receipt') {
-                        codeNumber = 'PT0001'
-                    } else if (!check && body.type == 'payment') {
-                        automaticCode = 'PC0001'
-                        codeNumber = 'PC0001'
-                    } else {
-                        automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
-                    }
                     let unpaidAmount = 0;
                     unpaidAmount = body.amount ? Math.abs(Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
-                    console.log(unpaidAmount, unpaidAmount == 0 ? true : false);
                     let paidAmount = body.amountInvCre ? body.amountInvCre : 0;
                     let objCreate = {
                         Type: body.type ? body.type : '',
                         RPType: body.rpType ? body.rpType : '',
                         ApplicantReceiverName: body.applicantReceiverName ? body.applicantReceiverName : '',
-                        CodeNumber: automaticCode,
+                        CodeNumber: body.voucherNumber ? body.voucherNumber : 'PT/PC',
                         IDCurrency: body.idCurrency ? body.idCurrency : null,
                         Date: body.date ? body.date : null,
                         Address: body.address ? body.address : '',
@@ -1013,7 +984,7 @@ module.exports = {
                         IDTreasurer: body.idTreasurer ? body.idTreasurer : null,
                         IDEstablishment: body.idEstablishment ? body.idEstablishment : null,
                         IDSubmitter: body.idSubmitter ? body.idSubmitter : null,
-                        VoucherNumber: body.voucherNumber ? body.voucherNumber : null,
+                        VoucherNumber: body.voucherNumber ? body.voucherNumber : 'PT/PC',
                         VoucherDate: body.voucherDate ? body.voucherDate : null,
                         // Số tiền ban đầu
                         InitialAmount: body.amount ? body.amount : null,
@@ -1052,7 +1023,7 @@ module.exports = {
                             })
 
                         }
-                        await createAccountingBooks(db, listCredit, listDebit, data.ID, body.reason ? body.reason : '', automaticCode)
+                        await createAccountingBooks(db, listCredit, listDebit, data.ID, body.reason ? body.reason : '', body.voucherNumber)
                         if (body.loanAdvanceIDs) {
                             body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
                             await createLoanAdvances(db, data.ID, body.loanAdvanceIDs, body.type)
@@ -1215,8 +1186,10 @@ module.exports = {
                     update.push({ key: 'Unknown', value: body.isUndefined });
                     if (body.withdrawal || body.withdrawal === '')
                         update.push({ key: 'Withdrawal', value: body.withdrawal });
-                    if (body.voucherNumber || body.voucherNumber === '')
+                    if (body.voucherNumber || body.voucherNumber === '') {
                         update.push({ key: 'VoucherNumber', value: body.voucherNumber });
+                        update.push({ key: 'CodeNumber', value: body.voucherNumber });
+                    }
                     if (body.address || body.address === '')
                         update.push({ key: 'Address', value: body.address });
                     if (body.amountWords || body.amountWords === '')
@@ -1802,6 +1775,75 @@ module.exports = {
                         res.json(result);
                     })
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_automatically_increasing_voucher_number
+    getAutomaticallyIncreasingVoucherNumber: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var check = await mtblReceiptsPayment(db).findOne({
+                        where: { Type: body.type },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    })
+                    var automaticCode = 'PT0001';
+                    if (!check && body.type == 'receipt') {
+                        automaticCode = 'PT0001'
+                    } else if (!check && body.type == 'payment') {
+                        automaticCode = 'PC0001'
+                    } else {
+                        automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
+                    }
+                    var result = {
+                        voucherNumber: automaticCode,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // check_duplicate_voucher_number
+    checkDuplicateVoucherNumber: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var check = false;
+                    let where = {}
+                    if (body.voucherNumber)
+                        where['VoucherNumber'] = body.voucherNumber
+                    if (body.id)
+                        where['ID'] = { [Op.ne]: body.id }
+                    await mtblReceiptsPayment(db).findOne({
+                        where: where
+                    }).then(data => {
+                        if (data) {
+                            check = true
+                        }
+                    })
+                    var result = {
+                        check: check,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

@@ -577,6 +577,8 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_name_tbl_receipts_payment').post(tblReceiptsPayment.getListNametblReceiptsPayment);
     app.route('/qlnb/get_list_receipts_payment_unknown').post(tblReceiptsPayment.getListReceiptsPaymentUnknown);
     app.route('/qlnb/get_list_receipts_payment_unknown_customer_menu').post(tblReceiptsPayment.getListReceiptsPaymentUnknownFromCustomer);
+    app.route('/qlnb/get_automatically_increasing_voucher_number').post(tblReceiptsPayment.getAutomaticallyIncreasingVoucherNumber);
+    app.route('/qlnb/check_duplicate_voucher_number').post(tblReceiptsPayment.checkDuplicateVoucherNumber);
 
     // Danh sách giấy báo nợ/ có
     var tblCreditDebtnotices = require('./controller_finance/ctl-tblCreditDebtnotices')
@@ -585,6 +587,8 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_credit_debt_notices').post(tblCreditDebtnotices.updatetblCreditDebtnotices);
     app.route('/qlnb/get_list_tbl_credit_debt_notices').post(tblCreditDebtnotices.getListtblCreditDebtnotices);
     app.route('/qlnb/delete_tbl_credit_debt_notices').post(tblCreditDebtnotices.deletetblCreditDebtnotices);
+    app.route('/qlnb/get_automatically_increasing_voucher_number_credit_debt_notices').post(tblCreditDebtnotices.getAutomaticallyIncreasingVoucherNumberCDN);
+    app.route('/qlnb/check_duplicate_voucher_number_credit_debt_notices').post(tblCreditDebtnotices.checkDuplicateVoucherNumberCDN);
 
     var tblAccountingBooks = require('./controller_finance/ctl-tblAccountingBooks')
     app.route('/qlnb/get_list_tbl_accounting_books').post(tblAccountingBooks.getListtblAccountingBooks);

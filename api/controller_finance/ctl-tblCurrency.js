@@ -223,7 +223,7 @@ module.exports = {
                                 }
                             }).then(Rate => {
                                 if (Rate)
-                                    rateNow = Rate.ExchangeRate
+                                    rateNow = Rate.ExchangeRate ? Rate.ExchangeRate : 1
                             })
                             var obj = {
                                 stt: stt,
