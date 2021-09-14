@@ -23,8 +23,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu Xóa',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 102,
@@ -40,8 +40,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: '',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 103,
@@ -57,8 +57,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu xóa',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 104,
@@ -74,8 +74,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu sửa',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 105,
@@ -91,8 +91,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: '',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 106,
@@ -108,8 +108,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: '',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 107,
@@ -125,8 +125,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu xóa',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 108,
@@ -142,8 +142,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: '',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 109,
@@ -159,8 +159,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: '',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 {
     id: 110,
@@ -176,8 +176,8 @@ dataCredit = [{
     idEmployee: 1,
     content: 'test 01',
     request: 'Yêu cầu sửa',
-    accountingDebt: '331',
-    accountingCredit: '642',
+    accountingCredit: '331',
+    accountingDebt: '642',
 },
 ]
 dataInvoice = [{
@@ -513,8 +513,8 @@ async function getCreditWaitPay(db, objWaitForPay, stt) {
         number: objWaitForPay.invoiceNumber,
         reason: 'Chưa trả cho ' + objWaitForPay.customerName,
         idAccounting: objWaitForPay.invoiceID ? objWaitForPay.invoiceID : null,
-        creditIncurred: 0,
-        debtIncurred: objWaitForPay.total,
+        creditIncurred: objWaitForPay.total,
+        debtIncurred: 0,
         debtSurplus: 0, // số dư phải tính
         creaditSurplus: 0,
     }
@@ -923,10 +923,10 @@ module.exports = {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit)
                             for (credit of arrayCredit) {
                                 let objWaitForPay = await getCreditWaitPay(db, credit, stt)
-                                totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
-                                totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
-                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
-                                totalDebtSurplus += (objWaitForPay.debtSurplus ? objWaitForPay.debtSurplus : 0);
+                                totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
+                                totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
+                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
+                                totalDebtSurplus += (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0);
                                 array.push(objWaitForPay);
                                 stt += 1;
                             }
