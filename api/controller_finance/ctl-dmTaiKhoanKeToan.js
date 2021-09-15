@@ -86,7 +86,7 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
             IDLevelAbove: idLevelAbove,
         },
         order: [
-            ['ID', 'DESC']
+            ['AccountingCode', 'ASC']
         ],
     }).then(data => {
         for (var i = 0; i < data.length; i++) {
@@ -383,7 +383,6 @@ module.exports = {
                                 whereObj[Op.not] = arraySearchNot
                         }
                     }
-                    console.log(whereObj);
                     let stt = 1;
                     let yearStart = Number(moment().format('YYYY'));
                     let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
@@ -400,7 +399,7 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         order: [
-                            ['ID', 'ASC']
+                            ['AccountingCode', 'ASC']
                         ],
                     }).then(async data => {
                         var array = [];
