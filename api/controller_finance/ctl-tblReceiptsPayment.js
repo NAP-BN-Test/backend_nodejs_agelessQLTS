@@ -1137,6 +1137,7 @@ module.exports = {
     // update_tbl_receipts_payment
     updatetblReceiptsPayment: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1184,6 +1185,15 @@ module.exports = {
                         await updateLoanAdvances(db, body.id, body.loanAdvanceIDs)
                     }
                     await createAccountingBooks(db, listCredit, listDebit, body.id, body.reason ? body.reason : '', null)
+                    if (body.amountInvCre || body.amountInvCre === '') {
+                        let unpaidAmount = 0;
+                        if (Number(body.amountInvCre ? body.amountInvCre : 0) < Number(body.amount))
+                            unpaidAmount = body.amount ? Math.abs(Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
+                        let paidAmount = body.amountInvCre ? body.amountInvCre : 0;
+                        update.push({ key: 'InitialAmount', value: (body.amount ? body.amount : null) });
+                        update.push({ key: 'PaidAmount', value: paidAmount });
+                        update.push({ key: 'UnpaidAmount', value: (paidAmount != 0 ? unpaidAmount : (body.amount ? body.amount : 0)) });
+                    }
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
                     if (body.applicantReceiverName || body.applicantReceiverName === '')
@@ -1597,7 +1607,7 @@ module.exports = {
                             [Op.or]: [{
                                 [Op.and]: {
                                     IDCustomer: body.idCustomer,
-                                    Unknown: true,
+                                    UnpaidAmount: { [Op.ne]: 0 },
                                 }
                             }, {
                                 ID: {
@@ -1657,7 +1667,6 @@ module.exports = {
                                     // group: ['ID', 'Unknown', 'Withdrawal', 'InitialAmount', 'PaidAmount', 'UnpaidAmount', 'VoucherDate', 'VoucherNumber', 'IDManager', 'Reason', 'AmountWords', 'Amount', 'Address', 'IDCustomer', 'Date', 'IDCurrency', 'CodeNumber', 'Type'],
                                     where: {
                                         IDCurrency: data[i].ID,
-                                        Unknown: true,
                                         IDCustomer: body.idCustomer,
                                     }
                                 }).then(payment => {
@@ -1749,7 +1758,6 @@ module.exports = {
                                     // group: ['ID', 'Unknown', 'Withdrawal', 'InitialAmount', 'PaidAmount', 'UnpaidAmount', 'VoucherDate', 'VoucherNumber', 'IDManager', 'Reason', 'AmountWords', 'Amount', 'Address', 'IDCustomer', 'Date', 'IDCurrency', 'CodeNumber', 'Type'],
                                     where: {
                                         IDCurrency: data[i].ID,
-                                        Unknown: true,
                                         IDCustomer: body.idCustomer,
                                     }
                                 }).then(payment => {
