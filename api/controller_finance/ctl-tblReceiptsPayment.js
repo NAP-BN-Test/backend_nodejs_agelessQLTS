@@ -1736,7 +1736,7 @@ module.exports = {
                                 fullNameCurrency: data[i].currency ? data[i].currency.FullName : 0,
                                 type: "Phiếu thu",
                             }
-                            array.push(obj);
+                            array.unshift(obj);
                             stt += 1;
                         }
                         let arrayAmountMoney = []
