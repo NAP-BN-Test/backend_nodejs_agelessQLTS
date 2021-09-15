@@ -768,7 +768,7 @@ module.exports = {
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
                                     IDCustomer: array[i].id,
-                                    Unknown: true,
+                                    UnpaidAmount: { [Op.ne]: 0 },
                                 }
                             }).then(data => {
                                 data.forEach(item => {
@@ -999,7 +999,7 @@ module.exports = {
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
                                     IDCustomer: array[i].id,
-                                    Unknown: true,
+                                    UnpaidAmount: { [Op.ne]: 0 },
                                 }
                             }).then(data => {
                                 data.forEach(item => {

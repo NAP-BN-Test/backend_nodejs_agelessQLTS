@@ -966,7 +966,8 @@ module.exports = {
                 try {
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     let unpaidAmount = 0;
-                    unpaidAmount = body.amount ? Math.abs(Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
+                    if (Number(body.amountInvCre ? body.amountInvCre : 0) < Number(body.amount))
+                        unpaidAmount = body.amount ? Math.abs(Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
                     let paidAmount = body.amountInvCre ? body.amountInvCre : 0;
                     let objCreate = {
                         Type: body.type ? body.type : '',
@@ -1704,7 +1705,7 @@ module.exports = {
                     tblReceiptsPayment.findAll({
                         where: {
                             IDCustomer: body.idCustomer,
-                            Unknown: true,
+                            UnpaidAmount: { [Op.ne]: 0 },
                         },
                         order: [
                             ['ID', 'DESC']
