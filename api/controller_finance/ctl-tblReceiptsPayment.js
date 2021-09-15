@@ -1054,7 +1054,10 @@ module.exports = {
                                 await mtblReceiptsPayment(db).findOne({
                                     where: {
                                         ID: listUndefinedID[i]
-                                    }
+                                    },
+                                    order: [
+                                        ['ID', 'DESC']
+                                    ],
                                 }).then(async paymentR => {
                                     // Trường hợp nếu tiền rút lớn hơn hoặc bằng số tiền chưa thanh toán
                                     if (withdrawalMoney > paymentR.UnpaidAmount) {
@@ -1617,7 +1620,6 @@ module.exports = {
                         for (var i = 0; i < data.length; i++) {
                             let amount = 0;
                             if (body.receiptID) {
-                                console.log(1234);
                                 await mtblPaymentRPayment(db).findOne({
                                     where: {
                                         IDPaymentR: data[i].ID,
@@ -1642,7 +1644,7 @@ module.exports = {
                                 fullNameCurrency: data[i].currency ? data[i].currency.FullName : 0,
                                 type: "Phiếu thu",
                             }
-                            array.push(obj);
+                            array.unshift(obj);
                             stt += 1;
                         }
                         let arrayAmountMoney = []
