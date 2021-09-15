@@ -1449,11 +1449,12 @@ module.exports = {
             },
             "type": body.type
         }
-        // console.log(body);
+        console.log(body, 123456);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
                 let array = []
+                let updateArr = []
                 if (dataCredit) {
                     if (body.idCustomer != '10') {
                         var result = {
@@ -1464,6 +1465,16 @@ module.exports = {
                             totalMoney: [],
                         }
                     } else {
+                        let arrayUpdate = []
+                        await mtblPaymentRInvoice(db).findAll({
+                            where: {
+                                IDPayment: body.idReceiptPayment
+                            }
+                        }).then(data => {
+                            for (item of data) {
+                                arrayUpdate.push(Number(item.IDSpecializedSoftware))
+                            }
+                        })
                         for (let i = 0; i < dataCredit.length; i++) {
                             dataCredit[i]['totalMoneyVND'] = dataCredit[i].total
                             dataCredit[i]['totalMoneyDisplay'] = dataCredit[i].total
@@ -1478,17 +1489,21 @@ module.exports = {
                                 })
                                 if (dataCredit[i].statusName == 'Chờ thanh toán')
                                     array.push(dataCredit[i])
+                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)))
+                                    updateArr.push(dataCredit[i])
                             } else {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
                                 if (check.Status == 'Chờ thanh toán')
                                     array.push(dataCredit[i])
+                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)))
+                                    updateArr.push(dataCredit[i])
                             }
                         }
-                        console.log(array);
                         let totalMoney = await calculateTheTotalForCredit(array)
                         var result = {
-                            array: array,
+                            arrayCreate: array,
+                            arrayUpdate: updateArr,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: 10,
