@@ -766,6 +766,7 @@ async function getDetailPartner(id) {
     return obj
 
 }
+
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
