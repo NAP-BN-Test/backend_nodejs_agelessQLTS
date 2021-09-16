@@ -1137,7 +1137,6 @@ module.exports = {
     // update_tbl_receipts_payment
     updatetblReceiptsPayment: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1147,14 +1146,14 @@ module.exports = {
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
                     var withdrawalMoney = Number(body.withdrawal);
-                    var check = await checkUpdateError(db, listUndefinedID, withdrawalMoney)
-                    if (!check) {
-                        var result = {
-                            status: Constant.STATUS.FAIL,
-                            message: "Số tiền chọn lớn hơn số tiền rút quỹ. Vui lòng kiểm tra lại!",
-                        }
-                        res.json(result);
-                    }
+                    // var check = await checkUpdateError(db, listUndefinedID, withdrawalMoney)
+                    // if (!check) {
+                    //     var result = {
+                    //         status: Constant.STATUS.FAIL,
+                    //         message: "Số tiền chọn lớn hơn số tiền rút quỹ. Vui lòng kiểm tra lại!",
+                    //     }
+                    //     res.json(result);
+                    // }
                     // return
                     await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
                     await deleteAndCreateAllInvoice(db, body.id, listInvoiceID)
