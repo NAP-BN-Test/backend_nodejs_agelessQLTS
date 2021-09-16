@@ -833,6 +833,10 @@ module.exports = {
                                     }
                                 })
                             }
+                            let clauseType = "Credit"
+                            if (data[i].ClauseType == "Credit") {
+                                clauseType = "Debit"
+                            }
                             await tblAccountingBooks.findAll({
                                 where: {
                                     [Op.and]: [{
@@ -842,6 +846,8 @@ module.exports = {
                                         ID: {
                                             [Op.ne]: data[i].ID
                                         }
+                                    }, {
+                                        ClauseType: clauseType
                                     }
                                     ]
                                 },

@@ -19,6 +19,7 @@ module.exports = function (db) {
         CreaditSurplus: Sequelize.FLOAT,
         IDPayment: Sequelize.BIGINT,
         IDnotices: Sequelize.BIGINT,
+        ClauseType: Sequelize.STRING,
     });
 
     return table;

@@ -375,6 +375,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
             IDPayment: idPayment,
             Reason: reason,
             Number: number,
+            ClauseType: 'Debit',
         })
     }
     for (var j = 0; j < listCredit.length; j++) {
@@ -387,6 +388,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
             IDPayment: idPayment,
             Reason: reason,
             Number: number,
+            ClauseType: 'Credit',
         })
     }
 }

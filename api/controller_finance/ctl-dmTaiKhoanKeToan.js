@@ -291,7 +291,6 @@ module.exports = {
     // get_list_tbl_dm_taikhoanketoan
     getListtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
