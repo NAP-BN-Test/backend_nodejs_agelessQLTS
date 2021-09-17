@@ -151,11 +151,22 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
         }
     })
 }
-async function handleCodeNumber(str) {
+async function handleCodeNumber(str, type) {
     var endCode = '';
-    if (!str)
-        str = 'PT0000'
-    var behind = Number(str.slice(2, 10)) + 1
+    var behind = '';
+    if (type == 'receipt') {
+        automaticCode = 'PT0001'
+        behind = Number(str.slice(2, 10)) + 1
+    } else if (type == 'payment') {
+        automaticCode = 'PC0001'
+        behind = Number(str.slice(2, 10)) + 1
+    } else if (type == 'debit') {
+        automaticCode = 'GBN0001'
+        behind = Number(str.slice(3, 11)) + 1
+    } else if (type == 'spending') {
+        automaticCode = 'GBC0001'
+        behind = Number(str.slice(3, 11)) + 1
+    }
     if (behind < 10)
         endCode = '000' + behind
     if (behind >= 10 && behind < 100)
@@ -165,7 +176,7 @@ async function handleCodeNumber(str) {
     if (behind >= 1000)
         endCode = behind
 
-    return str.slice(0, 2) + endCode
+    return str.slice(0, 3) + endCode
 }
 async function createRate(db, exchangeRate, idCurrency) {
     let check;
@@ -1351,6 +1362,7 @@ module.exports = {
     // get_list_tbl_receipts_payment
     getListtblReceiptsPayment: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1831,7 +1843,7 @@ module.exports = {
                     } else if (!check && body.type == 'spending') {
                         automaticCode = 'GBC0001'
                     } else {
-                        automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
+                        automaticCode = await handleCodeNumber(check ? check.CodeNumber : null, body.type)
                     }
                     var result = {
                         voucherNumber: automaticCode,
