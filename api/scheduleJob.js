@@ -658,7 +658,7 @@ module.exports = {
                 console.log(job);
             } catch (error) {
                 console.log(error);
-                res.json(Result.SYS_ERROR_RESULT)
+                // res.json(Result.SYS_ERROR_RESULT)
             }
         })
 

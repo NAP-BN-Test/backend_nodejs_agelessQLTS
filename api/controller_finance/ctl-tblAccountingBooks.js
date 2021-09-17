@@ -883,14 +883,14 @@ module.exports = {
                                             }
                                         })
                                         if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
-                                            debtSurplus += (openingBalanceDebit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
-                                            creaditSurplus += (openingBalanceCredit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            debtSurplus += (openingBalanceDebit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
-                                            debtSurplus += (openingBalanceDebit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            debtSurplus += (openingBalanceDebit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                             creaditSurplus += 0;
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
                                             debtSurplus += 0;
-                                            creaditSurplus += (openingBalanceCredit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                         } else {
                                             debtSurplus = 0;
                                             creaditSurplus = 0;
@@ -945,14 +945,14 @@ module.exports = {
                             for (invoice of arrayInvoice) {
                                 let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt);
                                 if (checkAccount131 && checkAccount131.TypeClause == 'Biexual') {
-                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
-                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
                                 } else if (checkAccount131 && checkAccount131.TypeClause == 'Debt') {
-                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
                                     creaditSurplus += 0;
                                 } else if (checkAccount131 && checkAccount131.TypeClause == 'Credit') {
                                     debtSurplus += 0;
-                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
                                 } else {
                                     debtSurplus = 0;
                                     creaditSurplus = 0;
@@ -978,14 +978,14 @@ module.exports = {
                             for (credit of arrayCredit) {
                                 let objWaitForPay = await getCreditWaitPay(db, credit, stt)
                                 if (checkAccount331 && checkAccount331.TypeClause == 'Biexual') {
-                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
-                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
+                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
                                 } else if (checkAccount331 && checkAccount331.TypeClause == 'Debt') {
-                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
+                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
                                     creaditSurplus += 0;
                                 } else if (checkAccount331 && checkAccount331.TypeClause == 'Credit') {
                                     debtSurplus += 0;
-                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
                                 } else {
                                     debtSurplus = 0;
                                     creaditSurplus = 0;
@@ -1001,8 +1001,8 @@ module.exports = {
                             }
                         }
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
-                        endingBalanceDebit = openingBalanceDebit != 0 ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : 0
-                        endingBalanceCredit = openingBalanceCredit != 0 ? (openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)) : 0
+                        endingBalanceDebit = openingBalanceDebit != null ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : 0
+                        endingBalanceCredit = openingBalanceCredit != null ? (openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)) : 0
                         var result = {
                             total: {
                                 totalCreditIncurred,
