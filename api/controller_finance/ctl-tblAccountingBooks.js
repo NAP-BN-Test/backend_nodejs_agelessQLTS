@@ -812,8 +812,8 @@ module.exports = {
                         }
                     })
                     arisingPeriod = totalDebtIncurred - totalCreditIncurred;
-                    openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : 0) : 0
-                    openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : 0) : 0
+                    openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : null) : null
+                    openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : null) : null
                     let debtSurplus = openingBalanceDebit;
                     let creaditSurplus = openingBalanceCredit;
                     tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })

@@ -1616,7 +1616,8 @@ module.exports = {
                                 }
                             }
                             ],
-                            ID: { [Op.ne]: (body.receiptID ? body.receiptID : null) }
+                            ID: { [Op.ne]: (body.receiptID ? body.receiptID : null) },
+                            Type: body.type
                         },
                         order: [
                             ['ID', 'DESC']

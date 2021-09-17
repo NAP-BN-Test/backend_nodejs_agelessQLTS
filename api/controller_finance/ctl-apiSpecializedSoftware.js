@@ -1462,7 +1462,6 @@ module.exports = {
     // get_list_credit_wait_for_pay_from_customer
     getListCreditWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1642,7 +1641,6 @@ module.exports = {
     // get_list_invoice_wait_for_pay
     getListInvoiceWaitForPay: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": body.itemPerPage ? body.itemPerPage : 0,
