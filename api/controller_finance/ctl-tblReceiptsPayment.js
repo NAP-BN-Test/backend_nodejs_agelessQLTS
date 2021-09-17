@@ -1811,6 +1811,7 @@ module.exports = {
     // get_automatically_increasing_voucher_number
     getAutomaticallyIncreasingVoucherNumber: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1825,9 +1826,9 @@ module.exports = {
                         automaticCode = 'PT0001'
                     } else if (!check && body.type == 'payment') {
                         automaticCode = 'PC0001'
-                    } else if (!check && body.type == 'spending') {
-                        automaticCode = 'GBN0001'
                     } else if (!check && body.type == 'debit') {
+                        automaticCode = 'GBN0001'
+                    } else if (!check && body.type == 'spending') {
                         automaticCode = 'GBC0001'
                     } else {
                         automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
