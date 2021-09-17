@@ -417,8 +417,8 @@ async function getInvoiceWaitForPayInDB(db, dataRequest) {
             dataRequest[i].statusName = check.Status
             dataRequest[i].request = check.Request
             dataRequest[i]['invoiceID'] = check.ID
-            if (check.Status == 'Chờ thanh toán')
-                array.push(dataRequest[i])
+            // if (check.Status == 'Chờ thanh toán')
+            array.push(dataRequest[i])
         }
     }
     return array;
