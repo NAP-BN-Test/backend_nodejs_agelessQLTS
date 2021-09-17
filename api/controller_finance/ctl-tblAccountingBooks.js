@@ -883,14 +883,14 @@ module.exports = {
                                             }
                                         })
                                         if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
-                                            debtSurplus += (openingBalanceDebit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
-                                            creaditSurplus += (openingBalanceCredit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
+                                            debtSurplus += (openingBalanceDebit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            creaditSurplus += (openingBalanceCredit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
-                                            debtSurplus += (openingBalanceDebit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
+                                            debtSurplus += (openingBalanceDebit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                             creaditSurplus += 0;
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
                                             debtSurplus += 0;
-                                            creaditSurplus += (openingBalanceCredit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
+                                            creaditSurplus += (openingBalanceCredit != 0 ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                         } else {
                                             debtSurplus = 0;
                                             creaditSurplus = 0;
@@ -908,8 +908,8 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            creditIncurred: item.CreditIncurred ? item.CreditIncurred : null,
-                                            debtIncurred: item.DebtIncurred ? item.DebtIncurred : null,
+                                            creditIncurred: data[i].CreditIncurred ? data[i].CreditIncurred : 0,
+                                            debtIncurred: data[i].DebtIncurred ? data[i].DebtIncurred : 0,
                                             debtSurplus: debtSurplus,
                                             creaditSurplus: creaditSurplus,
                                         }
