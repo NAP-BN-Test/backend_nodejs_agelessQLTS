@@ -981,7 +981,7 @@ module.exports = {
                                 voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
                                 customerName: dataCus.name ? dataCus.name : dataStaff.StaffName,
-                                staffName: dataStaff.StaffName,
+                                staffName: dataStaff ? dataStaff.StaffName : '',
                                 amount: data[i].Amount ? data[i].Amount : null,
                                 amountWords: data[i].AmountWords ? data[i].AmountWords : '',
                                 reason: data[i].Reason ? data[i].Reason : '',

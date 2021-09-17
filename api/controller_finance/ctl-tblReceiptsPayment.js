@@ -1642,6 +1642,14 @@ module.exports = {
                                     amount = data ? data.Amount : 0;
                                 })
                             }
+                            let type = "Phiếu chi";
+                            if (body.type == "receipt") {
+                                type = "Phiếu thu"
+                            } else if (body.type == "debit") {
+                                type = "Giấy báo nợ"
+                            } else if (body.type == "spending") {
+                                type = "Giấy báo có"
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(data[i].ID),
@@ -1655,7 +1663,7 @@ module.exports = {
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : 0,
                                 shortNameCurrency: data[i].currency ? data[i].currency.ShortName : 0,
                                 fullNameCurrency: data[i].currency ? data[i].currency.FullName : 0,
-                                type: "Phiếu thu",
+                                type: type,
                             }
                             array.unshift(obj);
                             stt += 1;
