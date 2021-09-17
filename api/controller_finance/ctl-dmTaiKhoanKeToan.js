@@ -502,7 +502,7 @@ module.exports = {
                 try {
                     mtblDMTaiKhoanKeToan(db).findAll({
                         order: [
-                            ['ID', 'ASC']
+                            ['AccountingCode', 'ASC']
                         ],
                     }).then(data => {
                         var array = [];
