@@ -154,18 +154,23 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
 async function handleCodeNumber(str, type) {
     var endCode = '';
     var behind = '';
+    var headerCode = '';
     if (type == 'receipt') {
         automaticCode = 'PT0001'
         behind = Number(str.slice(2, 10)) + 1
+        headerCode = str.slice(0, 2)
     } else if (type == 'payment') {
         automaticCode = 'PC0001'
         behind = Number(str.slice(2, 10)) + 1
+        headerCode = str.slice(0, 2)
     } else if (type == 'debit') {
         automaticCode = 'GBN0001'
         behind = Number(str.slice(3, 11)) + 1
+        headerCode = str.slice(0, 3)
     } else if (type == 'spending') {
         automaticCode = 'GBC0001'
         behind = Number(str.slice(3, 11)) + 1
+        headerCode = str.slice(0, 3)
     }
     if (behind < 10)
         endCode = '000' + behind
@@ -176,7 +181,7 @@ async function handleCodeNumber(str, type) {
     if (behind >= 1000)
         endCode = behind
 
-    return str.slice(0, 3) + endCode
+    return headerCode + endCode
 }
 async function createRate(db, exchangeRate, idCurrency) {
     let check;
