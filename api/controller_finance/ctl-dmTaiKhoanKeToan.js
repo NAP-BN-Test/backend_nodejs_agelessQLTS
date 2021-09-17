@@ -100,6 +100,7 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
                 levels: level ? level : '',
                 moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
                 moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
             })
         }
     })
@@ -434,6 +435,7 @@ module.exports = {
                                                     levels: data[i].Levels ? data[i].Levels : '',
                                                     moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
                                                     moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                                    typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
                                                     children: arrayChildern2
                                                 }
                                             }
@@ -449,6 +451,7 @@ module.exports = {
                                             levels: data[i].Levels ? data[i].Levels : '',
                                             moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
                                             moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                            typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
                                             children: arrayChildern2
                                         }
                                     }
@@ -464,6 +467,7 @@ module.exports = {
                                     levels: data[i].Levels ? data[i].Levels : '',
                                     moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
                                     moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                    typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
                                     children: arrayChildern2
                                 }
                             }

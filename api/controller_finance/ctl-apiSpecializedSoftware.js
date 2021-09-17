@@ -244,7 +244,9 @@ dataCredit = [{
     content: 'test 01',
     request: 'Yêu cầu Xóa',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 102,
@@ -261,7 +263,9 @@ dataCredit = [{
     content: 'test 01',
     request: '',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 103,
@@ -278,7 +282,9 @@ dataCredit = [{
     content: 'test 01',
     request: 'Yêu cầu xóa',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 104,
@@ -295,7 +301,9 @@ dataCredit = [{
     content: 'test 01',
     request: 'Yêu cầu sửa',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 105,
@@ -312,7 +320,9 @@ dataCredit = [{
     content: 'test 01',
     request: '',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 106,
@@ -329,7 +339,9 @@ dataCredit = [{
     content: 'test 01',
     request: '',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 107,
@@ -346,7 +358,9 @@ dataCredit = [{
     content: 'test 01',
     request: 'Yêu cầu xóa',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 108,
@@ -363,7 +377,9 @@ dataCredit = [{
     content: 'test 01',
     request: '',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 109,
@@ -380,7 +396,9 @@ dataCredit = [{
     content: 'test 01',
     request: '',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 {
     id: 110,
@@ -397,7 +415,9 @@ dataCredit = [{
     content: 'test 01',
     request: 'Yêu cầu sửa',
     accountingDebt: '331',
+    nameAccountingDebt: 'Phải trả người bán',
     accountingCredit: '642',
+    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
 },
 ]
 dataStaff = [
@@ -1442,6 +1462,7 @@ module.exports = {
     // get_list_credit_wait_for_pay_from_customer
     getListCreditWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1449,7 +1470,6 @@ module.exports = {
             },
             "type": body.type
         }
-        console.log(body, 123456);
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1458,18 +1478,24 @@ module.exports = {
                 if (dataCredit) {
                     if (body.idCustomer != '10') {
                         var result = {
-                            array: [],
+                            arrayCreate: [],
+                            arrayUpdate: [],
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                             all: 10,
                             totalMoney: [],
                         }
+                        res.json(result);
                     } else {
                         let arrayUpdate = []
-                        await mtblPaymentRInvoice(db).findAll({
-                            where: {
+                        let where = {}
+                        if (body.idReceiptPayment) {
+                            where = {
                                 IDPayment: body.idReceiptPayment
                             }
+                        }
+                        await mtblPaymentRInvoice(db).findAll({
+                            where: where
                         }).then(data => {
                             for (item of data) {
                                 arrayUpdate.push(Number(item.IDSpecializedSoftware))
@@ -1489,14 +1515,14 @@ module.exports = {
                                 })
                                 if (dataCredit[i].statusName == 'Chờ thanh toán')
                                     array.push(dataCredit[i])
-                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)))
+                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || dataCredit[i].statusName == 'Chờ thanh toán')
                                     updateArr.push(dataCredit[i])
                             } else {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
                                 if (check.Status == 'Chờ thanh toán')
                                     array.push(dataCredit[i])
-                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)))
+                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || check.Status == 'Chờ thanh toán')
                                     updateArr.push(dataCredit[i])
                             }
                         }
@@ -1509,8 +1535,8 @@ module.exports = {
                             all: 10,
                             totalMoney: totalMoney,
                         }
+                        res.json(result);
                     }
-                    res.json(result);
                 } else {
                     res.json(Result.SYS_ERROR_RESULT)
                 }

@@ -1683,7 +1683,7 @@ module.exports = {
                         var count = await tblReceiptsPayment.count({
                             where: {
                                 IDCustomer: body.idCustomer,
-                                Unknown: true,
+                                // Unknown: true,
                             },
                         })
                         var result = {
@@ -1814,6 +1814,10 @@ module.exports = {
                         automaticCode = 'PT0001'
                     } else if (!check && body.type == 'payment') {
                         automaticCode = 'PC0001'
+                    } else if (!check && body.type == 'spending') {
+                        automaticCode = 'GBN0001'
+                    } else if (!check && body.type == 'debit') {
+                        automaticCode = 'GBC0001'
                     } else {
                         automaticCode = await handleCodeNumber(check ? check.CodeNumber : null)
                     }

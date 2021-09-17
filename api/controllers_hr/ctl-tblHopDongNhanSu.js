@@ -960,7 +960,6 @@ module.exports = {
     inWordContract: (req, res) => {
         let body = req.body;
         // ngày 20 tháng 10 năm 2020
-        console.log(123456);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

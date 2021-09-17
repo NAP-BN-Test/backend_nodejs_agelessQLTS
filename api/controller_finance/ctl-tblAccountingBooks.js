@@ -520,6 +520,11 @@ async function getCreditWaitPay(db, objWaitForPay, stt) {
     }
     return obj;
 }
+
+let arrayCreditAccount = ["214", "2141", "2142", "2143", "2147", "229", "2291", "2292", "2293", "2294", "334", "335", "336", "3361", "3368", "341", "3411", "3412", "352", "3521", "3522", "3523", "3524", "353", "3531", "3532", "3533", "3534", "356", "3561", "3562", "411", "4111", "4112", "4118", "418"]
+let arrayDebtAccount = ["111", "1111", "1112", "112", "1121", "1122", "121", "128", "1281", "1288", "133", "1331", "1332", "136", "1361", "1368", "1386", "141", "151", "152", "153", "154", "155", "156", "157", "211", "2111", "21111", "21112", "21113", "21114", "21115", "21116", "21118", "2112", "2113", "21131", "21132", "21133", "21133", "21134", "21135", "21136", "21138", "217", "228", "2281", "2288", "241", "2411", "2412", "2413", "242", "419"]
+let arrayBiexualAccount = ["131", "138", "1381", "1388", "331", "333", "3331", "33311", "33312", "3332", "3333", "3334", "3335", "3336", "3337", "3338", "33381", "33381", "3339", "338", "3381", "3382", "3383", "3384", "3385", "3386", "3387", "3388", "413", "421", "4211", "4212", "511", "5111", "5112", "5113", "5118", "515", "611", "531", "632", "635", "642", "6421", "6422", "711", "811", "821", "911"]
+
 module.exports = {
     deleteRelationshiptblAccountingBooks,
     //  get_detail_tbl_accounting_books
@@ -801,6 +806,16 @@ module.exports = {
                     let endingBalanceCredit = 0;
                     let stt = 1;
                     let tblAccountingBooks = mtblAccountingBooks(db);
+                    let accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
+                        where: {
+                            ID: dataSearch.accountSystemID
+                        }
+                    })
+                    arisingPeriod = totalDebtIncurred - totalCreditIncurred;
+                    openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : 0) : 0
+                    openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : 0) : 0
+                    let debtSurplus = openingBalanceDebit;
+                    let creaditSurplus = openingBalanceCredit;
                     tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
                     tblAccountingBooks.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
@@ -859,9 +874,27 @@ module.exports = {
                                     required: false,
                                     as: 'accounting'
                                 },],
-                            }).then(accounting => {
+                            }).then(async accounting => {
                                 if (accounting) {
-                                    accounting.forEach(item => {
+                                    for (item of accounting) {
+                                        let checkTypeClause = await mtblDMTaiKhoanKeToan(db).findOne({
+                                            where: {
+                                                ID: data[i].IDAccounting
+                                            }
+                                        })
+                                        if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
+                                            debtSurplus += (openingBalanceDebit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
+                                            creaditSurplus += (openingBalanceCredit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
+                                        } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
+                                            debtSurplus += (openingBalanceDebit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
+                                            creaditSurplus += 0;
+                                        } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
+                                            debtSurplus += 0;
+                                            creaditSurplus += (openingBalanceCredit != 0 ? ((item.DebtIncurred ? item.DebtIncurred : 0) - (item.CreditIncurred ? item.CreditIncurred : 0)) : 0);
+                                        } else {
+                                            debtSurplus = 0;
+                                            creaditSurplus = 0;
+                                        }
                                         var obj = {
                                             stt: stt,
                                             id: Number(item.ID),
@@ -875,10 +908,10 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            creditIncurred: data[i].CreditIncurred ? data[i].CreditIncurred : null,
-                                            debtIncurred: data[i].DebtIncurred ? data[i].DebtIncurred : null,
-                                            debtSurplus: item.DebtSurplus ? item.DebtSurplus : null,
-                                            creaditSurplus: item.CreaditSurplus ? item.CreaditSurplus : null,
+                                            creditIncurred: item.CreditIncurred ? item.CreditIncurred : null,
+                                            debtIncurred: item.DebtIncurred ? item.DebtIncurred : null,
+                                            debtSurplus: debtSurplus,
+                                            creaditSurplus: creaditSurplus,
                                         }
                                         if (arrayIDAccount.length <= 1) {
                                             totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
@@ -897,7 +930,7 @@ module.exports = {
                                                 stt += 1;
                                             }
                                         }
-                                    })
+                                    }
                                 }
                             })
                         }
@@ -910,7 +943,22 @@ module.exports = {
                         if (checkAccount131.AccountingCode == '131') {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice)
                             for (invoice of arrayInvoice) {
-                                let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt)
+                                let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt);
+                                if (checkAccount131 && checkAccount131.TypeClause == 'Biexual') {
+                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                } else if (checkAccount131 && checkAccount131.TypeClause == 'Debt') {
+                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                    creaditSurplus += 0;
+                                } else if (checkAccount131 && checkAccount131.TypeClause == 'Credit') {
+                                    debtSurplus += 0;
+                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                } else {
+                                    debtSurplus = 0;
+                                    creaditSurplus = 0;
+                                }
+                                objWaitForPay['debtSurplus'] = debtSurplus
+                                objWaitForPay['creaditSurplus'] = creaditSurplus
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
                                 totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
@@ -929,6 +977,21 @@ module.exports = {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit)
                             for (credit of arrayCredit) {
                                 let objWaitForPay = await getCreditWaitPay(db, credit, stt)
+                                if (checkAccount331 && checkAccount331.TypeClause == 'Biexual') {
+                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
+                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                } else if (checkAccount331 && checkAccount331.TypeClause == 'Debt') {
+                                    debtSurplus += (openingBalanceDebit != 0 ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
+                                    creaditSurplus += 0;
+                                } else if (checkAccount331 && checkAccount331.TypeClause == 'Credit') {
+                                    debtSurplus += 0;
+                                    creaditSurplus += (openingBalanceCredit != 0 ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
+                                } else {
+                                    debtSurplus = 0;
+                                    creaditSurplus = 0;
+                                }
+                                objWaitForPay['debtSurplus'] = debtSurplus
+                                objWaitForPay['creaditSurplus'] = creaditSurplus
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
                                 totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
@@ -937,16 +1000,8 @@ module.exports = {
                                 stt += 1;
                             }
                         }
-                        let accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
-                            where: {
-                                ID: dataSearch.accountSystemID
-                            }
-                        })
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
-                        arisingPeriod = totalDebtIncurred - totalCreditIncurred;
-                        openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : 0) : 0
-                        openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : 0) : 0
-                        endingBalanceDebit = openingBalanceCredit != 0 ? 0 : (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred))
+                        endingBalanceDebit = openingBalanceDebit != 0 ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : 0
                         endingBalanceCredit = openingBalanceCredit != 0 ? (openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)) : 0
                         var result = {
                             total: {
@@ -977,5 +1032,45 @@ module.exports = {
             }
         })
     },
-
+    // api update tài khoản dư nợ/ có/ lưỡng tính vào database
+    // insert_account_db
+    insertAccountDB: (req, res) => {
+        database.connectDatabase().then(async db => {
+            if (db) {
+                mtblDMTaiKhoanKeToan(db).findAll().then(async data => {
+                    for (item of data) {
+                        if (checkDuplicate(arrayDebtAccount, item.AccountingCode)) {
+                            await mtblDMTaiKhoanKeToan(db).update({
+                                TypeClause: 'Debt'
+                            }, {
+                                where: { ID: item.ID }
+                            })
+                        }
+                        else if (checkDuplicate(arrayCreditAccount, item.AccountingCode)) {
+                            await mtblDMTaiKhoanKeToan(db).update({
+                                TypeClause: 'Credit'
+                            }, {
+                                where: { ID: item.ID }
+                            })
+                        }
+                        else if (checkDuplicate(arrayBiexualAccount, item.AccountingCode)) {
+                            await mtblDMTaiKhoanKeToan(db).update({
+                                TypeClause: 'Biexual'
+                            }, {
+                                where: { ID: item.ID }
+                            })
+                        } else {
+                            await mtblDMTaiKhoanKeToan(db).update({
+                                TypeClause: 'Chưa co du lieu'
+                            }, {
+                                where: { ID: item.ID }
+                            })
+                        }
+                    }
+                })
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

@@ -592,6 +592,7 @@ module.exports = function (app) {
 
     var tblAccountingBooks = require('./controller_finance/ctl-tblAccountingBooks')
     app.route('/qlnb/get_list_tbl_accounting_books').post(tblAccountingBooks.getListtblAccountingBooks);
+    app.route('/qlnb/insert_account_db').post(tblAccountingBooks.insertAccountDB);
 
 
     var tblStateAgencies = require('./controller_finance/ctl-tblCoQuanNhaNuoc')

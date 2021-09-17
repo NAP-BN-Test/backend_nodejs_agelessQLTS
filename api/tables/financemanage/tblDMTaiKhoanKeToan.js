@@ -15,6 +15,7 @@ module.exports = function (db) {
         MoneyDebit: Sequelize.FLOAT,
         MoneyCredit: Sequelize.FLOAT,
         YearStart: Sequelize.STRING,
+        TypeClause: Sequelize.STRING,
     });
 
     return table;

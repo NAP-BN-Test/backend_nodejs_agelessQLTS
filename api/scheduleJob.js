@@ -434,7 +434,6 @@ async function createDataTimeKeeping(db, year, month, date, staffID, IDMayChamCo
                 }
                 // check ngày làm việc
             } else if (!checkDuplicate(arraythDB, date)) {
-                console.log(123456789, arraythDB, date);
                 await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', false, 0)
                 await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', true, 0)
             } else {
