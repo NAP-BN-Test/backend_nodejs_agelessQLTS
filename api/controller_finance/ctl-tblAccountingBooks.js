@@ -407,13 +407,15 @@ function checkDuplicate(array, elm) {
     })
     return check;
 }
-async function getInvoiceWaitForPayInDB(db, dataRequest) {
+async function getInvoiceWaitForPayInDB(db, dataRequest, account) {
     let array = [];
     for (let i = 0; i < dataRequest.length; i++) {
         let check = await mtblInvoice(db).findOne({
             where: { IDSpecializedSoftware: dataRequest[i].id }
         })
         if (check) {
+            if (account == '331')
+                dataRequest[i].invoiceNumber = dataRequest[i].creditNumber
             dataRequest[i].statusName = check.Status
             dataRequest[i].request = check.Request
             dataRequest[i]['invoiceID'] = check.ID
@@ -941,7 +943,7 @@ module.exports = {
                             }
                         })
                         if (checkAccount131.AccountingCode == '131') {
-                            let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice)
+                            let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131')
                             for (invoice of arrayInvoice) {
                                 let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt);
                                 if (checkAccount131 && checkAccount131.TypeClause == 'Biexual') {
@@ -974,7 +976,7 @@ module.exports = {
                             }
                         })
                         if (checkAccount331.AccountingCode == '331') {
-                            let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit)
+                            let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331')
                             for (credit of arrayCredit) {
                                 let objWaitForPay = await getCreditWaitPay(db, credit, stt)
                                 if (checkAccount331 && checkAccount331.TypeClause == 'Biexual') {
