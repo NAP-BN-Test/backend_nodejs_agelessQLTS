@@ -791,6 +791,9 @@ module.exports = {
                             }
                         })
                     } else if (dataSearch.dateFrom && dataSearch.dateTo) {
+                        // dataSearch.dateFrom = moment(dataSearch.dateFrom).add(1, 'days')
+                        dataSearch.dateTo = moment(dataSearch.dateTo).add(2, 'days').format('YYYY-MM-DD')
+                        console.log(dataSearch.dateTo);
                         whereOjb.push({
                             CreateDate: {
                                 [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
