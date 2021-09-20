@@ -988,8 +988,8 @@ module.exports = {
                             }
                         }
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
-                        endingBalanceDebit = openingBalanceDebit != null ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : (totalDebtIncurred - totalCreditIncurred)
-                        endingBalanceCredit = openingBalanceCredit != null ? (openingBalanceCredit + (totalDebtIncurred - totalCreditIncurred)) : (totalDebtIncurred - totalCreditIncurred)
+                        endingBalanceDebit = openingBalanceDebit != null ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : 0;
+                        endingBalanceCredit = openingBalanceCredit != null ? (openingBalanceCredit + (totalCreditIncurred - totalDebtIncurred)) : 0;
                         var result = {
                             total: {
                                 totalCreditIncurred,
