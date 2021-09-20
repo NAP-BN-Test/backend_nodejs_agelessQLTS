@@ -913,8 +913,8 @@ module.exports = {
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
                                             creditIncurred: data[i].CreditIncurred ? data[i].CreditIncurred : 0,
                                             debtIncurred: data[i].DebtIncurred ? data[i].DebtIncurred : 0,
-                                            debtSurplus: debtSurplus,
-                                            creaditSurplus: creaditSurplus,
+                                            debtSurplus: debtSurplus == 0 ? null : debtSurplus,
+                                            creaditSurplus: creaditSurplus == 0 ? null : creaditSurplus,
                                         }
                                         if (arrayIDAccount.length <= 1) {
                                             totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
@@ -952,8 +952,8 @@ module.exports = {
                                     creaditSurplus += Number(invoice.total);
                                 if (debtSurplus != 0)
                                     debtSurplus += Number(invoice.total);
-                                objWaitForPay['debtSurplus'] = debtSurplus
-                                objWaitForPay['creaditSurplus'] = creaditSurplus
+                                objWaitForPay['debtSurplus'] = debtSurplus == 0 ? null : debtSurplus
+                                objWaitForPay['creaditSurplus'] = creaditSurplus == 0 ? null : creaditSurplus
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
                                 totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
@@ -977,8 +977,8 @@ module.exports = {
                                     creaditSurplus += Number(credit.total);
                                 if (debtSurplus != 0)
                                     debtSurplus += Number(credit.total);
-                                objWaitForPay['debtSurplus'] = debtSurplus
-                                objWaitForPay['creaditSurplus'] = creaditSurplus
+                                objWaitForPay['debtSurplus'] = debtSurplus == 0 ? null : debtSurplus
+                                objWaitForPay['creaditSurplus'] = creaditSurplus == 0 ? null : creaditSurplus
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
                                 totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
@@ -988,8 +988,8 @@ module.exports = {
                             }
                         }
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
-                        endingBalanceDebit = openingBalanceDebit != null ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : 0;
-                        endingBalanceCredit = openingBalanceCredit != null ? (openingBalanceCredit + (totalCreditIncurred - totalDebtIncurred)) : 0;
+                        endingBalanceDebit = openingBalanceDebit != null ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : null;
+                        endingBalanceCredit = openingBalanceCredit != null ? (openingBalanceCredit + (totalCreditIncurred - totalDebtIncurred)) : null;
                         var result = {
                             total: {
                                 totalCreditIncurred,
