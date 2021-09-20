@@ -791,9 +791,7 @@ module.exports = {
                             }
                         })
                     } else if (dataSearch.dateFrom && dataSearch.dateTo) {
-                        // dataSearch.dateFrom = moment(dataSearch.dateFrom).add(1, 'days')
                         dataSearch.dateTo = moment(dataSearch.dateTo).add(2, 'days').format('YYYY-MM-DD')
-                        console.log(dataSearch.dateTo);
                         whereOjb.push({
                             CreateDate: {
                                 [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
@@ -889,13 +887,13 @@ module.exports = {
                                         })
                                         if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
                                             debtSurplus += (openingBalanceDebit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
-                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].CreditIncurred ? data[i].CreditIncurred : 0) - (data[i].DebtIncurred ? data[i].DebtIncurred : 0)) : 0);
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
                                             debtSurplus += (openingBalanceDebit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                             creaditSurplus += 0;
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
                                             debtSurplus += 0;
-                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].CreditIncurred ? data[i].CreditIncurred : 0) - (data[i].DebtIncurred ? data[i].DebtIncurred : 0)) : 0);
                                         } else {
                                             debtSurplus = 0;
                                             creaditSurplus = 0;
@@ -949,19 +947,11 @@ module.exports = {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131')
                             for (invoice of arrayInvoice) {
                                 let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt);
-                                if (checkAccount131 && checkAccount131.TypeClause == 'Biexual') {
-                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
-                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
-                                } else if (checkAccount131 && checkAccount131.TypeClause == 'Debt') {
-                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
-                                    creaditSurplus += 0;
-                                } else if (checkAccount131 && checkAccount131.TypeClause == 'Credit') {
-                                    debtSurplus += 0;
-                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
-                                } else {
-                                    debtSurplus = 0;
-                                    creaditSurplus = 0;
-                                }
+                                // vì là tài khoản lưỡng tính
+                                if (creaditSurplus != 0)
+                                    creaditSurplus += Number(invoice.total);
+                                if (debtSurplus != 0)
+                                    debtSurplus += Number(invoice.total);
                                 objWaitForPay['debtSurplus'] = debtSurplus
                                 objWaitForPay['creaditSurplus'] = creaditSurplus
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
@@ -982,19 +972,11 @@ module.exports = {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331')
                             for (credit of arrayCredit) {
                                 let objWaitForPay = await getCreditWaitPay(db, credit, stt)
-                                if (checkAccount331 && checkAccount331.TypeClause == 'Biexual') {
-                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
-                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
-                                } else if (checkAccount331 && checkAccount331.TypeClause == 'Debt') {
-                                    debtSurplus += (openingBalanceDebit != null ? ((objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0) - (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0)) : 0);
-                                    creaditSurplus += 0;
-                                } else if (checkAccount331 && checkAccount331.TypeClause == 'Credit') {
-                                    debtSurplus += 0;
-                                    creaditSurplus += (openingBalanceCredit != null ? ((objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0) - (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0)) : 0);
-                                } else {
-                                    debtSurplus = 0;
-                                    creaditSurplus = 0;
-                                }
+                                // vì là tài khoản lưỡng tính
+                                if (creaditSurplus != 0)
+                                    creaditSurplus += Number(credit.total);
+                                if (debtSurplus != 0)
+                                    debtSurplus += Number(credit.total);
                                 objWaitForPay['debtSurplus'] = debtSurplus
                                 objWaitForPay['creaditSurplus'] = creaditSurplus
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
