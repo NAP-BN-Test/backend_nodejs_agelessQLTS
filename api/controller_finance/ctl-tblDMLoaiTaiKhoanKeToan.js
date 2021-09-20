@@ -112,7 +112,10 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
+                    var whereObj = {};
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
 
@@ -120,38 +123,42 @@ module.exports = {
                             where = [
                                 { TypeName: { [Op.like]: '%' + data.search + '%' } },
                             ];
+                            whereObj[Op.and] = where
                         } else {
                             where = [
                                 { TypeName: { [Op.ne]: '%%' } },
                             ];
+                            whereObj[Op.and] = where
                         }
-                        whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
-                        };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN LOẠI') {
+                                if (data.items[i].fields['name'] === 'TÊN LOẠI TÀI KHOẢN') {
                                     userFind['TypeName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
-                                        whereOjb[Op.and].push(userFind)
+                                        arraySearchAnd.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Or') {
-                                        whereOjb[Op.or].push(userFind)
+                                        arraySearchOr.push(userFind)
                                     }
                                     if (data.items[i].conditionFields['name'] == 'Not') {
-                                        whereOjb[Op.not] = userFind
+                                        arraySearchNot.push(userFind)
                                     }
                                 }
                             }
+                            if (arraySearchOr.length > 0)
+                                whereObj[Op.or] = arraySearchOr
+                            if (arraySearchAnd.length > 0)
+                                whereObj[Op.and] = arraySearchAnd
+                            if (arraySearchNot.length > 0)
+                                whereObj[Op.not] = arraySearchNot
                         }
                     }
                     let stt = 1;
                     mtblDMLoaiTaiKhoanKeToan(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: whereObj,
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -166,7 +173,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblDMLoaiTaiKhoanKeToan(db).count({ where: whereOjb, })
+                        var count = await mtblDMLoaiTaiKhoanKeToan(db).count({ where: whereObj, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

@@ -168,49 +168,78 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
+                    var whereObj = {};
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
                     if (body.dataSearch) {
-                        // var data = JSON.parse(body.dataSearch)
-
-                        // if (data.search) {
-                        //     where = [
-                        //         { FullName: { [Op.like]: '%' + data.search + '%' } },
-                        //         { Address: { [Op.like]: '%' + data.search + '%' } },
-                        //         { CMND: { [Op.like]: '%' + data.search + '%' } },
-                        //         { EmployeeCode: { [Op.like]: '%' + data.search + '%' } },
-                        //     ];
-                        // } else {
-                        //     where = [
-                        //         { FullName: { [Op.ne]: '%%' } },
-                        //     ];
-                        // }
-                        // whereOjb = {
-                        //     [Op.and]: [{ [Op.or]: where }],
-                        //     [Op.or]: [{ ID: { [Op.ne]: null } }],
-                        // };
-                        // if (data.items) {
-                        //     for (var i = 0; i < data.items.length; i++) {
-                        //         let userFind = {};
-                        //         if (data.items[i].fields['name'] === 'HỌ VÀ TÊN') {
-                        //             userFind['FullName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
-                        //             if (data.items[i].conditionFields['name'] == 'And') {
-                        //                 whereOjb[Op.and].push(userFind)
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Or') {
-                        //                 whereOjb[Op.or].push(userFind)
-                        //             }
-                        //             if (data.items[i].conditionFields['name'] == 'Not') {
-                        //                 whereOjb[Op.not] = userFind
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        var data = JSON.parse(body.dataSearch)
+                        if (data.search) {
+                            where = [
+                                { RuleCode: { [Op.like]: '%' + data.search + '%' } },
+                                { RuleName: { [Op.like]: '%' + data.search + '%' } },
+                                { Status: { [Op.like]: '%' + data.search + '%' } },
+                            ];
+                            whereObj[Op.or] = where
+                        } else {
+                            where = [
+                                { ID: { [Op.ne]: null } },
+                            ];
+                            whereObj[Op.or] = where
+                        }
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'MÃ ĐIỀU KHOẢN THANH TOÁN') {
+                                    userFind['RuleCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN ĐIỀU KHOẢN THANH TOÁN') {
+                                    userFind['RuleName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                            }
+                            if (arraySearchOr.length > 0)
+                                whereObj[Op.or] = arraySearchOr
+                            if (arraySearchAnd.length > 0)
+                                whereObj[Op.and] = arraySearchAnd
+                            if (arraySearchNot.length > 0)
+                                whereObj[Op.not] = arraySearchNot
+                        }
                     }
                     let stt = 1;
                     mtblDMDieuKhoanThanhToan(db).findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
-                        where: whereOjb,
+                        where: whereObj,
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -229,7 +258,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
-                        var count = await mtblDMDieuKhoanThanhToan(db).count({ where: whereOjb, })
+                        var count = await mtblDMDieuKhoanThanhToan(db).count({ where: whereObj, })
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

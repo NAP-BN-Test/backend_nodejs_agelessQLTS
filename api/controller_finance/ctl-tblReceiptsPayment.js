@@ -1397,7 +1397,7 @@ module.exports = {
                             arraySearchAnd.push({ Type: body.type })
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'SỐ PHIẾU') {
+                                if (data.items[i].fields['name'] === 'SỐ CHỨNG TỪ') {
                                     userFind['CodeNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
@@ -1772,7 +1772,7 @@ module.exports = {
                                 idCurrency: data[i].IDCurrency ? data[i].IDCurrency : 0,
                                 shortNameCurrency: data[i].currency ? data[i].currency.ShortName : 0,
                                 fullNameCurrency: data[i].currency ? data[i].currency.FullName : 0,
-                                type: "Phiếu thu",
+                                // type: "Phiếu thu",
                             }
                             array.unshift(obj);
                             stt += 1;

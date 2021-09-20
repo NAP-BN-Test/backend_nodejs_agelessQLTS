@@ -321,7 +321,6 @@ module.exports = {
                                 ],
                             };
                             whereObj = where
-                            console.log(whereObj);
                         } else {
                             where = [{
                                 ID: {
@@ -349,7 +348,7 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'MÃ TÀI KHOẢN') {
+                                if (data.items[i].fields['name'] === 'SỐ HIỆU TÀI KHOẢN') {
                                     userFind['AccountingCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
