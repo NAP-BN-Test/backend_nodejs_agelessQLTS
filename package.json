@@ -31,6 +31,7 @@
     "libreoffice-convert-win": "^1.1.1",
     "mssql": "^6.2.1",
     "multer": "^1.4.2",
+    "nexe": "^4.0.0-beta.18",
     "node-schedule": "^2.0.0",
     "nodemon": "^2.0.12",
     "office-to-pdf": "^4.0.0",
