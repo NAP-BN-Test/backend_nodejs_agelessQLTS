@@ -109,6 +109,56 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
 
 module.exports = {
     deleteRelationshiptblDMTaiKhoanKeToan,
+    // get_detail_tbl_dm_taikhoanketoan
+    getDetailtblDMTaiKhoanKeToan: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let yearStart = Number(moment().format('YYYY'));
+                    let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
+                    tblDMTaiKhoanKeToan.belongsTo(mtblDMLoaiTaiKhoanKeToan(db), { foreignKey: 'IDLoaiTaiKhoanKeToan', sourceKey: 'IDLoaiTaiKhoanKeToan', as: 'Loai' })
+                    tblDMTaiKhoanKeToan.findOne({
+                        include: [
+                            {
+                                model: mtblDMLoaiTaiKhoanKeToan(db),
+                                required: false,
+                                as: 'Loai'
+                            },
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: {
+                            AccountingCode: body.code,
+                        }
+                    }).then(async data => {
+                        let obj = {}
+                        if (data)
+                            obj = {
+                                moneyCredit: data.MoneyCredit ? data.MoneyCredit : 0,
+                                moneyDebit: data.MoneyDebit ? data.MoneyDebit : 0,
+                                typeClause: data.TypeClause,
+                                accountingName: data.AccountingName ? data.AccountingName : '',
+                                accountingCode: data.AccountingCode ? data.AccountingCode : '',
+                            }
+                        var result = {
+                            obj: obj,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // add_tbl_dm_taikhoanketoan
     addtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;

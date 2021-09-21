@@ -487,11 +487,13 @@ async function getInvoiceWaitForPay(db, objWaitForPay, stt) {
         debtIncurred: totalMoneyVND,
         debtSurplus: 0, // số dư phải tính
         creaditSurplus: 0,
+        numberOfReceipt: '',
+        numberOfPayment: '',
+        receiver: '',
     }
     return obj;
 }
 async function getCreditWaitPay(db, objWaitForPay, stt) {
-    console.log(objWaitForPay);
     let accountingCredit = await mtblDMTaiKhoanKeToan(db).findOne({
         where: {
             AccountingCode: objWaitForPay.accountingCredit
@@ -519,6 +521,9 @@ async function getCreditWaitPay(db, objWaitForPay, stt) {
         debtIncurred: 0,
         debtSurplus: 0, // số dư phải tính
         creaditSurplus: 0,
+        numberOfReceipt: '',
+        numberOfPayment: '',
+        receiver: '',
     }
     return obj;
 }
@@ -820,6 +825,7 @@ module.exports = {
                     let debtSurplus = openingBalanceDebit;
                     let creaditSurplus = openingBalanceCredit;
                     tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
+                    tblAccountingBooks.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
                     tblAccountingBooks.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -828,10 +834,16 @@ module.exports = {
                             ['ID', 'ASC']
                         ],
                         include: [{
+                            model: mtblReceiptsPayment(db),
+                            required: false,
+                            as: 'payment'
+                        },
+                        {
                             model: mtblDMTaiKhoanKeToan(db),
                             required: false,
                             as: 'accounting'
-                        },],
+                        }
+                        ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -911,10 +923,13 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            creditIncurred: data[i].CreditIncurred ? data[i].CreditIncurred : 0,
-                                            debtIncurred: data[i].DebtIncurred ? data[i].DebtIncurred : 0,
+                                            creditIncurred: accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0),
+                                            debtIncurred: accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0),
                                             debtSurplus: debtSurplus == 0 ? null : debtSurplus,
                                             creaditSurplus: creaditSurplus == 0 ? null : creaditSurplus,
+                                            numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
+                                            numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
+                                            receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
                                         }
                                         if (arrayIDAccount.length <= 1) {
                                             totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
