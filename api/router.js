@@ -495,6 +495,7 @@ module.exports = function (app) {
     // Quản lý hệ thống tài khoản kế toán / Hệ thống tài khoản
     var tblDMTaiKhoanKeToan = require('./controller_finance/ctl-dmTaiKhoanKeToan')
     app.route('/qlnb/add_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.addtblDMTaiKhoanKeToan);
+    app.route('/qlnb/get_detail_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.getDetailtblDMTaiKhoanKeToan);
     app.route('/qlnb/update_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.updatetblDMTaiKhoanKeToan);
     app.route('/qlnb/delete_tbl_dm_taikhoanketoan').post(checkToken.checkToken, tblDMTaiKhoanKeToan.deletetblDMTaiKhoanKeToan);
     app.route('/qlnb/get_list_tbl_dm_taikhoanketoan').post(tblDMTaiKhoanKeToan.getListtblDMTaiKhoanKeToan);

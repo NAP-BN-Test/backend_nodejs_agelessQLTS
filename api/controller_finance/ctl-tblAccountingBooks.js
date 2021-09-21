@@ -407,6 +407,46 @@ function checkDuplicate(array, elm) {
     })
     return check;
 }
+async function calculateMoneyFollowVND(db, typeMoney, total, date) {
+    let exchangeRate = 1;
+    let result = 0;
+    let currency = await mtblCurrency(db).findOne({
+        where: { ShortName: typeMoney }
+    })
+    if (currency)
+        await mtblRate(db).findOne({
+            where: {
+                Date: { [Op.substring]: date },
+                IDCurrency: currency.ID
+            },
+            order: [
+                ['ID', 'DESC']
+            ],
+        }).then(async Rate => {
+            if (Rate)
+                exchangeRate = Rate.ExchangeRate
+            else {
+                let searchNow = moment().format('YYYY-MM-DD');
+                await mtblRate(db).findOne({
+                    where: {
+                        Date: { [Op.substring]: searchNow },
+                        IDCurrency: currency.ID
+                    },
+                    order: [
+                        ['ID', 'DESC']
+                    ],
+                }).then(Rate => {
+                    if (Rate)
+                        exchangeRate = Rate.ExchangeRate
+                    else {
+
+                    }
+                })
+            }
+        })
+    result = ((exchangeRate ? exchangeRate : 1) * total)
+    return result
+}
 async function getInvoiceWaitForPayInDB(db, dataRequest, account) {
     let array = [];
     for (let i = 0; i < dataRequest.length; i++) {
@@ -419,6 +459,11 @@ async function getInvoiceWaitForPayInDB(db, dataRequest, account) {
             dataRequest[i].statusName = check.Status
             dataRequest[i].request = check.Request
             dataRequest[i]['invoiceID'] = check.ID
+            let totalMoneyVND = 0;
+            for (let m = 0; m < dataRequest[i].arrayMoney.length; m++) {
+                totalMoneyVND += await calculateMoneyFollowVND(db, dataRequest[i].arrayMoney[m].typeMoney, (dataRequest[i].arrayMoney[m].total ? dataRequest[i].arrayMoney[m].total : 0), moment(dataRequest[i].createdDate).format('YYYY-DD-MM'))
+            }
+            dataRequest[i]['total'] = totalMoneyVND
             // if (check.Status == 'Chờ thanh toán')
             array.push(dataRequest[i])
         }
@@ -490,6 +535,7 @@ async function getInvoiceWaitForPay(db, objWaitForPay, stt) {
         numberOfReceipt: '',
         numberOfPayment: '',
         receiver: '',
+        nameCustomer: '',
     }
     return obj;
 }
@@ -524,10 +570,141 @@ async function getCreditWaitPay(db, objWaitForPay, stt) {
         numberOfReceipt: '',
         numberOfPayment: '',
         receiver: '',
+        nameCustomer: '',
     }
     return obj;
 }
+async function getDetailCustomer(id) {
+    dataCustomer = [{
+        "customerCode": "KH0001",
+        "name": "Công ty tnhh An Phú",
+        "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+        "tax": "123456789",
+        "countryName": "Việt Nam",
+        "address": "Số 2 Hoàng Mai Hà Nội",
+        "mobile": "098705124",
+        "fax": "01234567",
+        "email": "anphu@gmail.com",
+        "id": 1,
+    },
+    {
+        "customerCode": "KH0002",
+        "name": "Công ty tnhh Is Tech Vina",
+        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
+        "tax": "01245870",
+        "countryName": "Việt Nam",
+        "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
+        "mobile": "082457145",
+        "fax": "0241368451",
+        "email": "istech@gmail.com",
+        "id": 2,
+    },
+    {
+        "customerCode": "KH0003",
+        "name": "Công ty cổ phần Orion Việt Nam",
+        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
+        "tax": "012341250",
+        "countryName": "Việt nam",
+        "address": "Số 12 Bạch Mai Hà Nội",
+        "mobile": "0315456554",
+        "fax": "132456545",
+        "email": "orion13@gmail.com",
+        "id": 3,
+    },
+    {
+        "customerCode": "KH0004",
+        "name": "Công ty TNHH Rồng Việt",
+        "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
+        "tax": "01323255",
+        "countryName": "Việt Nam",
+        "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+        "mobile": "0445445474",
+        "fax": "1135635",
+        "email": "rongviet@gmail.com",
+        "id": 4,
+    },
+    {
+        "customerCode": "KH0005",
+        "name": "Công ty cổ phần và thương mại Đức Việt",
+        "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
+        "tax": "017654124",
+        "countryName": "Việt Nam",
+        "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
+        "mobile": "0444545401",
+        "fax": "75241241241",
+        "email": "ducviet0209@gmail.com",
+        "id": 5,
+    },
+    {
+        "customerCode": "KH0006",
+        "name": "Công ty TNHH 1 thành viên Bảo Minh",
+        "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
+        "tax": "154654565",
+        "countryName": "Việt Nam",
+        "address": "Số 25 Ba Đình Hà Nội",
+        "mobile": "045102474",
+        "fax": "02137244",
+        "email": "baominh56@gmail.com",
+        "id": 6,
+    },
+    {
+        "customerCode": "KH0007",
+        "name": "Công ty Sx và Tm Minh Hòa",
+        "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
+        "tax": "04785635432",
+        "countryName": "Việt Nam",
+        "address": "Số 21 Hàng Mã Hà Nội",
+        "mobile": "0045454510",
+        "fax": "415265654",
+        "email": "minhhoa1212@gmail.com",
+        "id": 7,
+    },
+    {
+        "customerCode": "KH0008",
+        "name": "Công ty cổ phần EC",
+        "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
+        "tax": "45454545",
+        "countryName": "Việt Nam",
+        "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
+        "mobile": "012345474",
+        "fax": "012244635",
+        "email": "ec1312@gmail.com",
+        "id": 8,
+    },
+    {
+        "customerCode": "KH0009",
+        "name": "Công ty cổ phần Thu Hương",
+        "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
+        "tax": "012546565",
+        "countryName": "Việt Nam",
+        "address": "Số 24 Bạch Mai Hà Nội",
+        "mobile": "015245454",
+        "fax": "45552478",
+        "email": "thuhuong34@gmail.com",
+        "id": 9,
+    },
+    {
+        "customerCode": "KH0010",
+        "name": "Công ty tnhh Hòa Phát",
+        "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
+        "tax": "014775745",
+        "countryName": "Việt Nam",
+        "address": "Số 2 Phố Huế Hà Nội",
+        "mobile": "045245401",
+        "fax": "021455235",
+        "email": "hoaphat0102@gmail.com",
+        "id": 10,
+    },
+    ]
+    var obj = {}
+    dataCustomer.forEach(item => {
+        if (item.id == id) {
+            obj = item
+        }
+    })
+    return obj
 
+}
 let arrayCreditAccount = ["214", "2141", "2142", "2143", "2147", "229", "2291", "2292", "2293", "2294", "334", "335", "336", "3361", "3368", "341", "3411", "3412", "352", "3521", "3522", "3523", "3524", "353", "3531", "3532", "3533", "3534", "356", "3561", "3562", "411", "4111", "4112", "4118", "418"]
 let arrayDebtAccount = ["111", "1111", "1112", "112", "1121", "1122", "121", "128", "1281", "1288", "133", "1331", "1332", "136", "1361", "1368", "1386", "141", "151", "152", "153", "154", "155", "156", "157", "211", "2111", "21111", "21112", "21113", "21114", "21115", "21116", "21118", "2112", "2113", "21131", "21132", "21133", "21133", "21134", "21135", "21136", "21138", "217", "228", "2281", "2288", "241", "2411", "2412", "2413", "242", "419"]
 let arrayBiexualAccount = ["131", "138", "1381", "1388", "331", "333", "3331", "33311", "33312", "3332", "3333", "3334", "3335", "3336", "3337", "3338", "33381", "33381", "3339", "338", "3381", "3382", "3383", "3384", "3385", "3386", "3387", "3388", "413", "421", "4211", "4212", "511", "5111", "5112", "5113", "5118", "515", "611", "531", "632", "635", "642", "6421", "6422", "711", "811", "821", "911"]
@@ -897,19 +1074,26 @@ module.exports = {
                                                 ID: data[i].IDAccounting
                                             }
                                         })
+                                        let typeCheck = 'Biexual';
                                         if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
+                                            typeCheck = 'Biexual'
                                             debtSurplus += (openingBalanceDebit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
                                             creaditSurplus += (openingBalanceCredit != null ? ((data[i].CreditIncurred ? data[i].CreditIncurred : 0) - (data[i].DebtIncurred ? data[i].DebtIncurred : 0)) : 0);
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
-                                            debtSurplus += (openingBalanceDebit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
+                                            debtSurplus += (accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0)) - (accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0));
                                             creaditSurplus += 0;
+                                            typeCheck = 'Debt'
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
+                                            typeCheck = 'Credit'
                                             debtSurplus += 0;
-                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].CreditIncurred ? data[i].CreditIncurred : 0) - (data[i].DebtIncurred ? data[i].DebtIncurred : 0)) : 0);
+                                            creaditSurplus += (accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0)) - (accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0));
                                         } else {
                                             debtSurplus = 0;
                                             creaditSurplus = 0;
                                         }
+                                        let objCustomer = {}
+                                        if (body.customerID)
+                                            objCustomer = await getDetailCustomer(body.customerID)
                                         var obj = {
                                             stt: stt,
                                             id: Number(item.ID),
@@ -925,11 +1109,12 @@ module.exports = {
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
                                             creditIncurred: accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0),
                                             debtIncurred: accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0),
-                                            debtSurplus: debtSurplus == 0 ? null : debtSurplus,
-                                            creaditSurplus: creaditSurplus == 0 ? null : creaditSurplus,
+                                            debtSurplus: (typeCheck == 'Debt' || typeCheck == 'Biexual') ? debtSurplus : null,
+                                            creaditSurplus: (typeCheck == 'Credit' || typeCheck == 'Biexual') ? creaditSurplus : null,
                                             numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
                                             numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
                                             receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
+                                            nameCustomer: objCustomer != {} ? objCustomer.name : '',
                                         }
                                         if (arrayIDAccount.length <= 1) {
                                             totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
@@ -1003,8 +1188,21 @@ module.exports = {
                             }
                         }
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
-                        endingBalanceDebit = openingBalanceDebit != null ? (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)) : null;
-                        endingBalanceCredit = openingBalanceCredit != null ? (openingBalanceCredit + (totalCreditIncurred - totalDebtIncurred)) : null;
+                        let checkType = await mtblDMTaiKhoanKeToan(db).findOne({
+                            where: {
+                                ID: dataSearch.accountSystemID
+                            }
+                        })
+                        if (checkType && checkType.TypeClause == "Credit") {
+                            endingBalanceCredit = (openingBalanceCredit == null ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                            endingBalanceDebit = null;
+                        } else if (checkType && checkType.TypeClause == "Debt") {
+                            endingBalanceCredit = null;
+                            endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalCreditIncurred - totalDebtIncurred);
+                        } else {
+                            endingBalanceCredit = (openingBalanceCredit == null ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                            endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalCreditIncurred - totalDebtIncurred);
+                        }
                         var result = {
                             total: {
                                 totalCreditIncurred,

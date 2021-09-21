@@ -106,7 +106,6 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
     })
     return result
 }
-
 module.exports = {
     deleteRelationshiptblDMTaiKhoanKeToan,
     // get_detail_tbl_dm_taikhoanketoan
@@ -141,6 +140,7 @@ module.exports = {
                                 typeClause: data.TypeClause,
                                 accountingName: data.AccountingName ? data.AccountingName : '',
                                 accountingCode: data.AccountingCode ? data.AccountingCode : '',
+                                id: data.ID ? data.ID : '',
                             }
                         var result = {
                             obj: obj,
