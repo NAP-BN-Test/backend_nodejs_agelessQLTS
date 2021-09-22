@@ -460,10 +460,11 @@ async function getInvoiceWaitForPayInDB(db, dataRequest, account) {
             dataRequest[i].request = check.Request
             dataRequest[i]['invoiceID'] = check.ID
             let totalMoneyVND = 0;
-            for (let m = 0; m < dataRequest[i].arrayMoney.length; m++) {
-                totalMoneyVND += await calculateMoneyFollowVND(db, dataRequest[i].arrayMoney[m].typeMoney, (dataRequest[i].arrayMoney[m].total ? dataRequest[i].arrayMoney[m].total : 0), moment(dataRequest[i].createdDate).format('YYYY-DD-MM'))
-            }
-            dataRequest[i]['total'] = totalMoneyVND
+            if (account != '331')
+                for (let m = 0; m < dataRequest[i].arrayMoney.length; m++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, dataRequest[i].arrayMoney[m].typeMoney, (dataRequest[i].arrayMoney[m].total ? dataRequest[i].arrayMoney[m].total : 0), moment(dataRequest[i].createdDate).format('YYYY-DD-MM'))
+                }
+            dataRequest[i]['total'] = totalMoneyVND != 0 ? totalMoneyVND : dataRequest[i]['total']
             // if (check.Status == 'Chờ thanh toán')
             array.push(dataRequest[i])
         }
@@ -510,7 +511,7 @@ async function calculateMoneyFollowVND(db, typeMoney, total, date) {
     result = ((exchangeRate ? exchangeRate : 1) * total)
     return result
 }
-async function getInvoiceWaitForPay(db, objWaitForPay, stt) {
+async function getInvoiceWaitForPay(db, objWaitForPay, stt, customerName = '') {
     let totalMoneyVND = 0;
     for (let m = 0; m < objWaitForPay.arrayMoney.length; m++) {
         totalMoneyVND += await calculateMoneyFollowVND(db, objWaitForPay.arrayMoney[m].typeMoney, (objWaitForPay.arrayMoney[m].total ? objWaitForPay.arrayMoney[m].total : 0), moment(objWaitForPay.createdDate).format('YYYY-DD-MM'))
@@ -535,11 +536,11 @@ async function getInvoiceWaitForPay(db, objWaitForPay, stt) {
         numberOfReceipt: '',
         numberOfPayment: '',
         receiver: '',
-        nameCustomer: '',
+        customerName: customerName,
     }
     return obj;
 }
-async function getCreditWaitPay(db, objWaitForPay, stt) {
+async function getCreditWaitPay(db, objWaitForPay, stt, customerName = '') {
     let accountingCredit = await mtblDMTaiKhoanKeToan(db).findOne({
         where: {
             AccountingCode: objWaitForPay.accountingCredit
@@ -570,7 +571,7 @@ async function getCreditWaitPay(db, objWaitForPay, stt) {
         numberOfReceipt: '',
         numberOfPayment: '',
         receiver: '',
-        nameCustomer: '',
+        customerName: customerName,
     }
     return obj;
 }
@@ -1023,6 +1024,9 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
+                        let objCustomer = {}
+                        if (dataSearch.customerID)
+                            objCustomer = await getDetailCustomer(dataSearch.customerID)
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
                             if (data[i].IDPayment) {
@@ -1091,9 +1095,6 @@ module.exports = {
                                             debtSurplus = 0;
                                             creaditSurplus = 0;
                                         }
-                                        let objCustomer = {}
-                                        if (body.customerID)
-                                            objCustomer = await getDetailCustomer(body.customerID)
                                         var obj = {
                                             stt: stt,
                                             id: Number(item.ID),
@@ -1107,14 +1108,14 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            creditIncurred: accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0),
-                                            debtIncurred: accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0),
-                                            debtSurplus: (typeCheck == 'Debt' || typeCheck == 'Biexual') ? debtSurplus : null,
-                                            creaditSurplus: (typeCheck == 'Credit' || typeCheck == 'Biexual') ? creaditSurplus : null,
+                                            creditIncurred: accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0),
+                                            debtIncurred: accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0),
+                                            debtSurplus: (typeCheck == 'Debt') ? debtSurplus : ((typeCheck == 'Biexual' && openingBalanceDebit != null) ? debtSurplus : null),
+                                            creaditSurplus: (typeCheck == 'Credit') ? creaditSurplus : ((typeCheck == 'Biexual' && openingBalanceCredit != null) ? creaditSurplus : null),
                                             numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
                                             numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
                                             receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
-                                            nameCustomer: objCustomer != {} ? objCustomer.name : '',
+                                            customerName: Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
                                         }
                                         if (arrayIDAccount.length <= 1) {
                                             totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
@@ -1146,7 +1147,7 @@ module.exports = {
                         if (checkAccount131.AccountingCode == '131') {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131')
                             for (invoice of arrayInvoice) {
-                                let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt);
+                                let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '');
                                 // vì là tài khoản lưỡng tính
                                 if (creaditSurplus != 0)
                                     creaditSurplus += Number(invoice.total);
@@ -1171,7 +1172,7 @@ module.exports = {
                         if (checkAccount331.AccountingCode == '331') {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331')
                             for (credit of arrayCredit) {
-                                let objWaitForPay = await getCreditWaitPay(db, credit, stt)
+                                let objWaitForPay = await getCreditWaitPay(db, credit, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '')
                                 // vì là tài khoản lưỡng tính
                                 if (creaditSurplus != 0)
                                     creaditSurplus += Number(credit.total);
@@ -1200,8 +1201,8 @@ module.exports = {
                             endingBalanceCredit = null;
                             endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalCreditIncurred - totalDebtIncurred);
                         } else {
-                            endingBalanceCredit = (openingBalanceCredit == null ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
-                            endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalCreditIncurred - totalDebtIncurred);
+                            endingBalanceCredit = (openingBalanceCredit == null ? null : (openingBalanceCredit + (totalCreditIncurred - totalDebtIncurred)));
+                            endingBalanceDebit = (openingBalanceDebit == null ? null : (openingBalanceDebit + (totalCreditIncurred - totalDebtIncurred)));
                         }
                         var result = {
                             total: {
