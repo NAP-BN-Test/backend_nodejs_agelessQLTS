@@ -447,26 +447,28 @@ async function calculateMoneyFollowVND(db, typeMoney, total, date) {
     result = ((exchangeRate ? exchangeRate : 1) * total)
     return result
 }
-async function getInvoiceWaitForPayInDB(db, dataRequest, account) {
+async function getInvoiceWaitForPayInDB(db, dataRequest, account, customerID = null) {
     let array = [];
     for (let i = 0; i < dataRequest.length; i++) {
-        let check = await mtblInvoice(db).findOne({
-            where: { IDSpecializedSoftware: dataRequest[i].id }
-        })
-        if (check) {
-            if (account == '331')
-                dataRequest[i].invoiceNumber = dataRequest[i].creditNumber
-            dataRequest[i].statusName = check.Status
-            dataRequest[i].request = check.Request
-            dataRequest[i]['invoiceID'] = check.ID
-            let totalMoneyVND = 0;
-            if (account != '331')
-                for (let m = 0; m < dataRequest[i].arrayMoney.length; m++) {
-                    totalMoneyVND += await calculateMoneyFollowVND(db, dataRequest[i].arrayMoney[m].typeMoney, (dataRequest[i].arrayMoney[m].total ? dataRequest[i].arrayMoney[m].total : 0), moment(dataRequest[i].createdDate).format('YYYY-DD-MM'))
-                }
-            dataRequest[i]['total'] = totalMoneyVND != 0 ? totalMoneyVND : dataRequest[i]['total']
-            // if (check.Status == 'Chờ thanh toán')
-            array.push(dataRequest[i])
+        if (customerID == null || Number(dataRequest[i].idCustomer) == Number(customerID)) {
+            let check = await mtblInvoice(db).findOne({
+                where: { IDSpecializedSoftware: dataRequest[i].id }
+            })
+            if (check) {
+                if (account == '331')
+                    dataRequest[i].invoiceNumber = dataRequest[i].creditNumber
+                dataRequest[i].statusName = check.Status
+                dataRequest[i].request = check.Request
+                dataRequest[i]['invoiceID'] = check.ID
+                let totalMoneyVND = 0;
+                if (account != '331')
+                    for (let m = 0; m < dataRequest[i].arrayMoney.length; m++) {
+                        totalMoneyVND += await calculateMoneyFollowVND(db, dataRequest[i].arrayMoney[m].typeMoney, (dataRequest[i].arrayMoney[m].total ? dataRequest[i].arrayMoney[m].total : 0), moment(dataRequest[i].createdDate).format('YYYY-DD-MM'))
+                    }
+                dataRequest[i]['total'] = totalMoneyVND != 0 ? totalMoneyVND : dataRequest[i]['total']
+                // if (check.Status == 'Chờ thanh toán')
+                array.push(dataRequest[i])
+            }
         }
     }
     return array;
@@ -981,6 +983,23 @@ module.exports = {
                             }
                         })
                     }
+                    if (dataSearch.customerID) {
+                        let array = []
+                        await mtblReceiptsPayment(db).findAll({
+                            where: {
+                                IDCustomer: dataSearch.customerID
+                            }
+                        }).then(data => {
+                            for (item of data) {
+                                array.push(item.ID)
+                            }
+                        })
+                        whereOjb.push({
+                            IDPayment: {
+                                [Op.in]: array
+                            }
+                        })
+                    }
                     let totalCreditIncurred = 0;
                     let totalDebtIncurred = 0;
                     let totalCreaditSurplus = 0;
@@ -1027,6 +1046,50 @@ module.exports = {
                         let objCustomer = {}
                         if (dataSearch.customerID)
                             objCustomer = await getDetailCustomer(dataSearch.customerID)
+                        // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
+                        let checkAccount131 = await mtblDMTaiKhoanKeToan(db).findOne({
+                            where: {
+                                ID: dataSearch.accountSystemID
+                            }
+                        })
+                        if (checkAccount131.AccountingCode == '131') {
+                            let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
+                            for (invoice of arrayInvoice) {
+                                let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '');
+                                // vì là tài khoản lưỡng tính
+                                debtSurplus += Number(invoice.total);
+                                objWaitForPay['debtSurplus'] = debtSurplus ? debtSurplus : 0
+                                objWaitForPay['creaditSurplus'] = null
+                                totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
+                                totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
+                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
+                                totalDebtSurplus += (objWaitForPay.debtSurplus ? objWaitForPay.debtSurplus : 0);
+                                array.push(objWaitForPay);
+                                stt += 1;
+                            }
+                        }
+                        //  lấy dữ liệu credit Những credit chưa thanh toán tự động định khoản vào sổ tài khoản (tài khoản lấy theo pmcm gửi về)
+                        let checkAccount331 = await mtblDMTaiKhoanKeToan(db).findOne({
+                            where: {
+                                ID: dataSearch.accountSystemID
+                            }
+                        })
+                        if (checkAccount331.AccountingCode == '331') {
+                            let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
+                            for (credit of arrayCredit) {
+                                let objWaitForPay = await getCreditWaitPay(db, credit, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '')
+                                // vì là tài khoản lưỡng tính
+                                creaditSurplus += Number(credit.total);
+                                objWaitForPay['debtSurplus'] = null
+                                objWaitForPay['creaditSurplus'] = creaditSurplus ? creaditSurplus : 0
+                                totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
+                                totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
+                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
+                                totalDebtSurplus += (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0);
+                                array.push(objWaitForPay);
+                                stt += 1;
+                            }
+                        }
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
                             if (data[i].IDPayment) {
@@ -1083,8 +1146,17 @@ module.exports = {
                                         let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
                                         if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
                                             typeCheck = 'Biexual'
-                                            debtSurplus += (openingBalanceDebit != null ? (debtIncurred - creditIncurred) : 0);
-                                            creaditSurplus += (openingBalanceCredit != null ? (creditIncurred - debtIncurred) : 0);
+                                            //  nếu là tài khoản đầu 1,2 : bên nợ
+                                            //  nếu là tài khoản đầu 3,4 : bên có
+                                            if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
+                                                debtSurplus += (debtIncurred - creditIncurred);
+                                                creaditSurplus = null;
+                                            }
+                                            if (checkTypeClause.AccountingCode.slice(0, 1) == '3' || checkTypeClause.AccountingCode.slice(0, 1) == '4') {
+                                                debtSurplus == null;
+                                                creaditSurplus += (creditIncurred - debtIncurred);
+                                            }
+
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
                                             debtSurplus += debtIncurred - creditIncurred;
                                             creaditSurplus += 0;
@@ -1112,8 +1184,8 @@ module.exports = {
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
                                             creditIncurred: creditIncurred,
                                             debtIncurred: debtIncurred,
-                                            debtSurplus: (typeCheck == 'Debt') ? debtSurplus : ((typeCheck == 'Biexual' && openingBalanceDebit != null) ? debtSurplus : null),
-                                            creaditSurplus: (typeCheck == 'Credit') ? creaditSurplus : ((typeCheck == 'Biexual' && openingBalanceCredit != null) ? creaditSurplus : null),
+                                            debtSurplus: debtSurplus,
+                                            creaditSurplus: creaditSurplus,
                                             numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
                                             numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
                                             receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
@@ -1140,56 +1212,6 @@ module.exports = {
                                 }
                             })
                         }
-                        // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
-                        let checkAccount131 = await mtblDMTaiKhoanKeToan(db).findOne({
-                            where: {
-                                ID: dataSearch.accountSystemID
-                            }
-                        })
-                        if (checkAccount131.AccountingCode == '131') {
-                            let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131')
-                            for (invoice of arrayInvoice) {
-                                let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '');
-                                // vì là tài khoản lưỡng tính
-                                if (creaditSurplus != 0)
-                                    creaditSurplus += Number(invoice.total);
-                                if (debtSurplus != 0)
-                                    debtSurplus += Number(invoice.total);
-                                objWaitForPay['debtSurplus'] = debtSurplus == 0 ? null : debtSurplus
-                                objWaitForPay['creaditSurplus'] = creaditSurplus == 0 ? null : creaditSurplus
-                                totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
-                                totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
-                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
-                                totalDebtSurplus += (objWaitForPay.debtSurplus ? objWaitForPay.debtSurplus : 0);
-                                array.push(objWaitForPay);
-                                stt += 1;
-                            }
-                        }
-                        //  lấy dữ liệu credit Những credit chưa thanh toán tự động định khoản vào sổ tài khoản (tài khoản lấy theo pmcm gửi về)
-                        let checkAccount331 = await mtblDMTaiKhoanKeToan(db).findOne({
-                            where: {
-                                ID: dataSearch.accountSystemID
-                            }
-                        })
-                        if (checkAccount331.AccountingCode == '331') {
-                            let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331')
-                            for (credit of arrayCredit) {
-                                let objWaitForPay = await getCreditWaitPay(db, credit, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '')
-                                // vì là tài khoản lưỡng tính
-                                if (creaditSurplus != 0)
-                                    creaditSurplus += Number(credit.total);
-                                if (debtSurplus != 0)
-                                    debtSurplus += Number(credit.total);
-                                objWaitForPay['debtSurplus'] = debtSurplus == 0 ? null : debtSurplus
-                                objWaitForPay['creaditSurplus'] = creaditSurplus == 0 ? null : creaditSurplus
-                                totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
-                                totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
-                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
-                                totalDebtSurplus += (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0);
-                                array.push(objWaitForPay);
-                                stt += 1;
-                            }
-                        }
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
                         let checkType = await mtblDMTaiKhoanKeToan(db).findOne({
                             where: {
@@ -1203,8 +1225,16 @@ module.exports = {
                             endingBalanceCredit = null;
                             endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
                         } else {
-                            endingBalanceCredit = (openingBalanceCredit == null ? null : (openingBalanceCredit + (totalCreditIncurred - totalDebtIncurred)));
-                            endingBalanceDebit = (openingBalanceDebit == null ? null : (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)));
+                            let balanceCredit = (openingBalanceCredit == null ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                            let balanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
+                            if (checkType && checkType.AccountingCode.slice(0, 1) == '1' || checkType.AccountingCode.slice(0, 1) == '2') {
+                                endingBalanceCredit = null;
+                                endingBalanceDebit = balanceDebit;
+                            }
+                            if (checkType && checkType.AccountingCode.slice(0, 1) == '3' || checkType.AccountingCode.slice(0, 1) == '4') {
+                                endingBalanceCredit = balanceCredit;
+                                endingBalanceDebit = null;
+                            }
                         }
                         var result = {
                             total: {
@@ -1217,6 +1247,8 @@ module.exports = {
                                 openingBalanceCredit,
                                 endingBalanceDebit,
                                 endingBalanceCredit,
+                                customerName: Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
+                                customerCode: Object.keys(objCustomer).length > 0 ? objCustomer.customerCode : '',
                             },
                             array: array,
                             status: Constant.STATUS.SUCCESS,
