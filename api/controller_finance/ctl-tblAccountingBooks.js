@@ -1079,18 +1079,20 @@ module.exports = {
                                             }
                                         })
                                         let typeCheck = 'Biexual';
+                                        let creditIncurred = accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0);
+                                        let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
                                         if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
                                             typeCheck = 'Biexual'
-                                            debtSurplus += (openingBalanceDebit != null ? ((data[i].DebtIncurred ? data[i].DebtIncurred : 0) - (data[i].CreditIncurred ? data[i].CreditIncurred : 0)) : 0);
-                                            creaditSurplus += (openingBalanceCredit != null ? ((data[i].CreditIncurred ? data[i].CreditIncurred : 0) - (data[i].DebtIncurred ? data[i].DebtIncurred : 0)) : 0);
+                                            debtSurplus += (openingBalanceDebit != null ? (debtIncurred - creditIncurred) : 0);
+                                            creaditSurplus += (openingBalanceCredit != null ? (creditIncurred - debtIncurred) : 0);
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
-                                            debtSurplus += (accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0)) - (accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0));
+                                            debtSurplus += debtIncurred - creditIncurred;
                                             creaditSurplus += 0;
                                             typeCheck = 'Debt'
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
                                             typeCheck = 'Credit'
                                             debtSurplus += 0;
-                                            creaditSurplus += (accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0)) - (accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0));
+                                            creaditSurplus += creditIncurred - debtIncurred;
                                         } else {
                                             debtSurplus = 0;
                                             creaditSurplus = 0;
@@ -1108,8 +1110,8 @@ module.exports = {
                                             number: item.Number ? item.Number : '',
                                             reason: item.Reason ? item.Reason : '',
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                            creditIncurred: accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0),
-                                            debtIncurred: accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0),
+                                            creditIncurred: creditIncurred,
+                                            debtIncurred: debtIncurred,
                                             debtSurplus: (typeCheck == 'Debt') ? debtSurplus : ((typeCheck == 'Biexual' && openingBalanceDebit != null) ? debtSurplus : null),
                                             creaditSurplus: (typeCheck == 'Credit') ? creaditSurplus : ((typeCheck == 'Biexual' && openingBalanceCredit != null) ? creaditSurplus : null),
                                             numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
@@ -1199,10 +1201,10 @@ module.exports = {
                             endingBalanceDebit = null;
                         } else if (checkType && checkType.TypeClause == "Debt") {
                             endingBalanceCredit = null;
-                            endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalCreditIncurred - totalDebtIncurred);
+                            endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
                         } else {
                             endingBalanceCredit = (openingBalanceCredit == null ? null : (openingBalanceCredit + (totalCreditIncurred - totalDebtIncurred)));
-                            endingBalanceDebit = (openingBalanceDebit == null ? null : (openingBalanceDebit + (totalCreditIncurred - totalDebtIncurred)));
+                            endingBalanceDebit = (openingBalanceDebit == null ? null : (openingBalanceDebit + (totalDebtIncurred - totalCreditIncurred)));
                         }
                         var result = {
                             total: {
