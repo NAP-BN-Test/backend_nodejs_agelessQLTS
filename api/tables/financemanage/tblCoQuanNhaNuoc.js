@@ -9,6 +9,11 @@ module.exports = function (db) {
         },
         IDSpecializedSoftware: Sequelize.BIGINT,
         Status: Sequelize.STRING,
+        Date: Sequelize.DATE,
+        VoucherNumber: Sequelize.STRING,
+        MoneyNumber: Sequelize.FLOAT,
+        Note: Sequelize.STRING,
+        Type: Sequelize.STRING,
     });
 
     return table;

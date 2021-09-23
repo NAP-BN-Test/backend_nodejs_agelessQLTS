@@ -595,11 +595,6 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_accounting_books').post(tblAccountingBooks.getListtblAccountingBooks);
     app.route('/qlnb/insert_account_db').post(tblAccountingBooks.insertAccountDB);
 
-
-    var tblStateAgencies = require('./controller_finance/ctl-tblCoQuanNhaNuoc')
-    app.route('/qlnb/get_list_tbl_state_agencies').post(tblStateAgencies.getListtblCoQuanNhaNuoc);
-    app.route('/qlnb/track_receipts').post(tblStateAgencies.trackReceipts);
-
     // thêm mới quyền
     var tblRole = require('./controllers/ctl-tblRole')
     app.route('/qlnb/add_tbl_role').post(checkToken.checkToken, tblRole.addtblRole);
@@ -642,5 +637,14 @@ module.exports = function (app) {
     app.route('/qlnb/get_data_report_aggregate_revenue_year').post(reportFinance.getDataReportAggregateRevenueYear);
     app.route('/qlnb/get_data_reqort_average_sales_comparison_table').post(reportFinance.getDataReportAverageSalesComparison);
     app.route('/qlnb/get_data_report_average_revenue_vnd').post(reportFinance.getDataReportAverageRevenueVND);
+
+
+    // Cơ quan nhà nước
+    var tblStateAgencies = require('./controller_finance/ctl-tblCoQuanNhaNuoc')
+    app.route('/qlnb/get_list_tbl_state_agencies').post(tblStateAgencies.getListtblCoQuanNhaNuoc);
+    app.route('/qlnb/track_receipts').post(tblStateAgencies.trackReceipts);
+    app.route('/qlnb/add_tbl_state_agencies').post(tblStateAgencies.addtblCoQuanNhaNuoc);
+    app.route('/qlnb/update_tbl_state_agencies').post(tblStateAgencies.updatetblCoQuanNhaNuoc);
+    app.route('/qlnb/delete_tbl_state_agencies').post(tblStateAgencies.deletetblCoQuanNhaNuoc);
 
 }

@@ -237,7 +237,7 @@ dataFLCQNN = [
 ]
 module.exports = {
     deleteRelationshiptblCoQuanNhaNuoc,
-    //  get_detail_tbl_state_agencies
+    //  add_tbl_state_agencies
     // detailtblCoQuanNhaNuoc: (req, res) => {
     //     let body = req.body;
     //     database.connectDatabase().then(async db => {
@@ -276,8 +276,14 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    // 3 type: debtNotices, payment, withdraw
                     mtblCoQuanNhaNuoc(db).create({
                         IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
+                        Date: body.date ? body.date : null,
+                        VoucherNumber: body.voucherNumber ? body.voucherNumber : null,
+                        MoneyNumber: body.moneyNumber ? body.moneyNumber : null,
+                        Note: body.note ? body.note : null,
+                        Type: body.type ? body.type : null,
                         Status: 'Mới',
                     }).then(data => {
                         var result = {
@@ -302,11 +308,29 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    if (body.voucherNumber || body.voucherNumber === '')
+                        update.push({ key: 'VoucherNumber', value: body.voucherNumber });
+                    if (body.note || body.note === '')
+                        update.push({ key: 'Note', value: body.note });
+                    if (body.type || body.type === '')
+                        update.push({ key: 'Type', value: body.type });
                     if (body.idSpecializedSoftware || body.idSpecializedSoftware === '') {
                         if (body.idSpecializedSoftware === '')
                             update.push({ key: 'IDSpecializedSoftware', value: null });
                         else
                             update.push({ key: 'IDSpecializedSoftware', value: body.idSpecializedSoftware });
+                    }
+                    if (body.date || body.date === '') {
+                        if (body.date === '')
+                            update.push({ key: 'Date', value: null });
+                        else
+                            update.push({ key: 'Date', value: body.date });
+                    }
+                    if (body.moneyNumber || body.moneyNumber === '') {
+                        if (body.moneyNumber === '')
+                            update.push({ key: 'MoneyNumber', value: null });
+                        else
+                            update.push({ key: 'MoneyNumber', value: body.moneyNumber });
                     }
                     database.updateTable(update, mtblCoQuanNhaNuoc(db), body.id).then(response => {
                         if (response == 1) {
@@ -460,12 +484,12 @@ module.exports = {
                     id: dataFLCQNN[i].idCQNC,
                     soCT: dataFLCQNN[i].code,
                     ngayCT: dataFLCQNN[i].createdDate,
-                    moneyNC: 6000000,
+                    moneyNC: null,
                     invoiceNumber: dataFLCQNN[i].invoiceNumber,
-                    ckNC: 2000000,
+                    ckNC: null,
                     sttbl: dataFLCQNN[i].amountReceipts,
-                    rq: 0,
-                    sdck: 0,
+                    rq: null,
+                    sdck: null,
                 })
             }
             obj['lines'] = array;
