@@ -235,6 +235,34 @@ dataFLCQNN = [
 
     },
 ]
+async function handleCodeNumber(str, type) {
+    var endCode = '';
+    var behind = '';
+    var headerCode = '';
+    if (type == 'payment') {
+        automaticCode = 'PC0001'
+        behind = Number(str.slice(2, 10)) + 1
+        headerCode = str.slice(0, 2)
+    } else if (type == 'debtNotices') {
+        automaticCode = 'GBN0001'
+        behind = Number(str.slice(3, 10)) + 1
+        headerCode = str.slice(0, 3)
+    } else if (type == 'withdraw') {
+        automaticCode = 'RQ0001'
+        behind = Number(str.slice(2, 11)) + 1
+        headerCode = str.slice(0, 2)
+    }
+    if (behind < 10)
+        endCode = '000' + behind
+    if (behind >= 10 && behind < 100)
+        endCode = '00' + behind
+    if (behind >= 100 && behind < 1000)
+        endCode = '0' + behind
+    if (behind >= 1000)
+        endCode = behind
+
+    return headerCode + endCode
+}
 module.exports = {
     deleteRelationshiptblCoQuanNhaNuoc,
     //  add_tbl_state_agencies
@@ -273,6 +301,7 @@ module.exports = {
     // add_tbl_state_agencies
     addtblCoQuanNhaNuoc: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -470,16 +499,33 @@ module.exports = {
         console.log(body);
         let array = [];
         let obj = {};
+        let totalmoneyNC = 0;
+        let totalckNC = 0;
+        let totalsttbl = 0;
+        let sdktcs = 0;
+        let kq = 0;
+        let sdq = 0;
         database.connectDatabase().then(async db => {
-            obj = {
-                sdktcs: 2000000,
-                kq: 2000000,
-                sdq: 2000000,
-                totalmoneyNC: 60000000,
-                totalckNC: 20000000,
-                totalsttbl: 15600000,
-            }
+            await mtblCoQuanNhaNuoc(db).findAll().then(data => {
+                for (item of data) {
+                    totalmoneyNC += (item.Type == 'payment' ? item.MoneyNumber : null)
+                    totalckNC += (item.Type == 'debtNotices' ? item.MoneyNumber : null)
+                    sdq += (item.Type == 'withdraw' ? item.MoneyNumber : null)
+                    array.push({
+                        id: item.ID,
+                        soCT: item.VoucherNumber ? item.VoucherNumber : '',
+                        ngayCT: item.Date ? moment(item.Date).add(7, 'hours').format('YYYY/MM/DD') : null,
+                        moneyNC: item.Type == 'payment' ? item.MoneyNumber : null,
+                        ckNC: item.Type == 'debtNotices' ? item.MoneyNumber : null,
+                        rq: item.Type == 'withdraw' ? item.MoneyNumber : null,
+                        invoiceNumber: '',
+                        sttbl: null,
+                        sdck: null,
+                    })
+                }
+            })
             for (var i = 0; i < dataFLCQNN.length; i++) {
+                totalsttbl += dataFLCQNN[i].amountReceipts
                 array.push({
                     id: dataFLCQNN[i].idCQNC,
                     soCT: dataFLCQNN[i].code,
@@ -492,6 +538,15 @@ module.exports = {
                     sdck: null,
                 })
             }
+            obj = {
+                sdktcs: sdktcs,
+                sdcsks: null,
+                kq: kq,
+                sdq: sdq,
+                totalmoneyNC: totalmoneyNC,
+                totalckNC: totalckNC,
+                totalsttbl: totalsttbl,
+            }
             obj['lines'] = array;
             var result = {
                 obj: obj,
@@ -499,6 +554,78 @@ module.exports = {
                 message: Constant.MESSAGE.ACTION_SUCCESS,
             }
             res.json(result);
+        })
+    },
+    // get_automatically_increasing_voucher_number_cqnn
+    getAutomaticallyIncreasingVoucherNumberCQNN: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var check = await mtblCoQuanNhaNuoc(db).findOne({
+                        where: { Type: body.type },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    })
+                    var automaticCode = 'PC0001';
+                    if (!check && body.type == 'payment') {
+                        automaticCode = 'PC0001'
+                    } else if (!check && body.type == 'debtNotices') {
+                        automaticCode = 'GBN0001'
+                    } else if (!check && body.type == 'withdraw') {
+                        automaticCode = 'RQ0001'
+                    } else {
+                        automaticCode = await handleCodeNumber(check ? check.VoucherNumber : null, body.type)
+                    }
+                    var result = {
+                        voucherNumber: automaticCode,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // check_duplicate_voucher_number_cqnn
+    checkDuplicateVoucherNumberCQNN: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var check = false;
+                    let where = {}
+                    if (body.voucherNumber)
+                        where['VoucherNumber'] = body.voucherNumber
+                    if (body.id)
+                        where['ID'] = { [Op.ne]: body.id }
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: where
+                    }).then(data => {
+                        if (data) {
+                            check = true
+                        }
+                    })
+                    var result = {
+                        check: check,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
         })
     },
 }

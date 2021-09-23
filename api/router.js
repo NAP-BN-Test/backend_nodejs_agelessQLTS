@@ -646,5 +646,7 @@ module.exports = function (app) {
     app.route('/qlnb/add_tbl_state_agencies').post(tblStateAgencies.addtblCoQuanNhaNuoc);
     app.route('/qlnb/update_tbl_state_agencies').post(tblStateAgencies.updatetblCoQuanNhaNuoc);
     app.route('/qlnb/delete_tbl_state_agencies').post(tblStateAgencies.deletetblCoQuanNhaNuoc);
+    app.route('/qlnb/get_automatically_increasing_voucher_number_cqnn').post(tblStateAgencies.getAutomaticallyIncreasingVoucherNumberCQNN);
+    app.route('/qlnb/check_duplicate_voucher_number_cqnn').post(tblStateAgencies.checkDuplicateVoucherNumberCQNN);
 
 }
