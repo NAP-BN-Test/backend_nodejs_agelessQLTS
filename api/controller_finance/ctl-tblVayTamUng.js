@@ -462,7 +462,7 @@ module.exports = {
                             })
                             where = [
                                 { AdvanceCode: { [Op.like]: '%' + data.search + '%' } },
-                                { IDNhanVienAdvance: { [Op.in]: listStaff } },
+                                { IDNhanVienCreate: { [Op.in]: listStaff } },
                             ];
                         } else {
                             where = [
@@ -636,7 +636,7 @@ module.exports = {
                             })
                             where = [
                                 { AdvanceCode: { [Op.like]: '%' + data.search + '%' } },
-                                { IDNhanVienAdvance: { [Op.in]: listStaff } },
+                                { IDNhanVienCreate: { [Op.in]: listStaff } },
                             ];
                         } else {
                             where = [
@@ -663,6 +663,18 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'NGƯỜI VAY') {
                                     userFind['IDNhanVienAdvance'] = data.items[i]['searchFields']
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGƯỜI LÀM ĐƠN') {
+                                    userFind['IDNhanVienCreate'] = data.items[i]['searchFields']
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
