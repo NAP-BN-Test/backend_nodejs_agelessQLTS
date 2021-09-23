@@ -1377,6 +1377,7 @@ module.exports = {
                     let arraySearchNot = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
+                        console.log(data);
                         if (data.search) {
                             where = [
                                 { Type: body.type },
@@ -1399,6 +1400,23 @@ module.exports = {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'SỐ CHỨNG TỪ') {
                                     userFind['CodeNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'ĐỐI TƯỢNG') {
+                                    if (data.items[i]['searchFields'].type == 'staff')
+                                        userFind['IDStaff'] = data.items[i]['searchFields'].id
+                                    else if (data.items[i]['searchFields'].type == 'partner')
+                                        userFind['IDPartner'] = data.items[i]['searchFields'].id
+                                    else
+                                        userFind['IDCustomer'] = data.items[i]['searchFields'].id
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }

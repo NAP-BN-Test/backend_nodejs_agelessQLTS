@@ -20,7 +20,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/01',
+        createdDate: '01/02/2021',
         content: 'Thanh toán cho TTCCNN0001',
         total: '1000000',
         unit: 'VND',
@@ -33,7 +33,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/02',
+        createdDate: '02/02/2021',
         content: 'Thanh toán cho TTCCNN0002',
         total: '1200000',
         unit: 'VND',
@@ -46,7 +46,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/03',
+        createdDate: '03/02/2021',
         content: 'Thanh toán cho TTCCNN0003',
         total: '1300000',
         unit: 'VND',
@@ -59,7 +59,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/04',
+        createdDate: '04/02/2021',
         content: 'Thanh toán cho TTCCNN0004',
         total: '4000000',
         unit: 'VND',
@@ -72,7 +72,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/05',
+        createdDate: '05/02/2021',
         content: 'Thanh toán cho TTCCNN0005',
         total: '1500000',
         unit: 'VND',
@@ -85,7 +85,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/06',
+        createdDate: '06/02/2021',
         content: 'Thanh toán cho TTCCNN0006',
         total: '1600000',
         unit: 'VND',
@@ -98,7 +98,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/07',
+        createdDate: '07/02/2021',
         content: 'Thanh toán cho TTCCNN0007',
         total: '1700000',
         unit: 'VND',
@@ -111,7 +111,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/08',
+        createdDate: '08/02/2021',
         content: 'Thanh toán cho TTCCNN0008',
         total: '1800000',
         unit: 'VND',
@@ -124,7 +124,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/09',
+        createdDate: '09/02/2021',
         content: 'Thanh toán cho TTCCNN0009',
         total: '1900000',
         unit: 'VND',
@@ -137,7 +137,7 @@ dataCQNN = [
         paymentSAName: 'Thanh toán cơ quan nhà nước HN',
         customerName: 'Công ty tnhh Is Tech Vina',
         partnerID: '2',
-        createdDate: '2020/02/10',
+        createdDate: '10/02/2021',
         content: 'Thanh toán cho TTCCNN0010',
         total: '1200000',
         unit: 'VND',
@@ -147,7 +147,7 @@ dataCQNN = [
 dataFLCQNN = [
     {
         id: 1,
-        createdDate: '2020/02/01',
+        createdDate: '01/02/2021',
         code: 'BL0001',
         idCQNC: 1,
         amountReceipts: 1000000,
@@ -155,7 +155,7 @@ dataFLCQNN = [
     },
     {
         id: 2,
-        createdDate: '2020/02/02',
+        createdDate: '02/02/2021',
         code: 'BL0002',
         idCQNC: 2,
         amountReceipts: 1200000,
@@ -164,7 +164,7 @@ dataFLCQNN = [
     },
     {
         id: 3,
-        createdDate: '2020/02/03',
+        createdDate: '03/02/2021',
         code: 'BL0003',
         idCQNC: 3,
         amountReceipts: 1300000,
@@ -173,7 +173,7 @@ dataFLCQNN = [
     },
     {
         id: 4,
-        createdDate: '2020/02/04',
+        createdDate: '04/02/2021',
         code: 'BL0004',
         idCQNC: 4,
         amountReceipts: 1400000,
@@ -182,7 +182,7 @@ dataFLCQNN = [
     },
     {
         id: 5,
-        createdDate: '2020/02/05',
+        createdDate: '05/02/2021',
         code: 'BL0005',
         idCQNC: 5,
         amountReceipts: 1500000,
@@ -191,7 +191,7 @@ dataFLCQNN = [
     },
     {
         id: 6,
-        createdDate: '2020/02/06',
+        createdDate: '06/02/2021',
         code: 'BL0006',
         idCQNC: 6,
         amountReceipts: 1600000,
@@ -200,7 +200,7 @@ dataFLCQNN = [
     },
     {
         id: 7,
-        createdDate: '2020/02/08',
+        createdDate: '08/02/2021',
         code: 'BL0008',
         idCQNC: 8,
         amountReceipts: 1800000,
@@ -209,7 +209,7 @@ dataFLCQNN = [
     },
     {
         id: 8,
-        createdDate: '2020/02/08',
+        createdDate: '08/02/2021',
         code: 'BL0008',
         idCQNC: 8,
         amountReceipts: 1800000,
@@ -218,7 +218,7 @@ dataFLCQNN = [
     },
     {
         id: 9,
-        createdDate: '2020/02/09',
+        createdDate: '09/02/2021',
         code: 'BL0009',
         idCQNC: 9,
         amountReceipts: 1900000,
@@ -227,7 +227,7 @@ dataFLCQNN = [
     },
     {
         id: 10,
-        createdDate: '2020/02/10',
+        createdDate: '10/02/2021',
         code: 'BL0010',
         idCQNC: 10,
         amountReceipts: 1110000,
@@ -496,7 +496,6 @@ module.exports = {
     // track_receipts
     trackReceipts: (req, res) => {
         let body = req.body;
-        console.log(body);
         let array = [];
         let obj = {};
         let totalmoneyNC = 0;
@@ -506,54 +505,66 @@ module.exports = {
         let kq = 0;
         let sdq = 0;
         database.connectDatabase().then(async db => {
-            await mtblCoQuanNhaNuoc(db).findAll().then(data => {
-                for (item of data) {
-                    totalmoneyNC += (item.Type == 'payment' ? item.MoneyNumber : null)
-                    totalckNC += (item.Type == 'debtNotices' ? item.MoneyNumber : null)
-                    sdq += (item.Type == 'withdraw' ? item.MoneyNumber : null)
-                    array.push({
-                        id: item.ID,
-                        soCT: item.VoucherNumber ? item.VoucherNumber : '',
-                        ngayCT: item.Date ? moment(item.Date).add(7, 'hours').format('YYYY/MM/DD') : null,
-                        moneyNC: item.Type == 'payment' ? item.MoneyNumber : null,
-                        ckNC: item.Type == 'debtNotices' ? item.MoneyNumber : null,
-                        rq: item.Type == 'withdraw' ? item.MoneyNumber : null,
-                        invoiceNumber: '',
-                        sttbl: null,
-                        sdck: null,
+            try {
+                let stt = 1;
+                for (var i = 0; i < dataFLCQNN.length; i++) {
+                    let check = await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            VoucherNumber: dataFLCQNN[i].code
+                        }
                     })
+                    if (!check)
+                        await mtblCoQuanNhaNuoc(db).create({
+                            IDSpecializedSoftware: dataFLCQNN[i].idCQNC ? dataFLCQNN[i].idCQNC : null,
+                            Date: dataFLCQNN[i].createdDate ? moment(dataFLCQNN[i].createdDate).add(7, 'hours').format('DD/MM/YYYY') : null,
+                            VoucherNumber: dataFLCQNN[i].code ? dataFLCQNN[i].code : null,
+                            MoneyNumber: dataFLCQNN[i].amountReceipts ? dataFLCQNN[i].amountReceipts : null,
+                            Note: null,
+                            Type: 'invoice',
+                            // Status: 'Mới',
+                        })
                 }
-            })
-            for (var i = 0; i < dataFLCQNN.length; i++) {
-                totalsttbl += dataFLCQNN[i].amountReceipts
-                array.push({
-                    id: dataFLCQNN[i].idCQNC,
-                    soCT: dataFLCQNN[i].code,
-                    ngayCT: dataFLCQNN[i].createdDate,
-                    moneyNC: null,
-                    invoiceNumber: dataFLCQNN[i].invoiceNumber,
-                    ckNC: null,
-                    sttbl: dataFLCQNN[i].amountReceipts,
-                    rq: null,
-                    sdck: null,
+                await mtblCoQuanNhaNuoc(db).findAll().then(data => {
+                    for (item of data) {
+                        totalmoneyNC += (item.Type == 'payment' ? item.MoneyNumber : null)
+                        totalckNC += (item.Type == 'debtNotices' ? item.MoneyNumber : null)
+                        sdq += (item.Type == 'withdraw' ? item.MoneyNumber : null)
+                        totalsttbl += (item.Type == 'invoice' ? item.MoneyNumber : null)
+                        array.push({
+                            stt: stt,
+                            id: item.ID,
+                            soCT: item.VoucherNumber ? item.VoucherNumber : '',
+                            ngayCT: item.Date ? moment(item.Date).add(7, 'hours').format('DD/MM/YYYY') : null,
+                            moneyNC: item.Type == 'payment' ? item.MoneyNumber : null,
+                            ckNC: item.Type == 'debtNotices' ? item.MoneyNumber : null,
+                            rq: item.Type == 'withdraw' ? item.MoneyNumber : null,
+                            invoiceNumber: item.Type == 'invoice' ? item.MoneyNumber : null,
+                            sttbl: item.Type == 'invoice' ? item.MoneyNumber : null,
+                            sdck: null,
+                        })
+                        stt += 1;
+                    }
                 })
+                obj = {
+                    sdktcs: sdktcs,
+                    sdcsks: null,
+                    kq: kq,
+                    sdq: sdq,
+                    totalmoneyNC: totalmoneyNC,
+                    totalckNC: totalckNC,
+                    totalsttbl: totalsttbl,
+                }
+                obj['lines'] = array;
+                var result = {
+                    obj: obj,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                }
+                res.json(result);
+            } catch (error) {
+                console.log(error);
             }
-            obj = {
-                sdktcs: sdktcs,
-                sdcsks: null,
-                kq: kq,
-                sdq: sdq,
-                totalmoneyNC: totalmoneyNC,
-                totalckNC: totalckNC,
-                totalsttbl: totalsttbl,
-            }
-            obj['lines'] = array;
-            var result = {
-                obj: obj,
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-            }
-            res.json(result);
+
         })
     },
     // get_automatically_increasing_voucher_number_cqnn
@@ -596,6 +607,40 @@ module.exports = {
     },
     // check_duplicate_voucher_number_cqnn
     checkDuplicateVoucherNumberCQNN: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var check = false;
+                    let where = {}
+                    if (body.voucherNumber)
+                        where['VoucherNumber'] = body.voucherNumber
+                    if (body.id)
+                        where['ID'] = { [Op.ne]: body.id }
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: where
+                    }).then(data => {
+                        if (data) {
+                            check = true
+                        }
+                    })
+                    var result = {
+                        check: check,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // save_previous_period_balance
+    savePreviousPeriodBalance: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
             if (db) {
