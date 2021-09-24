@@ -645,21 +645,28 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var check = false;
-                    let where = {}
-                    if (body.voucherNumber)
-                        where['VoucherNumber'] = body.voucherNumber
-                    if (body.id)
-                        where['ID'] = { [Op.ne]: body.id }
-                    await mtblCoQuanNhaNuoc(db).findOne({
-                        where: where
-                    }).then(data => {
-                        if (data) {
-                            check = true
+                    let checkExit = await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: '2021-01-01',
                         }
                     })
+                    if (!checkExit)
+                        await mtblCoQuanNhaNuoc(db).create({
+                            Date: '2021-01-01',
+                            MoneyNumber: body.moneyNumber ? body.moneyNumber : null,
+                            Type: 'period',
+                        })
+                    else {
+                        await mtblCoQuanNhaNuoc(db).update({
+                            MoneyNumber: body.moneyNumber ? body.moneyNumber : null,
+                        }, {
+                            where: {
+                                ID: checkExit.ID,
+                            }
+                        })
+                    }
                     var result = {
-                        check: check,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
