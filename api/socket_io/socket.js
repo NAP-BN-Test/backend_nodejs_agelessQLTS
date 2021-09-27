@@ -300,6 +300,7 @@ module.exports = {
                         }
                         await db.query(queryUpdate)
                     } else {
+                        console.log("START");
                         //lấy dữ liệu đơn gốc
                         let loaihinhvanchuyen = await db.query("SELECT * FROM tblLoaiHinhVanChuyen WHERE ID = " + objOrder.IDLoaiHinhVanChuyen)
                         let loaivo = await db.query("SELECT * FROM tblLoaiVo WHERE ID = " + objOrder.IDLoaiVo)
@@ -423,6 +424,7 @@ module.exports = {
                             await db2.query("DELETE FROM tblDonHang WHERE IDDonHangChinhSua = " + IDDonHangs)
                             await db2.query("DELETE FROM tblDonHang WHERE MaDoiChieu = '" + MaDoiChieu + "' AND IDKhachHang = " + IDKhachHang)
                         }
+                        console.log("INSERT");
                         let CreateOrderQuery = "Insert INTO tblDonHang (IDLoaiHinhVanChuyen, SoDonHang, MaDoiChieu, CuocVanChuyen, GiaCuocThu, NgayDong, NgayTra, GioDong, GioTra, ChiPhiPhatSinhThu, TongTienThu, TrangThai, IDKhachHang, SoLuongVo, IDLoaiVo, IDHangTau, TrongLuong, NoiDong, DiaDiemDong, NoiTra,DiaDiemTra, PheDuyet, SoContainer, SoChi, NguoiLayHang, SDTNguoiLay, GhiChuLay, NguoiTraHang, SDTNguoiTra, GhiChuTra, GhiChuChiPhi, IDNhanVienKH,CreateDate, EditDate) values (" + IDLoaiHinhVanChuyen + ",'" + SoDonHang + "','" + MaDoiChieu + "'," + CuocVanChuyen + "," + CuocVanChuyen + ",'" + NgayDong + "','" + NgayTra + "','" + GioDong + "','" + GioTra + "'," + ChiPhiPhatSinhThu + "," + TongTienThu + ", N'MỚI'," + IDKhachHang + "," + SoLuongVo + "," + IDLoaiVo + "," + IDHangTau + ",N'" + TrongLuong + "',N'" + NoiDong + "',N'" + DiaDiemDong + "',N'" + NoiTra + "',N'" + DiaDiemTra + "', N'ĐÃ DUYỆT','" + SoContainer + "','" + SoChi + "',N'" + NguoiLayHang + "','" + SDTNguoiLay + "',N'" + GhiChuLay + "',N'" + NguoiTraHang + "','" + SDTNguoiTra + "',N'" + GhiChuTra + "',N'" + GhiChuChiPhi + "'," + IDNhanVienKH + ",'" + CreateDate + "','" + EditDate + "')"
                         await db2.query(CreateOrderQuery)
                         let NewOrder = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang = '" + SoDonHang + "'")

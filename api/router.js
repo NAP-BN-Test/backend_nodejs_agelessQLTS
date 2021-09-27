@@ -594,6 +594,7 @@ module.exports = function (app) {
     var tblAccountingBooks = require('./controller_finance/ctl-tblAccountingBooks')
     app.route('/qlnb/get_list_tbl_accounting_books').post(tblAccountingBooks.getListtblAccountingBooks);
     app.route('/qlnb/insert_account_db').post(tblAccountingBooks.insertAccountDB);
+    app.route('/qlnb/get_all_accounting_books').post(tblAccountingBooks.getAllAccountBooks);
 
     // thêm mới quyền
     var tblRole = require('./controllers/ctl-tblRole')
@@ -648,5 +649,6 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_state_agencies').post(tblStateAgencies.deletetblCoQuanNhaNuoc);
     app.route('/qlnb/get_automatically_increasing_voucher_number_cqnn').post(tblStateAgencies.getAutomaticallyIncreasingVoucherNumberCQNN);
     app.route('/qlnb/check_duplicate_voucher_number_cqnn').post(tblStateAgencies.checkDuplicateVoucherNumberCQNN);
+    app.route('/qlnb/save_previous_period_balance').post(tblStateAgencies.savePreviousPeriodBalance);
 
 }

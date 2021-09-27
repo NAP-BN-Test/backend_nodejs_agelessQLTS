@@ -723,7 +723,20 @@ module.exports = {
                     for (var i = 0; i < array.length; i++) {
                         if (array[i].id == 1) {
                             arrayInvoice = await calculateTheTotalAmountOfEachCurrency(db, data)
+                            // arrayCredit = await calculateTheTotalForCredit(db, dataCredit)
+                            arrayCredit = [
+                                {
+                                    typeMoney: 'VND',
+                                    total: 0
+                                }]
+                        } else if (array[i].id == 10) {
+                            // arrayInvoice = await calculateTheTotalAmountOfEachCurrency(db, data)
                             arrayCredit = await calculateTheTotalForCredit(db, dataCredit)
+                            arrayInvoice = [
+                                {
+                                    typeMoney: 'VND',
+                                    total: 0
+                                }]
                         } else {
                             arrayInvoice = [
                                 {
@@ -775,7 +788,6 @@ module.exports = {
                                     totalUndefind += Number(item.UnpaidAmount);
                                 })
                             })
-                            console.log(arrayInvoice);
                             var obj = {
                                 stt: stt,
                                 id: Number(data.IDSpecializedSoftware),

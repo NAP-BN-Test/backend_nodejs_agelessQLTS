@@ -6,11 +6,35 @@ var mtblCoQuanNhaNuoc = require('../tables/financemanage/tblCoQuanNhaNuoc')
 var database = require('../database');
 const axios = require('axios');
 async function deleteRelationshiptblCoQuanNhaNuoc(db, listID) {
-    await mtblCoQuanNhaNuoc(db).destroy({
-        where: {
-            ID: { [Op.in]: listID }
+    try {
+        await mtblCoQuanNhaNuoc(db).findAll({
+            where: {
+                ID: { [Op.in]: listID },
+            }
+        }).then(async data => {
+            for (item of data) {
+                if (item.Date) {
+                    let month = Number(item.Date.slice(5, 7));
+                    let year = Number(item.Date.slice(0, 4));
+                    await mtblCoQuanNhaNuoc(db).destroy({
+                        where: {
+                            ID: { [Op.in]: listID }
+                        }
+                    })
+                    await deleteAndCreatePeriodBalanceFollowMonth(db, month, year)
+                }
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        var result = {
+            status: Constant.STATUS.FAIL,
+            message: 'Xóa lỗi. Liên hệ quản trị!',
         }
-    })
+        res.json(result)
+
+    }
+
 }
 dataCQNN = [
     {
@@ -263,6 +287,68 @@ async function handleCodeNumber(str, type) {
 
     return headerCode + endCode
 }
+async function convertNumber(number) {
+    if (number < 10) {
+        return '0' + number
+    } else
+        return number
+}
+async function getMoneyFollowMonthAndType(db, month, type) {
+    let totalResult = 0;
+    await mtblCoQuanNhaNuoc(db).findAll({
+        where: {
+            Date: { [Op.substring]: month },
+            Type: type,
+        }
+    }).then(data => {
+        for (item of data) {
+            totalResult += Number(item.MoneyNumber)
+        }
+    })
+    return totalResult
+}
+async function createDataPeriodBalanceFollowYear(db, year, moneyNumber, montFrom = 2) {
+    // tạo dữ liệu theo năm
+    let endingBalance = moneyNumber;
+    for (let month = montFrom; month <= 12; month++) {
+        let paymentMoney = await getMoneyFollowMonthAndType(db, year + '-' + await convertNumber(month - 1), 'payment');
+        let debtNoticesMoney = await getMoneyFollowMonthAndType(db, year + '-' + await convertNumber(month - 1), 'debtNotices');
+        let withdrawMoney = await getMoneyFollowMonthAndType(db, year + '-' + await convertNumber(month - 1), 'withdraw');
+        let invoiceMoney = await getMoneyFollowMonthAndType(db, year + '-' + await convertNumber(month - 1), 'invoice');
+        endingBalance = Number(endingBalance) + Number(paymentMoney) + Number(debtNoticesMoney) - Number(invoiceMoney) + Number(withdrawMoney)
+        await mtblCoQuanNhaNuoc(db).create({
+            Date: '2021-' + await convertNumber(month) + '-01',
+            MoneyNumber: endingBalance,
+            Type: 'period',
+        })
+    }
+}
+async function deleteAndCreatePeriodBalanceFollowMonth(db, month, year) {
+    await mtblCoQuanNhaNuoc(db).destroy({
+        where: {
+            Type: 'period',
+            Date: {
+                [Op.gte]: year + '-' + await convertNumber(month + 1) + '-01'
+            },
+        }
+    })
+    let moneyNumber = 0;
+    await mtblCoQuanNhaNuoc(db).findOne({
+        where: {
+            Type: 'period',
+            Date: {
+                [Op.substring]: year + '-' + await convertNumber(month)
+            }
+        }
+    }).then(data => {
+        if (data)
+            moneyNumber = data.MoneyNumber
+    })
+    await createDataPeriodBalanceFollowYear(db, year, moneyNumber, month + 1)
+}
+var mtblCurrency = require('../tables/financemanage/tblCurrency')
+var mtblRate = require('../tables/financemanage/tblRate')
+
 module.exports = {
     deleteRelationshiptblCoQuanNhaNuoc,
     //  add_tbl_state_agencies
@@ -314,7 +400,12 @@ module.exports = {
                         Note: body.note ? body.note : null,
                         Type: body.type ? body.type : null,
                         Status: 'Mới',
-                    }).then(data => {
+                    }).then(async data => {
+                        if (body.date) {
+                            let month = Number(body.date.slice(5, 7));
+                            let year = Number(body.date.slice(0, 4));
+                            await deleteAndCreatePeriodBalanceFollowMonth(db, month, year)
+                        }
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -496,14 +587,17 @@ module.exports = {
     // track_receipts
     trackReceipts: (req, res) => {
         let body = req.body;
+        console.log(body);
         let array = [];
         let obj = {};
         let totalmoneyNC = 0;
         let totalckNC = 0;
         let totalsttbl = 0;
         let sdktcs = 0;
+        let sdktcsCQNN = 0;
         let kq = 0;
         let sdq = 0;
+        dataSearch = JSON.parse(body.dataSearch)
         database.connectDatabase().then(async db => {
             try {
                 let stt = 1;
@@ -524,7 +618,196 @@ module.exports = {
                             // Status: 'Mới',
                         })
                 }
-                await mtblCoQuanNhaNuoc(db).findAll().then(data => {
+                var whereOjb = [];
+                let monthOpeningBalance = 1
+                let yearNow = Number(moment().format('YYYY'));
+                const currentYear = new Date().getFullYear()
+
+                if (dataSearch.selection == 'first_six_months') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: yearNow + '-01'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    const startedDate = new Date(currentYear + "-01-01 14:00:00");
+                    const endDate = new Date(currentYear + "-06-30 14:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.selection == 'last_six_months') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: yearNow + '-07'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    let startedDate = new Date(currentYear + "-06-01 07:00:00");
+                    let endDate = new Date(currentYear + "-12-30 24:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.selection == 'one_quarter') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: yearNow + '-01'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                    let endDate = new Date(currentYear + "-04-01 00:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.selection == 'two_quarter') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: yearNow + '-04'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    let startedDate = new Date(currentYear + "-04-01 07:00:00");
+                    let endDate = new Date(currentYear + "-07-01 00:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.selection == 'three_quarter') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: yearNow + '-07'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    let startedDate = new Date(currentYear + "-07-01 07:00:00");
+                    let endDate = new Date(currentYear + "-10-01 00:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.selection == 'four_quarter') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: yearNow + '-10'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    let startedDate = new Date(currentYear + "-10-01 07:00:00");
+                    let endDate = new Date(currentYear + "-12-30 24:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.selection == 'last_year') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: (yearNow - 1) + '-07'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
+                    let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.selection == 'this_year') {
+                    await mtblCoQuanNhaNuoc(db).findOne({
+                        where: {
+                            Type: 'period',
+                            Date: {
+                                [Op.substring]: yearNow + '-01'
+                            }
+                        }
+                    }).then(data => {
+                        if (data)
+                            sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                    })
+                    let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                    let endDate = new Date(currentYear + "-12-30 24:00:00");
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [startedDate, endDate]
+                        }
+                    })
+                } else if (dataSearch.dateFrom && dataSearch.dateTo) {
+                    if (dataSearch.dateFrom)
+                        await mtblCoQuanNhaNuoc(db).findOne({
+                            where: {
+                                Type: 'period',
+                                Date: {
+                                    [Op.substring]: (yearNow) + '-' + moment(dataSearch.dateFrom).format('MM')
+                                }
+                            }
+                        }).then(data => {
+                            if (data)
+                                sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
+                        })
+                    console.log(sdktcs);
+                    dataSearch.dateTo = moment(dataSearch.dateTo).add(2, 'days').format('YYYY-MM-DD')
+                    whereOjb.push({
+                        Date: {
+                            [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
+                        }
+                    })
+                }
+                whereOjb.push({
+                    Type: {
+                        [Op.ne]: 'period'
+                    }
+                })
+                await mtblCoQuanNhaNuoc(db).findAll({
+                    where: whereOjb,
+                    order: [
+                        ['Date', 'ASC']
+                    ],
+                }).then(data => {
+                    let sdktcsCQNN = sdktcs;
                     for (item of data) {
                         totalmoneyNC += (item.Type == 'payment' ? item.MoneyNumber : null)
                         totalckNC += (item.Type == 'debtNotices' ? item.MoneyNumber : null)
@@ -540,16 +823,18 @@ module.exports = {
                             rq: item.Type == 'withdraw' ? item.MoneyNumber : null,
                             invoiceNumber: item.Type == 'invoice' ? item.MoneyNumber : null,
                             sttbl: item.Type == 'invoice' ? item.MoneyNumber : null,
-                            sdck: null,
+                            sdck: sdktcsCQNN + (item.Type == 'payment' ? Number(item.MoneyNumber) : 0) + (item.Type == 'debtNotices' ? Number(item.MoneyNumber) : 0) - (item.Type == 'invoice' ? Number(item.MoneyNumber) : 0) + (item.Type == 'withdraw' ? Number(item.MoneyNumber) : 0),
                         })
+                        sdktcsCQNN = sdktcsCQNN + (item.Type == 'payment' ? Number(item.MoneyNumber) : 0) + (item.Type == 'debtNotices' ? Number(item.MoneyNumber) : 0) - (item.Type == 'invoice' ? Number(item.MoneyNumber) : 0) + (item.Type == 'withdraw' ? Number(item.MoneyNumber) : 0)
                         stt += 1;
                     }
                 })
+
                 obj = {
                     sdktcs: sdktcs,
-                    sdcsks: null,
+                    sdcsks: sdktcs + totalmoneyNC + totalckNC - totalsttbl + sdq,
                     kq: kq,
-                    sdq: sdq,
+                    totalRQ: sdq,
                     totalmoneyNC: totalmoneyNC,
                     totalckNC: totalckNC,
                     totalsttbl: totalsttbl,
@@ -645,27 +930,37 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let checkExit = await mtblCoQuanNhaNuoc(db).findOne({
-                        where: {
-                            Type: 'period',
-                            Date: '2021-01-01',
-                        }
-                    })
-                    if (!checkExit)
-                        await mtblCoQuanNhaNuoc(db).create({
-                            Date: '2021-01-01',
-                            MoneyNumber: body.moneyNumber ? body.moneyNumber : null,
-                            Type: 'period',
-                        })
-                    else {
-                        await mtblCoQuanNhaNuoc(db).update({
-                            MoneyNumber: body.moneyNumber ? body.moneyNumber : null,
-                        }, {
-                            where: {
-                                ID: checkExit.ID,
-                            }
-                        })
-                    }
+                    // await mtblCoQuanNhaNuoc(db).destroy({
+                    //     where: {
+                    //         Type: 'period',
+                    //     }
+                    // })
+                    // let yearNow = Number(moment().format('YYYY'));
+                    // let checkExit = await mtblCoQuanNhaNuoc(db).findOne({
+                    //     where: {
+                    //         Type: 'period',
+                    //         Date: '2021-01-01',
+                    //     }
+                    // })
+                    // if (!checkExit)
+                    //     await mtblCoQuanNhaNuoc(db).create({
+                    //         Date: '2021-01-01',
+                    //         MoneyNumber: body.moneyNumber ? body.moneyNumber : null,
+                    //         Type: 'period',
+                    //     })
+                    // else {
+                    //     await mtblCoQuanNhaNuoc(db).update({
+                    //         MoneyNumber: body.moneyNumber ? body.moneyNumber : null,
+                    //     }, {
+                    //         where: {
+                    //             ID: checkExit.ID,
+                    //         }
+                    //     })
+                    // }
+                    // // tạo dữ liệu theo năm
+                    // for (let year = 2021; year <= yearNow; year++) {
+                    //     await createDataPeriodBalanceFollowYear(db, year, body.moneyNumber)
+                    // }
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,

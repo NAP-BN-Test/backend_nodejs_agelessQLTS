@@ -639,11 +639,11 @@ async function getDetailReceiptsPayment(db, idPayment) {
                     "NGÀY": data.Date ? moment(data.Date).add(7, 'hours').format('DD') : null,
                     "THÁNG": data.Date ? moment(data.Date).add(7, 'hours').format('MM') : null,
                     "NĂM": data.Date ? moment(data.Date).add(7, 'hours').format('YYYY') : null,
-                    "SỐ PHIẾU": data.CodeNumber ? data.CodeNumber : '',
+                    "SỐ PHIẾU": data.VoucherNumber ? data.VoucherNumber : '',
                     "ĐỊA CHỈ": data.Address ? data.Address : '',
                     "LÝ DO": data.Reason ? data.Reason : '',
                     "SỐ TIỀN": data.Amount ? data.Amount : null,
-                    "SỐ PHIẾU": data.CodeNumber ? data.CodeNumber : null,
+                    // "SỐ PHIẾU": data.CodeNumber ? data.CodeNumber : null,
                     "SỐ TIỀN BẰNG CHỮ": data.AmountWords ? data.AmountWords : '',
                 };
                 let objName = ''
@@ -1145,7 +1145,7 @@ module.exports = {
                 "NGÀY": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('DD') : null,
                 "THÁNG": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('MM') : null,
                 "NĂM": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('YYYY') : null,
-                "SỐ PHIẾU": objRequest.codeNumber ? objRequest.codeNumber : '',
+                "SỐ PHIẾU": objRequest.voucherNumber ? objRequest.voucherNumber : '',
                 "ĐỊA CHỈ": objRequest.address ? objRequest.address : '',
                 "LÝ DO": objRequest.reason ? objRequest.reason : '',
                 "SỐ TIỀN": objRequest.moneyNumber ? objRequest.moneyNumber : null,

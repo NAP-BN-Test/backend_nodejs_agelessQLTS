@@ -11,7 +11,7 @@ var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 dataCredit = [{
     id: 100,
-    createdDate: '01/05/2020',
+    createdDate: '01/05/2021',
     invoiceNumber: 'INV0001',
     total: '1000000',
     statusName: 'Chờ thanh toám',
@@ -28,7 +28,7 @@ dataCredit = [{
 },
 {
     id: 102,
-    createdDate: '01/05/2020',
+    createdDate: '01/05/2021',
     invoiceNumber: 'INV0002',
     total: '1200000',
     statusName: 'Chờ thanh toán',
@@ -45,7 +45,7 @@ dataCredit = [{
 },
 {
     id: 103,
-    createdDate: '03/05/2020',
+    createdDate: '03/05/2021',
     invoiceNumber: 'INV0003',
     total: '1300000',
     statusName: 'Đã thanh toán',
@@ -62,7 +62,7 @@ dataCredit = [{
 },
 {
     id: 104,
-    createdDate: '04/05/2020',
+    createdDate: '04/05/2021',
     invoiceNumber: 'INV0004',
     total: '1400000',
     statusName: 'Đã thanh toán',
@@ -79,7 +79,7 @@ dataCredit = [{
 },
 {
     id: 105,
-    createdDate: '05/05/2020',
+    createdDate: '05/05/2021',
     invoiceNumber: 'INV0005',
     total: '1500000',
     statusName: 'Chờ thanh toán',
@@ -96,7 +96,7 @@ dataCredit = [{
 },
 {
     id: 106,
-    createdDate: '06/05/2020',
+    createdDate: '06/05/2021',
     invoiceNumber: 'INV0006',
     total: '1600000',
     statusName: 'Chờ thanh toán',
@@ -113,7 +113,7 @@ dataCredit = [{
 },
 {
     id: 107,
-    createdDate: '07/05/2020',
+    createdDate: '07/05/2021',
     invoiceNumber: 'INV0007',
     total: '1700000',
     statusName: 'Đã thanh toán',
@@ -130,7 +130,7 @@ dataCredit = [{
 },
 {
     id: 108,
-    createdDate: '08/05/2020',
+    createdDate: '08/05/2021',
     invoiceNumber: 'INV0008',
     total: '1800000',
     statusName: 'Chờ thanh toán',
@@ -147,7 +147,7 @@ dataCredit = [{
 },
 {
     id: 109,
-    createdDate: '10/05/2020',
+    createdDate: '10/05/2021',
     invoiceNumber: 'INV0009',
     total: '1900000',
     statusName: 'Chờ thanh toán',
@@ -164,7 +164,7 @@ dataCredit = [{
 },
 {
     id: 110,
-    createdDate: '12/05/2020',
+    createdDate: '12/05/2021',
     invoiceNumber: 'INV0010',
     total: '12000000',
     statusName: 'Đã thanh toán',
@@ -182,7 +182,7 @@ dataCredit = [{
 ]
 dataInvoice = [{
     id: 1,
-    createdDate: '01/05/2020',
+    createdDate: '01/05/2021',
     refNumber: 'REF0001',
     invoiceNumber: 'INV0001',
     arrayMoney: [{
@@ -270,7 +270,7 @@ dataInvoice = [{
 },
 {
     id: 5,
-    createdDate: '05/05/2020',
+    createdDate: '05/05/2021',
     refNumber: 'REF0005',
     invoiceNumber: 'INV0005',
     arrayMoney: [{
@@ -289,7 +289,7 @@ dataInvoice = [{
 },
 {
     id: 6,
-    createdDate: '06/05/2020',
+    createdDate: '06/05/2021',
     refNumber: 'REF0006',
     invoiceNumber: 'INV0006',
     arrayMoney: [{
@@ -330,7 +330,7 @@ dataInvoice = [{
 },
 {
     id: 8,
-    createdDate: '08/05/2020',
+    createdDate: '08/05/2021',
     refNumber: 'REF0008',
     invoiceNumber: 'INV0008',
     arrayMoney: [{
@@ -349,7 +349,7 @@ dataInvoice = [{
 },
 {
     id: 9,
-    createdDate: '09/05/2020',
+    createdDate: '09/05/2021',
     refNumber: 'REF0009',
     invoiceNumber: 'INV0009',
     arrayMoney: [{
@@ -372,7 +372,7 @@ dataInvoice = [{
 },
 {
     id: 10,
-    createdDate: '10/05/2020',
+    createdDate: '10/05/2021',
     refNumber: 'REF0010',
     invoiceNumber: 'INV0010',
     arrayMoney: [{
@@ -712,6 +712,15 @@ let arrayCreditAccount = ["214", "2141", "2142", "2143", "2147", "229", "2291", 
 let arrayDebtAccount = ["111", "1111", "1112", "112", "1121", "1122", "121", "128", "1281", "1288", "133", "1331", "1332", "136", "1361", "1368", "1386", "141", "151", "152", "153", "154", "155", "156", "157", "211", "2111", "21111", "21112", "21113", "21114", "21115", "21116", "21118", "2112", "2113", "21131", "21132", "21133", "21133", "21134", "21135", "21136", "21138", "217", "228", "2281", "2288", "241", "2411", "2412", "2413", "242", "419"]
 let arrayBiexualAccount = ["131", "138", "1381", "1388", "331", "333", "3331", "33311", "33312", "3332", "3333", "3334", "3335", "3336", "3337", "3338", "33381", "33381", "3339", "338", "3381", "3382", "3383", "3384", "3385", "3386", "3387", "3388", "413", "421", "4211", "4212", "511", "5111", "5112", "5113", "5118", "515", "611", "531", "632", "635", "642", "6421", "6422", "711", "811", "821", "911"]
 
+function checkForDuplicateObjInArray(obj, array) {
+    let result = false;
+    for (item of array) {
+        if (item.accountingCode == obj.accountingCode && item.accountingReciprocalCode == obj.accountingReciprocalCode && item.number == obj.number) {
+            result = true;
+        }
+    }
+    return result
+}
 module.exports = {
     deleteRelationshiptblAccountingBooks,
     //  get_detail_tbl_accounting_books
@@ -976,7 +985,8 @@ module.exports = {
                             }
                         })
                     } else if (dataSearch.dateFrom && dataSearch.dateTo) {
-                        dataSearch.dateTo = moment(dataSearch.dateTo).add(2, 'days').format('YYYY-MM-DD')
+                        dataSearch.dateTo = moment(dataSearch.dateTo).add(30, 'hours').format('YYYY-MM-DD HH:MM:ss')
+                        dataSearch.dateFrom = moment(dataSearch.dateFrom).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
                         whereOjb.push({
                             CreateDate: {
                                 [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
@@ -1011,11 +1021,13 @@ module.exports = {
                     let endingBalanceCredit = 0;
                     let stt = 1;
                     let tblAccountingBooks = mtblAccountingBooks(db);
-                    let accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
-                        where: {
-                            ID: dataSearch.accountSystemID
-                        }
-                    })
+                    let accountBooks;
+                    if (dataSearch.accountSystemID)
+                        accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
+                            where: {
+                                ID: dataSearch.accountSystemID
+                            }
+                        })
                     arisingPeriod = totalDebtIncurred - totalCreditIncurred;
                     openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : null) : null
                     openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : null) : null
@@ -1148,15 +1160,27 @@ module.exports = {
                                             typeCheck = 'Biexual'
                                             //  nếu là tài khoản đầu 1,2 : bên nợ
                                             //  nếu là tài khoản đầu 3,4 : bên có
-                                            if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
-                                                debtSurplus += (debtIncurred - creditIncurred);
-                                                creaditSurplus = null;
+                                            if (openingBalanceCredit == null && openingBalanceDebit == null) {
+                                                if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
+                                                    debtSurplus += (debtIncurred - creditIncurred);
+                                                    creaditSurplus = null;
+                                                }
+                                                if (checkTypeClause.AccountingCode.slice(0, 1) == '3' || checkTypeClause.AccountingCode.slice(0, 1) == '4') {
+                                                    debtSurplus == null;
+                                                    creaditSurplus += (creditIncurred - debtIncurred);
+                                                }
+                                            } else {
+                                                if (openingBalanceCredit != null) {
+                                                    debtSurplus = null;
+                                                    creaditSurplus += (creditIncurred - debtIncurred);
+                                                } else if (openingBalanceDebit != null) {
+                                                    debtSurplus += (debtIncurred - creditIncurred);
+                                                    creaditSurplus = null;
+                                                } else {
+                                                    debtSurplus += (debtIncurred - creditIncurred);
+                                                    creaditSurplus += (creditIncurred - debtIncurred);
+                                                }
                                             }
-                                            if (checkTypeClause.AccountingCode.slice(0, 1) == '3' || checkTypeClause.AccountingCode.slice(0, 1) == '4') {
-                                                debtSurplus == null;
-                                                creaditSurplus += (creditIncurred - debtIncurred);
-                                            }
-
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
                                             debtSurplus += debtIncurred - creditIncurred;
                                             creaditSurplus += 0;
@@ -1219,21 +1243,34 @@ module.exports = {
                             }
                         })
                         if (checkType && checkType.TypeClause == "Credit") {
-                            endingBalanceCredit = (openingBalanceCredit == null ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                            endingBalanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
                             endingBalanceDebit = null;
                         } else if (checkType && checkType.TypeClause == "Debt") {
                             endingBalanceCredit = null;
-                            endingBalanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
+                            endingBalanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
                         } else {
-                            let balanceCredit = (openingBalanceCredit == null ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
-                            let balanceDebit = (openingBalanceDebit == null ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
-                            if (checkType && checkType.AccountingCode.slice(0, 1) == '1' || checkType.AccountingCode.slice(0, 1) == '2') {
-                                endingBalanceCredit = null;
-                                endingBalanceDebit = balanceDebit;
-                            }
-                            if (checkType && checkType.AccountingCode.slice(0, 1) == '3' || checkType.AccountingCode.slice(0, 1) == '4') {
-                                endingBalanceCredit = balanceCredit;
-                                endingBalanceDebit = null;
+                            let balanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                            let balanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
+                            if (openingBalanceCredit == null && openingBalanceDebit == null) {
+                                if (checkType && checkType.AccountingCode.slice(0, 1) == '1' || checkType.AccountingCode.slice(0, 1) == '2') {
+                                    endingBalanceCredit = null;
+                                    endingBalanceDebit = balanceDebit;
+                                }
+                                if (checkType && checkType.AccountingCode.slice(0, 1) == '3' || checkType.AccountingCode.slice(0, 1) == '4') {
+                                    endingBalanceCredit = balanceCredit;
+                                    endingBalanceDebit = null;
+                                }
+                            } else {
+                                if (openingBalanceCredit != null) {
+                                    endingBalanceCredit = balanceCredit;
+                                    endingBalanceDebit = null;
+                                } else if (openingBalanceDebit != null) {
+                                    endingBalanceCredit = null;
+                                    endingBalanceDebit = balanceDebit;
+                                } else {
+                                    endingBalanceCredit = balanceCredit;
+                                    endingBalanceDebit = balanceDebit;
+                                }
                             }
                         }
                         var result = {
@@ -1303,6 +1340,292 @@ module.exports = {
                         }
                     }
                 })
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_all_accounting_books
+    getAllAccountBooks: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let totalCreditIncurred = 0;
+                    let totalDebtIncurred = 0;
+                    let totalCreaditSurplus = 0;
+                    let totalDebtSurplus = 0;
+                    let arisingPeriod = 0;
+                    let openingBalanceCredit = 0;
+                    let openingBalanceDebit = 0;
+                    let endingBalanceDebit = 0;
+                    let endingBalanceCredit = 0;
+                    let stt = 1;
+                    var arrayIDAccount = []
+                    let tblAccountingBooks = mtblAccountingBooks(db);
+                    tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
+                    tblAccountingBooks.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                    tblAccountingBooks.findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        order: [
+                            ['ID', 'ASC']
+                        ],
+                        include: [{
+                            model: mtblReceiptsPayment(db),
+                            required: false,
+                            as: 'payment'
+                        },
+                        {
+                            model: mtblDMTaiKhoanKeToan(db),
+                            required: false,
+                            as: 'accounting'
+                        }
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        let arrayCheckDulicant = [];
+                        let objCustomer = {}
+                        let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', null)
+                        let debtSurplus = 0;
+                        let creaditSurplus = 0;
+                        for (invoice of arrayInvoice) {
+                            let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '');
+                            // thêm tài khoản ngược lại
+                            let objWaitForPayOther = {}
+                            objWaitForPayOther['creditIncurred'] = objWaitForPay.debtIncurred
+                            objWaitForPayOther['debtIncurred'] = objWaitForPay.creditIncurred
+                            objWaitForPayOther['accountingName'] = objWaitForPay.accountingReciprocalName
+                            objWaitForPayOther['accountingCode'] = objWaitForPay.accountingReciprocalCode
+                            objWaitForPayOther['accountingReciprocalName'] = objWaitForPay.accountingName
+                            objWaitForPayOther['accountingReciprocalCode'] = objWaitForPay.accountingCode
+                            objWaitForPayOther['createDate'] = objWaitForPay.createDate
+                            objWaitForPayOther['entryDate'] = objWaitForPay.entryDate
+                            objWaitForPayOther['number'] = objWaitForPay.number
+                            objWaitForPayOther['reason'] = objWaitForPay.reason
+                            objWaitForPayOther['stt'] = Number(objWaitForPay.stt) + 1
+
+                            debtSurplus += Number(invoice.total);
+                            objWaitForPay['debtSurplus'] = debtSurplus ? debtSurplus : 0
+                            objWaitForPay['creaditSurplus'] = null
+                            objWaitForPayOther['creaditSurplus'] = debtSurplus ? debtSurplus : 0
+                            objWaitForPayOther['debtSurplus'] = null
+                            totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
+                            totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
+                            totalCreditIncurred += (objWaitForPayOther.creditIncurred ? objWaitForPayOther.creditIncurred : 0);
+                            totalDebtIncurred += (objWaitForPayOther.debtIncurred ? objWaitForPayOther.debtIncurred : 0);
+                            totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
+                            totalDebtSurplus += (objWaitForPay.debtSurplus ? objWaitForPay.debtSurplus : 0);
+                            totalCreaditSurplus += (objWaitForPayOther.creaditSurplus ? objWaitForPayOther.creaditSurplus : 0);
+                            totalDebtSurplus += (objWaitForPayOther.debtSurplus ? objWaitForPayOther.debtSurplus : 0);
+                            array.push(objWaitForPay);
+                            array.push(objWaitForPayOther);
+                            stt += 2;
+                        }
+                        let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', null)
+                        for (credit of arrayCredit) {
+                            let objWaitForPay = await getCreditWaitPay(db, credit, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '')
+                            let objWaitForPayOther = {}
+                            objWaitForPayOther['creditIncurred'] = objWaitForPay.debtIncurred
+                            objWaitForPayOther['debtIncurred'] = objWaitForPay.creditIncurred
+                            objWaitForPayOther['accountingName'] = objWaitForPay.accountingReciprocalName
+                            objWaitForPayOther['accountingCode'] = objWaitForPay.accountingReciprocalCode
+                            objWaitForPayOther['accountingReciprocalName'] = objWaitForPay.accountingName
+                            objWaitForPayOther['accountingReciprocalCode'] = objWaitForPay.accountingCode
+                            objWaitForPayOther['createDate'] = objWaitForPay.createDate
+                            objWaitForPayOther['entryDate'] = objWaitForPay.entryDate
+                            objWaitForPayOther['number'] = objWaitForPay.number
+                            objWaitForPayOther['reason'] = objWaitForPay.reason
+                            objWaitForPayOther['stt'] = Number(objWaitForPay.stt) + 1
+
+                            // vì là tài khoản lưỡng tính
+                            creaditSurplus += Number(credit.total);
+                            objWaitForPay['debtSurplus'] = null
+                            objWaitForPay['creaditSurplus'] = creaditSurplus ? creaditSurplus : 0
+                            objWaitForPayOther['creaditSurplus'] = null
+                            objWaitForPayOther['debtSurplus'] = creaditSurplus ? creaditSurplus : 0
+                            totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
+                            totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
+                            totalCreditIncurred += (objWaitForPayOther.creditIncurred ? Number(objWaitForPayOther.creditIncurred) : 0);
+                            totalDebtIncurred += (objWaitForPayOther.debtIncurred ? Number(objWaitForPayOther.debtIncurred) : 0);
+                            totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
+                            totalDebtSurplus += (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0);
+                            totalCreaditSurplus += (objWaitForPayOther.creaditSurplus ? Number(objWaitForPayOther.creaditSurplus) : 0);
+                            totalDebtSurplus += (objWaitForPayOther.debtSurplus ? Number(objWaitForPayOther.debtSurplus) : 0);
+                            array.push(objWaitForPay);
+                            array.push(objWaitForPayOther);
+                            stt += 2;
+                        }
+                        for (var i = 0; i < data.length; i++) {
+                            var arrayWhere = []
+                            if (data[i].IDPayment) {
+                                arrayWhere.push({
+                                    IDPayment: data[i].IDPayment
+                                })
+                            } else if (data[i].IDnotices) {
+                                arrayWhere.push({
+                                    IDnotices: data[i].IDnotices
+                                })
+                            } else {
+                                arrayWhere.push({
+                                    IDPayment: {
+                                        [Op.ne]: null
+                                    }
+                                })
+                            }
+                            let clauseType = "Credit"
+                            if (data[i].ClauseType == "Credit") {
+                                clauseType = "Debit"
+                            }
+                            await tblAccountingBooks.findAll({
+                                where: {
+                                    [Op.and]: [{
+                                        [Op.or]: arrayWhere
+                                    },
+                                    {
+                                        ID: {
+                                            [Op.ne]: data[i].ID
+                                        }
+                                    }, {
+                                        ClauseType: clauseType
+                                    }
+                                    ]
+                                },
+                                order: [
+                                    ['ID', 'ASC']
+                                ],
+                                include: [{
+                                    model: mtblDMTaiKhoanKeToan(db),
+                                    required: false,
+                                    as: 'accounting'
+                                },],
+                            }).then(async accounting => {
+                                if (accounting) {
+                                    for (item of accounting) {
+                                        let accountingCode = data[i].accounting ? data[i].accounting.AccountingCode : '';
+                                        let accountingReciprocalCode = item.accounting ? item.accounting.AccountingCode : '';
+                                        let createDate = item.CreateDate ? moment(item.CreateDate).format('DD/MM/YYYY') : null;
+                                        let entryDate = item.EntryDate ? moment(item.EntryDate).format('DD/MM/YYYY') : null;
+                                        let number = item.Number ? item.Number : '';
+                                        let reason = item.Reason ? item.Reason : '';
+                                        let creditIncurred = accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0);
+                                        let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
+                                        let objCheck = {
+                                            accountingCode: accountingCode,
+                                            accountingReciprocalCode: accountingReciprocalCode,
+                                            number: number,
+                                        }
+                                        if (!checkForDuplicateObjInArray(objCheck, arrayCheckDulicant)) {
+                                            let objCheckReciprocal = {
+                                                accountingCode: accountingReciprocalCode,
+                                                accountingReciprocalCode: accountingCode,
+                                                number: number,
+                                            }
+                                            arrayCheckDulicant.push(objCheck)
+                                            arrayCheckDulicant.push(objCheckReciprocal)
+                                            var obj = {
+                                                stt: stt,
+                                                id: Number(item.ID),
+                                                accountingName: data[i].accounting ? data[i].accounting.AccountingName : '',
+                                                accountingCode: accountingCode,
+                                                accountingReciprocalName: item.accounting ? item.accounting.AccountingName : '',
+                                                accountingReciprocalCode: accountingReciprocalCode,
+                                                numberReceipts: item.NumberReceipts ? item.NumberReceipts : '',
+                                                createDate: createDate,
+                                                entryDate: entryDate,
+                                                number: number,
+                                                reason: reason,
+                                                idAccounting: item.IDAccounting ? item.IDAccounting : null,
+                                                creditIncurred: creditIncurred,
+                                                debtIncurred: debtIncurred,
+                                                debtSurplus: debtSurplus,
+                                                creaditSurplus: creaditSurplus,
+                                                numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
+                                                numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
+                                                receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
+                                                customerName: Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
+                                            }
+                                            var objOther = {
+                                                stt: stt + 1,
+                                                id: Number(item.ID),
+                                                accountingReciprocalName: data[i].accounting ? data[i].accounting.AccountingName : '',
+                                                accountingReciprocalCode: accountingCode,
+                                                accountingName: item.accounting ? item.accounting.AccountingName : '',
+                                                accountingCode: accountingReciprocalCode,
+                                                numberReceipts: item.NumberReceipts ? item.NumberReceipts : '',
+                                                createDate: createDate,
+                                                entryDate: entryDate,
+                                                number: number,
+                                                reason: reason,
+                                                idAccounting: item.IDAccounting ? item.IDAccounting : null,
+                                                creditIncurred: debtIncurred,
+                                                debtIncurred: creditIncurred,
+                                                debtSurplus: creaditSurplus,
+                                                creaditSurplus: debtSurplus,
+                                                numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
+                                                numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
+                                                receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
+                                                customerName: Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
+                                            }
+                                            if (arrayIDAccount.length <= 1) {
+                                                totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                totalCreditIncurred += (objOther.creditIncurred ? objOther.creditIncurred : 0);
+                                                totalDebtIncurred += (objOther.debtIncurred ? objOther.debtIncurred : 0);
+                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                totalCreaditSurplus += (objOther.creaditSurplus ? objOther.creaditSurplus : 0);
+                                                totalDebtSurplus += (objOther.debtSurplus ? objOther.debtSurplus : 0);
+                                                array.push(obj);
+                                                array.push(objOther);
+                                                stt += 2;
+                                            } else {
+                                                if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                    totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                    totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                    totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                    totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                    totalCreditIncurred += (objOther.creditIncurred ? objOther.creditIncurred : 0);
+                                                    totalDebtIncurred += (objOther.debtIncurred ? objOther.debtIncurred : 0);
+                                                    totalCreaditSurplus += (objOther.creaditSurplus ? objOther.creaditSurplus : 0);
+                                                    totalDebtSurplus += (objOther.debtSurplus ? objOther.debtSurplus : 0);
+                                                    array.push(obj);
+                                                    array.push(objOther);
+                                                    stt += 2;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                        var count = await mtblAccountingBooks(db).count()
+                        var result = {
+                            total: {
+                                totalCreditIncurred,
+                                totalDebtIncurred,
+                                totalCreaditSurplus,
+                                totalDebtSurplus,
+                                arisingPeriod,
+                                openingBalanceDebit,
+                                openingBalanceCredit,
+                                endingBalanceDebit,
+                                endingBalanceCredit,
+                                customerName: Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
+                                customerCode: Object.keys(objCustomer).length > 0 ? objCustomer.customerCode : '',
+                            },
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
             } else {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }

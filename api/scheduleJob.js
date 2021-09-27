@@ -474,7 +474,6 @@ module.exports = {
                         }
                     })
                 }
-
                 var job = schedule.scheduleJob({ hour: 23, minute: 59 }, async function () {
                     let arrayData = [];
                     await axios.get(`http://192.168.23.16:1333/dulieuchamcong/index`).then(data => {
@@ -561,14 +560,7 @@ module.exports = {
                             }
                         }
                     })
-                    now = moment().add(21, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
-                    await mtblCurrency(db).update({
-                        ExchangeRate: 1,
-                    }, {
-                        where: {
-                            ShortName: 'VND'
-                        }
-                    })
+                    now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                     await mtblCurrency(db).findAll().then(async data => {
                         for (let i = 0; i < data.length; i++) {
                             let rate = await mtblRate(db).findOne({
