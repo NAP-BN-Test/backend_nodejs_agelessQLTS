@@ -350,8 +350,9 @@ module.exports = {
 
                         let CreateDate = now;
                         let EditDate = now;
+                        let dateNow = moment().add(7, 'hours').format('DDMMYYYY');
 
-                        let getdonghang = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang like '%" + date + month + year + "%' AND SoDonHang not like '%-%'")
+                        let getdonghang = await db2.query("SELECT * FROM tblDonHang WHERE SoDonHang like '%" + dateNow + "%' AND SoDonHang not like '%-%'")
 
                         let loaihinhvanchuyen2 = await db2.query("SELECT * FROM tblLoaiHinhVanChuyen WHERE TenVietTat = '" + loaihinhvanchuyen[0][0].TenVietTat + "'")
                         if (!loaihinhvanchuyen2[0][0]) {
@@ -362,7 +363,7 @@ module.exports = {
                             IDLoaiHinhVanChuyen = loaihinhvanchuyen2[0][0].ID
                             TypeLoaiHinhVanChuyen = loaihinhvanchuyen2[0][0].TenVietTat
                         }
-                        let SoDonHang = TypeLoaiHinhVanChuyen + "." + date + month + year + "." + (getdonghang[0].length + 1).toString()
+                        let SoDonHang = TypeLoaiHinhVanChuyen + "." + dateNow + "." + (getdonghang[0].length + 1).toString()
                         if (!loaivo[0][0]) {
                             IDLoaiVo = null
                         } else {
