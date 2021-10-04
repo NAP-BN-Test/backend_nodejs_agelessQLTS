@@ -29,7 +29,7 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: { IDCurrency: body.id },
                         order: [
-                            ['ID', 'DESC']
+                            ['Date', 'DESC']
                         ],
                         include: [
                             {

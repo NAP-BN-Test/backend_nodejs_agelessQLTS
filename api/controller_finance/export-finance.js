@@ -18,7 +18,8 @@ const libre = require('libreoffice-convert-win');
 var mModules = require('../constants/modules');
 var mtblPaymentAccounting = require('../tables/financemanage/tblPaymentAccounting')
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
-
+var mtblCurrency = require('../tables/financemanage/tblCurrency')
+var mtblRate = require('../tables/financemanage/tblRate')
 async function getAverageVotesFromDepartment(departmentID) {
     let result = 0;
     let arrayStaffID = []
@@ -717,6 +718,50 @@ function convertNumber(number) {
     } else
         return number
 }
+async function getExchangeRateFromDate(typeMoney, date) {
+    let result = {};
+    await database.connectDatabase().then(async db => {
+        let currency = await mtblCurrency(db).findOne({
+            where: { ShortName: typeMoney }
+        })
+        if (currency)
+            await mtblRate(db).findOne({
+                where: {
+                    Date: { [Op.substring]: date },
+                    IDCurrency: currency.ID
+                },
+                order: [
+                    ['ID', 'DESC']
+                ],
+            }).then(async Rate => {
+                if (Rate)
+                    result = {
+                        typeMoney: typeMoney,
+                        exchangeRate: Rate.ExchangeRate,
+                    }
+                else {
+                    console.log(123456);
+                    let searchNow = moment().format('YYYY-MM-DD');
+                    await mtblRate(db).findOne({
+                        where: {
+                            Date: { [Op.substring]: searchNow },
+                            IDCurrency: currency.ID
+                        },
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(Rate => {
+                        if (Rate)
+                            result = {
+                                typeMoney: typeMoney,
+                                exchangeRate: Rate.ExchangeRate,
+                            }
+                    })
+                }
+            })
+    })
+    return result
+}
 module.exports = {
     // report_average_votes
     reportAverageVotes: (req, res) => {
@@ -1111,6 +1156,8 @@ module.exports = {
     pourDataIntoWorkFileAndConvertToPDF: async (req, res) => {
         let body = req.body;
         var objKey = {}
+        console.log(body);
+        let date;
         if (body.id)
             await database.connectDatabase().then(async db => {
                 if (db) {
@@ -1119,10 +1166,16 @@ module.exports = {
             })
         else {
             let objRequest = JSON.parse(body.obj)
+            date = objRequest.date
             let type = 'receipt'
             if (objRequest.isReceipt == false) {
                 type = 'payment'
+            } else if (objRequest.typeVoucher == 'debit') {
+                type = 'debit'
+            } else if (objRequest.typeVoucher == 'spending') {
+                type = 'spending'
             }
+            console.log(objRequest);
             let debtAccount = ''
             let creditAccount = ''
             for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {
@@ -1154,6 +1207,7 @@ module.exports = {
                 "NỢ TK": debtAccount,
                 "CÓ TK": creditAccount,
                 "type": type,
+                "LOẠI TIỀN": objRequest.idCurrency ? objRequest.idCurrency.shortName : '',
             }
         }
         let type = '02-TT.docx'
@@ -1163,6 +1217,18 @@ module.exports = {
             type = '01-TT.docx'
             nameFile = 'Phiếu thu.docx'
             nameFilePDF = 'Phiếu thu pdf.pdf'
+        } else if (objKey != {} && objKey.type == 'spending') {
+            type = '03-TT.docx'
+            nameFile = 'Giấy báo có.docx'
+            nameFilePDF = 'Giấy báo có pdf.pdf'
+            objKey["SỐ TIỀN QUY ĐỔI"] = objKey["SỐ TIỀN"]
+            objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
+        } else if (objKey != {} && objKey.type == 'debit') {
+            type = '04-TT.docx'
+            nameFile = 'Giấy báo nợ.docx'
+            nameFilePDF = 'Giấy báo nợ pdf.pdf'
+            objKey["SỐ TIỀN QUY ĐỔI"] = objKey["SỐ TIỀN"]
+            objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
         }
         var pathTo = 'C:/images_services/ageless_sendmail/'
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
@@ -1182,8 +1248,8 @@ module.exports = {
                     doc.render()
                     var buf = doc.getZip().generate({ type: 'nodebuffer' });
                     fs.writeFileSync(path.resolve(pathTo, nameFile), buf);
-                    var pathlink = 'C:/images_services/ageless_sendmail/' + nameFile;
-                    var pathEx = 'C:/images_services/ageless_sendmail/' + nameFilePDF;
+                    var pathlink = pathTo + nameFile;
+                    var pathEx = pathTo + nameFilePDF;
                     await mModules.convertDocxToPDF(pathlink, pathEx)
                     setTimeout(() => {
                         var result = {
@@ -1192,7 +1258,7 @@ module.exports = {
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
                         res.json(result);
-                    }, 500);
+                    }, 900);
 
                 }
             } catch (error) {

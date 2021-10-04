@@ -49,6 +49,10 @@ dataCQNN = [
         total: '1000000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Phiếu chi',
+        numberVoucher: 'PC0012',
+        note: ''
     },
     {
         id: 2,
@@ -62,6 +66,10 @@ dataCQNN = [
         total: '1200000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Giấy báo nợ',
+        numberVoucher: 'GBN0002',
+        note: ''
     },
     {
         id: 3,
@@ -75,6 +83,10 @@ dataCQNN = [
         total: '1300000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Biên lai',
+        numberVoucher: 'BL0002',
+        note: ''
     },
     {
         id: 4,
@@ -88,6 +100,10 @@ dataCQNN = [
         total: '4000000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Biên lai',
+        numberVoucher: 'BL0021',
+        note: ''
     },
     {
         id: 5,
@@ -101,6 +117,10 @@ dataCQNN = [
         total: '1500000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Biên lai',
+        numberVoucher: 'BL0022',
+        note: ''
     },
     {
         id: 6,
@@ -114,6 +134,10 @@ dataCQNN = [
         total: '1600000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Giấy báo nợ',
+        numberVoucher: 'GBN0015',
+        note: ''
     },
     {
         id: 7,
@@ -127,6 +151,10 @@ dataCQNN = [
         total: '1700000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Phiếu chi',
+        numberVoucher: 'PC0009',
+        note: ''
     },
     {
         id: 8,
@@ -140,6 +168,10 @@ dataCQNN = [
         total: '1800000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Phiếu chi',
+        numberVoucher: 'PC0011',
+        note: ''
     },
     {
         id: 9,
@@ -153,6 +185,10 @@ dataCQNN = [
         total: '1900000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Phiếu chi',
+        numberVoucher: 'PC0031',
+        note: ''
     },
     {
         id: 10,
@@ -166,6 +202,10 @@ dataCQNN = [
         total: '1200000',
         unit: 'VND',
         statusName: 'Chờ thanh toán',
+        fileAttach: '',
+        typeVoucher: 'Giấy báo nợ',
+        numberVoucher: 'GBN0007',
+        note: 'Thanh toán cho giấy báo nợ GBN0007'
     },
 ]
 dataFLCQNN = [

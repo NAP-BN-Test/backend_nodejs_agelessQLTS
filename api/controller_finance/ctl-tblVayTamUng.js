@@ -1044,10 +1044,10 @@ module.exports = {
                                 Status: 'Chờ hoàn ứng',
                                 IDNhanVienCreate: body.staffID,
                             },
-                                // {
-                                //     Status: 'Đã hoàn ứng',
-                                //     IDNhanVienCreate: body.staffID,
-                                // },
+                            {
+                                Status: 'Đã hoàn ứng',
+                                IDNhanVienCreate: body.staffID,
+                            },
                             ]
                         }
                     }).then(data => {

@@ -1348,9 +1348,87 @@ module.exports = {
     // get_all_accounting_books
     getAllAccountBooks: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let dataSearch = JSON.parse(body.dataSearch)
+                    var arrayIDAccount = [];
+                    var whereOjb = [];
+                    const currentYear = new Date().getFullYear()
+                    if (dataSearch.selection == 'first_six_months') {
+                        const startedDate = new Date(currentYear + "-01-01 14:00:00");
+                        const endDate = new Date(currentYear + "-06-30 14:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'last_six_months') {
+                        let startedDate = new Date(currentYear + "-06-01 07:00:00");
+                        let endDate = new Date(currentYear + "-12-30 24:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'one_quarter') {
+                        let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                        let endDate = new Date(currentYear + "-04-01 00:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'two_quarter') {
+                        let startedDate = new Date(currentYear + "-04-01 07:00:00");
+                        let endDate = new Date(currentYear + "-07-01 00:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'three_quarter') {
+                        let startedDate = new Date(currentYear + "-07-01 07:00:00");
+                        let endDate = new Date(currentYear + "-10-01 00:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'four_quarter') {
+                        let startedDate = new Date(currentYear + "-10-01 07:00:00");
+                        let endDate = new Date(currentYear + "-12-30 24:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'last_year') {
+                        let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
+                        let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.selection == 'this_year') {
+                        let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                        let endDate = new Date(currentYear + "-12-30 24:00:00");
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [startedDate, endDate]
+                            }
+                        })
+                    } else if (dataSearch.dateFrom && dataSearch.dateTo) {
+                        dataSearch.dateTo = moment(dataSearch.dateTo).add(30, 'hours').format('YYYY-MM-DD HH:MM:ss')
+                        dataSearch.dateFrom = moment(dataSearch.dateFrom).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
+                        whereOjb.push({
+                            CreateDate: {
+                                [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
+                            }
+                        })
+                    }
                     let totalCreditIncurred = 0;
                     let totalDebtIncurred = 0;
                     let totalCreaditSurplus = 0;
@@ -1371,6 +1449,7 @@ module.exports = {
                         order: [
                             ['ID', 'ASC']
                         ],
+                        where: whereOjb,
                         include: [{
                             model: mtblReceiptsPayment(db),
                             required: false,
@@ -1386,75 +1465,77 @@ module.exports = {
                         var array = [];
                         let arrayCheckDulicant = [];
                         let objCustomer = {}
-                        let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', null)
                         let debtSurplus = 0;
                         let creaditSurplus = 0;
-                        for (invoice of arrayInvoice) {
-                            let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '');
-                            // thêm tài khoản ngược lại
-                            let objWaitForPayOther = {}
-                            objWaitForPayOther['creditIncurred'] = objWaitForPay.debtIncurred
-                            objWaitForPayOther['debtIncurred'] = objWaitForPay.creditIncurred
-                            objWaitForPayOther['accountingName'] = objWaitForPay.accountingReciprocalName
-                            objWaitForPayOther['accountingCode'] = objWaitForPay.accountingReciprocalCode
-                            objWaitForPayOther['accountingReciprocalName'] = objWaitForPay.accountingName
-                            objWaitForPayOther['accountingReciprocalCode'] = objWaitForPay.accountingCode
-                            objWaitForPayOther['createDate'] = objWaitForPay.createDate
-                            objWaitForPayOther['entryDate'] = objWaitForPay.entryDate
-                            objWaitForPayOther['number'] = objWaitForPay.number
-                            objWaitForPayOther['reason'] = objWaitForPay.reason
-                            objWaitForPayOther['stt'] = Number(objWaitForPay.stt) + 1
+                        if (dataSearch.selection == 'two_quarter' || dataSearch.selection == 'this_year' || dataSearch.selection == 'all') {
+                            let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', null)
+                            for (invoice of arrayInvoice) {
+                                let objWaitForPay = await getInvoiceWaitForPay(db, invoice, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '');
+                                // thêm tài khoản ngược lại
+                                let objWaitForPayOther = {}
+                                objWaitForPayOther['creditIncurred'] = objWaitForPay.debtIncurred
+                                objWaitForPayOther['debtIncurred'] = objWaitForPay.creditIncurred
+                                objWaitForPayOther['accountingName'] = objWaitForPay.accountingReciprocalName
+                                objWaitForPayOther['accountingCode'] = objWaitForPay.accountingReciprocalCode
+                                objWaitForPayOther['accountingReciprocalName'] = objWaitForPay.accountingName
+                                objWaitForPayOther['accountingReciprocalCode'] = objWaitForPay.accountingCode
+                                objWaitForPayOther['createDate'] = objWaitForPay.createDate
+                                objWaitForPayOther['entryDate'] = objWaitForPay.entryDate
+                                objWaitForPayOther['number'] = objWaitForPay.number
+                                objWaitForPayOther['reason'] = objWaitForPay.reason
+                                objWaitForPayOther['stt'] = Number(objWaitForPay.stt) + 1
 
-                            debtSurplus += Number(invoice.total);
-                            objWaitForPay['debtSurplus'] = debtSurplus ? debtSurplus : 0
-                            objWaitForPay['creaditSurplus'] = null
-                            objWaitForPayOther['creaditSurplus'] = debtSurplus ? debtSurplus : 0
-                            objWaitForPayOther['debtSurplus'] = null
-                            totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
-                            totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
-                            totalCreditIncurred += (objWaitForPayOther.creditIncurred ? objWaitForPayOther.creditIncurred : 0);
-                            totalDebtIncurred += (objWaitForPayOther.debtIncurred ? objWaitForPayOther.debtIncurred : 0);
-                            totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
-                            totalDebtSurplus += (objWaitForPay.debtSurplus ? objWaitForPay.debtSurplus : 0);
-                            totalCreaditSurplus += (objWaitForPayOther.creaditSurplus ? objWaitForPayOther.creaditSurplus : 0);
-                            totalDebtSurplus += (objWaitForPayOther.debtSurplus ? objWaitForPayOther.debtSurplus : 0);
-                            array.push(objWaitForPay);
-                            array.push(objWaitForPayOther);
-                            stt += 2;
-                        }
-                        let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', null)
-                        for (credit of arrayCredit) {
-                            let objWaitForPay = await getCreditWaitPay(db, credit, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '')
-                            let objWaitForPayOther = {}
-                            objWaitForPayOther['creditIncurred'] = objWaitForPay.debtIncurred
-                            objWaitForPayOther['debtIncurred'] = objWaitForPay.creditIncurred
-                            objWaitForPayOther['accountingName'] = objWaitForPay.accountingReciprocalName
-                            objWaitForPayOther['accountingCode'] = objWaitForPay.accountingReciprocalCode
-                            objWaitForPayOther['accountingReciprocalName'] = objWaitForPay.accountingName
-                            objWaitForPayOther['accountingReciprocalCode'] = objWaitForPay.accountingCode
-                            objWaitForPayOther['createDate'] = objWaitForPay.createDate
-                            objWaitForPayOther['entryDate'] = objWaitForPay.entryDate
-                            objWaitForPayOther['number'] = objWaitForPay.number
-                            objWaitForPayOther['reason'] = objWaitForPay.reason
-                            objWaitForPayOther['stt'] = Number(objWaitForPay.stt) + 1
+                                debtSurplus += Number(invoice.total);
+                                objWaitForPay['debtSurplus'] = debtSurplus ? debtSurplus : 0
+                                objWaitForPay['creaditSurplus'] = null
+                                objWaitForPayOther['creaditSurplus'] = debtSurplus ? debtSurplus : 0
+                                objWaitForPayOther['debtSurplus'] = null
+                                totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
+                                totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
+                                totalCreditIncurred += (objWaitForPayOther.creditIncurred ? objWaitForPayOther.creditIncurred : 0);
+                                totalDebtIncurred += (objWaitForPayOther.debtIncurred ? objWaitForPayOther.debtIncurred : 0);
+                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
+                                totalDebtSurplus += (objWaitForPay.debtSurplus ? objWaitForPay.debtSurplus : 0);
+                                totalCreaditSurplus += (objWaitForPayOther.creaditSurplus ? objWaitForPayOther.creaditSurplus : 0);
+                                totalDebtSurplus += (objWaitForPayOther.debtSurplus ? objWaitForPayOther.debtSurplus : 0);
+                                array.push(objWaitForPay);
+                                array.push(objWaitForPayOther);
+                                stt += 2;
+                            }
+                            let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', null)
+                            for (credit of arrayCredit) {
+                                let objWaitForPay = await getCreditWaitPay(db, credit, stt, Object.keys(objCustomer).length > 0 ? objCustomer.name : '')
+                                let objWaitForPayOther = {}
+                                objWaitForPayOther['creditIncurred'] = objWaitForPay.debtIncurred
+                                objWaitForPayOther['debtIncurred'] = objWaitForPay.creditIncurred
+                                objWaitForPayOther['accountingName'] = objWaitForPay.accountingReciprocalName
+                                objWaitForPayOther['accountingCode'] = objWaitForPay.accountingReciprocalCode
+                                objWaitForPayOther['accountingReciprocalName'] = objWaitForPay.accountingName
+                                objWaitForPayOther['accountingReciprocalCode'] = objWaitForPay.accountingCode
+                                objWaitForPayOther['createDate'] = objWaitForPay.createDate
+                                objWaitForPayOther['entryDate'] = objWaitForPay.entryDate
+                                objWaitForPayOther['number'] = objWaitForPay.number
+                                objWaitForPayOther['reason'] = objWaitForPay.reason
+                                objWaitForPayOther['stt'] = Number(objWaitForPay.stt) + 1
 
-                            // vì là tài khoản lưỡng tính
-                            creaditSurplus += Number(credit.total);
-                            objWaitForPay['debtSurplus'] = null
-                            objWaitForPay['creaditSurplus'] = creaditSurplus ? creaditSurplus : 0
-                            objWaitForPayOther['creaditSurplus'] = null
-                            objWaitForPayOther['debtSurplus'] = creaditSurplus ? creaditSurplus : 0
-                            totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
-                            totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
-                            totalCreditIncurred += (objWaitForPayOther.creditIncurred ? Number(objWaitForPayOther.creditIncurred) : 0);
-                            totalDebtIncurred += (objWaitForPayOther.debtIncurred ? Number(objWaitForPayOther.debtIncurred) : 0);
-                            totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
-                            totalDebtSurplus += (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0);
-                            totalCreaditSurplus += (objWaitForPayOther.creaditSurplus ? Number(objWaitForPayOther.creaditSurplus) : 0);
-                            totalDebtSurplus += (objWaitForPayOther.debtSurplus ? Number(objWaitForPayOther.debtSurplus) : 0);
-                            array.push(objWaitForPay);
-                            array.push(objWaitForPayOther);
-                            stt += 2;
+                                // vì là tài khoản lưỡng tính
+                                creaditSurplus += Number(credit.total);
+                                objWaitForPay['debtSurplus'] = null
+                                objWaitForPay['creaditSurplus'] = creaditSurplus ? creaditSurplus : 0
+                                objWaitForPayOther['creaditSurplus'] = null
+                                objWaitForPayOther['debtSurplus'] = creaditSurplus ? creaditSurplus : 0
+                                totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
+                                totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
+                                totalCreditIncurred += (objWaitForPayOther.creditIncurred ? Number(objWaitForPayOther.creditIncurred) : 0);
+                                totalDebtIncurred += (objWaitForPayOther.debtIncurred ? Number(objWaitForPayOther.debtIncurred) : 0);
+                                totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
+                                totalDebtSurplus += (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0);
+                                totalCreaditSurplus += (objWaitForPayOther.creaditSurplus ? Number(objWaitForPayOther.creaditSurplus) : 0);
+                                totalDebtSurplus += (objWaitForPayOther.debtSurplus ? Number(objWaitForPayOther.debtSurplus) : 0);
+                                array.push(objWaitForPay);
+                                array.push(objWaitForPayOther);
+                                stt += 2;
+                            }
                         }
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []

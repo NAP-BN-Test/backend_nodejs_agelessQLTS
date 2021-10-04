@@ -475,6 +475,25 @@ module.exports = {
                     })
                 }
                 var job = schedule.scheduleJob({ hour: 23, minute: 59 }, async function () {
+                    console.log(1234567890);
+                    let nowCur = moment().add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                    await mtblCurrency(db).findAll().then(async data => {
+                        for (let i = 0; i < data.length; i++) {
+                            let rate = await mtblRate(db).findOne({
+                                where: {
+                                    IDCurrency: data[i].ID,
+                                },
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
+                            })
+                            await mtblRate(db).create({
+                                Date: nowCur,
+                                ExchangeRate: rate ? (rate.ExchangeRate ? rate.ExchangeRate : 1) : 1,
+                                IDCurrency: data[i].ID,
+                            })
+                        }
+                    })
                     let arrayData = [];
                     await axios.get(`http://192.168.23.16:1333/dulieuchamcong/index`).then(data => {
                         if (data.data.length > 0)
@@ -558,24 +577,6 @@ module.exports = {
                             StopDate: {
                                 [Op.lt]: now
                             }
-                        }
-                    })
-                    now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-                    await mtblCurrency(db).findAll().then(async data => {
-                        for (let i = 0; i < data.length; i++) {
-                            let rate = await mtblRate(db).findOne({
-                                where: {
-                                    IDCurrency: data[i].ID,
-                                },
-                                order: [
-                                    ['ID', 'DESC']
-                                ],
-                            })
-                            await mtblRate(db).create({
-                                Date: now,
-                                ExchangeRate: rate ? (rate.ExchangeRate ? rate.ExchangeRate : 1) : 1,
-                                IDCurrency: data[i].ID,
-                            })
                         }
                     })
                 });
