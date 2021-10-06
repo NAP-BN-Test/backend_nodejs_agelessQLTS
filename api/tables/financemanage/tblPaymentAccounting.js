@@ -11,6 +11,7 @@ module.exports = function (db) {
         IDAccounting: Sequelize.BIGINT,
         Type: Sequelize.STRING,
         Amount: Sequelize.FLOAT,
+        Contents: Sequelize.STRING,
 
     });
 

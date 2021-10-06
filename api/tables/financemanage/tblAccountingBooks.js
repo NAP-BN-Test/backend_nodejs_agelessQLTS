@@ -20,6 +20,7 @@ module.exports = function (db) {
         IDPayment: Sequelize.BIGINT,
         IDnotices: Sequelize.BIGINT,
         ClauseType: Sequelize.STRING,
+        Contents: Sequelize.STRING,
     });
 
     return table;

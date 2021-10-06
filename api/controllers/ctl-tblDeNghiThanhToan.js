@@ -21,6 +21,8 @@ var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
 var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
+var mtblPaymentRCredit = require('../tables/financemanage/tblPaymentRCredit')
+
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     let arrayReceiptsPayment = []
 
@@ -211,11 +213,20 @@ module.exports = {
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                         IDNhanVienLDPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
-                        IDSupplier: body.idNhaCungCap ? body.idNhaCungCap : null,
+                        IDSupplier: body.idNhaCungCap ? body.idNhaCungCap : (body.customerID ? body.customerID : null),
                         Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                         Link: body.linkPayroll ? body.linkPayroll : '',
                     }).then(async data => {
+                        if (body.listCredit) {
+                            var listCredit = JSON.parse(body.listCredit)
+                            for (item in listCredit) {
+                                await mtblPaymentRCredit(db).create({
+                                    IDSpecializedSoftware: item.id ? item.id : null,
+                                    PaymentID: data.ID
+                                })
+                            }
+                        }
                         body.fileAttach = JSON.parse(body.fileAttach)
                         if (body.fileAttach.length > 0)
                             for (var j = 0; j < body.fileAttach.length; j++)
@@ -681,6 +692,17 @@ module.exports = {
                             idNhaCungCap: data.IDSupplier ? Number(data.IDSupplier) : null,
                             linkPayroll: data.Link ? data.Link : '',
                         }
+                        let listCredit = []
+                        await mtblPaymentRCredit(db).findAll({
+                            where: {
+                                PaymentID: data.ID
+                            }
+                        }).then(payment => {
+                            for (item in payment) {
+                                listCredit.push(item.IDSpecializedSoftware)
+                            }
+                        })
+                        obj['listCredit'] = listCredit
                         stt += 1;
                         var arrayFile = []
                         await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: obj.id } }).then(file => {

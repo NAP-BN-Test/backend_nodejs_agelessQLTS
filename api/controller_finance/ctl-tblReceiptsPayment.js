@@ -18,6 +18,7 @@ var mtblAccountingBooks = require('../tables/financemanage/tblAccountingBooks')
 var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
 var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblCustomer = require('../tables/financemanage/tblCustomer')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     // Trả lại tiền
@@ -392,6 +393,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
             Reason: reason,
             Number: number,
             ClauseType: 'Debit',
+            Contents: listDebit[i].content,
         })
     }
     for (var j = 0; j < listCredit.length; j++) {
@@ -405,6 +407,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
             Reason: reason,
             Number: number,
             ClauseType: 'Credit',
+            Contents: listCredit[j].content,
         })
     }
 }
@@ -785,6 +788,28 @@ async function getDetailPartner(id) {
 
 }
 
+// Cập nhật lại số tiền không xác định của khách hàng
+async function updateUnspecifiedAmountOfCustomer(db, id) {
+    await mtblReceiptsPayment(db).findAll({
+        where: {
+            IDCustomer: id
+        }
+    }).then(async rePay => {
+        let unspecifiedAmount = 0;
+        for (item of rePay) {
+            unspecifiedAmount += (item.UnpaidAmount ? item.UnpaidAmount : 0)
+        }
+        await mtblCustomer(db).update({
+            AmountUnspecified: unspecifiedAmount
+        }, {
+            where: {
+                IDSpecializedSoftware: id
+            }
+        })
+    })
+
+}
+
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
@@ -799,15 +824,9 @@ module.exports = {
                     }).then(async data => {
                         if (data) {
                             var listInvoiceID = []
-                            var listUndefinedID = []
                             await mtblPaymentRInvoice(db).findAll({ where: { IDPayment: data.ID } }).then(data => {
                                 data.forEach(item => {
                                     listInvoiceID.push(Number(item.IDSpecializedSoftware))
-                                })
-                            })
-                            await mtblPaymentRPayment(db).findAll({ where: { IDPayment: data.ID } }).then(data => {
-                                data.forEach(item => {
-                                    listUndefinedID.push(Number(item.IDPaymentR))
                                 })
                             })
                             var currency = await mtblRate(db).findOne({
@@ -912,6 +931,7 @@ module.exports = {
                                             accountingCode: item.acc ? item.acc.AccountingCode : '',
                                         },
                                         amountOfMoney: item.Amount,
+                                        content: item.Contents,
                                     })
                                 })
                             })
@@ -934,13 +954,22 @@ module.exports = {
                                             accountingCode: item.acc ? item.acc.AccountingCode : '',
                                         },
                                         amountOfMoney: item.Amount,
+                                        content: item.Contents,
                                     })
                                 })
                             })
                             obj['arrayCredit'] = arrayCredit
                             obj['arrayDebit'] = arraydebit
                             obj['listInvoiceID'] = listInvoiceID
-                            obj['listUndefinedID'] = listUndefinedID
+                            let unspecifiedAmount = 0;
+                            await mtblCustomer(db).findOne({
+                                where: {
+                                    IDSpecializedSoftware: (data.IDCustomer ? data.IDCustomer : null)
+                                }
+                            }).then(cus => {
+                                unspecifiedAmount = cus.AmountUnspecified
+                            })
+                            obj['unspecifiedAmount'] = unspecifiedAmount
                             let loanAdvanceIDs = []
                             await mtblVayTamUng(db).findAll({ where: { IDReceiptsPayment: body.id } }).then(data => {
                                 data.forEach(item => {
@@ -972,10 +1001,7 @@ module.exports = {
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
         console.log(body);
-        var listUndefinedID = []
         var listInvoiceID = []
-        if (body.listUndefinedID)
-            listUndefinedID = JSON.parse(body.listUndefinedID)
         if (body.listInvoiceID)
             listInvoiceID = JSON.parse(body.listInvoiceID)
         var listCredit = JSON.parse(body.listCredit)
@@ -1066,67 +1092,14 @@ module.exports = {
                                 Status: 'Đã thanh toán'
                             }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
                         }
-                        var withdrawalMoney = Number(body.withdrawal);
-                        for (var i = 0; i < listUndefinedID.length; i++) {
-                            if (withdrawalMoney > 0) {
-                                await mtblReceiptsPayment(db).findOne({
-                                    where: {
-                                        ID: listUndefinedID[i]
-                                    },
-                                    order: [
-                                        ['ID', 'DESC']
-                                    ],
-                                }).then(async paymentR => {
-                                    // Trường hợp nếu tiền rút lớn hơn hoặc bằng số tiền chưa thanh toán
-                                    if (withdrawalMoney > paymentR.UnpaidAmount) {
-                                        withdrawalMoney = withdrawalMoney - paymentR.UnpaidAmount
-                                        // Tạo trước khi update
-                                        await mtblPaymentRPayment(db).create({
-                                            IDPayment: data.ID,
-                                            IDPaymentR: paymentR.ID,
-                                            Amount: paymentR.UnpaidAmount,
-                                        })
-                                        // Cập nhật số tiền thanh toán và không thanh toán của phiếu
-                                        await mtblReceiptsPayment(db).update({
-                                            UnpaidAmount: 0,
-                                            PaidAmount: paymentR.InitialAmount,
-                                        }, {
-                                            where: {
-                                                ID: paymentR.ID
-
-                                            }
-                                        })
-                                    }
-                                    // Trường hợp nếu tiền rút nhỏ hơn số tiền chưa thanh toán
-                                    else {
-                                        await mtblPaymentRPayment(db).create({
-                                            IDPayment: data.ID,
-                                            IDPaymentR: paymentR.ID,
-                                            Amount: withdrawalMoney,
-                                        })
-                                        await mtblReceiptsPayment(db).update({
-                                            Unknown: false,
-                                            UnpaidAmount: paymentR.UnpaidAmount - withdrawalMoney,
-                                            PaidAmount: paymentR.PaidAmount + withdrawalMoney,
-                                        }, {
-                                            where: {
-                                                ID: paymentR.ID
-
-                                            }
-                                        })
-                                        withdrawalMoney = 0
-                                    }
-                                })
-                            }
-                        }
                         // -------------------------------------------------------------------------------------------------------------------------------
-
                         for (var i = 0; i < listCredit.length; i++) {
                             await mtblPaymentAccounting(db).create({
                                 IDReceiptsPayment: data.ID,
                                 IDAccounting: listCredit[i].hasAccount.id,
                                 Type: "CREDIT",
                                 Amount: listCredit[i].amountOfMoney ? listCredit[i].amountOfMoney : 0,
+                                Contents: listCredit[i].content ? listCredit[i].content : '',
                             })
                         }
                         for (var j = 0; j < listDebit.length; j++) {
@@ -1135,8 +1108,11 @@ module.exports = {
                                 IDAccounting: listDebit[j].debtAccount.id,
                                 Type: "DEBIT",
                                 Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
+                                Contents: listDebit[j].content ? listDebit[j].content : '',
                             })
                         }
+                        if (body.object.type == 'customer')
+                            await updateUnspecifiedAmountOfCustomer(db, body.object.id)
                         var result = {
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -1159,11 +1135,11 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    var listUndefinedID = JSON.parse(body.listUndefinedID)
+                    // var listUndefinedID = JSON.parse(body.listUndefinedID)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
-                    var withdrawalMoney = Number(body.withdrawal);
+                    // var withdrawalMoney = Number(body.withdrawal);
                     // var check = await checkUpdateError(db, listUndefinedID, withdrawalMoney)
                     // if (!check) {
                     //     var result = {
@@ -1173,7 +1149,7 @@ module.exports = {
                     //     res.json(result);
                     // }
                     // return
-                    await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
+                    // await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
                     await deleteAndCreateAllInvoice(db, body.id, listInvoiceID)
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     await mtblAccountingBooks(db).destroy({ where: { IDPayment: body.id } })
@@ -1186,6 +1162,7 @@ module.exports = {
                                 IDAccounting: listCredit[i].hasAccount.id,
                                 Type: "CREDIT",
                                 Amount: listCredit[i].amountOfMoney ? listCredit[i].amountOfMoney : 0,
+                                Contents: listCredit[i].content ? listCredit[i].content : '',
                             })
                         }
                         for (var j = 0; j < listDebit.length; j++) {
@@ -1194,6 +1171,7 @@ module.exports = {
                                 IDAccounting: listDebit[j].debtAccount.id,
                                 Type: "DEBIT",
                                 Amount: listDebit[j].amountOfMoney ? listDebit[j].amountOfMoney : 0,
+                                Contents: listDebit[j].content ? listDebit[j].content : '',
                             })
                         }
                     }
@@ -1304,8 +1282,10 @@ module.exports = {
                         update.push({ key: 'IDPartner', value: body.object.id });
                     else
                         update.push({ key: 'IDCustomer', value: body.object.id });
-                    database.updateTable(update, mtblReceiptsPayment(db), body.id).then(response => {
+                    database.updateTable(update, mtblReceiptsPayment(db), body.id).then(async response => {
                         if (response == 1) {
+                            if (body.object.type == 'customer')
+                                await updateUnspecifiedAmountOfCustomer(db, body.object.id)
                             res.json(Result.ACTION_SUCCESS);
                         } else {
                             res.json(Result.SYS_ERROR_RESULT);
@@ -1845,15 +1825,35 @@ module.exports = {
     // get_automatically_increasing_voucher_number
     getAutomaticallyIncreasingVoucherNumber: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var check = await mtblReceiptsPayment(db).findOne({
+                    let check = null;
+                    await mtblReceiptsPayment(db).findAll({
                         where: { Type: body.type },
                         order: [
-                            ['ID', 'DESC']
+                            ['CodeNumber', 'DESC']
                         ],
+                    }).then(data => {
+                        for (item of data) {
+                            if (body.type == 'receipt') {
+                                if (item.CodeNumber.length == 6 && Number(item.CodeNumber.slice(2, 6)) != null) {
+                                    check = item
+                                }
+                            } else if (body.type == 'payment') {
+                                if (item.CodeNumber.length == 6 && Number(item.CodeNumber.slice(2, 6)) != null) {
+                                    check = item
+                                }
+                            } else if (body.type == 'debit') {
+                                if (item.CodeNumber.length == 7 && Number(item.CodeNumber.slice(3, 7)) != null) {
+                                    check = item
+                                }
+                            } else if (body.type == 'spending') {
+                                if (item.CodeNumber.length == 7 && Number(item.CodeNumber.slice(3, 7)) != null) {
+                                    check = item
+                                }
+                            }
+                        }
                     })
                     var automaticCode = 'PT0001';
                     if (!check && body.type == 'receipt') {
