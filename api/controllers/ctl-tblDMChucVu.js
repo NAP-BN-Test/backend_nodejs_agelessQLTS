@@ -4,7 +4,15 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
 var database = require('../database');
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 async function deleteRelationshiptblDMChucVu(db, listID) {
+    await mtblDMNhanvien(db).update({
+        IDChucVu: null
+    }, {
+        where: {
+            IDChucVu: { [Op.in]: listID }
+        }
+    })
     await mtblDMChucVu(db).destroy({
         where: {
             ID: { [Op.in]: listID }

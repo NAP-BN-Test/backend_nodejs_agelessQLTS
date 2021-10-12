@@ -33,6 +33,13 @@ async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
             }
         }
     })
+    await mtblPaymentRCredit(db).destroy({
+        where: {
+            PaymentID: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblDeNghiThanhToan(db).destroy({
         where: {
             ID: {
@@ -195,7 +202,137 @@ async function getDetailYCMS(db, id) {
 
 }
 var mModules = require('../constants/modules');
+async function getDetailCustomer(id) {
+    dataCustomer = [{
+        "customerCode": "KH0001",
+        "name": "Công ty tnhh An Phú",
+        "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+        "tax": "123456789",
+        "countryName": "Việt Nam",
+        "address": "Số 2 Hoàng Mai Hà Nội",
+        "mobile": "098705124",
+        "fax": "01234567",
+        "email": "anphu@gmail.com",
+        "id": 1,
+    },
+    {
+        "customerCode": "KH0002",
+        "name": "Công ty tnhh Is Tech Vina",
+        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
+        "tax": "01245870",
+        "countryName": "Việt Nam",
+        "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
+        "mobile": "082457145",
+        "fax": "0241368451",
+        "email": "istech@gmail.com",
+        "id": 2,
+    },
+    {
+        "customerCode": "KH0003",
+        "name": "Công ty cổ phần Orion Việt Nam",
+        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
+        "tax": "012341250",
+        "countryName": "Việt nam",
+        "address": "Số 12 Bạch Mai Hà Nội",
+        "mobile": "0315456554",
+        "fax": "132456545",
+        "email": "orion13@gmail.com",
+        "id": 3,
+    },
+    {
+        "customerCode": "KH0004",
+        "name": "Công ty TNHH Rồng Việt",
+        "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
+        "tax": "01323255",
+        "countryName": "Việt Nam",
+        "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+        "mobile": "0445445474",
+        "fax": "1135635",
+        "email": "rongviet@gmail.com",
+        "id": 4,
+    },
+    {
+        "customerCode": "KH0005",
+        "name": "Công ty cổ phần và thương mại Đức Việt",
+        "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
+        "tax": "017654124",
+        "countryName": "Việt Nam",
+        "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
+        "mobile": "0444545401",
+        "fax": "75241241241",
+        "email": "ducviet0209@gmail.com",
+        "id": 5,
+    },
+    {
+        "customerCode": "KH0006",
+        "name": "Công ty TNHH 1 thành viên Bảo Minh",
+        "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
+        "tax": "154654565",
+        "countryName": "Việt Nam",
+        "address": "Số 25 Ba Đình Hà Nội",
+        "mobile": "045102474",
+        "fax": "02137244",
+        "email": "baominh56@gmail.com",
+        "id": 6,
+    },
+    {
+        "customerCode": "KH0007",
+        "name": "Công ty Sx và Tm Minh Hòa",
+        "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
+        "tax": "04785635432",
+        "countryName": "Việt Nam",
+        "address": "Số 21 Hàng Mã Hà Nội",
+        "mobile": "0045454510",
+        "fax": "415265654",
+        "email": "minhhoa1212@gmail.com",
+        "id": 7,
+    },
+    {
+        "customerCode": "KH0008",
+        "name": "Công ty cổ phần EC",
+        "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
+        "tax": "45454545",
+        "countryName": "Việt Nam",
+        "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
+        "mobile": "012345474",
+        "fax": "012244635",
+        "email": "ec1312@gmail.com",
+        "id": 8,
+    },
+    {
+        "customerCode": "KH0009",
+        "name": "Công ty cổ phần Thu Hương",
+        "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
+        "tax": "012546565",
+        "countryName": "Việt Nam",
+        "address": "Số 24 Bạch Mai Hà Nội",
+        "mobile": "015245454",
+        "fax": "45552478",
+        "email": "thuhuong34@gmail.com",
+        "id": 9,
+    },
+    {
+        "customerCode": "KH0010",
+        "name": "Công ty tnhh Hòa Phát",
+        "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
+        "tax": "014775745",
+        "countryName": "Việt Nam",
+        "address": "Số 2 Phố Huế Hà Nội",
+        "mobile": "045245401",
+        "fax": "021455235",
+        "email": "hoaphat0102@gmail.com",
+        "id": 10,
+    },
+    ]
+    var obj = {}
+    dataCustomer.forEach(item => {
+        if (item.id == id) {
+            obj = item
+        }
+    })
+    return obj
 
+}
 module.exports = {
     deleteRelationshiptblDeNghiThanhToan,
     // add_tbl_denghi_thanhtoan
@@ -204,7 +341,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDeNghiThanhToan(db).create({
+                    let objCreate = {
                         PaymentOrderCode: await mModules.automaticCode(mtblDeNghiThanhToan(db), 'PaymentOrderCode', 'DNTT'),
                         IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
                         Contents: body.contents ? body.contents : '',
@@ -213,16 +350,22 @@ module.exports = {
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                         IDNhanVienLDPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
-                        IDSupplier: body.idNhaCungCap ? body.idNhaCungCap : (body.customerID ? body.customerID : null),
                         Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                         Link: body.linkPayroll ? body.linkPayroll : '',
-                    }).then(async data => {
+                    }
+                    body.object = JSON.parse(body.object)
+                    if (body.object.type == 'customer')
+                        objCreate['CustomerID'] = body.object.id
+                    else
+                        objCreate['IDSupplier'] = body.object.id
+
+                    mtblDeNghiThanhToan(db).create(objCreate).then(async data => {
                         if (body.listCredit) {
                             var listCredit = JSON.parse(body.listCredit)
-                            for (item in listCredit) {
+                            for (item of listCredit) {
                                 await mtblPaymentRCredit(db).create({
-                                    IDSpecializedSoftware: item.id ? item.id : null,
+                                    IDSpecializedSoftware: item,
                                     PaymentID: data.ID
                                 })
                             }
@@ -275,32 +418,39 @@ module.exports = {
     // update_tbl_denghi_thanhtoan
     updatetblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     body.fileAttach = JSON.parse(body.fileAttach)
                     await mModules.updateForFileAttach(db, 'IDDeNghiThanhToan', body.fileAttach, body.id)
                     let update = [];
+                    if (body.listCredit) {
+                        await mtblPaymentRCredit(db).destroy({ where: { PaymentID: body.id } })
+                        var listCredit = JSON.parse(body.listCredit)
+                        for (item of listCredit) {
+                            await mtblPaymentRCredit(db).create({
+                                IDSpecializedSoftware: item,
+                                PaymentID: body.id
+                            })
+                        }
+                    }
                     if (body.idNhanVien || body.idNhanVien === '') {
                         if (body.idNhanVien === '')
                             update.push({ key: 'IDNhanVien', value: null });
                         else
                             update.push({ key: 'IDNhanVien', value: body.idNhanVien });
                     }
-                    if (body.idNhaCungCap || body.idNhaCungCap === '') {
-                        if (body.idNhaCungCap) {
-                            await mtblYeuCauMuaSam(db).update({
-                                IDSupplier: body.idNhaCungCap,
-                            }, {
-                                where: {
-                                    IDPaymentOrder: body.id
-                                }
-                            })
-                        }
-                        if (body.idNhaCungCap === '')
+                    if (body.object) {
+                        body.object = JSON.parse(body.object)
+                        if (body.object.type == 'customer') {
+                            update.push({ key: 'CustomerID', value: body.object.id });
                             update.push({ key: 'IDSupplier', value: null });
-                        else
-                            update.push({ key: 'IDSupplier', value: body.idNhaCungCap });
+                        }
+                        else {
+                            update.push({ key: 'CustomerID', value: null });
+                            update.push({ key: 'IDSupplier', value: body.object.id });
+                        }
                     }
                     if (body.contents || body.contents === '')
                         update.push({ key: 'Contents', value: body.contents });
@@ -546,6 +696,9 @@ module.exports = {
                                 statusLD = element.ReasonRejectLDPD ? element.ReasonRejectLDPD : '';
                             else
                                 statusLD = element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '';
+                            let checkPayment = false
+                            if (element.IDReceiptsPayment)
+                                checkPayment = true
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -566,6 +719,7 @@ module.exports = {
                                 supplierName: element.supplier ? element.supplier.SupplierName : '',
                                 idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
                                 linkPayroll: element.Link ? element.Link : '',
+                                isCheckPayment: checkPayment,
                             }
                             array.push(obj);
                             stt += 1;
@@ -692,14 +846,35 @@ module.exports = {
                             idNhaCungCap: data.IDSupplier ? Number(data.IDSupplier) : null,
                             linkPayroll: data.Link ? data.Link : '',
                         }
+                        var objObject = {};
+                        if (data.IDSupplier)
+                            objObject = {
+                                id: Number(data.supplier.ID),
+                                name: data.supplier.SupplierName ? data.supplier.SupplierName : '',
+                                code: data.supplier.SupplierCode ? data.supplier.SupplierCode : '',
+                                displayName: '[' + data.supplier.SupplierCode + '] ' + data.supplier.SupplierName,
+                                type: 'supplier',
+                            }
+                        else {
+                            let objCustomer = await getDetailCustomer(data.CustomerID ? data.CustomerID : 1)
+                            objObject = {
+                                name: objCustomer.name,
+                                address: objCustomer.address,
+                                code: objCustomer.customerCode,
+                                displayName: '[' + objCustomer.customerCode + '] ' + objCustomer.name,
+                                id: objCustomer.id,
+                                type: 'customer',
+                            }
+                        }
+                        obj['object'] = objObject
                         let listCredit = []
                         await mtblPaymentRCredit(db).findAll({
                             where: {
                                 PaymentID: data.ID
                             }
                         }).then(payment => {
-                            for (item in payment) {
-                                listCredit.push(item.IDSpecializedSoftware)
+                            for (item of payment) {
+                                listCredit.push(Number(item.IDSpecializedSoftware))
                             }
                         })
                         obj['listCredit'] = listCredit
@@ -718,7 +893,6 @@ module.exports = {
                         })
                         var arrayObj = await getDetailYCMS(db, data.ID)
                         obj['arrayFile'] = arrayFile;
-                        console.log(obj);
                         var result = {
                             obj: obj,
                             arrayRequest: await getDetailYCMS(db, data.ID),

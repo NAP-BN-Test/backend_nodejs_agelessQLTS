@@ -645,7 +645,6 @@ module.exports = {
             if (data) {
                 let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
                 for (let i = 0; i < data.length; i++) {
-                    console.log(data[i]);
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: data[i].id }
                     })
@@ -667,6 +666,8 @@ module.exports = {
                     }
                     data[i]['totalMoneyVND'] = totalMoneyVND
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
+                    data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                    data[i]['payments'] = check ? check.Payments : ''
                 }
                 let totalMoneyVND = 0
                 for (let a = 0; a < totalMoney.length; a++) {

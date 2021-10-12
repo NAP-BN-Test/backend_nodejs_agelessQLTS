@@ -279,7 +279,7 @@ async function deleteAndCreateAllPayment(db, id, listUndefinedID, withdrawalMone
         }
     }
 }
-async function deleteAndCreateAllInvoice(db, id, listInvoiceID) {
+async function deleteAndCreateAllInvoice(db, id, listInvoiceID, type, date) {
     // Xóa dữ liệu cũ sau đó thêm mới
     await mtblPaymentRInvoice(db).destroy({
         where: {
@@ -294,8 +294,16 @@ async function deleteAndCreateAllInvoice(db, id, listInvoiceID) {
             IDPayment: id,
             IDSpecializedSoftware: listInvoiceID[i]
         })
+        let Payments = 'Tiền mặt'
+        if (type == "debit") {
+            Payments = 'Chuyển khoản'
+        } else if (type == "spending") {
+            Payments = 'Chuyển khoản'
+        }
         await mtblInvoice(db).update({
-            Status: 'Đã thanh toán'
+            Status: 'Đã thanh toán',
+            Payments: Payments,
+            PayDate: date,
         }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
     }
 
@@ -875,6 +883,15 @@ module.exports = {
                                 staffID: data.IDStaff ? data.IDStaff : null,
                                 staffName: 'Chưa có dữ liệu' ? 'Chưa có dữ liệu' : null,
                             }
+                            await mtblDeNghiThanhToan(db).findOne({
+                                where: { IDReceiptsPayment: data.ID }
+                            }).then(payment => {
+                                if (payment)
+                                    obj['paymentOrder'] = {
+                                        id: payment.ID,
+                                        code: payment.PaymentOrderCode,
+                                    }
+                            })
                             if (data.IDStaff) {
                                 let staff = await mtblDMNhanvien(db).findOne({
                                     where: { ID: data.IDStaff }
@@ -967,7 +984,8 @@ module.exports = {
                                     IDSpecializedSoftware: (data.IDCustomer ? data.IDCustomer : null)
                                 }
                             }).then(cus => {
-                                unspecifiedAmount = cus.AmountUnspecified
+                                if (cus)
+                                    unspecifiedAmount = cus.AmountUnspecified
                             })
                             obj['unspecifiedAmount'] = unspecifiedAmount
                             let loanAdvanceIDs = []
@@ -1000,7 +1018,6 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
-        console.log(body);
         var listInvoiceID = []
         if (body.listInvoiceID)
             listInvoiceID = JSON.parse(body.listInvoiceID)
@@ -1088,8 +1105,16 @@ module.exports = {
                                 IDPayment: data.ID,
                                 IDSpecializedSoftware: listInvoiceID[i]
                             })
+                            let Payments = 'Tiền mặt'
+                            if (body.type == "debit") {
+                                Payments = 'Chuyển khoản'
+                            } else if (body.type == "spending") {
+                                Payments = 'Chuyển khoản'
+                            }
                             await mtblInvoice(db).update({
-                                Status: 'Đã thanh toán'
+                                Status: 'Đã thanh toán',
+                                Payments: Payments,
+                                PayDate: body.date ? body.date : null,
                             }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
                         }
                         // -------------------------------------------------------------------------------------------------------------------------------
@@ -1150,7 +1175,6 @@ module.exports = {
                     // }
                     // return
                     // await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
-                    await deleteAndCreateAllInvoice(db, body.id, listInvoiceID)
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     await mtblAccountingBooks(db).destroy({ where: { IDPayment: body.id } })
                     if (listCredit.length > 0 && listDebit.length > 0) {
@@ -1284,6 +1308,12 @@ module.exports = {
                         update.push({ key: 'IDCustomer', value: body.object.id });
                     database.updateTable(update, mtblReceiptsPayment(db), body.id).then(async response => {
                         if (response == 1) {
+                            let detail = await mtblReceiptsPayment(db).findOne({
+                                where: {
+                                    ID: body.id
+                                }
+                            })
+                            await deleteAndCreateAllInvoice(db, body.id, listInvoiceID, detail ? detail.Type : null, detail ? detail.Date : null)
                             if (body.object.type == 'customer')
                                 await updateUnspecifiedAmountOfCustomer(db, body.object.id)
                             res.json(Result.ACTION_SUCCESS);
@@ -1357,7 +1387,6 @@ module.exports = {
                     let arraySearchNot = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
-                        console.log(data);
                         if (data.search) {
                             where = [
                                 { Type: body.type },
@@ -1832,7 +1861,7 @@ module.exports = {
                     await mtblReceiptsPayment(db).findAll({
                         where: { Type: body.type },
                         order: [
-                            ['CodeNumber', 'DESC']
+                            ['CodeNumber', 'ASC']
                         ],
                     }).then(data => {
                         for (item of data) {

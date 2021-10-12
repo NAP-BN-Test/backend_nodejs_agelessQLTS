@@ -21,6 +21,7 @@ module.exports = function (db) {
         PaymentOrderCode: Sequelize.STRING,
         IDReceiptsPayment: Sequelize.BIGINT,
         IDSupplier: Sequelize.BIGINT,
+        CustomerID: Sequelize.BIGINT,
         Link: Sequelize.STRING,
         IsNotification: Sequelize.BOOLEAN,
     });

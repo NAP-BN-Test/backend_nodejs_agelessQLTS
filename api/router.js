@@ -125,6 +125,7 @@ module.exports = function (app) {
     app.route('/qlnb/delete_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.deletetblDMNhaCungCap);
     app.route('/qlnb/get_list_tbl_dmnhacungcap').post(checkToken.checkToken, tblDMNhaCungCap.getListtblDMNhaCungCap);
     app.route('/qlnb/get_list_name_tbl_dmnhacungcap').post(tblDMNhaCungCap.getListNametblDMNhaCungCap);
+    app.route('/qlnb/get_list_obj_of_payment_order').post(tblDMNhaCungCap.getListObjOfPayment);
 
     //  Danh mục văn phòng phẩm
     app.route('/qlnb/add_tbl_vanphongpham').post(checkToken.checkToken, tblVanPhongPham.addtblVanPhongPham);
@@ -271,6 +272,10 @@ module.exports = function (app) {
 
 
     app.route('/qlnb/get_list_name_tbl_dmchucvu').post(tblDMChucVu.getListNametblDMChucVu);
+    app.route('/qlnb/get_list_tbl_dmChucVu').post(tblDMChucVu.getListtblDMChucVu);
+    app.route('/qlnb/add_tbl_dmChucVu').post(tblDMChucVu.addtblDMChucVu);
+    app.route('/qlnb/update_tbl_dmChucVu').post(tblDMChucVu.updatetblDMChucVu);
+    app.route('/qlnb/delete_tbl_dmChucVu').post(tblDMChucVu.deletetblDMChucVu);
 
     // Danh mục nghỉ lễ
     app.route('/qlnb/add_tbl_nghiLe').post(checkToken.checkToken, tblNghiLe.addtblNghiLe);
@@ -595,6 +600,8 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_accounting_books').post(tblAccountingBooks.getListtblAccountingBooks);
     app.route('/qlnb/insert_account_db').post(tblAccountingBooks.insertAccountDB);
     app.route('/qlnb/get_all_accounting_books').post(tblAccountingBooks.getAllAccountBooks);
+
+    app.route('/qlnb/get_data_summary_book').post(tblAccountingBooks.getDataSummaryBook);
 
     // thêm mới quyền
     var tblRole = require('./controllers/ctl-tblRole')

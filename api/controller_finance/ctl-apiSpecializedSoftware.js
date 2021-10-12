@@ -1223,6 +1223,8 @@ module.exports = {
                                     Request: data[i].request
                                 })
                             } else {
+                                data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                data[i]['payments'] = check ? check.Payments : ''
                                 data[i].statusName = check.Status
                                 data[i].request = check.Request
                             }
@@ -1257,7 +1259,6 @@ module.exports = {
     // get_list_invoice_wait_for_pay_from_customer
     getListInvoiceWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": body.itemPerPage ? body.itemPerPage : 0,
@@ -1337,6 +1338,8 @@ module.exports = {
                                 }
                             } else {
                                 if (check.Status == 'Chờ thanh toán') {
+                                    data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                    data[i]['payments'] = check ? check.Payments : ''
                                     array.push(data[i])
                                     arrayCreate.push(data[i])
                                 }
@@ -1361,7 +1364,6 @@ module.exports = {
                             totalMoney: totalMoney,
                             totalMoneyVND: totalMoneyVND,
                         }
-                        console.log(result);
                         res.json(result);
                     }
                 } else {
@@ -1428,9 +1430,11 @@ module.exports = {
                             if (data[i].statusName == 'Đã thanh toán')
                                 array.push(data[i])
                         } else {
-                            console.log(check.Status);
-                            if (check.Status == 'Đã thanh toán')
+                            if (check.Status == 'Đã thanh toán') {
+                                data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                data[i]['payments'] = check ? check.Payments : ''
                                 array.push(data[i])
+                            }
                         }
                     }
                     totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
@@ -1495,6 +1499,8 @@ module.exports = {
                                     Request: dataCredit[i].request
                                 })
                             } else {
+                                dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                dataCredit[i]['payments'] = check ? check.Payments : ''
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
                             }
@@ -1580,10 +1586,16 @@ module.exports = {
                             } else {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
-                                if (check.Status == 'Chờ thanh toán')
+                                if (check.Status == 'Chờ thanh toán') {
+                                    dataCredit[i]['payDate'] = check.PayDate
+                                    dataCredit[i]['Payments'] = check.Payments
                                     array.push(dataCredit[i])
-                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || check.Status == 'Chờ thanh toán')
+                                }
+                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || check.Status == 'Chờ thanh toán') {
+                                    dataCredit[i]['payDate'] = check.PayDate
+                                    dataCredit[i]['Payments'] = check.Payments
                                     updateArr.push(dataCredit[i])
+                                }
                             }
                         }
                         let totalMoney = await calculateTheTotalForCredit(array)
@@ -1645,8 +1657,11 @@ module.exports = {
                             } else {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
-                                if (dataCredit[i].statusName == 'Đã thanh toán')
+                                if (dataCredit[i].statusName == 'Đã thanh toán') {
+                                    dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                    dataCredit[i]['payments'] = check ? check.Payments : ''
                                     array.push(dataCredit[i])
+                                }
                             }
                         }
                         let totalMoney = await calculateTheTotalForCredit(array)
@@ -1744,6 +1759,8 @@ module.exports = {
                         }
                     } else {
                         if (check.Status == 'Chờ thanh toán') {
+                            data[i]['payDate'] = check.PayDate
+                            data[i]['Payments'] = check.Payments
                             array.push(data[i])
                             totalMoneyVNDR += totalMoneyVND
                         }
@@ -1804,8 +1821,11 @@ module.exports = {
                         if (data[i].statusName == 'Đã thanh toán')
                             array.push(data[i])
                     } else {
-                        if (check.Status == 'Đã thanh toán')
+                        if (check.Status == 'Đã thanh toán') {
+                            data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                            data[i]['payments'] = check ? check.Payments : ''
                             array.push(data[i])
+                        }
                     }
                 }
                 totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
@@ -2187,6 +2207,8 @@ module.exports = {
                             Request: dataCredit[i].request
                         })
                     } else {
+                        dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                        dataCredit[i]['payments'] = check ? check.Payments : ''
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
                     }
@@ -2236,8 +2258,11 @@ module.exports = {
                     } else {
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
-                        if (check.Status == 'Chờ thanh toán' && dataCredit[i].statusName == 'Chờ thanh toán')
+                        if (check.Status == 'Chờ thanh toán' && dataCredit[i].statusName == 'Chờ thanh toán') {
+                            dataCredit[i]['payDate'] = check.PayDate
+                            dataCredit[i]['Payments'] = check.Payments
                             array.push(dataCredit[i])
+                        }
                     }
                 }
                 let totalMoney = await calculateTheTotalForCredit(array)
@@ -2286,8 +2311,11 @@ module.exports = {
                     } else {
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
-                        if (check.Status == 'Đã thanh toán')
+                        if (check.Status == 'Đã thanh toán') {
+                            dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                            dataCredit[i]['payments'] = check ? check.Payments : ''
                             array.push(dataCredit[i])
+                        }
                     }
                 }
                 let totalMoney = await calculateTheTotalForCredit(dataCredit)
