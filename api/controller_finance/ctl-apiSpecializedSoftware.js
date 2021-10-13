@@ -637,7 +637,7 @@ async function calculateTheTotalAmountOfEachCurrency(array) {
     }
     return arrayResult
 }
-dataCustomer = [{
+let dataCustomer = [{
     "customerCode": "KH0001",
     "name": "Công ty tnhh An Phú",
     "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
@@ -757,7 +757,24 @@ dataCustomer = [{
     "email": "hoaphat0102@gmail.com",
     "id": 10,
 },
+{
+    "customerCode": "KH0011",
+    "name": "Cơ quan nhà nước",
+    "attributesChangeLog": "Cơ quan nhà nước",
+    "tax": "014775745",
+    "countryName": "Việt Nam",
+    "address": "Số 2 Phố Huế Hà Nội",
+    "mobile": "045245401",
+    "fax": "021455235",
+    "email": "cqnnvn@gmail.com",
+    "id": 11,
+},
 ]
+function getCustomerSpecializeSoftware() {
+
+    return dataCustomer
+}
+
 // data
 dataPartner = [{
     id: "2",
@@ -934,6 +951,7 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
     return result
 }
 module.exports = {
+    getCustomerSpecializeSoftware,
     // get_list_department
     getListDepartment: async (req, res) => {
         await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/department/share`).then(data => {
@@ -1223,7 +1241,7 @@ module.exports = {
                                     Request: data[i].request
                                 })
                             } else {
-                                data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : '') : ''
                                 data[i]['payments'] = check ? check.Payments : ''
                                 data[i].statusName = check.Status
                                 data[i].request = check.Request
@@ -1338,7 +1356,7 @@ module.exports = {
                                 }
                             } else {
                                 if (check.Status == 'Chờ thanh toán') {
-                                    data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                    data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                                     data[i]['payments'] = check ? check.Payments : ''
                                     array.push(data[i])
                                     arrayCreate.push(data[i])
@@ -1431,7 +1449,7 @@ module.exports = {
                                 array.push(data[i])
                         } else {
                             if (check.Status == 'Đã thanh toán') {
-                                data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                                 data[i]['payments'] = check ? check.Payments : ''
                                 array.push(data[i])
                             }
@@ -1499,7 +1517,7 @@ module.exports = {
                                     Request: dataCredit[i].request
                                 })
                             } else {
-                                dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                                 dataCredit[i]['payments'] = check ? check.Payments : ''
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
@@ -1658,7 +1676,7 @@ module.exports = {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
                                 if (dataCredit[i].statusName == 'Đã thanh toán') {
-                                    dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                                    dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                                     dataCredit[i]['payments'] = check ? check.Payments : ''
                                     array.push(dataCredit[i])
                                 }
@@ -1822,7 +1840,7 @@ module.exports = {
                             array.push(data[i])
                     } else {
                         if (check.Status == 'Đã thanh toán') {
-                            data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                            data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                             data[i]['payments'] = check ? check.Payments : ''
                             array.push(data[i])
                         }
@@ -1958,7 +1976,6 @@ module.exports = {
                         if (data[i].request == 'Yêu cầu xóa')
                             array.push(data[i])
                     } else {
-                        console.log(check.Status);
                         if (check.Request == 'Yêu cầu xóa')
                             array.push(data[i])
                     }
@@ -2207,7 +2224,7 @@ module.exports = {
                             Request: dataCredit[i].request
                         })
                     } else {
-                        dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                        dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                         dataCredit[i]['payments'] = check ? check.Payments : ''
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
@@ -2312,7 +2329,7 @@ module.exports = {
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
                         if (check.Status == 'Đã thanh toán') {
-                            dataCredit[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                            dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                             dataCredit[i]['payments'] = check ? check.Payments : ''
                             array.push(dataCredit[i])
                         }

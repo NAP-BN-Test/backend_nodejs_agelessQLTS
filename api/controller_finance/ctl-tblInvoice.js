@@ -666,7 +666,7 @@ module.exports = {
                     }
                     data[i]['totalMoneyVND'] = totalMoneyVND
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
-                    data[i]['payDate'] = check ? moment(check.PayDate).format('DD/MM/YYYY') : ''
+                    data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                     data[i]['payments'] = check ? check.Payments : ''
                 }
                 let totalMoneyVND = 0

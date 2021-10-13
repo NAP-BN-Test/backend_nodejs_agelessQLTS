@@ -603,6 +603,8 @@ module.exports = function (app) {
 
     app.route('/qlnb/get_data_summary_book').post(tblAccountingBooks.getDataSummaryBook);
 
+    app.route('/qlnb/get_child_accounts_of_account').post(tblAccountingBooks.getChildAccountsOfAccount);
+
     // thêm mới quyền
     var tblRole = require('./controllers/ctl-tblRole')
     app.route('/qlnb/add_tbl_role').post(checkToken.checkToken, tblRole.addtblRole);

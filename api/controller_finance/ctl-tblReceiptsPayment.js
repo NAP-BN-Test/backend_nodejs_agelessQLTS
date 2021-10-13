@@ -19,6 +19,7 @@ var mtblTaiSan = require('../tables/qlnb/tblTaiSan')
 var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblCustomer = require('../tables/financemanage/tblCustomer')
+var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     // Trả lại tiền
@@ -76,6 +77,7 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             }
         }
     })
+    let arrayCustomerID = []
     await mtblReceiptsPayment(db).findAll({
         where: {
             ID: {
@@ -102,6 +104,8 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
                         IDReceiptsPayment: data[i].ID
                     }
                 })
+            // Thêm mới số tiền không xác định
+            arrayCustomerID.push(data[i].IDCustomer)
         }
     })
     await mtblPaymentRInvoice(db).findAll({
@@ -151,6 +155,8 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             }
         }
     })
+    for (item of arrayCustomerID)
+        await updateUnspecifiedAmountOfCustomer(db, item)
 }
 async function handleCodeNumber(str, type) {
     var endCode = '';
@@ -234,7 +240,7 @@ async function deleteAndCreateAllPayment(db, id, listUndefinedID, withdrawalMone
             IDPayment: id
         }
     })
-
+    listUndefinedID.sort()
     for (var i = 0; i < listUndefinedID.length; i++) {
         if (withdrawalMoney > 0) {
             await mtblReceiptsPayment(db).findOne({
@@ -420,127 +426,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
     }
 }
 async function getDetailCustomer(id) {
-    dataCustomer = [{
-        "customerCode": "KH0001",
-        "name": "Công ty tnhh An Phú",
-        "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
-        "tax": "123456789",
-        "countryName": "Việt Nam",
-        "address": "Số 2 Hoàng Mai Hà Nội",
-        "mobile": "098705124",
-        "fax": "01234567",
-        "email": "anphu@gmail.com",
-        "id": 1,
-    },
-    {
-        "customerCode": "KH0002",
-        "name": "Công ty tnhh Is Tech Vina",
-        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
-        "tax": "01245870",
-        "countryName": "Việt Nam",
-        "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
-        "mobile": "082457145",
-        "fax": "0241368451",
-        "email": "istech@gmail.com",
-        "id": 2,
-    },
-    {
-        "customerCode": "KH0003",
-        "name": "Công ty cổ phần Orion Việt Nam",
-        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
-        "tax": "012341250",
-        "countryName": "Việt nam",
-        "address": "Số 12 Bạch Mai Hà Nội",
-        "mobile": "0315456554",
-        "fax": "132456545",
-        "email": "orion13@gmail.com",
-        "id": 3,
-    },
-    {
-        "customerCode": "KH0004",
-        "name": "Công ty TNHH Rồng Việt",
-        "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
-        "tax": "01323255",
-        "countryName": "Việt Nam",
-        "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-        "mobile": "0445445474",
-        "fax": "1135635",
-        "email": "rongviet@gmail.com",
-        "id": 4,
-    },
-    {
-        "customerCode": "KH0005",
-        "name": "Công ty cổ phần và thương mại Đức Việt",
-        "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
-        "tax": "017654124",
-        "countryName": "Việt Nam",
-        "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
-        "mobile": "0444545401",
-        "fax": "75241241241",
-        "email": "ducviet0209@gmail.com",
-        "id": 5,
-    },
-    {
-        "customerCode": "KH0006",
-        "name": "Công ty TNHH 1 thành viên Bảo Minh",
-        "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
-        "tax": "154654565",
-        "countryName": "Việt Nam",
-        "address": "Số 25 Ba Đình Hà Nội",
-        "mobile": "045102474",
-        "fax": "02137244",
-        "email": "baominh56@gmail.com",
-        "id": 6,
-    },
-    {
-        "customerCode": "KH0007",
-        "name": "Công ty Sx và Tm Minh Hòa",
-        "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
-        "tax": "04785635432",
-        "countryName": "Việt Nam",
-        "address": "Số 21 Hàng Mã Hà Nội",
-        "mobile": "0045454510",
-        "fax": "415265654",
-        "email": "minhhoa1212@gmail.com",
-        "id": 7,
-    },
-    {
-        "customerCode": "KH0008",
-        "name": "Công ty cổ phần EC",
-        "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
-        "tax": "45454545",
-        "countryName": "Việt Nam",
-        "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
-        "mobile": "012345474",
-        "fax": "012244635",
-        "email": "ec1312@gmail.com",
-        "id": 8,
-    },
-    {
-        "customerCode": "KH0009",
-        "name": "Công ty cổ phần Thu Hương",
-        "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
-        "tax": "012546565",
-        "countryName": "Việt Nam",
-        "address": "Số 24 Bạch Mai Hà Nội",
-        "mobile": "015245454",
-        "fax": "45552478",
-        "email": "thuhuong34@gmail.com",
-        "id": 9,
-    },
-    {
-        "customerCode": "KH0010",
-        "name": "Công ty tnhh Hòa Phát",
-        "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
-        "tax": "014775745",
-        "countryName": "Việt Nam",
-        "address": "Số 2 Phố Huế Hà Nội",
-        "mobile": "045245401",
-        "fax": "021455235",
-        "email": "hoaphat0102@gmail.com",
-        "id": 10,
-    },
-    ]
+    let dataCustomer = customerData.getCustomerSpecializeSoftware()
     var obj = {}
     dataCustomer.forEach(item => {
         if (item.id == id) {
@@ -1066,7 +952,7 @@ module.exports = {
                         objCreate['IDPartner'] = body.object.id
                     else
                         objCreate['IDCustomer'] = body.object.id
-                    mtblReceiptsPayment(db).create(objCreate).then(async data => {
+                    await mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         if (body.assetLiquidationIDs) {
                             body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)
                             for (var i = 0; i < body.assetLiquidationIDs.length; i++) {
@@ -1086,6 +972,64 @@ module.exports = {
                             })
 
                         }
+                        // -------------------------------------------------------------------------------------------------------------------------
+                        if (body.object.type == 'customer') {
+                            var withdrawalMoney = (body.withdrawal ? Number(body.withdrawal) : 0);
+                            await mtblReceiptsPayment(db).findAll({
+                                where: {
+                                    IDCustomer: body.object.id,
+                                    UnpaidAmount: { [Op.ne]: 0 },
+                                },
+                                order: [
+                                    ['ID', 'ASC']
+                                ],
+                            }).then(async paymentR => {
+                                for (let item of paymentR) {
+                                    if (withdrawalMoney > 0) {
+                                        // Trường hợp nếu tiền rút lớn hơn hoặc bằng số tiền chưa thanh toán
+                                        if (withdrawalMoney > item.UnpaidAmount) {
+                                            withdrawalMoney = withdrawalMoney - item.UnpaidAmount
+                                            // Tạo trước khi update
+                                            await mtblPaymentRPayment(db).create({
+                                                IDPayment: data.ID,
+                                                IDPaymentR: item.ID,
+                                                Amount: item.UnpaidAmount,
+                                            })
+                                            // Cập nhật số tiền thanh toán và không thanh toán của phiếu
+                                            await mtblReceiptsPayment(db).update({
+                                                UnpaidAmount: 0,
+                                                PaidAmount: item.InitialAmount,
+                                            }, {
+                                                where: {
+                                                    ID: item.ID
+
+                                                }
+                                            })
+                                        }
+                                        // Trường hợp nếu tiền rút nhỏ hơn số tiền chưa thanh toán
+                                        else {
+                                            await mtblPaymentRPayment(db).create({
+                                                IDPayment: data.ID,
+                                                IDPaymentR: item.ID,
+                                                Amount: withdrawalMoney,
+                                            })
+                                            await mtblReceiptsPayment(db).update({
+                                                Unknown: false,
+                                                UnpaidAmount: item.UnpaidAmount - withdrawalMoney,
+                                                PaidAmount: item.PaidAmount + withdrawalMoney,
+                                            }, {
+                                                where: {
+                                                    ID: item.ID
+
+                                                }
+                                            })
+                                            withdrawalMoney = 0
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                        // -------------------------------------------------------------------------------------------------------------------------------
                         await createAccountingBooks(db, listCredit, listDebit, data.ID, body.reason ? body.reason : '', body.voucherNumber)
                         if (body.loanAdvanceIDs) {
                             body.loanAdvanceIDs = JSON.parse(body.loanAdvanceIDs)
@@ -1160,23 +1104,14 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    // var listUndefinedID = JSON.parse(body.listUndefinedID)
                     var listInvoiceID = JSON.parse(body.listInvoiceID)
                     var listCredit = JSON.parse(body.listCredit)
                     var listDebit = JSON.parse(body.listDebit)
-                    // var withdrawalMoney = Number(body.withdrawal);
-                    // var check = await checkUpdateError(db, listUndefinedID, withdrawalMoney)
-                    // if (!check) {
-                    //     var result = {
-                    //         status: Constant.STATUS.FAIL,
-                    //         message: "Số tiền chọn lớn hơn số tiền rút quỹ. Vui lòng kiểm tra lại!",
-                    //     }
-                    //     res.json(result);
-                    // }
-                    // return
-                    // await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     await mtblAccountingBooks(db).destroy({ where: { IDPayment: body.id } })
+                    var withdrawalMoney = (body.withdrawal ? Number(body.withdrawal) : 0);
+                    body.object = JSON.parse(body.object)
+                    let type = body.object.type
                     if (listCredit.length > 0 && listDebit.length > 0) {
                         await mtblPaymentAccounting(db).destroy({ where: { IDReceiptsPayment: body.id } })
                         for (var i = 0; i < listCredit.length; i++) {
@@ -1299,14 +1234,14 @@ module.exports = {
                         else
                             update.push({ key: 'IDSubmitter', value: body.idSubmitter });
                     }
-                    body.object = JSON.parse(body.object)
                     if (body.object.type == 'staff')
                         update.push({ key: 'IDStaff', value: body.object.id });
                     else if (body.object.type == 'partner')
                         update.push({ key: 'IDPartner', value: body.object.id });
                     else
                         update.push({ key: 'IDCustomer', value: body.object.id });
-                    database.updateTable(update, mtblReceiptsPayment(db), body.id).then(async response => {
+                    let customerID = body.object.id
+                    await database.updateTable(update, mtblReceiptsPayment(db), body.id).then(async response => {
                         if (response == 1) {
                             let detail = await mtblReceiptsPayment(db).findOne({
                                 where: {
@@ -1314,8 +1249,25 @@ module.exports = {
                                 }
                             })
                             await deleteAndCreateAllInvoice(db, body.id, listInvoiceID, detail ? detail.Type : null, detail ? detail.Date : null)
-                            if (body.object.type == 'customer')
-                                await updateUnspecifiedAmountOfCustomer(db, body.object.id)
+
+                            if (type == "customer") {
+                                let listUndefinedID = [];
+                                await mtblReceiptsPayment(db).findAll({
+                                    where: {
+                                        IDCustomer: customerID,
+                                        UnpaidAmount: { [Op.ne]: 0 },
+                                    },
+                                    order: [
+                                        ['ID', 'DESC']
+                                    ],
+                                }).then(und => {
+                                    for (let item of und) {
+                                        listUndefinedID.push(item.ID)
+                                    }
+                                })
+                                await deleteAndCreateAllPayment(db, body.id, listUndefinedID, withdrawalMoney)
+                                await updateUnspecifiedAmountOfCustomer(db, customerID)
+                            }
                             res.json(Result.ACTION_SUCCESS);
                         } else {
                             res.json(Result.SYS_ERROR_RESULT);

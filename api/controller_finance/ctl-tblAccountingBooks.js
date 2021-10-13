@@ -9,6 +9,7 @@ var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblCreditDebtnotices = require('../tables/financemanage/tblCreditDebtnotices')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
+var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 dataCredit = [{
     id: 100,
     createdDate: '01/05/2021',
@@ -531,7 +532,7 @@ async function getInvoiceWaitForPay(db, objWaitForPay, stt, customerName = '') {
         number: objWaitForPay.invoiceNumber,
         reason: objWaitForPay.customerName + ' chưa thanh toán',
         idAccounting: objWaitForPay.invoiceID ? objWaitForPay.invoiceID : null,
-        creditIncurred: totalMoneyVND,
+        creditIncurred: 0,
         debtIncurred: totalMoneyVND,
         debtSurplus: 0, // số dư phải tính
         creaditSurplus: 0,
@@ -567,7 +568,7 @@ async function getCreditWaitPay(db, objWaitForPay, stt, customerName = '') {
         reason: 'Chưa trả cho ' + objWaitForPay.customerName,
         idAccounting: objWaitForPay.invoiceID ? objWaitForPay.invoiceID : null,
         creditIncurred: objWaitForPay.total,
-        debtIncurred: objWaitForPay.total,
+        debtIncurred: 0,
         debtSurplus: 0, // số dư phải tính
         creaditSurplus: 0,
         numberOfReceipt: '',
@@ -578,127 +579,7 @@ async function getCreditWaitPay(db, objWaitForPay, stt, customerName = '') {
     return obj;
 }
 async function getDetailCustomer(id) {
-    dataCustomer = [{
-        "customerCode": "KH0001",
-        "name": "Công ty tnhh An Phú",
-        "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
-        "tax": "123456789",
-        "countryName": "Việt Nam",
-        "address": "Số 2 Hoàng Mai Hà Nội",
-        "mobile": "098705124",
-        "fax": "01234567",
-        "email": "anphu@gmail.com",
-        "id": 1,
-    },
-    {
-        "customerCode": "KH0002",
-        "name": "Công ty tnhh Is Tech Vina",
-        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
-        "tax": "01245870",
-        "countryName": "Việt Nam",
-        "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
-        "mobile": "082457145",
-        "fax": "0241368451",
-        "email": "istech@gmail.com",
-        "id": 2,
-    },
-    {
-        "customerCode": "KH0003",
-        "name": "Công ty cổ phần Orion Việt Nam",
-        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
-        "tax": "012341250",
-        "countryName": "Việt nam",
-        "address": "Số 12 Bạch Mai Hà Nội",
-        "mobile": "0315456554",
-        "fax": "132456545",
-        "email": "orion13@gmail.com",
-        "id": 3,
-    },
-    {
-        "customerCode": "KH0004",
-        "name": "Công ty TNHH Rồng Việt",
-        "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
-        "tax": "01323255",
-        "countryName": "Việt Nam",
-        "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-        "mobile": "0445445474",
-        "fax": "1135635",
-        "email": "rongviet@gmail.com",
-        "id": 4,
-    },
-    {
-        "customerCode": "KH0005",
-        "name": "Công ty cổ phần và thương mại Đức Việt",
-        "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
-        "tax": "017654124",
-        "countryName": "Việt Nam",
-        "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
-        "mobile": "0444545401",
-        "fax": "75241241241",
-        "email": "ducviet0209@gmail.com",
-        "id": 5,
-    },
-    {
-        "customerCode": "KH0006",
-        "name": "Công ty TNHH 1 thành viên Bảo Minh",
-        "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
-        "tax": "154654565",
-        "countryName": "Việt Nam",
-        "address": "Số 25 Ba Đình Hà Nội",
-        "mobile": "045102474",
-        "fax": "02137244",
-        "email": "baominh56@gmail.com",
-        "id": 6,
-    },
-    {
-        "customerCode": "KH0007",
-        "name": "Công ty Sx và Tm Minh Hòa",
-        "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
-        "tax": "04785635432",
-        "countryName": "Việt Nam",
-        "address": "Số 21 Hàng Mã Hà Nội",
-        "mobile": "0045454510",
-        "fax": "415265654",
-        "email": "minhhoa1212@gmail.com",
-        "id": 7,
-    },
-    {
-        "customerCode": "KH0008",
-        "name": "Công ty cổ phần EC",
-        "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
-        "tax": "45454545",
-        "countryName": "Việt Nam",
-        "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
-        "mobile": "012345474",
-        "fax": "012244635",
-        "email": "ec1312@gmail.com",
-        "id": 8,
-    },
-    {
-        "customerCode": "KH0009",
-        "name": "Công ty cổ phần Thu Hương",
-        "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
-        "tax": "012546565",
-        "countryName": "Việt Nam",
-        "address": "Số 24 Bạch Mai Hà Nội",
-        "mobile": "015245454",
-        "fax": "45552478",
-        "email": "thuhuong34@gmail.com",
-        "id": 9,
-    },
-    {
-        "customerCode": "KH0010",
-        "name": "Công ty tnhh Hòa Phát",
-        "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
-        "tax": "014775745",
-        "countryName": "Việt Nam",
-        "address": "Số 2 Phố Huế Hà Nội",
-        "mobile": "045245401",
-        "fax": "021455235",
-        "email": "hoaphat0102@gmail.com",
-        "id": 10,
-    },
-    ]
+    let dataCustomer = customerData.getCustomerSpecializeSoftware()
     var obj = {}
     dataCustomer.forEach(item => {
         if (item.id == id) {
@@ -842,6 +723,43 @@ dataCustomer = [{
     "id": 10,
 },
 ]
+async function findAcountingFollowLevel(db, level, idLevelAbove) {
+    var result = []
+    let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
+    tblDMTaiKhoanKeToan.belongsTo(mtblDMLoaiTaiKhoanKeToan(db), { foreignKey: 'IDLoaiTaiKhoanKeToan', sourceKey: 'IDLoaiTaiKhoanKeToan', as: 'Loai' })
+    await tblDMTaiKhoanKeToan.findAll({
+        include: [
+            {
+                model: mtblDMLoaiTaiKhoanKeToan(db),
+                required: false,
+                as: 'Loai'
+            },
+        ],
+        where: {
+            Levels: level,
+            IDLevelAbove: idLevelAbove,
+        },
+        order: [
+            ['AccountingCode', 'ASC']
+        ],
+    }).then(data => {
+        for (var i = 0; i < data.length; i++) {
+            result.push({
+                id: data[i].ID,
+                accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                idLevelAbove: idLevelAbove ? idLevelAbove : '',
+                levels: level ? level : '',
+                moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+            })
+        }
+    })
+    return result
+}
 module.exports = {
     deleteRelationshiptblAccountingBooks,
     //  get_detail_tbl_accounting_books
@@ -1024,6 +942,7 @@ module.exports = {
             'last_year',
             'this_year',
         ]
+        console.log(body);
         let dataSearch = JSON.parse(body.dataSearch)
         var arrayIDAccount = []
         if (dataSearch.accountSystemID)
@@ -1612,6 +1531,7 @@ module.exports = {
                                 debtSurplus += Number(invoice.total);
                                 objWaitForPay['debtSurplus'] = debtSurplus ? debtSurplus : 0
                                 objWaitForPay['creaditSurplus'] = debtSurplus ? debtSurplus : 0
+                                objWaitForPay['creditIncurred'] = objWaitForPay['debtIncurred']
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
                                 totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
@@ -1626,6 +1546,7 @@ module.exports = {
                                 creaditSurplus += Number(credit.total);
                                 objWaitForPay['debtSurplus'] = creaditSurplus ? creaditSurplus : 0
                                 objWaitForPay['creaditSurplus'] = creaditSurplus ? creaditSurplus : 0
+                                objWaitForPay['debtIncurred'] = objWaitForPay['creditIncurred']
                                 totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
                                 totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
@@ -1787,6 +1708,7 @@ module.exports = {
         if (dataSearch.accountSystemOtherID)
             arrayIDAccount.push(dataSearch.accountSystemOtherID)
         const currentYear = new Date().getFullYear()
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -2179,4 +2101,100 @@ module.exports = {
             }
         })
     },
+    // get_child_accounts_of_account
+    getChildAccountsOfAccount: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let array = []
+                    mtblDMTaiKhoanKeToan(db).findOne({
+                        where: {
+                            AccountingCode: body.accountingCode
+                        }
+                    }).then(async account => {
+                        if (account) {
+                            var arrayChildern2 = []
+                            arrayChildern2 = await findAcountingFollowLevel(db, 2, account.ID)
+                            if (arrayChildern2.length > 0) {
+                                for (var c2 = 0; c2 < arrayChildern2.length; c2++) {
+                                    var arrayChildern3 = []
+                                    arrayChildern3 = await findAcountingFollowLevel(db, 3, arrayChildern2[c2].id)
+                                    if (arrayChildern3.length > 0) {
+                                        arrayChildern2[c2]['children'] = arrayChildern3
+                                        for (var c3 = 0; c3 < arrayChildern3.length; c3++) {
+                                            var arrayChildern4 = []
+                                            arrayChildern4 = await findAcountingFollowLevel(db, 4, arrayChildern3[c3].id)
+                                            if (arrayChildern4.length > 0) {
+                                                arrayChildern3[c3]['children'] = arrayChildern4
+                                                for (var c4 = 0; c4 < arrayChildern4.length; c4++) {
+                                                    var arrayChildern5 = []
+                                                    arrayChildern5 = await findAcountingFollowLevel(db, 5, arrayChildern4[c4].id)
+                                                    arrayChildern4[c4]['children'] = arrayChildern5
+                                                }
+                                            } else {
+                                                obj = {
+                                                    id: data[i].ID,
+                                                    accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                                    accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                                    idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                                    nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                                    idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                                    levels: data[i].Levels ? data[i].Levels : '',
+                                                    moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                                    moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                                    typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                                    children: arrayChildern2
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        obj = {
+                                            id: data[i].ID,
+                                            accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                            accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                            idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                            nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                            idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                            levels: data[i].Levels ? data[i].Levels : '',
+                                            moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                            moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                            typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                            children: arrayChildern2
+                                        }
+                                    }
+                                }
+                            } else {
+                                obj = {
+                                    id: data[i].ID,
+                                    accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                    accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                    idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                    nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                    idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                    levels: data[i].Levels ? data[i].Levels : '',
+                                    moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                    moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                    typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                    children: arrayChildern2
+                                }
+                            }
+                            array.push(obj)
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+                } catch (error) {
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+
 }
