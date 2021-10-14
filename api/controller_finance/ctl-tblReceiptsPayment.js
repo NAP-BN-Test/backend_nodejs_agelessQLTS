@@ -20,6 +20,7 @@ var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblCustomer = require('../tables/financemanage/tblCustomer')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
+var mtblCoQuanNhaNuoc = require('../tables/financemanage/tblCoQuanNhaNuoc')
 
 async function deleteRelationshiptblReceiptsPayment(db, listID) {
     // Trả lại tiền
@@ -47,6 +48,11 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             })
         }
     }
+    await mtblCoQuanNhaNuoc(db).destroy({
+        where: {
+            ReceiptsPaymentID: { [Op.in]: listID }
+        }
+    })
     await mtblPaymentRPayment(db).destroy({
         where: {
             IDPayment: {
@@ -147,7 +153,15 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             }
         }
     })
-
+    await mtblDeNghiThanhToan(db).update({
+        IDReceiptsPayment: null
+    }, {
+        where: {
+            IDReceiptsPayment: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblReceiptsPayment(db).destroy({
         where: {
             ID: {
@@ -703,7 +717,16 @@ async function updateUnspecifiedAmountOfCustomer(db, id) {
     })
 
 }
-
+async function createTBLCoQuanNhaNuoc(db, date, voucherNumber, moneyNumber, type, receiptsPaymentID) {
+    await mtblCoQuanNhaNuoc(db).create({
+        Date: date,
+        VoucherNumber: voucherNumber,
+        MoneyNumber: moneyNumber,
+        Type: type,
+        Status: 'Mới',
+        ReceiptsPaymentID: receiptsPaymentID,
+    })
+}
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
@@ -769,6 +792,7 @@ module.exports = {
                                 staffID: data.IDStaff ? data.IDStaff : null,
                                 staffName: 'Chưa có dữ liệu' ? 'Chưa có dữ liệu' : null,
                             }
+                            console.log(data.ID, 12345);
                             await mtblDeNghiThanhToan(db).findOne({
                                 where: { IDReceiptsPayment: data.ID }
                             }).then(payment => {
@@ -904,6 +928,7 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
+        console.log(body);
         var listInvoiceID = []
         if (body.listInvoiceID)
             listInvoiceID = JSON.parse(body.listInvoiceID)
@@ -953,6 +978,20 @@ module.exports = {
                     else
                         objCreate['IDCustomer'] = body.object.id
                     await mtblReceiptsPayment(db).create(objCreate).then(async data => {
+                        // tạo bản ghi thanh toán cơ quan nhà nước
+                        if (body.object.type == 'customer' && body.object.id == 11) {
+                            let typeCoQuanNhaNuoc = 'debtNotices'
+                            if (body.type && body.type == 'receipt') {
+                                typeCoQuanNhaNuoc = 'withdraw'
+                            } else if (body.type && body.type == 'payment') {
+                                typeCoQuanNhaNuoc = 'payment'
+                            } else if (body.type && body.type == 'debit') {
+                                typeCoQuanNhaNuoc = 'debtNotices'
+                            } else if (body.type && body.type == 'spending') {
+                                typeCoQuanNhaNuoc = 'withdraw'
+                            }
+                            await createTBLCoQuanNhaNuoc(db, body.date ? body.date : null, body.voucherNumber ? body.voucherNumber : 'PT/PC', body.amount ? body.amount : null, typeCoQuanNhaNuoc, data ? data.ID : null)
+                        }
                         if (body.assetLiquidationIDs) {
                             body.assetLiquidationIDs = JSON.parse(body.assetLiquidationIDs)
                             for (var i = 0; i < body.assetLiquidationIDs.length; i++) {
@@ -1150,6 +1189,29 @@ module.exports = {
                     }
                     if (body.type || body.type === '')
                         update.push({ key: 'Type', value: body.type });
+
+                    // tạo bản ghi thanh toán cơ quan nhà nước
+                    await mtblCoQuanNhaNuoc(db).destroy({
+                        where: {
+                            ReceiptsPaymentID: body.id
+                        }
+                    })
+                    if (body.object.type == 'customer' && body.object.id == 11) {
+
+                        let typeCoQuanNhaNuoc = 'debtNotices'
+                        if (body.type && body.type == 'receipt') {
+                            typeCoQuanNhaNuoc = 'withdraw'
+                        } else if (body.type && body.type == 'payment') {
+                            typeCoQuanNhaNuoc = 'payment'
+                        } else if (body.type && body.type == 'debit') {
+                            typeCoQuanNhaNuoc = 'debtNotices'
+                        } else if (body.type && body.type == 'spending') {
+                            typeCoQuanNhaNuoc = 'withdraw'
+                        }
+                        await createTBLCoQuanNhaNuoc(db, body.date ? body.date : null, body.voucherNumber ? body.voucherNumber : 'PT/PC', body.amount ? body.amount : null, typeCoQuanNhaNuoc, body.id)
+                    }
+                    // ----------------------------------------------------------------------------------------------------------
+
                     if (body.applicantReceiverName || body.applicantReceiverName === '')
                         update.push({ key: 'ApplicantReceiverName', value: body.applicantReceiverName });
                     update.push({ key: 'Unknown', value: body.isUndefined });

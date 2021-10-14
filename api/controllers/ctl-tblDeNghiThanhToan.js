@@ -215,11 +215,13 @@ async function getDetailCustomer(id) {
     return obj
 
 }
+
 module.exports = {
     deleteRelationshiptblDeNghiThanhToan,
     // add_tbl_denghi_thanhtoan
     addtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -237,11 +239,12 @@ module.exports = {
                         Link: body.linkPayroll ? body.linkPayroll : '',
                     }
                     body.object = JSON.parse(body.object)
-                    if (body.object.type == 'customer')
-                        objCreate['CustomerID'] = body.object.id
-                    else
-                        objCreate['IDSupplier'] = body.object.id
-
+                    if (body.object) {
+                        if (body.object.type == 'customer')
+                            objCreate['CustomerID'] = body.object.id
+                        else
+                            objCreate['IDSupplier'] = body.object.id
+                    }
                     mtblDeNghiThanhToan(db).create(objCreate).then(async data => {
                         if (body.listCredit) {
                             var listCredit = JSON.parse(body.listCredit)
@@ -563,7 +566,9 @@ module.exports = {
                         ],
                     }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
+                        for (let element of data) {
+                            let dataCus = await getDetailCustomer(element.CustomerID)
+                            console.log(dataCus);
                             let statusKT;
                             if (element.TrangThaiPheDuyetKT === 'Đã phê duyệt')
                                 statusKT = element.KTPD ? element.KTPD.StaffName : '';
@@ -603,9 +608,32 @@ module.exports = {
                                 linkPayroll: element.Link ? element.Link : '',
                                 isCheckPayment: checkPayment,
                             }
+                            if (element.IDSupplier) {
+                                let supplier = await mtblDMNhaCungCap(db).findOne({
+                                    where: { ID: element.IDSupplier }
+                                })
+                                obj['object'] = {
+                                    name: supplier ? supplier.SupplierName : '',
+                                    code: supplier ? supplier.SupplierCode : '',
+                                    address: supplier ? supplier.Address : '',
+                                    displayName: '[' + (supplier ? supplier.SupplierCode : '') + '] ' + (supplier ? supplier.SupplierName : ''),
+                                    id: element.IDSupplier,
+                                    type: 'supplier',
+                                }
+                            } else {
+                                obj['object'] = {
+                                    name: dataCus ? dataCus.name : '',
+                                    code: dataCus ? dataCus.customerCode : '',
+                                    displayName: dataCus ? dataCus.name : '',
+                                    address: dataCus ? dataCus.address : '',
+                                    id: element.CustomerID,
+                                    type: 'customer',
+                                }
+                            }
+                            obj['objectName'] = obj['object'].displayName
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         for (var i = 0; i < array.length; i++) {
                             var arrayFile = []
                             await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: array[i].id } }).then(file => {
@@ -738,7 +766,7 @@ module.exports = {
                                 type: 'supplier',
                             }
                         else {
-                            let objCustomer = await getDetailCustomer(data.CustomerID ? data.CustomerID : 1)
+                            let objCustomer = await getDetailCustomer(data.CustomerID ? data.CustomerID : null)
                             objObject = {
                                 name: objCustomer.name,
                                 address: objCustomer.address,

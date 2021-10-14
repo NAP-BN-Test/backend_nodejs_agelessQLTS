@@ -601,6 +601,7 @@ function checkDuplicate(array, elm) {
     return check;
 }
 var database = require('../database');
+var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 
 async function calculateTheTotalForCredit(array) {
     let arrayResult = []
@@ -1158,16 +1159,6 @@ module.exports = {
                         type: 'customer',
                     })
                 }
-                // for (p = 0; p < dataPartner.length; p++) {
-                //     array.push({
-                //         name: dataPartner[p].name,
-                //         code: dataPartner[p].partnerCode,
-                //         displayName: '[' + dataPartner[p].partnerCode + '] ' + dataPartner[p].name,
-                //         address: dataPartner[p].address,
-                //         id: dataPartner[p].id,
-                //         type: 'partner',
-                //     })
-                // }
                 await mtblDMNhanvien(db).findAll().then(data => {
                     data.forEach(element => {
                         array.push({
@@ -1177,6 +1168,18 @@ module.exports = {
                             address: element.Address,
                             id: element.ID,
                             type: 'staff',
+                        })
+                    })
+                })
+                await mtblDMNhaCungCap(db).findAll().then(data => {
+                    data.forEach(element => {
+                        array.push({
+                            name: element.SupplierName,
+                            code: element.SupplierCode,
+                            displayName: '[' + element.SupplierCode + '] ' + element.SupplierName,
+                            address: element.Address,
+                            id: element.ID,
+                            type: 'supplier',
                         })
                     })
                 })

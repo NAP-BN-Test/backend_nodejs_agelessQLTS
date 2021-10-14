@@ -14,6 +14,7 @@ module.exports = function (db) {
         MoneyNumber: Sequelize.FLOAT,
         Note: Sequelize.STRING,
         Type: Sequelize.STRING,
+        ReceiptsPaymentID: Sequelize.BIGINT,
     });
 
     return table;

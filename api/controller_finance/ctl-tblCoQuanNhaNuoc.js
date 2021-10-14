@@ -3,16 +3,19 @@ const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblCoQuanNhaNuoc = require('../tables/financemanage/tblCoQuanNhaNuoc')
+var ctlReceiptsPayment = require('../controller_finance/ctl-tblReceiptsPayment')
 var database = require('../database');
 const axios = require('axios');
 async function deleteRelationshiptblCoQuanNhaNuoc(db, listID) {
     try {
+        let arrReceiptsPayment = []
         await mtblCoQuanNhaNuoc(db).findAll({
             where: {
                 ID: { [Op.in]: listID },
             }
         }).then(async data => {
             for (item of data) {
+                arrReceiptsPayment.push(item.ReceiptsPaymentID)
                 if (item.Date) {
                     let month = Number(item.Date.slice(5, 7));
                     let year = Number(item.Date.slice(0, 4));
@@ -25,6 +28,7 @@ async function deleteRelationshiptblCoQuanNhaNuoc(db, listID) {
                 }
             }
         })
+        await ctlReceiptsPayment.deleteRelationshiptblReceiptsPayment(db, arrReceiptsPayment)
     } catch (error) {
         console.log(error);
         var result = {
@@ -627,7 +631,6 @@ module.exports = {
     // track_receipts
     trackReceipts: (req, res) => {
         let body = req.body;
-        console.log(body);
         let array = [];
         let obj = {};
         let totalmoneyNC = 0;
@@ -659,7 +662,6 @@ module.exports = {
                         })
                 }
                 var whereOjb = [];
-                let monthOpeningBalance = 1
                 let yearNow = Number(moment().format('YYYY'));
                 const currentYear = new Date().getFullYear()
 
@@ -828,7 +830,6 @@ module.exports = {
                             if (data)
                                 sdktcs = data.MoneyNumber ? data.MoneyNumber : 0
                         })
-                    console.log(sdktcs);
                     dataSearch.dateTo = moment(dataSearch.dateTo).add(2, 'days').format('YYYY-MM-DD')
                     whereOjb.push({
                         Date: {
