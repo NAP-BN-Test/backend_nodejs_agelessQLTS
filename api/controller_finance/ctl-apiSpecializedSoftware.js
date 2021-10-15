@@ -1767,7 +1767,14 @@ module.exports = {
                     }
                     data[i]['totalMoneyVND'] = totalMoneyVND
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
-
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: data[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            data[i]['receiptPaymentID'] = invoice.IDPayment
+                    })
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
@@ -1780,7 +1787,7 @@ module.exports = {
                         }
                     } else {
                         if (check.Status == 'Chờ thanh toán') {
-                            data[i]['payDate'] = check.PayDate
+                            data[i]['payDate'] = check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null
                             data[i]['Payments'] = check.Payments
                             array.push(data[i])
                             totalMoneyVNDR += totalMoneyVND
@@ -1834,6 +1841,14 @@ module.exports = {
                     }
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
                     data[i]['totalMoneyVND'] = totalMoneyVND
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: data[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            data[i]['receiptPaymentID'] = invoice.IDPayment
+                    })
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
@@ -1903,6 +1918,14 @@ module.exports = {
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
 
                     data[i]['totalMoneyVND'] = totalMoneyVND
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: data[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            data[i]['receiptPaymentID'] = invoice.IDPayment
+                    })
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
@@ -1971,6 +1994,14 @@ module.exports = {
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
 
                     data[i]['totalMoneyVND'] = totalMoneyVND
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: data[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            data[i]['receiptPaymentID'] = invoice.IDPayment
+                    })
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
@@ -2220,6 +2251,14 @@ module.exports = {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: dataCredit[i].id }
                     })
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: dataCredit[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
+                    })
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: dataCredit[i].id,
@@ -2267,6 +2306,14 @@ module.exports = {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: dataCredit[i].id }
                     })
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: dataCredit[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
+                    })
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: dataCredit[i].id,
@@ -2279,7 +2326,7 @@ module.exports = {
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
                         if (check.Status == 'Chờ thanh toán' && dataCredit[i].statusName == 'Chờ thanh toán') {
-                            dataCredit[i]['payDate'] = check.PayDate
+                            dataCredit[i]['payDate'] = check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null
                             dataCredit[i]['Payments'] = check.Payments
                             array.push(dataCredit[i])
                         }
@@ -2319,6 +2366,14 @@ module.exports = {
                 for (let i = 0; i < dataCredit.length; i++) {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: dataCredit[i].id }
+                    })
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: dataCredit[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
                     })
                     if (!check) {
                         await mtblInvoice(db).create({
@@ -2373,6 +2428,14 @@ module.exports = {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: dataCredit[i].id }
                     })
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: dataCredit[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
+                    })
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: dataCredit[i].id,
@@ -2422,6 +2485,14 @@ module.exports = {
                 for (let i = 0; i < dataCredit.length; i++) {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: dataCredit[i].id }
+                    })
+                    await mtblPaymentRInvoice(db).findOne({
+                        where: {
+                            IDSpecializedSoftware: dataCredit[i].id
+                        }
+                    }).then(invoice => {
+                        if (invoice)
+                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
                     })
                     if (!check) {
                         await mtblInvoice(db).create({

@@ -568,7 +568,6 @@ module.exports = {
                         var array = [];
                         for (let element of data) {
                             let dataCus = await getDetailCustomer(element.CustomerID)
-                            console.log(dataCus);
                             let statusKT;
                             if (element.TrangThaiPheDuyetKT === 'Đã phê duyệt')
                                 statusKT = element.KTPD ? element.KTPD.StaffName : '';
@@ -584,8 +583,9 @@ module.exports = {
                             else
                                 statusLD = element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '';
                             let checkPayment = false
-                            if (element.IDReceiptsPayment)
+                            if (element.IDReceiptsPayment != null) {
                                 checkPayment = true
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -655,6 +655,7 @@ module.exports = {
                             })
                         }
                         var count = await mtblDeNghiThanhToan(db).count({ where: whereObj, })
+                        console.log(array);
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

@@ -33,6 +33,7 @@ module.exports = function (db) {
         IDPartner: Sequelize.INTEGER,
         RPType: Sequelize.STRING,
         ApplicantReceiverName: Sequelize.STRING,
+        SupplierID: Sequelize.BIGINT,
     });
 
     return table;

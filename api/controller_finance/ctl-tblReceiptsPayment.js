@@ -727,6 +727,8 @@ async function createTBLCoQuanNhaNuoc(db, date, voucherNumber, moneyNumber, type
         ReceiptsPaymentID: receiptsPaymentID,
     })
 }
+var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
+
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
@@ -823,6 +825,20 @@ module.exports = {
                                     displayName: '[' + (dataPartner ? dataPartner.partnerCode : '') + '] ' + (dataPartner ? dataPartner.name : ''),
                                     id: data.IDPartner,
                                     type: 'partner',
+                                }
+                            } else if (data.SupplierID) {
+                                let dataSupplier = await mtblDMNhaCungCap(db).findOne({
+                                    where: {
+                                        ID: data.SupplierID
+                                    }
+                                })
+                                obj['object'] = {
+                                    name: dataSupplier ? dataSupplier.SupplierName : '',
+                                    code: dataSupplier ? dataSupplier.SupplierCode : '',
+                                    address: dataSupplier ? dataSupplier.Address : '',
+                                    displayName: '[' + (dataSupplier ? dataSupplier.SupplierCode : '') + '] ' + (dataSupplier ? dataSupplier.SupplierName : ''),
+                                    id: data.SupplierID,
+                                    type: 'supplier',
                                 }
                             } else {
                                 let dataCus = await getDetailCustomer(data.IDCustomer)
@@ -975,6 +991,8 @@ module.exports = {
                         objCreate['IDStaff'] = body.object.id
                     else if (body.object.type == 'partner')
                         objCreate['IDPartner'] = body.object.id
+                    else if (body.object.type == 'supplier')
+                        objCreate['SupplierID'] = body.object.id
                     else
                         objCreate['IDCustomer'] = body.object.id
                     await mtblReceiptsPayment(db).create(objCreate).then(async data => {
@@ -1300,6 +1318,8 @@ module.exports = {
                         update.push({ key: 'IDStaff', value: body.object.id });
                     else if (body.object.type == 'partner')
                         update.push({ key: 'IDPartner', value: body.object.id });
+                    else if (body.object.type == 'supplier')
+                        update.push({ key: 'SupplierID', value: body.object.id });
                     else
                         update.push({ key: 'IDCustomer', value: body.object.id });
                     let customerID = body.object.id
@@ -1537,6 +1557,20 @@ module.exports = {
                                     displayName: '[' + (dataPartner ? dataPartner.partnerCode : '') + '] ' + (dataPartner ? dataPartner.name : ''),
                                     id: data[i].IDPartner,
                                     type: 'partner',
+                                }
+                            } else if (data[i].SupplierID) {
+                                let dataSupplier = await mtblDMNhaCungCap(db).findOne({
+                                    where: {
+                                        ID: data[i].SupplierID
+                                    }
+                                })
+                                obj['object'] = {
+                                    name: dataSupplier ? dataSupplier.SupplierName : '',
+                                    code: dataSupplier ? dataSupplier.SupplierCode : '',
+                                    address: dataSupplier ? dataSupplier.Address : '',
+                                    displayName: '[' + (dataSupplier ? dataSupplier.SupplierCode : '') + '] ' + (dataSupplier ? dataSupplier.SupplierName : ''),
+                                    id: data[i].SupplierID,
+                                    type: 'supplier',
                                 }
                             } else
                                 obj['object'] = {

@@ -263,6 +263,8 @@ data = [{
     nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
 },
 ];
+var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
+var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 
 function checkDuplicate(array, elm) {
     var check = false;
@@ -668,6 +670,25 @@ module.exports = {
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
                     data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                     data[i]['payments'] = check ? check.Payments : ''
+                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
+                    // tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                    await tblPaymentRInvoice.findOne({
+                        where: {
+                            IDSpecializedSoftware: data[i].id
+                        },
+                        // include: [
+                        //     {
+                        //         model: mtblReceiptsPayment(db),
+                        //         required: false,
+                        //         as: 'payment'
+                        //     },
+                        // ],
+                    }).then(invoice => {
+                        if (invoice) {
+                            data[i]['receiptPaymentID'] = invoice.IDPayment
+                            // data[i]['receiptPaymentType'] = invoice.payment ? invoice.payment.Type : ''
+                        }
+                    })
                 }
                 let totalMoneyVND = 0
                 for (let a = 0; a < totalMoney.length; a++) {
