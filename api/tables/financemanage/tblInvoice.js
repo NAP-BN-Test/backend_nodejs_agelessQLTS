@@ -12,7 +12,9 @@ module.exports = function (db) {
         Request: Sequelize.STRING,
         Payments: Sequelize.STRING,
         PayDate: Sequelize.DATE,
+        InitialAmount: Sequelize.FLOAT,
+        PaidAmount: Sequelize.FLOAT,
+        UnpaidAmount: Sequelize.FLOAT,
     });
-
     return table;
 }

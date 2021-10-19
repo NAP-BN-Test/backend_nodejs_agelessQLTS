@@ -1708,93 +1708,92 @@ module.exports = {
         if (dataSearch.accountSystemOtherID)
             arrayIDAccount.push(dataSearch.accountSystemOtherID)
         const currentYear = new Date().getFullYear()
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let array = [];
-                    var whereOjb = [];
-                    if (arrayIDAccount.length > 0)
-                        whereOjb.push({
-                            IDAccounting: {
-                                [Op.in]: arrayIDAccount
-                            }
-                        })
-                    if (dataSearch.selection == 'first_six_months') {
-                        const startedDate = new Date(currentYear + "-01-01 14:00:00");
-                        const endDate = new Date(currentYear + "-06-30 14:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.selection == 'last_six_months') {
-                        let startedDate = new Date(currentYear + "-06-01 07:00:00");
-                        let endDate = new Date(currentYear + "-12-30 24:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.selection == 'one_quarter') {
-                        let startedDate = new Date(currentYear + "-01-01 07:00:00");
-                        let endDate = new Date(currentYear + "-04-01 00:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.selection == 'two_quarter') {
-                        let startedDate = new Date(currentYear + "-04-01 07:00:00");
-                        let endDate = new Date(currentYear + "-07-01 00:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.selection == 'three_quarter') {
-                        let startedDate = new Date(currentYear + "-07-01 07:00:00");
-                        let endDate = new Date(currentYear + "-10-01 00:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.selection == 'four_quarter') {
-                        let startedDate = new Date(currentYear + "-10-01 07:00:00");
-                        let endDate = new Date(currentYear + "-12-30 24:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.selection == 'last_year') {
-                        let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
-                        let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.selection == 'this_year') {
-                        let startedDate = new Date(currentYear + "-01-01 07:00:00");
-                        let endDate = new Date(currentYear + "-12-30 24:00:00");
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [startedDate, endDate]
-                            }
-                        })
-                    } else if (dataSearch.dateFrom && dataSearch.dateTo) {
-                        dataSearch.dateTo = moment(dataSearch.dateTo).add(30, 'hours').format('YYYY-MM-DD HH:MM:ss')
-                        dataSearch.dateFrom = moment(dataSearch.dateFrom).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
-                        whereOjb.push({
-                            CreateDate: {
-                                [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
-                            }
-                        })
-                    }
                     let stt = 1;
+                    let array = [];
                     for (let customer of dataCustomer) {
+                        var whereOjb = [];
+                        if (arrayIDAccount.length > 0)
+                            whereOjb.push({
+                                IDAccounting: {
+                                    [Op.in]: arrayIDAccount
+                                }
+                            })
+                        if (dataSearch.selection == 'first_six_months') {
+                            const startedDate = new Date(currentYear + "-01-01 14:00:00");
+                            const endDate = new Date(currentYear + "-06-30 14:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.selection == 'last_six_months') {
+                            let startedDate = new Date(currentYear + "-06-01 07:00:00");
+                            let endDate = new Date(currentYear + "-12-30 24:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.selection == 'one_quarter') {
+                            let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                            let endDate = new Date(currentYear + "-04-01 00:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.selection == 'two_quarter') {
+                            let startedDate = new Date(currentYear + "-04-01 07:00:00");
+                            let endDate = new Date(currentYear + "-07-01 00:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.selection == 'three_quarter') {
+                            let startedDate = new Date(currentYear + "-07-01 07:00:00");
+                            let endDate = new Date(currentYear + "-10-01 00:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.selection == 'four_quarter') {
+                            let startedDate = new Date(currentYear + "-10-01 07:00:00");
+                            let endDate = new Date(currentYear + "-12-30 24:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.selection == 'last_year') {
+                            let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
+                            let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.selection == 'this_year') {
+                            let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                            let endDate = new Date(currentYear + "-12-30 24:00:00");
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [startedDate, endDate]
+                                }
+                            })
+                        } else if (dataSearch.dateFrom && dataSearch.dateTo) {
+                            dataSearch.dateTo = moment(dataSearch.dateTo).add(30, 'hours').format('YYYY-MM-DD HH:MM:ss')
+                            dataSearch.dateFrom = moment(dataSearch.dateFrom).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
+                            whereOjb.push({
+                                CreateDate: {
+                                    [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
+                                }
+                            })
+                        }
                         let arrayWhere = []
                         let checkAccount = await mtblDMTaiKhoanKeToan(db).findOne({
                             where: {
@@ -1925,6 +1924,7 @@ module.exports = {
                                 if (data[i].ClauseType == "Credit") {
                                     clauseType = "Debit"
                                 }
+                                console.log(12345678);
                                 await tblAccountingBooks.findAll({
                                     where: {
                                         [Op.and]: [{

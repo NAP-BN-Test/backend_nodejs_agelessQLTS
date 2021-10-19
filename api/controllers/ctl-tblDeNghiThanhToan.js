@@ -221,7 +221,6 @@ module.exports = {
     // add_tbl_denghi_thanhtoan
     addtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -303,7 +302,6 @@ module.exports = {
     // update_tbl_denghi_thanhtoan
     updatetblDeNghiThanhToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -655,7 +653,6 @@ module.exports = {
                             })
                         }
                         var count = await mtblDeNghiThanhToan(db).count({ where: whereObj, })
-                        console.log(array);
                         var result = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,

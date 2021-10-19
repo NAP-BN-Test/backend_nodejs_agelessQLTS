@@ -31,6 +31,46 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             }
         }
     })
+    await mtblPaymentRInvoice(db).findAll({
+        where: {
+            IDPayment: {
+                [Op.in]: listID
+            }
+        }
+    }).then(async data => {
+        for (let d = 0; d < data.length; d++) {
+            if (data[d].IDSpecializedSoftware) {
+                let invoiceOld = await mtblInvoice(db).findOne({
+                    where: {
+                        IDSpecializedSoftware: data[d].IDSpecializedSoftware
+                    }
+                })
+                if (invoiceOld.ID)
+                    await mtblInvoice(db).update({
+                        UnpaidAmount: Number(invoiceOld.UnpaidAmount ? invoiceOld.UnpaidAmount : 0) + Number(data[d].Amount ? data[d].Amount : 0),
+                        PaidAmount: Number(invoiceOld.PaidAmount ? invoiceOld.PaidAmount : 0) - Number(data[d].Amount ? data[d].Amount : 0),
+                    }, {
+                        where: {
+                            ID: invoiceOld.ID
+                        }
+                    })
+                await mtblInvoice(db).update({
+                    Status: 'Chờ thanh toán'
+                }, {
+                    where: {
+                        IDSpecializedSoftware: data[d].IDSpecializedSoftware
+                    }
+                })
+            }
+        }
+    })
+    await mtblPaymentRInvoice(db).destroy({
+        where: {
+            IDPayment: {
+                [Op.in]: listID
+            }
+        }
+    })
     if (payment) {
         for (var i = 0; i < payment.length; i++) {
             let paymentUpdate = await mtblReceiptsPayment(db).findOne({
@@ -112,31 +152,6 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
                 })
             // Thêm mới số tiền không xác định
             arrayCustomerID.push(data[i].IDCustomer)
-        }
-    })
-    await mtblPaymentRInvoice(db).findAll({
-        where: {
-            IDPayment: {
-                [Op.in]: listID
-            }
-        }
-    }).then(async data => {
-        for (let d = 0; d < data.length; d++) {
-            if (data[d].IDSpecializedSoftware)
-                await mtblInvoice(db).update({
-                    Status: 'Chờ thanh toán'
-                }, {
-                    where: {
-                        IDSpecializedSoftware: data[d].IDSpecializedSoftware
-                    }
-                })
-        }
-    })
-    await mtblPaymentRInvoice(db).destroy({
-        where: {
-            IDPayment: {
-                [Op.in]: listID
-            }
         }
     })
     await mtblPaymentRPayment(db).destroy({
@@ -300,20 +315,9 @@ async function deleteAndCreateAllPayment(db, id, listUndefinedID, withdrawalMone
     }
 }
 async function deleteAndCreateAllInvoice(db, id, listInvoiceID, type, date) {
-    // Xóa dữ liệu cũ sau đó thêm mới
-    await mtblPaymentRInvoice(db).destroy({
-        where: {
-            IDPayment: id
-        }
-    })
     // await mtblInvoice(db).update({ Status: 'notpaid' }, { where: { IDSpecializedSoftware: { [Op.in]: listInvoiceID } } })
-
     // Thêm mới
     for (var i = 0; i < listInvoiceID.length; i++) {
-        await mtblPaymentRInvoice(db).create({
-            IDPayment: id,
-            IDSpecializedSoftware: listInvoiceID[i]
-        })
         let Payments = 'Tiền mặt'
         if (type == "debit") {
             Payments = 'Chuyển khoản'
@@ -728,7 +732,88 @@ async function createTBLCoQuanNhaNuoc(db, date, voucherNumber, moneyNumber, type
     })
 }
 var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
+// 
+async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID) {
+    await mtblPaymentRInvoice(db).findAll({
+        where: {
+            IDPayment: receiptsPaymentID
+        }
+    }).then(async data => {
+        for (let item of data) {
+            let invoiceOld = await mtblInvoice(db).findOne({
+                where: {
+                    IDSpecializedSoftware: item.IDSpecializedSoftware
+                }
+            })
+            if (invoiceOld.ID)
+                await mtblInvoice(db).update({
+                    UnpaidAmount: Number(invoiceOld.UnpaidAmount ? invoiceOld.UnpaidAmount : 0) + Number(item.Amount ? item.Amount : 0),
+                    PaidAmount: Number(invoiceOld.PaidAmount ? invoiceOld.PaidAmount : 0) - Number(item.Amount ? item.Amount : 0),
+                }, {
+                    where: {
+                        ID: invoiceOld.ID
+                    }
+                })
+        }
+    })
+    await mtblPaymentRInvoice(db).destroy({
+        where: {
+            IDPayment: receiptsPaymentID
+        }
+    })
+}
 
+// tính toán số tiền lại đã thanh toán, chưa thanh toán credit khi tạo phiếu thu
+async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPaymentID, type) {
+    if (type == 'update')
+        await addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID)
+    // reListCreditID = listCreditID.reverse() // đổi vị trí ngược lại các phần tử trong mảng
+    listCreditID = listCreditID.sort(function (a, b) { return a - b })
+    for (let i = 0; i < listCreditID.length; i++) {
+        let creditID = listCreditID[i]
+        await mtblInvoice(db).findOne({
+            where: {
+                IDSpecializedSoftware: creditID
+            }
+        }).then(async data => {
+            amount = Number(amount)
+            if (data.ID && amount > 0) {
+                let paidAmount = data.PaidAmount ? data.PaidAmount : 0
+                let unpaidAmount = data.UnpaidAmount ? data.UnpaidAmount : 0
+                if (unpaidAmount >= amount) {
+                    await mtblPaymentRInvoice(db).create({
+                        IDPayment: receiptsPaymentID,
+                        IDSpecializedSoftware: creditID,
+                        Amount: amount,
+                    })
+                    await mtblInvoice(db).update({
+                        UnpaidAmount: unpaidAmount - amount,
+                        PaidAmount: paidAmount + amount,
+                    }, {
+                        where: {
+                            ID: data.ID
+                        }
+                    })
+                } else {
+                    await mtblPaymentRInvoice(db).create({
+                        IDPayment: receiptsPaymentID,
+                        IDSpecializedSoftware: creditID,
+                        Amount: unpaidAmount,
+                    })
+                    await mtblInvoice(db).update({
+                        UnpaidAmount: 0,
+                        PaidAmount: paidAmount + unpaidAmount,
+                    }, {
+                        where: {
+                            ID: data.ID
+                        }
+                    })
+                    amount -= unpaidAmount
+                }
+            }
+        })
+    }
+}
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
@@ -997,6 +1082,9 @@ module.exports = {
                         objCreate['IDCustomer'] = body.object.id
                     await mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         // tạo bản ghi thanh toán cơ quan nhà nước
+                        if (body.type == 'payment' || body.type == 'debit') {
+                            await recalculateTheAmountOfCredit(db, body.amount ? body.amount : 0, listInvoiceID, data.ID, 'create')
+                        }
                         if (body.object.type == 'customer' && body.object.id == 11) {
                             let typeCoQuanNhaNuoc = 'debtNotices'
                             if (body.type && body.type == 'receipt') {
@@ -1102,10 +1190,6 @@ module.exports = {
                         }
                         // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
                         for (var i = 0; i < listInvoiceID.length; i++) {
-                            await mtblPaymentRInvoice(db).create({
-                                IDPayment: data.ID,
-                                IDSpecializedSoftware: listInvoiceID[i]
-                            })
                             let Payments = 'Tiền mặt'
                             if (body.type == "debit") {
                                 Payments = 'Chuyển khoản'
@@ -1325,6 +1409,7 @@ module.exports = {
                     let customerID = body.object.id
                     await database.updateTable(update, mtblReceiptsPayment(db), body.id).then(async response => {
                         if (response == 1) {
+                            await recalculateTheAmountOfCredit(db, (body.amount ? body.amount : 0), listInvoiceID, body.id, 'update')
                             let detail = await mtblReceiptsPayment(db).findOne({
                                 where: {
                                     ID: body.id

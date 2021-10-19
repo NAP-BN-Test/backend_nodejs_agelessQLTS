@@ -8,8 +8,8 @@ module.exports = function (db) {
             autoIncrement: true
         },
         IDPayment: Sequelize.BIGINT,
-        IDSpecializedSoftware: Sequelize.INTEGER
-
+        IDSpecializedSoftware: Sequelize.INTEGER,
+        Amount: Sequelize.FLOAT,
     });
 
     return table;

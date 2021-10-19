@@ -551,7 +551,7 @@ module.exports = {
             //         if (data.data.status_code == 200) {
             if (dataCQNN) {
                 // var array = data.data.data.list;
-                var array = dataCQNN;
+                // var array = dataCQNN;
                 // var stt = 1;
                 // for (var i = 0; i < array.length; i++) {
                 //     array[i]['stt'] = stt;
@@ -573,8 +573,13 @@ module.exports = {
                 //     stt += 1;
                 // }
                 // var count = await mtblCoQuanNhaNuoc(db).count()
+                let array = []
+                for (let item of dataCQNN) {
+                    if (item.typeVoucher == 'Biên lai')
+                        array.push(item)
+                }
                 var result = {
-                    array: dataCQNN,
+                    array: array,
                     // array: data.data.data.list,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,

@@ -1600,13 +1600,16 @@ module.exports = {
                                     Status: dataCredit[i].statusName,
                                     Request: dataCredit[i].request
                                 })
-                                if (dataCredit[i].statusName == 'Chờ thanh toán')
+                                if (dataCredit[i].statusName == 'Chờ thanh toán') {
+                                    dataCredit[i]['remainingAmount'] = 0
                                     array.push(dataCredit[i])
+                                }
                                 if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || dataCredit[i].statusName == 'Chờ thanh toán')
                                     updateArr.push(dataCredit[i])
                             } else {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
+                                dataCredit[i]['remainingAmount'] = check.UnpaidAmount ? check.UnpaidAmount : 0
                                 if (check.Status == 'Chờ thanh toán') {
                                     dataCredit[i]['payDate'] = check.PayDate
                                     dataCredit[i]['Payments'] = check.Payments
@@ -2263,13 +2266,15 @@ module.exports = {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: dataCredit[i].id,
                             Status: dataCredit[i].statusName,
-                            Request: dataCredit[i].request
+                            Request: dataCredit[i].request,
+                            InitialAmount: dataCredit[i].total,
+                            UnpaidAmount: dataCredit[i].total
                         })
                     } else {
                         dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                         dataCredit[i]['payments'] = check ? check.Payments : ''
                         dataCredit[i].statusName = check.Status
-                        dataCredit[i].request = check.Request
+                        dataCredit[i].request = check.total
                     }
                 }
                 var result = {
