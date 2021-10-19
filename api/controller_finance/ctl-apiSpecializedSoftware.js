@@ -1602,20 +1602,29 @@ module.exports = {
                                 })
                                 if (dataCredit[i].statusName == 'Chờ thanh toán') {
                                     dataCredit[i]['remainingAmount'] = 0
+                                    dataCredit[i]['paidAmount'] = 0
                                     array.push(dataCredit[i])
                                 }
                                 if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || dataCredit[i].statusName == 'Chờ thanh toán')
                                     updateArr.push(dataCredit[i])
                             } else {
+                                let amountPaid = await mtblPaymentRInvoice(db).findOne({
+                                    where: {
+                                        IDPayment: body.idReceiptPayment ? body.idReceiptPayment : null,
+                                        IDSpecializedSoftware: check.IDSpecializedSoftware ? check.IDSpecializedSoftware : null
+                                    }
+                                })
+
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
                                 dataCredit[i]['remainingAmount'] = check.UnpaidAmount ? check.UnpaidAmount : 0
-                                if (check.Status == 'Chờ thanh toán') {
+                                dataCredit[i]['paidAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
+                                if (check.UnpaidAmount && check.UnpaidAmount != 0 && check.Status == 'Chờ thanh toán') {
                                     dataCredit[i]['payDate'] = check.PayDate
                                     dataCredit[i]['Payments'] = check.Payments
                                     array.push(dataCredit[i])
                                 }
-                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || check.Status == 'Chờ thanh toán') {
+                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || check.UnpaidAmount && check.UnpaidAmount != 0 && check.Status == 'Chờ thanh toán') {
                                     dataCredit[i]['payDate'] = check.PayDate
                                     dataCredit[i]['Payments'] = check.Payments
                                     updateArr.push(dataCredit[i])

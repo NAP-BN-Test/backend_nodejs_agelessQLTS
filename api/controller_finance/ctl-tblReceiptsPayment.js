@@ -40,6 +40,13 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
     }).then(async data => {
         for (let d = 0; d < data.length; d++) {
             if (data[d].IDSpecializedSoftware) {
+                await mtblInvoice(db).update({
+                    Status: 'Chờ thanh toán'
+                }, {
+                    where: {
+                        IDSpecializedSoftware: data[d].IDSpecializedSoftware
+                    }
+                })
                 let invoiceOld = await mtblInvoice(db).findOne({
                     where: {
                         IDSpecializedSoftware: data[d].IDSpecializedSoftware
@@ -54,13 +61,6 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
                             ID: invoiceOld.ID
                         }
                     })
-                await mtblInvoice(db).update({
-                    Status: 'Chờ thanh toán'
-                }, {
-                    where: {
-                        IDSpecializedSoftware: data[d].IDSpecializedSoftware
-                    }
-                })
             }
         }
     })
@@ -325,7 +325,7 @@ async function deleteAndCreateAllInvoice(db, id, listInvoiceID, type, date) {
             Payments = 'Chuyển khoản'
         }
         await mtblInvoice(db).update({
-            Status: 'Đã thanh toán',
+            // Status: 'Đã thanh toán',
             Payments: Payments,
             PayDate: date,
         }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
@@ -786,14 +786,20 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                         IDSpecializedSoftware: creditID,
                         Amount: amount,
                     })
+                    let status = 'Chờ thanh toán'
+                    if ((unpaidAmount - amount) == 0) {
+                        status = 'Đã thanh toán'
+                    }
                     await mtblInvoice(db).update({
                         UnpaidAmount: unpaidAmount - amount,
                         PaidAmount: paidAmount + amount,
+                        Status: status,
                     }, {
                         where: {
                             ID: data.ID
                         }
                     })
+                    amount = 0;
                 } else {
                     await mtblPaymentRInvoice(db).create({
                         IDPayment: receiptsPaymentID,
@@ -803,6 +809,7 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                     await mtblInvoice(db).update({
                         UnpaidAmount: 0,
                         PaidAmount: paidAmount + unpaidAmount,
+                        Status: 'Đã thanh toán'
                     }, {
                         where: {
                             ID: data.ID
@@ -1084,6 +1091,25 @@ module.exports = {
                         // tạo bản ghi thanh toán cơ quan nhà nước
                         if (body.type == 'payment' || body.type == 'debit') {
                             await recalculateTheAmountOfCredit(db, body.amount ? body.amount : 0, listInvoiceID, data.ID, 'create')
+                        } else {
+                            let Payments = 'Tiền mặt'
+                            if (body.type == "debit") {
+                                Payments = 'Chuyển khoản'
+                            } else if (body.type == "spending") {
+                                Payments = 'Chuyển khoản'
+                            }
+                            for (let i = 0; i < listInvoiceID.length; i++) {
+                                await mtblInvoice(db).update({
+                                    Status: 'Đã thanh toán',
+                                    Payments: Payments,
+                                    PayDate: body.date ? body.date : null,
+                                }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
+                                await mtblPaymentRInvoice(db).create({
+                                    IDPayment: data.ID,
+                                    IDSpecializedSoftware: listInvoiceID[i],
+                                    // Amount: amount,
+                                })
+                            }
                         }
                         if (body.object.type == 'customer' && body.object.id == 11) {
                             let typeCoQuanNhaNuoc = 'debtNotices'
@@ -1187,20 +1213,6 @@ module.exports = {
                             }, {
                                 where: { ID: body.loanAdvanceID }
                             })
-                        }
-                        // Thêm mới nhiều nhiều-----------------------------------------------------------------------------------------------------------
-                        for (var i = 0; i < listInvoiceID.length; i++) {
-                            let Payments = 'Tiền mặt'
-                            if (body.type == "debit") {
-                                Payments = 'Chuyển khoản'
-                            } else if (body.type == "spending") {
-                                Payments = 'Chuyển khoản'
-                            }
-                            await mtblInvoice(db).update({
-                                Status: 'Đã thanh toán',
-                                Payments: Payments,
-                                PayDate: body.date ? body.date : null,
-                            }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
                         }
                         // -------------------------------------------------------------------------------------------------------------------------------
                         for (var i = 0; i < listCredit.length; i++) {
