@@ -16,6 +16,9 @@ module.exports = function (db) {
         MoneyCredit: Sequelize.FLOAT,
         YearStart: Sequelize.STRING,
         TypeClause: Sequelize.STRING,
+        IsDelete: Sequelize.BOOLEAN,
+        CurrencyID: Sequelize.BIGINT,
+        IsHasCurrency: Sequelize.BOOLEAN,
     });
 
     return table;

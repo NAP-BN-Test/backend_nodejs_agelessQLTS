@@ -101,6 +101,9 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
                 moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
                 moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
                 typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                isHasCurrency: data[i].IsHasCurrency == true ? data[i].IsHasCurrency : false,
+                isDelete: data[i].IsDelete == true ? data[i].IsDelete : false,
+                currencyID: data[i].CurrencyID ? data[i].CurrencyID : null,
             })
         }
     })
@@ -162,6 +165,7 @@ module.exports = {
     // add_tbl_dm_taikhoanketoan
     addtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -180,51 +184,72 @@ module.exports = {
                     }
                     console.log(body);
                     let yearNow = Number(moment().format('YYYY'));
-                    mtblDMTaiKhoanKeToan(db).create({
-                        AccountingCode: body.accountingCode ? body.accountingCode : '',
-                        AccountingName: body.accountingName ? body.accountingName : '',
-                        IDLoaiTaiKhoanKeToan: body.idLoaiTaiKhoanKeToan ? body.idLoaiTaiKhoanKeToan : null,
-                        Levels: body.levels ? body.levels : 1,
-                        IDLevelAbove: body.idLevelAbove ? body.idLevelAbove : null,
-                        MoneyDebit: body.moneyDebit ? body.moneyDebit : null,
-                        MoneyCredit: body.moneyCredit ? body.moneyCredit : null,
-                        YearStart: yearNow,
-                    }).then(async data => {
-                        if (body.moneyDebit && body.moneyCredit) {
-                            let check = true;
-                            let moneyOldCredit = 0;
-                            let moneyOlddebt = 0;
-                            accountID = body.IDLevelAbove ? body.IDLevelAbove : null
-                            if (accountID) {
-                                do {
-                                    await mtblDMTaiKhoanKeToan(db).findOne({
-                                        where: { ID: accountID }
-                                    }).then(async data => {
-                                        if (data) {
-                                            await mtblDMTaiKhoanKeToan(db).update({
-                                                MoneyCredit: Number(data.MoneyCredit ? data.MoneyCredit : 0) + Number(body.moneyCredit) - Number(moneyOldCredit),
-                                                MoneyDebit: Number(data.MoneyDebit ? data.MoneyDebit : 0) + Number(body.moneyDebit) - Number(moneyOlddebt),
-                                            }, {
-                                                where: { ID: accountID }
-                                            })
-                                            if (!data.IDLevelAbove)
-                                                check = false
-                                            else
-                                                accountID = data.IDLevelAbove
-                                        } else {
-                                            check = false
-                                        }
-                                    })
-
-                                } while (check == true);
+                    let checkIsCreate = true;
+                    if (body.currencyID)
+                        await mtblDMTaiKhoanKeToan(db).findOne({
+                            where: {
+                                CurrencyID: body.currencyID,
+                                IDLevelAbove: body.idLevelAbove ? body.idLevelAbove : null
                             }
+                        }).then(data => {
+                            if (data)
+                                checkIsCreate = false
+                        })
+                    var result;
+                    console.log(checkIsCreate);
+                    if (checkIsCreate == true)
+                        await mtblDMTaiKhoanKeToan(db).create({
+                            AccountingCode: body.accountingCode ? body.accountingCode : '',
+                            AccountingName: body.accountingName ? body.accountingName : '',
+                            IDLoaiTaiKhoanKeToan: body.idLoaiTaiKhoanKeToan ? body.idLoaiTaiKhoanKeToan : null,
+                            Levels: body.levels ? body.levels : 1,
+                            IDLevelAbove: body.idLevelAbove ? body.idLevelAbove : null,
+                            MoneyDebit: body.moneyDebit ? body.moneyDebit : null,
+                            MoneyCredit: body.moneyCredit ? body.moneyCredit : null,
+                            YearStart: yearNow,
+                            IsDelete: true,
+                            CurrencyID: body.currencyID ? body.currencyID : null
+                        }).then(async data => {
+                            if (body.moneyDebit && body.moneyCredit) {
+                                let check = true;
+                                let moneyOldCredit = 0;
+                                let moneyOlddebt = 0;
+                                accountID = body.IDLevelAbove ? body.IDLevelAbove : null
+                                if (accountID) {
+                                    do {
+                                        await mtblDMTaiKhoanKeToan(db).findOne({
+                                            where: { ID: accountID }
+                                        }).then(async data => {
+                                            if (data) {
+                                                await mtblDMTaiKhoanKeToan(db).update({
+                                                    MoneyCredit: Number(data.MoneyCredit ? data.MoneyCredit : 0) + Number(body.moneyCredit) - Number(moneyOldCredit),
+                                                    MoneyDebit: Number(data.MoneyDebit ? data.MoneyDebit : 0) + Number(body.moneyDebit) - Number(moneyOlddebt),
+                                                }, {
+                                                    where: { ID: accountID }
+                                                })
+                                                if (!data.IDLevelAbove)
+                                                    check = false
+                                                else
+                                                    accountID = data.IDLevelAbove
+                                            } else {
+                                                check = false
+                                            }
+                                        })
+
+                                    } while (check == true);
+                                }
+                            }
+                            result = {
+                                status: Constant.STATUS.SUCCESS,
+                                message: Constant.MESSAGE.ACTION_SUCCESS,
+                            }
+                        })
+                    else
+                        result = {
+                            status: Constant.STATUS.FAIL,
+                            message: 'Loại tiền tệ đã được gắn vào tài khoản. Vui lòng kiểm tra lại!',
                         }
-                        var result = {
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                        }
-                        res.json(result);
-                    })
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -324,10 +349,23 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    await deleteRelationshiptblDMTaiKhoanKeToan(db, body.listID);
-                    var result = {
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    let account = await mtblDMTaiKhoanKeToan(db).findOne({
+                        where: {
+                            ID: body.listID
+                        }
+                    })
+                    var result = {}
+                    if (account && account.IsDelete == true) {
+                        await deleteRelationshiptblDMTaiKhoanKeToan(db, body.listID);
+                        result = {
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                    } else {
+                        result = {
+                            status: Constant.STATUS.FAIL,
+                            message: 'Không thể xóa tài khoản kế toán này. Vui lòng kiểm tra lại !',
+                        }
                     }
                     res.json(result);
                 } catch (error) {
@@ -474,51 +512,117 @@ module.exports = {
                                                     arrayChildern4[c4]['children'] = arrayChildern5
                                                 }
                                             } else {
-                                                obj = {
-                                                    id: data[i].ID,
-                                                    accountingName: data[i].AccountingName ? data[i].AccountingName : '',
-                                                    accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
-                                                    idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
-                                                    nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
-                                                    idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
-                                                    levels: data[i].Levels ? data[i].Levels : '',
-                                                    moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
-                                                    moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
-                                                    typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
-                                                    children: arrayChildern2
-                                                }
+                                                // chỉ 111, 112 mới để moneycrdit trống
+                                                if (data[i].AccountingCode == '111' || data[i].AccountingCode == '112')
+                                                    obj = {
+                                                        id: data[i].ID,
+                                                        accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                                        accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                                        idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                                        nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                                        idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                                        levels: data[i].Levels ? data[i].Levels : '',
+                                                        moneyCredit: null,
+                                                        moneyDebit: null,
+                                                        typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                                        children: arrayChildern2,
+                                                        isHasCurrency: data[i].IsHasCurrency == true ? data[i].IsHasCurrency : false,
+                                                        isDelete: data[i].IsDelete == true ? data[i].IsDelete : false,
+                                                        currencyID: data[i].CurrencyID ? data[i].CurrencyID : null,
+                                                    }
+                                                else
+                                                    obj = {
+                                                        id: data[i].ID,
+                                                        accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                                        accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                                        idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                                        nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                                        idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                                        levels: data[i].Levels ? data[i].Levels : '',
+                                                        moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                                        moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                                        typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                                        children: arrayChildern2,
+                                                        isHasCurrency: data[i].IsHasCurrency == true ? data[i].IsHasCurrency : false,
+                                                        isDelete: data[i].IsDelete == true ? data[i].IsDelete : false,
+                                                        currencyID: data[i].CurrencyID ? data[i].CurrencyID : null,
+                                                    }
                                             }
                                         }
                                     } else {
-                                        obj = {
-                                            id: data[i].ID,
-                                            accountingName: data[i].AccountingName ? data[i].AccountingName : '',
-                                            accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
-                                            idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
-                                            nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
-                                            idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
-                                            levels: data[i].Levels ? data[i].Levels : '',
-                                            moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
-                                            moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
-                                            typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
-                                            children: arrayChildern2
-                                        }
+                                        // chỉ 111, 112 mới để moneycrdit trống
+                                        if (data[i].AccountingCode == '111' || data[i].AccountingCode == '112')
+                                            obj = {
+                                                id: data[i].ID,
+                                                accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                                accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                                idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                                nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                                idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                                levels: data[i].Levels ? data[i].Levels : '',
+                                                moneyCredit: null,
+                                                moneyDebit: null,
+                                                typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                                children: arrayChildern2,
+                                                isHasCurrency: data[i].IsHasCurrency == true ? data[i].IsHasCurrency : false,
+                                                isDelete: data[i].IsDelete == true ? data[i].IsDelete : false,
+                                                currencyID: data[i].CurrencyID ? data[i].CurrencyID : null,
+                                            }
+                                        else
+                                            obj = {
+                                                id: data[i].ID,
+                                                accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                                accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                                idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                                nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                                idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                                levels: data[i].Levels ? data[i].Levels : '',
+                                                moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                                moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                                typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                                children: arrayChildern2,
+                                                isHasCurrency: data[i].IsHasCurrency == true ? data[i].IsHasCurrency : false,
+                                                isDelete: data[i].IsDelete == true ? data[i].IsDelete : false,
+                                                currencyID: data[i].CurrencyID ? data[i].CurrencyID : null,
+                                            }
                                     }
                                 }
                             } else {
-                                obj = {
-                                    id: data[i].ID,
-                                    accountingName: data[i].AccountingName ? data[i].AccountingName : '',
-                                    accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
-                                    idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
-                                    nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
-                                    idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
-                                    levels: data[i].Levels ? data[i].Levels : '',
-                                    moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
-                                    moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
-                                    typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
-                                    children: arrayChildern2
-                                }
+                                // chỉ 111, 112 mới để moneycrdit trống
+                                if (data[i].AccountingCode == '111' || data[i].AccountingCode == '112')
+                                    obj = {
+                                        id: data[i].ID,
+                                        accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                        accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                        idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                        nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                        idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                        levels: data[i].Levels ? data[i].Levels : '',
+                                        moneyCredit: null,
+                                        moneyDebit: null,
+                                        typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                        children: arrayChildern2,
+                                        isHasCurrency: data[i].IsHasCurrency == true ? data[i].IsHasCurrency : false,
+                                        isDelete: data[i].IsDelete == true ? data[i].IsDelete : false,
+                                        currencyID: data[i].CurrencyID ? data[i].CurrencyID : null,
+                                    }
+                                else
+                                    obj = {
+                                        id: data[i].ID,
+                                        accountingName: data[i].AccountingName ? data[i].AccountingName : '',
+                                        accountingCode: data[i].AccountingCode ? data[i].AccountingCode : '',
+                                        idLoaiTaiKhoanKeToan: data[i].IDLoaiTaiKhoanKeToan ? data[i].IDLoaiTaiKhoanKeToan : '',
+                                        nameTypeAcounting: data[i].Loai ? data[i].Loai.TypeName : '',
+                                        idLevelAbove: data[i].IDLevelAbove ? data[i].IDLevelAbove : '',
+                                        levels: data[i].Levels ? data[i].Levels : '',
+                                        moneyCredit: data[i].MoneyCredit ? data[i].MoneyCredit : 0,
+                                        moneyDebit: data[i].MoneyDebit ? data[i].MoneyDebit : 0,
+                                        typeClause: data[i].TypeClause ? data[i].TypeClause : 'Unknown',
+                                        children: arrayChildern2,
+                                        isHasCurrency: data[i].IsHasCurrency == true ? data[i].IsHasCurrency : false,
+                                        isDelete: data[i].IsDelete == true ? data[i].IsDelete : false,
+                                        currencyID: data[i].CurrencyID ? data[i].CurrencyID : null,
+                                    }
                             }
                             array.push(obj)
 

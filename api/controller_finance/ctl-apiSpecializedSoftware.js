@@ -10,7 +10,6 @@ var moment = require('moment');
 const Op = require('sequelize').Op;
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
-
 // data model invoice của KH
 data = [{
     id: 1,
@@ -1359,8 +1358,8 @@ module.exports = {
                                 }
                             } else {
                                 if (check.Status == 'Chờ thanh toán') {
-                                    data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
-                                    data[i]['payments'] = check ? check.Payments : ''
+                                    // data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
+                                    // data[i]['payments'] = check ? check.Payments : ''
                                     array.push(data[i])
                                     arrayCreate.push(data[i])
                                 }
@@ -1799,8 +1798,8 @@ module.exports = {
                         }
                     } else {
                         if (check.Status == 'Chờ thanh toán') {
-                            data[i]['payDate'] = check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null
-                            data[i]['Payments'] = check.Payments
+                            data[i]['payDate'] = null
+                            data[i]['payments'] = null
                             array.push(data[i])
                             totalMoneyVNDR += totalMoneyVND
                         }
@@ -2340,8 +2339,8 @@ module.exports = {
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
                         if (check.Status == 'Chờ thanh toán' && dataCredit[i].statusName == 'Chờ thanh toán') {
-                            dataCredit[i]['payDate'] = check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null
-                            dataCredit[i]['Payments'] = check.Payments
+                            dataCredit[i]['payDate'] = null
+                            dataCredit[i]['payments'] = null
                             array.push(dataCredit[i])
                         }
                     }

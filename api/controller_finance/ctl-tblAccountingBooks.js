@@ -722,6 +722,18 @@ dataCustomer = [{
     "email": "hoaphat0102@gmail.com",
     "id": 10,
 },
+{
+    "customerCode": "KH0011",
+    "name": "Cơ quan nhà nước",
+    "attributesChangeLog": "Cơ quan nhà nước",
+    "tax": "014775745",
+    "countryName": "Việt Nam",
+    "address": "Số 2 Phố Huế Hà Nội",
+    "mobile": "045245401",
+    "fax": "021455235",
+    "email": "cqnnvn@gmail.com",
+    "id": 11,
+},
 ]
 async function findAcountingFollowLevel(db, level, idLevelAbove) {
     var result = []
@@ -932,7 +944,7 @@ module.exports = {
         })
     },
     // get_list_tbl_accounting_books
-    getListtblAccountingBooks: (req, res) => {
+    getListtblAccountingBooks: async (req, res) => {
         let body = req.body;
         let array = [
             'first_six_months',
@@ -944,17 +956,74 @@ module.exports = {
             'last_year',
             'this_year',
         ]
-        console.log(body);
         let dataSearch = JSON.parse(body.dataSearch)
-        var arrayIDAccount = []
-        if (dataSearch.accountSystemID)
-            arrayIDAccount.push(dataSearch.accountSystemID)
-        if (dataSearch.accountSystemOtherID)
-            arrayIDAccount.push(dataSearch.accountSystemOtherID)
+        console.log(dataSearch);
         const currentYear = new Date().getFullYear()
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let accountName = '';
+                    var arrayIDAccount = []
+                    let checkAccount111 = await mtblDMTaiKhoanKeToan(db).findOne({
+                        where: {
+                            AccountingCode: '111'
+                        }
+                    })
+                    let checkAccount112 = await mtblDMTaiKhoanKeToan(db).findOne({
+                        where: {
+                            AccountingCode: '112'
+                        }
+                    })
+                    let accountBooks;
+                    if (dataSearch.type && dataSearch.type == 'cash') {
+                        if (dataSearch.currencyID) {
+                            let objAccount = await mtblDMTaiKhoanKeToan(db).findOne({
+                                where: {
+                                    CurrencyID: dataSearch.currencyID,
+                                    IDLevelAbove: checkAccount111.ID,
+                                }
+                            })
+                            if (objAccount) {
+                                accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
+                                    where: {
+                                        ID: objAccount.ID
+                                    }
+                                })
+                                accountName = objAccount.AccountingCode
+                                arrayIDAccount.push(objAccount.ID)
+                            }
+                        }
+                    } else if (dataSearch.type && dataSearch.type == 'bank') {
+                        if (dataSearch.currencyID) {
+                            let objAccount = await mtblDMTaiKhoanKeToan(db).findOne({
+                                where: {
+                                    CurrencyID: dataSearch.currencyID,
+                                    IDLevelAbove: checkAccount112.ID,
+                                }
+                            })
+                            if (objAccount) {
+                                accountName = objAccount.AccountingCode
+                                arrayIDAccount.push(objAccount.ID)
+                                accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
+                                    where: {
+                                        ID: objAccount.ID
+                                    }
+                                })
+                            }
+                        }
+                    } else {
+                        if (dataSearch.accountSystemID)
+                            accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
+                                where: {
+                                    ID: dataSearch.accountSystemID
+                                }
+                            })
+                        if (dataSearch.accountSystemID) {
+                            arrayIDAccount.push(dataSearch.accountSystemID)
+                        }
+                        if (dataSearch.accountSystemOtherID)
+                            arrayIDAccount.push(dataSearch.accountSystemOtherID)
+                    }
                     var whereOjb = [];
                     if (arrayIDAccount.length > 0)
                         whereOjb.push({
@@ -1035,18 +1104,37 @@ module.exports = {
                             }
                         })
                     }
+                    let typeCus = 'customer'
                     let arrayWhere = []
-                    if (dataSearch.customerID) {
-                        await mtblReceiptsPayment(db).findAll({
-                            where: {
-                                IDCustomer: dataSearch.customerID
-                            }
-                        }).then(data => {
-                            for (item of data) {
-                                arrayWhere.push(item.ID)
-                            }
-                        })
-                    }
+                    let supplierName = {}
+                    if (dataSearch.customerID)
+                        if (dataSearch.type == 'supplier') {
+                            typeCus = 'supplier'
+                            await mtblReceiptsPayment(db).findAll({
+                                where: {
+                                    SupplierID: dataSearch.customerID
+                                }
+                            }).then(data => {
+                                for (item of data) {
+                                    arrayWhere.push(item.ID)
+                                }
+                            })
+                            supplierName = await mtblDMNhaCungCap(db).findOne({
+                                where: {
+                                    ID: dataSearch.customerID
+                                }
+                            })
+                        } else {
+                            await mtblReceiptsPayment(db).findAll({
+                                where: {
+                                    IDCustomer: dataSearch.customerID
+                                }
+                            }).then(data => {
+                                for (item of data) {
+                                    arrayWhere.push(item.ID)
+                                }
+                            })
+                        }
                     if (dataSearch.currencyID) {
                         await mtblReceiptsPayment(db).findAll({
                             where: {
@@ -1077,13 +1165,6 @@ module.exports = {
                     let endingBalanceCredit = 0;
                     let stt = 1;
                     let tblAccountingBooks = mtblAccountingBooks(db);
-                    let accountBooks;
-                    if (dataSearch.accountSystemID)
-                        accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
-                            where: {
-                                ID: dataSearch.accountSystemID
-                            }
-                        })
                     arisingPeriod = totalDebtIncurred - totalCreditIncurred;
                     openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : null) : null
                     openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : null) : null
@@ -1246,12 +1327,12 @@ module.exports = {
                                             debtSurplus += 0;
                                             creaditSurplus += creditIncurred - debtIncurred;
                                         } else {
-                                            debtSurplus = 0;
-                                            creaditSurplus = 0;
+                                            debtSurplus = debtIncurred;
+                                            creaditSurplus = creditIncurred;
                                         }
                                         // thu: có - GBC
                                         // chi: nợ - GBN
-                                        let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : 0) : (item.Contents ? item.Contents : 0);
+                                        let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : '') : (item.Contents ? item.Contents : '');
                                         var obj = {
                                             stt: stt,
                                             id: Number(item.ID),
@@ -1272,7 +1353,7 @@ module.exports = {
                                             numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
                                             numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
                                             receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
-                                            customerName: Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
+                                            customerName: typeCus == 'supplier' ? supplierName.SupplierName : Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
                                         }
                                         if (arrayIDAccount.length <= 1) {
                                             totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
@@ -1282,13 +1363,38 @@ module.exports = {
                                             array.push(obj);
                                             stt += 1;
                                         } else {
-                                            if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                            if (accountName == '112' || accountName == '111') {
                                                 totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
                                                 totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
                                                 totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                 totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                 array.push(obj);
                                                 stt += 1;
+                                            } else {
+                                                if (dataSearch.accountSystemID == Number(data[i].IDAccounting)) {
+                                                    if (dataSearch.accountSystemOtherID && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                        totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                        totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                        totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                        totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                        array.push(obj);
+                                                        stt += 1;
+                                                    } else if (!dataSearch.accountSystemOtherID) {
+                                                        totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                        totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                        totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                        totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                        array.push(obj);
+                                                        stt += 1;
+                                                    }
+                                                } else if (dataSearch.type) {
+                                                    totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                    totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                    totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                    totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                    array.push(obj);
+                                                    stt += 1;
+                                                }
                                             }
                                         }
                                     }
@@ -1334,6 +1440,7 @@ module.exports = {
                         }
                         var result = {
                             total: {
+                                accountName,
                                 totalCreditIncurred,
                                 totalDebtIncurred,
                                 totalCreaditSurplus,
@@ -1608,7 +1715,7 @@ module.exports = {
                                         let createDate = item.CreateDate ? moment(item.CreateDate).format('DD/MM/YYYY') : null;
                                         let entryDate = item.EntryDate ? moment(item.EntryDate).format('DD/MM/YYYY') : null;
                                         let number = data[i].payment ? data[i].payment.CodeNumber : '';
-                                        let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : 0) : (item.Contents ? item.Contents : 0);
+                                        let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : '') : (item.Contents ? item.Contents : '');
                                         let creditIncurred = accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0);
                                         let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
                                         let objCheck = {
@@ -1998,7 +2105,7 @@ module.exports = {
                                             }
                                             // thu: có - GBC
                                             // chi: nợ - GBN
-                                            let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : 0) : (item.Contents ? item.Contents : 0);
+                                            let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : '') : (item.Contents ? item.Contents : '');
                                             var obj = {
                                                 stt: stt,
                                                 id: Number(item.ID),
@@ -2076,6 +2183,7 @@ module.exports = {
                             customerCode: customer.customerCode,
                             customerID: customer.id,
                             customerName: customer.name,
+                            type: 'customer',
                             debtAccount: debtAccount,
                             openingBalanceDebit,
                             openingBalanceCredit,
@@ -2087,344 +2195,351 @@ module.exports = {
                         array.push(objCustomer)
                         stt += 1
                     }
-                    await mtblDMNhaCungCap(db).findAll().then(async supplier => {
-                        for (let suppliers of supplier) {
-                            var whereOjb = [];
-                            if (arrayIDAccount.length > 0)
-                                whereOjb.push({
-                                    IDAccounting: {
-                                        [Op.in]: arrayIDAccount
-                                    }
-                                })
-                            if (dataSearch.selection == 'first_six_months') {
-                                const startedDate = new Date(currentYear + "-01-01 14:00:00");
-                                const endDate = new Date(currentYear + "-06-30 14:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.selection == 'last_six_months') {
-                                let startedDate = new Date(currentYear + "-06-01 07:00:00");
-                                let endDate = new Date(currentYear + "-12-30 24:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.selection == 'one_quarter') {
-                                let startedDate = new Date(currentYear + "-01-01 07:00:00");
-                                let endDate = new Date(currentYear + "-04-01 00:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.selection == 'two_quarter') {
-                                let startedDate = new Date(currentYear + "-04-01 07:00:00");
-                                let endDate = new Date(currentYear + "-07-01 00:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.selection == 'three_quarter') {
-                                let startedDate = new Date(currentYear + "-07-01 07:00:00");
-                                let endDate = new Date(currentYear + "-10-01 00:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.selection == 'four_quarter') {
-                                let startedDate = new Date(currentYear + "-10-01 07:00:00");
-                                let endDate = new Date(currentYear + "-12-30 24:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.selection == 'last_year') {
-                                let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
-                                let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.selection == 'this_year') {
-                                let startedDate = new Date(currentYear + "-01-01 07:00:00");
-                                let endDate = new Date(currentYear + "-12-30 24:00:00");
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [startedDate, endDate]
-                                    }
-                                })
-                            } else if (dataSearch.dateFrom && dataSearch.dateTo) {
-                                dataSearch.dateTo = moment(dataSearch.dateTo).add(30, 'hours').format('YYYY-MM-DD HH:MM:ss')
-                                dataSearch.dateFrom = moment(dataSearch.dateFrom).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
-                                whereOjb.push({
-                                    CreateDate: {
-                                        [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
-                                    }
-                                })
-                            }
-                            let arrayWhere = []
-                            let checkAccount = await mtblDMTaiKhoanKeToan(db).findOne({
-                                where: {
-                                    ID: dataSearch.accountSystemID
+                    let checkAccount = await mtblDMTaiKhoanKeToan(db).findOne({
+                        where: {
+                            ID: dataSearch.accountSystemID
+                        }
+                    })
+                    if (checkAccount.AccountingCode == '331')
+                        await mtblDMNhaCungCap(db).findAll().then(async supplier => {
+                            for (let suppliers of supplier) {
+                                var whereOjb = [];
+                                if (arrayIDAccount.length > 0)
+                                    whereOjb.push({
+                                        IDAccounting: {
+                                            [Op.in]: arrayIDAccount
+                                        }
+                                    })
+                                if (dataSearch.selection == 'first_six_months') {
+                                    const startedDate = new Date(currentYear + "-01-01 14:00:00");
+                                    const endDate = new Date(currentYear + "-06-30 14:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.selection == 'last_six_months') {
+                                    let startedDate = new Date(currentYear + "-06-01 07:00:00");
+                                    let endDate = new Date(currentYear + "-12-30 24:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.selection == 'one_quarter') {
+                                    let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                                    let endDate = new Date(currentYear + "-04-01 00:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.selection == 'two_quarter') {
+                                    let startedDate = new Date(currentYear + "-04-01 07:00:00");
+                                    let endDate = new Date(currentYear + "-07-01 00:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.selection == 'three_quarter') {
+                                    let startedDate = new Date(currentYear + "-07-01 07:00:00");
+                                    let endDate = new Date(currentYear + "-10-01 00:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.selection == 'four_quarter') {
+                                    let startedDate = new Date(currentYear + "-10-01 07:00:00");
+                                    let endDate = new Date(currentYear + "-12-30 24:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.selection == 'last_year') {
+                                    let startedDate = new Date((currentYear - 1) + "-01-01 07:00:00");
+                                    let endDate = new Date((currentYear - 1) + "-12-30 24:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.selection == 'this_year') {
+                                    let startedDate = new Date(currentYear + "-01-01 07:00:00");
+                                    let endDate = new Date(currentYear + "-12-30 24:00:00");
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [startedDate, endDate]
+                                        }
+                                    })
+                                } else if (dataSearch.dateFrom && dataSearch.dateTo) {
+                                    dataSearch.dateTo = moment(dataSearch.dateTo).add(30, 'hours').format('YYYY-MM-DD HH:MM:ss')
+                                    dataSearch.dateFrom = moment(dataSearch.dateFrom).add(7, 'hours').format('YYYY-MM-DD HH:MM:ss')
+                                    whereOjb.push({
+                                        CreateDate: {
+                                            [Op.between]: [dataSearch.dateFrom, dataSearch.dateTo]
+                                        }
+                                    })
                                 }
-                            })
+                                let arrayWhere = []
+                                let checkAccount = await mtblDMTaiKhoanKeToan(db).findOne({
+                                    where: {
+                                        ID: dataSearch.accountSystemID
+                                    }
+                                })
 
-                            await mtblReceiptsPayment(db).findAll({
-                                where: {
-                                    SupplierID: suppliers.ID
-                                }
-                            }).then(data => {
-                                for (item of data) {
-                                    arrayWhere.push(item.ID)
-                                }
-                            })
-                            whereOjb.push({
-                                IDPayment: {
-                                    [Op.in]: arrayWhere
-                                }
-                            })
-                            let debtAccount = '';
-                            if (checkAccount.AccountingCode == '131') {
-                                debtAccount = '131';
-                            }
-                            if (checkAccount.AccountingCode == '331') {
-                                debtAccount = '331';
-                            }
-                            let accountBooks;
-                            if (dataSearch.accountSystemID)
-                                accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
+                                await mtblReceiptsPayment(db).findAll({
                                     where: {
-                                        ID: dataSearch.accountSystemID
+                                        SupplierID: suppliers.ID
+                                    }
+                                }).then(data => {
+                                    for (item of data) {
+                                        arrayWhere.push(item.ID)
                                     }
                                 })
-                            openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : null) : null
-                            openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : null) : null
-                            let totalCreditIncurred = 0;
-                            let totalDebtIncurred = 0;
-                            let endingBalanceDebit = 0;
-                            let endingBalanceCredit = 0;
-                            let debtSurplus = openingBalanceDebit;
-                            let creaditSurplus = openingBalanceCredit;
-                            let totalCreaditSurplus = 0;
-                            let totalDebtSurplus = 0;
-                            let tblAccountingBooks = mtblAccountingBooks(db);
-                            tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
-                            tblAccountingBooks.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                            await tblAccountingBooks.findAll({
-                                offset: Number(body.itemPerPage) * (Number(body.page) - 1),
-                                limit: Number(body.itemPerPage),
-                                where: whereOjb,
-                                order: [
-                                    ['ID', 'ASC']
-                                ],
-                                include: [{
-                                    model: mtblReceiptsPayment(db),
-                                    required: false,
-                                    as: 'payment'
-                                },
-                                {
-                                    model: mtblDMTaiKhoanKeToan(db),
-                                    required: false,
-                                    as: 'accounting'
-                                }
-                                ],
-                            }).then(async data => {
-                                let checkType = await mtblDMTaiKhoanKeToan(db).findOne({
-                                    where: {
-                                        ID: dataSearch.accountSystemID
+                                whereOjb.push({
+                                    IDPayment: {
+                                        [Op.in]: arrayWhere
                                     }
                                 })
-                                // Lấy dữ liệu ở phiếu thu-------------------------------------------------------------------------------------
-                                for (var i = 0; i < data.length; i++) {
-                                    var arrayWhere = []
-                                    if (data[i].IDPayment) {
-                                        arrayWhere.push({
-                                            IDPayment: data[i].IDPayment
-                                        })
-                                    } else if (data[i].IDnotices) {
-                                        arrayWhere.push({
-                                            IDnotices: data[i].IDnotices
-                                        })
-                                    } else {
-                                        arrayWhere.push({
-                                            IDPayment: {
-                                                [Op.ne]: null
-                                            }
-                                        })
-                                    }
-                                    let clauseType = "Credit"
-                                    if (data[i].ClauseType == "Credit") {
-                                        clauseType = "Debit"
-                                    }
-                                    await tblAccountingBooks.findAll({
+                                let debtAccount = '';
+                                if (checkAccount.AccountingCode == '131') {
+                                    debtAccount = '131';
+                                }
+                                if (checkAccount.AccountingCode == '331') {
+                                    debtAccount = '331';
+                                }
+                                let accountBooks;
+                                if (dataSearch.accountSystemID)
+                                    accountBooks = await mtblDMTaiKhoanKeToan(db).findOne({
                                         where: {
-                                            [Op.and]: [{
-                                                [Op.or]: arrayWhere
+                                            ID: dataSearch.accountSystemID
+                                        }
+                                    })
+                                openingBalanceDebit = accountBooks ? (accountBooks.MoneyDebit ? accountBooks.MoneyDebit : null) : null
+                                openingBalanceCredit = accountBooks ? (accountBooks.MoneyCredit ? accountBooks.MoneyCredit : null) : null
+                                let totalCreditIncurred = 0;
+                                let totalDebtIncurred = 0;
+                                let endingBalanceDebit = 0;
+                                let endingBalanceCredit = 0;
+                                let debtSurplus = openingBalanceDebit;
+                                let creaditSurplus = openingBalanceCredit;
+                                let totalCreaditSurplus = 0;
+                                let totalDebtSurplus = 0;
+                                let tblAccountingBooks = mtblAccountingBooks(db);
+                                tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
+                                tblAccountingBooks.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                                await tblAccountingBooks.findAll({
+                                    offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                                    limit: Number(body.itemPerPage),
+                                    where: whereOjb,
+                                    order: [
+                                        ['ID', 'ASC']
+                                    ],
+                                    include: [{
+                                        model: mtblReceiptsPayment(db),
+                                        required: false,
+                                        as: 'payment'
+                                    },
+                                    {
+                                        model: mtblDMTaiKhoanKeToan(db),
+                                        required: false,
+                                        as: 'accounting'
+                                    }
+                                    ],
+                                }).then(async data => {
+                                    let checkType = await mtblDMTaiKhoanKeToan(db).findOne({
+                                        where: {
+                                            ID: dataSearch.accountSystemID
+                                        }
+                                    })
+                                    // Lấy dữ liệu ở phiếu thu-------------------------------------------------------------------------------------
+                                    for (var i = 0; i < data.length; i++) {
+                                        var arrayWhere = []
+                                        if (data[i].IDPayment) {
+                                            arrayWhere.push({
+                                                IDPayment: data[i].IDPayment
+                                            })
+                                        } else if (data[i].IDnotices) {
+                                            arrayWhere.push({
+                                                IDnotices: data[i].IDnotices
+                                            })
+                                        } else {
+                                            arrayWhere.push({
+                                                IDPayment: {
+                                                    [Op.ne]: null
+                                                }
+                                            })
+                                        }
+                                        let clauseType = "Credit"
+                                        if (data[i].ClauseType == "Credit") {
+                                            clauseType = "Debit"
+                                        }
+                                        await tblAccountingBooks.findAll({
+                                            where: {
+                                                [Op.and]: [{
+                                                    [Op.or]: arrayWhere
+                                                },
+                                                {
+                                                    ID: {
+                                                        [Op.ne]: data[i].ID
+                                                    }
+                                                }, {
+                                                    ClauseType: clauseType
+                                                }
+                                                ]
                                             },
-                                            {
-                                                ID: {
-                                                    [Op.ne]: data[i].ID
-                                                }
-                                            }, {
-                                                ClauseType: clauseType
-                                            }
-                                            ]
-                                        },
-                                        order: [
-                                            ['ID', 'ASC']
-                                        ],
-                                        include: [{
-                                            model: mtblDMTaiKhoanKeToan(db),
-                                            required: false,
-                                            as: 'accounting'
-                                        },],
-                                    }).then(async accounting => {
-                                        if (accounting) {
-                                            for (item of accounting) {
-                                                let checkTypeClause = await mtblDMTaiKhoanKeToan(db).findOne({
-                                                    where: {
-                                                        ID: data[i].IDAccounting
-                                                    }
-                                                })
-                                                let typeCheck = 'Biexual';
-                                                let creditIncurred = accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0);
-                                                let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
-                                                if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
-                                                    typeCheck = 'Biexual'
-                                                    //  nếu là tài khoản đầu 1,2 : bên nợ
-                                                    //  nếu là tài khoản đầu 3,4 : bên có
-                                                    if (openingBalanceCredit == null && openingBalanceDebit == null) {
-                                                        if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
-                                                            debtSurplus += (debtIncurred - creditIncurred);
-                                                            creaditSurplus = null;
+                                            order: [
+                                                ['ID', 'ASC']
+                                            ],
+                                            include: [{
+                                                model: mtblDMTaiKhoanKeToan(db),
+                                                required: false,
+                                                as: 'accounting'
+                                            },],
+                                        }).then(async accounting => {
+                                            if (accounting) {
+                                                for (item of accounting) {
+                                                    let checkTypeClause = await mtblDMTaiKhoanKeToan(db).findOne({
+                                                        where: {
+                                                            ID: data[i].IDAccounting
                                                         }
-                                                        if (checkTypeClause.AccountingCode.slice(0, 1) == '3' || checkTypeClause.AccountingCode.slice(0, 1) == '4') {
-                                                            debtSurplus == null;
-                                                            creaditSurplus += (creditIncurred - debtIncurred);
-                                                        }
-                                                    } else {
-                                                        if (openingBalanceCredit != null) {
-                                                            debtSurplus = null;
-                                                            creaditSurplus += (creditIncurred - debtIncurred);
-                                                        } else if (openingBalanceDebit != null) {
-                                                            debtSurplus += (debtIncurred - creditIncurred);
-                                                            creaditSurplus = null;
+                                                    })
+                                                    let typeCheck = 'Biexual';
+                                                    let creditIncurred = accounting.length < 2 ? (data[i].CreditIncurred ? data[i].CreditIncurred : 0) : (item.DebtIncurred ? item.DebtIncurred : 0);
+                                                    let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
+                                                    if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
+                                                        typeCheck = 'Biexual'
+                                                        //  nếu là tài khoản đầu 1,2 : bên nợ
+                                                        //  nếu là tài khoản đầu 3,4 : bên có
+                                                        if (openingBalanceCredit == null && openingBalanceDebit == null) {
+                                                            if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
+                                                                debtSurplus += (debtIncurred - creditIncurred);
+                                                                creaditSurplus = null;
+                                                            }
+                                                            if (checkTypeClause.AccountingCode.slice(0, 1) == '3' || checkTypeClause.AccountingCode.slice(0, 1) == '4') {
+                                                                debtSurplus == null;
+                                                                creaditSurplus += (creditIncurred - debtIncurred);
+                                                            }
                                                         } else {
-                                                            debtSurplus += (debtIncurred - creditIncurred);
-                                                            creaditSurplus += (creditIncurred - debtIncurred);
+                                                            if (openingBalanceCredit != null) {
+                                                                debtSurplus = null;
+                                                                creaditSurplus += (creditIncurred - debtIncurred);
+                                                            } else if (openingBalanceDebit != null) {
+                                                                debtSurplus += (debtIncurred - creditIncurred);
+                                                                creaditSurplus = null;
+                                                            } else {
+                                                                debtSurplus += (debtIncurred - creditIncurred);
+                                                                creaditSurplus += (creditIncurred - debtIncurred);
+                                                            }
                                                         }
+                                                    } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
+                                                        debtSurplus += debtIncurred - creditIncurred;
+                                                        creaditSurplus += 0;
+                                                        typeCheck = 'Debt'
+                                                    } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
+                                                        typeCheck = 'Credit'
+                                                        debtSurplus += 0;
+                                                        creaditSurplus += creditIncurred - debtIncurred;
+                                                    } else {
+                                                        debtSurplus = 0;
+                                                        creaditSurplus = 0;
                                                     }
-                                                } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
-                                                    debtSurplus += debtIncurred - creditIncurred;
-                                                    creaditSurplus += 0;
-                                                    typeCheck = 'Debt'
-                                                } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
-                                                    typeCheck = 'Credit'
-                                                    debtSurplus += 0;
-                                                    creaditSurplus += creditIncurred - debtIncurred;
-                                                } else {
-                                                    debtSurplus = 0;
-                                                    creaditSurplus = 0;
-                                                }
-                                                // thu: có - GBC
-                                                // chi: nợ - GBN
-                                                let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : 0) : (item.Contents ? item.Contents : 0);
-                                                var obj = {
-                                                    stt: stt,
-                                                    id: Number(item.ID),
-                                                    accountingName: data[i].accounting ? data[i].accounting.AccountingName : '',
-                                                    accountingCode: data[i].accounting ? data[i].accounting.AccountingCode : '',
-                                                    accountingReciprocalName: item.accounting ? item.accounting.AccountingName : '',
-                                                    accountingReciprocalCode: item.accounting ? item.accounting.AccountingCode : '',
-                                                    numberReceipts: item.NumberReceipts ? item.NumberReceipts : '',
-                                                    createDate: item.CreateDate ? moment(item.CreateDate).format('DD/MM/YYYY') : null,
-                                                    entryDate: item.EntryDate ? moment(item.EntryDate).format('DD/MM/YYYY') : null,
-                                                    number: item.Number ? item.Number : '',
-                                                    reason: reason,
-                                                    idAccounting: item.IDAccounting ? item.IDAccounting : null,
-                                                    creditIncurred: creditIncurred,
-                                                    debtIncurred: debtIncurred,
-                                                    debtSurplus: debtSurplus,
-                                                    creaditSurplus: creaditSurplus,
-                                                    numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
-                                                    numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
-                                                    receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
-                                                    customerName: suppliers.SupplierCode,
-                                                }
-                                                if (arrayIDAccount.length <= 1) {
-                                                    totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
-                                                    totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
-                                                    totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                    totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                                } else {
-                                                    if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                    // thu: có - GBC
+                                                    // chi: nợ - GBN
+                                                    let reason = accounting.length < 2 ? (data[i].Contents ? data[i].Contents : '') : (item.Contents ? item.Contents : '');
+                                                    var obj = {
+                                                        stt: stt,
+                                                        id: Number(item.ID),
+                                                        accountingName: data[i].accounting ? data[i].accounting.AccountingName : '',
+                                                        accountingCode: data[i].accounting ? data[i].accounting.AccountingCode : '',
+                                                        accountingReciprocalName: item.accounting ? item.accounting.AccountingName : '',
+                                                        accountingReciprocalCode: item.accounting ? item.accounting.AccountingCode : '',
+                                                        numberReceipts: item.NumberReceipts ? item.NumberReceipts : '',
+                                                        createDate: item.CreateDate ? moment(item.CreateDate).format('DD/MM/YYYY') : null,
+                                                        entryDate: item.EntryDate ? moment(item.EntryDate).format('DD/MM/YYYY') : null,
+                                                        number: item.Number ? item.Number : '',
+                                                        reason: reason,
+                                                        idAccounting: item.IDAccounting ? item.IDAccounting : null,
+                                                        creditIncurred: creditIncurred,
+                                                        debtIncurred: debtIncurred,
+                                                        debtSurplus: debtSurplus,
+                                                        creaditSurplus: creaditSurplus,
+                                                        numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
+                                                        numberOfPayment: data[i].payment ? (data[i].payment.Type == 'payment' ? data[i].payment.CodeNumber : '') : '',
+                                                        receiver: data[i].payment ? data[i].payment.ApplicantReceiverName : '',
+                                                        customerName: suppliers.SupplierCode,
+                                                    }
+                                                    if (arrayIDAccount.length <= 1) {
                                                         totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
                                                         totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
                                                         totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                         totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                    } else {
+                                                        if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                            totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                            totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                    })
-                                }
-                                // ---------------------------------------------------------------------------------------------------
-                                if (checkType && checkType.TypeClause == "Credit") {
-                                    endingBalanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
-                                    endingBalanceDebit = null;
-                                } else if (checkType && checkType.TypeClause == "Debt") {
-                                    endingBalanceCredit = null;
-                                    endingBalanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
-                                } else {
-                                    let balanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
-                                    let balanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
-                                    if (openingBalanceCredit == null && openingBalanceDebit == null) {
-                                        if (checkType && checkType.AccountingCode.slice(0, 1) == '1' || checkType.AccountingCode.slice(0, 1) == '2') {
-                                            endingBalanceCredit = null;
-                                            endingBalanceDebit = balanceDebit;
-                                        }
-                                        if (checkType && checkType.AccountingCode.slice(0, 1) == '3' || checkType.AccountingCode.slice(0, 1) == '4') {
-                                            endingBalanceCredit = balanceCredit;
-                                            endingBalanceDebit = null;
-                                        }
+                                        })
+                                    }
+                                    // ---------------------------------------------------------------------------------------------------
+                                    if (checkType && checkType.TypeClause == "Credit") {
+                                        endingBalanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                                        endingBalanceDebit = null;
+                                    } else if (checkType && checkType.TypeClause == "Debt") {
+                                        endingBalanceCredit = null;
+                                        endingBalanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
                                     } else {
-                                        if (openingBalanceCredit != null) {
-                                            endingBalanceCredit = balanceCredit;
-                                            endingBalanceDebit = null;
-                                        } else if (openingBalanceDebit != null) {
-                                            endingBalanceCredit = null;
-                                            endingBalanceDebit = balanceDebit;
+                                        let balanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                                        let balanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
+                                        if (openingBalanceCredit == null && openingBalanceDebit == null) {
+                                            if (checkType && checkType.AccountingCode.slice(0, 1) == '1' || checkType.AccountingCode.slice(0, 1) == '2') {
+                                                endingBalanceCredit = null;
+                                                endingBalanceDebit = balanceDebit;
+                                            }
+                                            if (checkType && checkType.AccountingCode.slice(0, 1) == '3' || checkType.AccountingCode.slice(0, 1) == '4') {
+                                                endingBalanceCredit = balanceCredit;
+                                                endingBalanceDebit = null;
+                                            }
                                         } else {
-                                            endingBalanceCredit = balanceCredit;
-                                            endingBalanceDebit = balanceDebit;
+                                            if (openingBalanceCredit != null) {
+                                                endingBalanceCredit = balanceCredit;
+                                                endingBalanceDebit = null;
+                                            } else if (openingBalanceDebit != null) {
+                                                endingBalanceCredit = null;
+                                                endingBalanceDebit = balanceDebit;
+                                            } else {
+                                                endingBalanceCredit = balanceCredit;
+                                                endingBalanceDebit = balanceDebit;
+                                            }
                                         }
                                     }
+                                })
+                                let objCustomer = {
+                                    stt: stt,
+                                    customerCode: suppliers.SupplierCode,
+                                    customerID: suppliers.ID,
+                                    type: 'supplier',
+                                    customerName: suppliers.SupplierName,
+                                    debtAccount: debtAccount,
+                                    openingBalanceDebit,
+                                    openingBalanceCredit,
+                                    totalDebtIncurred,
+                                    totalCreditIncurred,
+                                    endingBalanceDebit,
+                                    endingBalanceCredit,
                                 }
-                            })
-                            let objCustomer = {
-                                stt: stt,
-                                customerCode: suppliers.SupplierCode,
-                                customerID: suppliers.ID,
-                                customerName: suppliers.SupplierName,
-                                debtAccount: debtAccount,
-                                openingBalanceDebit,
-                                openingBalanceCredit,
-                                totalDebtIncurred,
-                                totalCreditIncurred,
-                                endingBalanceDebit,
-                                endingBalanceCredit,
+                                array.push(objCustomer)
+                                stt += 1
                             }
-                            array.push(objCustomer)
-                            stt += 1
-                        }
-                    })
+                        })
                     var result = {
                         array: array,
                         status: Constant.STATUS.SUCCESS,

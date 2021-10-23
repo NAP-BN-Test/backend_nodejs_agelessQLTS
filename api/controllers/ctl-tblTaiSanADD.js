@@ -97,17 +97,17 @@ async function getDepartFromTaiSan(db, idTaiSan) {
             required: false,
             as: 'tsbangiao',
             include: [{
-                    model: tblDMNhanvien(db),
-                    required: false,
-                    as: 'nv'
-                },
-                {
-                    model: tblDMBoPhan(db),
-                    required: false,
-                    as: 'bp'
-                },
+                model: tblDMNhanvien(db),
+                required: false,
+                as: 'nv'
+            },
+            {
+                model: tblDMBoPhan(db),
+                required: false,
+                as: 'bp'
+            },
             ],
-        }, ],
+        },],
 
     }).then(data => {
         if (data) {
@@ -134,17 +134,17 @@ async function getStaffFromTaiSan(db, idTaiSan) {
             required: false,
             as: 'tsbangiao',
             include: [{
-                    model: tblDMNhanvien(db),
-                    required: false,
-                    as: 'nv'
-                },
-                {
-                    model: tblDMBoPhan(db),
-                    required: false,
-                    as: 'bp'
-                },
+                model: tblDMNhanvien(db),
+                required: false,
+                as: 'nv'
+            },
+            {
+                model: tblDMBoPhan(db),
+                required: false,
+                as: 'bp'
+            },
             ],
-        }, ],
+        },],
 
     }).then(data => {
         if (data) {
@@ -167,31 +167,31 @@ async function getDetailTaiSan(db, idTaiSan) {
     await tblTaiSan.findOne({
         where: { ID: idTaiSan },
         include: [{
-                model: tblDMHangHoa,
+            model: tblDMHangHoa,
+            required: false,
+            as: 'hanghoa',
+            include: [{
+                model: mtblDMLoaiTaiSan(db),
                 required: false,
-                as: 'hanghoa',
-                include: [{
-                    model: mtblDMLoaiTaiSan(db),
-                    required: false,
-                    as: 'loaitaisan'
-                }, ],
+                as: 'loaitaisan'
+            },],
+        },
+        {
+            model: tblTaiSanADD,
+            required: false,
+            as: 'taisanADD',
+            include: [{
+                model: mtblDMNhaCungCap(db),
+                required: false,
+                as: 'ncc'
             },
             {
-                model: tblTaiSanADD,
+                model: mtblFileAttach(db),
                 required: false,
-                as: 'taisanADD',
-                include: [{
-                        model: mtblDMNhaCungCap(db),
-                        required: false,
-                        as: 'ncc'
-                    },
-                    {
-                        model: mtblFileAttach(db),
-                        required: false,
-                        as: 'file'
-                    },
-                ],
+                as: 'file'
             },
+            ],
+        },
         ],
     }).then(async data => {
         let staffName = await getStaffFromTaiSan(db, idTaiSan);
@@ -261,9 +261,9 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'nv',
-                                }, ],
-                            }, ],
-                        }, ],
+                                },],
+                            },],
+                        },],
                     }).then(async data => {
                         if (data.history)
                             for (var i = 0; i < data.history.length; i++) {
@@ -463,6 +463,7 @@ module.exports = {
                                 // DepreciationDate: moment(body.date).format('YYYY-MM-DD HH:mm:ss.SSS') ? body.date : null,
                                 SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
                                 Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
+                                AssetName: body.taisan[i].assetName ? body.taisan[i].assetName : '',
                                 TSNBCode: tsnbCode ? tsnbCode : (body.taisan[i].idDMHangHoa.code + tsnbNumber),
                                 TSNBNumber: tsnbNumber,
                                 IDTaiSanADD: data.ID,
@@ -516,6 +517,7 @@ module.exports = {
                                 GuaranteeMonth: body.taisan[i].guaranteeMonth ? body.taisan[i].guaranteeMonth : null,
                                 IDTaiSanDiKem: body.taisan[i].idTaiSanDiKem ? body.taisan[i].idTaiSanDiKem : null,
                                 SerialNumber: body.taisan[i].serialNumber ? body.taisan[i].serialNumber : '',
+                                AssetName: body.taisan[i].assetName ? body.taisan[i].assetName : '',
                                 Describe: body.taisan[i].describe ? body.taisan[i].describe : '',
                             }, { where: { ID: body.taisan[i].idTaiSanADD } })
                         }
@@ -654,7 +656,7 @@ module.exports = {
                             model: mtblTaiSan(db),
                             required: false,
                             as: 'add'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         data.forEach(element => {
@@ -730,15 +732,15 @@ module.exports = {
                             await mtblDMHangHoa(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            Name: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            Code: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        Name: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        Code: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -747,27 +749,27 @@ module.exports = {
                                 })
                             })
                             where = [{
-                                    TSNBCode: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    SerialNumber: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    IDDMHangHoa: {
-                                        [Op.in]: list
-                                    }
-                                },
+                                TSNBCode: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                SerialNumber: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                IDDMHangHoa: {
+                                    [Op.in]: list
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 TSNBCode: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
 
                         }
                         whereObj = {
@@ -823,15 +825,15 @@ module.exports = {
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
                                             [Op.or]: [{
-                                                    Name: {
-                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
-                                                    }
-                                                },
-                                                {
-                                                    Code: {
-                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
-                                                    }
+                                                Name: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
+                                            },
+                                            {
+                                                Code: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }
                                             ]
                                         }
                                     }).then(data => {
@@ -909,20 +911,20 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         include: [{
-                                model: mtblTaiSanADD(db),
+                            model: mtblTaiSanADD(db),
+                            required: false,
+                            as: 'taisan'
+                        },
+                        {
+                            model: tblDMHangHoa,
+                            required: false,
+                            as: 'hanghoa',
+                            include: [{
+                                model: mtblDMLoaiTaiSan(db),
                                 required: false,
-                                as: 'taisan'
-                            },
-                            {
-                                model: tblDMHangHoa,
-                                required: false,
-                                as: 'hanghoa',
-                                include: [{
-                                    model: mtblDMLoaiTaiSan(db),
-                                    required: false,
-                                    as: 'loaitaisan'
-                                }, ],
-                            },
+                                as: 'loaitaisan'
+                            },],
+                        },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -942,6 +944,7 @@ module.exports = {
                                 nameDMHangHoa: element.hanghoa ? element.hanghoa.Name : '',
                                 codeDMHangHoa: element.TSNBCode ? element.TSNBCode : '',
                                 liquidationReason: element.LiquidationReason ? element.LiquidationReason : '',
+                                assetName: element.AssetName ? element.AssetName : '',
                                 liquidationDate: element.LiquidationDate ? moment(element.LiquidationDate).format('DD/MM/YYYY') : null,
                                 status: element.Status ? element.Status : '',
                                 statusUsed: element.StatusUsed ? element.StatusUsed : '',
@@ -1010,15 +1013,15 @@ module.exports = {
                             await mtblDMHangHoa(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                            Name: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
-                                        },
-                                        {
-                                            Code: {
-                                                [Op.like]: '%' + data.search + '%'
-                                            }
+                                        Name: {
+                                            [Op.like]: '%' + data.search + '%'
                                         }
+                                    },
+                                    {
+                                        Code: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -1027,27 +1030,27 @@ module.exports = {
                                 })
                             })
                             where = [{
-                                    TSNBCode: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    SerialNumber: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    IDDMHangHoa: {
-                                        [Op.in]: list
-                                    }
-                                },
+                                TSNBCode: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                SerialNumber: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            },
+                            {
+                                IDDMHangHoa: {
+                                    [Op.in]: list
+                                }
+                            },
                             ];
                         } else {
                             where = [{
                                 TSNBCode: {
                                     [Op.ne]: '%%'
                                 }
-                            }, ];
+                            },];
                         }
                         whereOjb = {
                             [Op.or]: where
@@ -1100,15 +1103,15 @@ module.exports = {
                                     await mtblDMHangHoa(db).findAll({
                                         where: {
                                             [Op.or]: [{
-                                                    Name: {
-                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
-                                                    }
-                                                },
-                                                {
-                                                    Code: {
-                                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
-                                                    }
+                                                Name: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
+                                            },
+                                            {
+                                                Code: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }
                                             ]
                                         }
                                     }).then(data => {
@@ -1191,20 +1194,20 @@ module.exports = {
                         ],
                         where: whereOjb,
                         include: [{
-                                model: mtblTaiSanADD(db),
+                            model: mtblTaiSanADD(db),
+                            required: false,
+                            as: 'taisan'
+                        },
+                        {
+                            model: tblDMHangHoa,
+                            required: false,
+                            as: 'hanghoa',
+                            include: [{
+                                model: mtblDMLoaiTaiSan(db),
                                 required: false,
-                                as: 'taisan'
-                            },
-                            {
-                                model: tblDMHangHoa,
-                                required: false,
-                                as: 'hanghoa',
-                                include: [{
-                                    model: mtblDMLoaiTaiSan(db),
-                                    required: false,
-                                    as: 'loaitaisan'
-                                }, ],
-                            },
+                                as: 'loaitaisan'
+                            },],
+                        },
                             // {
                             //     model: mtblDMLoaiTaiSan(db),
                             //     required: false,
@@ -1248,15 +1251,15 @@ module.exports = {
                             var bangiao = await tblTaiSanBanGiao.findOne({
                                 where: { ID: history[e].IDTaiSanBanGiao },
                                 include: [{
-                                        model: mtblDMNhanvien(db),
-                                        required: false,
-                                        as: 'nhanvien'
-                                    },
-                                    {
-                                        model: mtblDMBoPhan(db),
-                                        required: false,
-                                        as: 'bophan'
-                                    },
+                                    model: mtblDMNhanvien(db),
+                                    required: false,
+                                    as: 'nhanvien'
+                                },
+                                {
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'bophan'
+                                },
                                 ],
                             })
                             listObj.forEach(element => {
@@ -1328,7 +1331,7 @@ module.exports = {
                             model: mtblDMHangHoa(db),
                             required: false,
                             as: 'hanghoa'
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -1378,7 +1381,7 @@ module.exports = {
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: body.id,
                                 DateDiKem: body.date ? body.date : null,
-                            }, { where: { ID: array[i].idReplaceAsset.id } }).then(data => {})
+                            }, { where: { ID: array[i].idReplaceAsset.id } }).then(data => { })
                             await mtblTaiSan(db).update({
                                 IDTaiSanDiKem: null,
                                 DateDiKem: null
@@ -1525,7 +1528,7 @@ module.exports = {
                             model: mtblDMHangHoa(db),
                             required: false,
                             as: 'hanghoa',
-                        }, ],
+                        },],
                     }).then(async data => {
                         var array = [];
                         var stt = 1;
