@@ -221,6 +221,7 @@ module.exports = {
     // add_tbl_denghi_thanhtoan
     addtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -236,6 +237,7 @@ module.exports = {
                         Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                         Link: body.linkPayroll ? body.linkPayroll : '',
+                        CurrencyID: body.currencyID ? body.currencyID : null,
                     }
                     body.object = JSON.parse(body.object)
                     if (body.object) {
@@ -271,12 +273,12 @@ module.exports = {
                                     await mtblYeuCauMuaSam(db).update({
                                         Status: 'Đang thanh toán',
                                         IDPaymentOrder: data.ID,
-                                        IDSupplier: body.idNhaCungCap,
+                                        IDSupplier: body.object.id,
                                     }, { where: { ID: body.listID[i] } })
                         }
-                        if (body.idNhaCungCap) {
+                        if (body.object.id) {
                             await mtblYeuCauMuaSam(db).update({
-                                IDSupplier: body.idNhaCungCap,
+                                IDSupplier: body.object.id,
                             }, {
                                 where: {
                                     IDPaymentOrder: data.ID
@@ -346,6 +348,12 @@ module.exports = {
                             update.push({ key: 'Cost', value: null });
                         else
                             update.push({ key: 'Cost', value: body.cost });
+                    }
+                    if (body.currencyID || body.currencyID === '') {
+                        if (body.currencyID === '')
+                            update.push({ key: 'CurrencyID', value: null });
+                        else
+                            update.push({ key: 'CurrencyID', value: body.currencyID });
                     }
                     if (body.idNhanVienKTPD || body.idNhanVienKTPD === '') {
                         if (body.idNhanVienKTPD === '')
@@ -588,6 +596,7 @@ module.exports = {
                                 stt: stt,
                                 id: Number(element.ID),
                                 idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                currencyID: element.CurrencyID ? element.CurrencyID : null,
                                 nameNhanVien: element.NhanVien ? element.NhanVien.StaffName : '',
                                 costText: element.CostText ? element.CostText : '',
                                 departmentName: element.NhanVien ? element.NhanVien.bp ? element.NhanVien.bp.DepartmentName : '' : '',
@@ -752,6 +761,7 @@ module.exports = {
                             branchCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchCode : '' : '' : '',
                             supplierName: data.supplier ? data.supplier.SupplierName : '',
                             idNhaCungCap: data.IDSupplier ? Number(data.IDSupplier) : null,
+                            currencyID: data.CurrencyID ? Number(data.CurrencyID) : null,
                             linkPayroll: data.Link ? data.Link : '',
                         }
                         var objObject = {};

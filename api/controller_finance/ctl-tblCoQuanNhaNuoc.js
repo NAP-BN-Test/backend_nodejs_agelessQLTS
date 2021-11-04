@@ -847,6 +847,7 @@ module.exports = {
                         [Op.ne]: 'period'
                     }
                 })
+                console.log(whereOjb);
                 await mtblCoQuanNhaNuoc(db).findAll({
                     where: whereOjb,
                     order: [

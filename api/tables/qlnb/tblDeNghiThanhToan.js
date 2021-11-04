@@ -24,6 +24,7 @@ module.exports = function (db) {
         CustomerID: Sequelize.BIGINT,
         Link: Sequelize.STRING,
         IsNotification: Sequelize.BOOLEAN,
+        CurrencyID: Sequelize.BIGINT,
     });
 
     return table;

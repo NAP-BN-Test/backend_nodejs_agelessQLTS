@@ -1111,7 +1111,7 @@ module.exports = {
                                 })
                             }
                         }
-                        if (body.object.type == 'customer' && body.object.id == 11) {
+                        if (body.object.type == 'cqnn' && body.object.id == 11) {
                             let typeCoQuanNhaNuoc = 'debtNotices'
                             if (body.type && body.type == 'receipt') {
                                 typeCoQuanNhaNuoc = 'withdraw'

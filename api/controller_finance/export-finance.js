@@ -1111,6 +1111,11 @@ module.exports = {
             objKey["SỐ TIỀN QUY ĐỔI"] = objKey["SỐ TIỀN"]
             objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
         }
+        else if (objKey != {} && objKey.type == 'payment') {
+            type = '02-TT.docx'
+            nameFile = 'Phiếu chi.docx'
+            nameFilePDF = 'Phiếu chi pdf.pdf'
+        }
         var pathTo = 'C:/images_services/ageless_sendmail/'
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
             try {

@@ -214,6 +214,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             date: data.taisanADD ? data.taisanADD.Date : '',
             idTaiSanADD: data.taisanADD ? data.taisanADD.ID : null,
             staffName: staffName,
+            assetName: data.AssetName ? data.AssetName : '',
             departmentName: departmentName,
             guaranteeMonth: data.GuaranteeMonth ? data.GuaranteeMonth : '',
             liquidationReason: data.LiquidationReason ? data.LiquidationReason : '',
@@ -929,7 +930,9 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         var stt = 1;
-                        data.forEach(element => {
+                        for (let element of data) {
+                            let staffName = await getStaffFromTaiSan(db, element.ID);
+                            let departmentName = await getDepartFromTaiSan(db, element.ID);
                             var guaranteDate;
                             var warrantyRemaining = 0;
                             let month = Number(moment().format('MM')) + Number(moment().format('YY') * 12);
@@ -939,6 +942,8 @@ module.exports = {
                             }
                             var obj = {
                                 stt: stt,
+                                staffName: staffName,
+                                departmentName: departmentName,
                                 id: Number(element.ID),
                                 idDMHangHoa: element.IDDMHangHoa ? element.IDDMHangHoa : null,
                                 nameDMHangHoa: element.hanghoa ? element.hanghoa.Name : '',
@@ -965,7 +970,7 @@ module.exports = {
                             }
                             array.push(obj);
                             stt += 1;
-                        });
+                        }
                         var count = await mtblTaiSan(db).count({ where: whereObj })
                         var result = {
                             array: array,

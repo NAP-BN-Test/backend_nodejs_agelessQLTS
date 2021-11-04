@@ -1303,7 +1303,7 @@ module.exports = {
                                                     creaditSurplus = null;
                                                 }
                                                 if (checkTypeClause.AccountingCode.slice(0, 1) == '3' || checkTypeClause.AccountingCode.slice(0, 1) == '4') {
-                                                    debtSurplus == null;
+                                                    debtSurplus = null;
                                                     creaditSurplus += (creditIncurred - debtIncurred);
                                                 }
                                             } else {
@@ -1327,8 +1327,8 @@ module.exports = {
                                             debtSurplus += 0;
                                             creaditSurplus += creditIncurred - debtIncurred;
                                         } else {
-                                            debtSurplus = debtIncurred;
-                                            creaditSurplus = creditIncurred;
+                                            debtSurplus += debtIncurred;
+                                            creaditSurplus += creditIncurred;
                                         }
                                         // thu: có - GBC
                                         // chi: nợ - GBN
@@ -1388,12 +1388,15 @@ module.exports = {
                                                         stt += 1;
                                                     }
                                                 } else if (dataSearch.type) {
-                                                    totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
-                                                    totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
-                                                    totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                    totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                                    array.push(obj);
-                                                    stt += 1;
+                                                    if (dataSearch.accountSystemOtherID && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                        totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                        totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                        totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                        totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                        array.push(obj);
+                                                        stt += 1;
+                                                    }
+
                                                 }
                                             }
                                         }
