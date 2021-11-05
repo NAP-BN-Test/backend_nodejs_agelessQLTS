@@ -957,7 +957,6 @@ module.exports = {
             'this_year',
         ]
         let dataSearch = JSON.parse(body.dataSearch)
-        console.log(dataSearch);
         const currentYear = new Date().getFullYear()
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1172,6 +1171,8 @@ module.exports = {
                     let creaditSurplus = openingBalanceCredit;
                     tblAccountingBooks.belongsTo(mtblDMTaiKhoanKeToan(db), { foreignKey: 'IDAccounting', sourceKey: 'IDAccounting', as: 'accounting' })
                     tblAccountingBooks.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                    let tblReceiptsPayment = mtblReceiptsPayment(db);
+                    tblReceiptsPayment.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
                     tblAccountingBooks.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -1180,9 +1181,14 @@ module.exports = {
                             ['ID', 'ASC']
                         ],
                         include: [{
-                            model: mtblReceiptsPayment(db),
+                            model: tblReceiptsPayment,
                             required: false,
-                            as: 'payment'
+                            as: 'payment',
+                            include: [{
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency',
+                            }]
                         },
                         {
                             model: mtblDMTaiKhoanKeToan(db),
@@ -1239,12 +1245,16 @@ module.exports = {
                                 stt += 1;
                             }
                         }
+                        let arrayCurrency = []
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
+                            let nameCurrency = data[i].payment ? (data[i].payment.currency ? data[i].payment.currency.ShortName : 'VND') : 'VND'
                             if (data[i].IDPayment) {
                                 arrayWhere.push({
                                     IDPayment: data[i].IDPayment
                                 })
+                                if (!checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName))
+                                    arrayCurrency.push(data[i].payment.currency.ShortName)
                             } else if (data[i].IDnotices) {
                                 arrayWhere.push({
                                     IDnotices: data[i].IDnotices
@@ -1348,6 +1358,8 @@ module.exports = {
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
                                             creditIncurred: creditIncurred,
                                             debtIncurred: debtIncurred,
+                                            creditIncurredName: creditIncurred + ' ' + nameCurrency,
+                                            debtIncurredName: debtIncurred + ' ' + nameCurrency,
                                             debtSurplus: debtSurplus,
                                             creaditSurplus: creaditSurplus,
                                             numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
@@ -1517,12 +1529,44 @@ module.exports = {
     // get_all_accounting_books
     getAllAccountBooks: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let dataSearch = JSON.parse(body.dataSearch)
                     var arrayIDAccount = [];
+                    if (dataSearch.type && dataSearch.type == 'cash') {
+                        if (dataSearch.currencyID) {
+                            let objAccount = await mtblDMTaiKhoanKeToan(db).findOne({
+                                where: {
+                                    CurrencyID: dataSearch.currencyID,
+                                    IDLevelAbove: checkAccount111.ID,
+                                }
+                            })
+                            if (objAccount) {
+                                arrayIDAccount.push(objAccount.ID)
+                            }
+                        }
+                    } else if (dataSearch.type && dataSearch.type == 'bank') {
+                        if (dataSearch.currencyID) {
+                            if (objAccount) {
+                                arrayIDAccount.push(objAccount.ID)
+                            }
+                        }
+                    } else {
+                        if (dataSearch.accountSystemID) {
+                            arrayIDAccount.push(dataSearch.accountSystemID)
+                        }
+                        if (dataSearch.accountSystemOtherID)
+                            arrayIDAccount.push(dataSearch.accountSystemOtherID)
+                    }
                     var whereOjb = [];
+                    if (arrayIDAccount.length > 0)
+                        whereOjb.push({
+                            IDAccounting: {
+                                [Op.in]: arrayIDAccount
+                            }
+                        })
                     const currentYear = new Date().getFullYear()
                     if (dataSearch.selection == 'first_six_months') {
                         const startedDate = new Date(currentYear + "-01-01 14:00:00");
@@ -1764,13 +1808,41 @@ module.exports = {
                                                 array.push(obj);
                                                 stt += 1;
                                             } else {
-                                                if (dataSearch.accountSystemID == Number(data[i].IDAccounting) && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                if (accountName == '112' || accountName == '111') {
                                                     totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
                                                     totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
                                                     totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                     totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                     array.push(obj);
                                                     stt += 1;
+                                                } else {
+                                                    if (dataSearch.accountSystemID == Number(data[i].IDAccounting)) {
+                                                        if (dataSearch.accountSystemOtherID && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                            totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                            totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                            array.push(obj);
+                                                            stt += 1;
+                                                        } else if (!dataSearch.accountSystemOtherID) {
+                                                            totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                            totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                            array.push(obj);
+                                                            stt += 1;
+                                                        }
+                                                    } else if (dataSearch.type) {
+                                                        if (dataSearch.accountSystemOtherID && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
+                                                            totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
+                                                            totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                            array.push(obj);
+                                                            stt += 1;
+                                                        }
+
+                                                    }
                                                 }
                                             }
                                         }

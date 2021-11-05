@@ -1764,7 +1764,7 @@ module.exports = {
                 var array = []
                 let totalMoney = []
                 let totalMoneyVNDR = 0
-
+                console.log(data);
                 for (var i = 0; i < data.length; i++) {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: data[i].id }
@@ -2334,8 +2334,11 @@ module.exports = {
                             Request: dataCredit[i].request
                         })
                         if (dataCredit[i].statusName == 'Chờ thanh toán')
-                            array.push(data[i])
+                            array.push(dataCredit[i])
                     } else {
+                        dataCredit[i].unpaidAmount = check.UnpaidAmount ? check.UnpaidAmount : 0
+                        dataCredit[i].initialAmount = check.InitialAmount ? check.InitialAmount : 0
+                        dataCredit[i].paidAmount = check.PaidAmount ? check.PaidAmount : 0
                         dataCredit[i].statusName = check.Status
                         dataCredit[i].request = check.Request
                         if (check.Status == 'Chờ thanh toán' && dataCredit[i].statusName == 'Chờ thanh toán') {
