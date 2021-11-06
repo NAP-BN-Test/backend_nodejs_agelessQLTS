@@ -1049,14 +1049,13 @@ module.exports = {
             let objRequest = JSON.parse(body.obj)
             date = objRequest.date
             let type = 'receipt'
-            if (objRequest.isReceipt == false) {
+            if (objRequest.typeVoucher == 'payment') {
                 type = 'payment'
             } else if (objRequest.typeVoucher == 'debit') {
                 type = 'debit'
             } else if (objRequest.typeVoucher == 'spending') {
                 type = 'spending'
             }
-            console.log(objRequest);
             let debtAccount = ''
             let creditAccount = ''
             for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {

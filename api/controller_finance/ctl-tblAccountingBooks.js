@@ -772,6 +772,14 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
     })
     return result
 }
+async function addValueOfArray(array, nameCurrency, plusValue) {
+    for (let item of array) {
+        if (item.key == nameCurrency) {
+            item.value += plusValue
+        }
+    }
+    return array
+}
 var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 
 module.exports = {
@@ -1154,9 +1162,13 @@ module.exports = {
                         })
                     }
                     let totalCreditIncurred = 0;
+                    let arrayCreditIncurred = [];
                     let totalDebtIncurred = 0;
+                    let arrayDebtIncurred = [];
                     let totalCreaditSurplus = 0;
+                    let arrayCreaditSurplus = [];
                     let totalDebtSurplus = 0;
+                    let arrayDebtSurplus = [];
                     let arisingPeriod = 0;
                     let openingBalanceCredit = 0;
                     let openingBalanceDebit = 0;
@@ -1207,6 +1219,25 @@ module.exports = {
                                 ID: dataSearch.accountSystemID
                             }
                         })
+                        // Chỉ để demo sau sẽ có sửa
+                        arrayCreditIncurred.push({
+                            key: 'VND',
+                            value: 0
+                        })
+                        arrayDebtIncurred.push({
+                            key: 'VND',
+                            value: 0
+                        })
+                        arrayDebtSurplus.push({
+                            key: 'VND',
+                            value: 0
+                        })
+                        arrayCreaditSurplus.push({
+                            key: 'VND',
+                            value: 0
+                        })
+                        // //////////////////////////////////////////////////////////////////////////////
+                        console.log(arrayCreaditSurplus, arrayDebtSurplus);
                         if (checkAccount131.AccountingCode == '131') {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
@@ -1215,8 +1246,10 @@ module.exports = {
                                 debtSurplus += Number(invoice.total);
                                 objWaitForPay['debtSurplus'] = debtSurplus ? debtSurplus : 0
                                 objWaitForPay['creaditSurplus'] = null
-                                totalCreditIncurred += (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0);
-                                totalDebtIncurred += (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0);
+                                objWaitForPay['nameCurrency'] = 'VND'
+                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, 'VND', (objWaitForPay.debtIncurred ? objWaitForPay.debtIncurred : 0))
+                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, 'VND', (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
+                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, 'VND', Number(invoice.total))
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? objWaitForPay.creaditSurplus : 0);
                                 totalDebtSurplus += (objWaitForPay.debtSurplus ? objWaitForPay.debtSurplus : 0);
                                 array.push(objWaitForPay);
@@ -1236,16 +1269,19 @@ module.exports = {
                                 // vì là tài khoản lưỡng tính
                                 creaditSurplus += Number(credit.total);
                                 objWaitForPay['debtSurplus'] = null
+                                objWaitForPay['nameCurrency'] = 'VND'
                                 objWaitForPay['creaditSurplus'] = creaditSurplus ? creaditSurplus : 0
-                                totalCreditIncurred += (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0);
-                                totalDebtIncurred += (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0);
+                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, 'VND', (objWaitForPay.debtIncurred ? Number(objWaitForPay.debtIncurred) : 0))
+                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, 'VND', (objWaitForPay.creditIncurred ? Number(objWaitForPay.creditIncurred) : 0))
+                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, 'VND', (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0))
+                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, 'VND', (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0))
                                 totalCreaditSurplus += (objWaitForPay.creaditSurplus ? Number(objWaitForPay.creaditSurplus) : 0);
                                 totalDebtSurplus += (objWaitForPay.debtSurplus ? Number(objWaitForPay.debtSurplus) : 0);
                                 array.push(objWaitForPay);
                                 stt += 1;
                             }
                         }
-                        let arrayCurrency = []
+                        let arrayCurrency = ['VND']
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
                             let nameCurrency = data[i].payment ? (data[i].payment.currency ? data[i].payment.currency.ShortName : 'VND') : 'VND'
@@ -1253,8 +1289,25 @@ module.exports = {
                                 arrayWhere.push({
                                     IDPayment: data[i].IDPayment
                                 })
-                                if (!checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName))
+                                if (!checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
                                     arrayCurrency.push(data[i].payment.currency.ShortName)
+                                    arrayCreditIncurred.push({
+                                        key: data[i].payment.currency.ShortName,
+                                        value: 0
+                                    })
+                                    arrayDebtIncurred.push({
+                                        key: data[i].payment.currency.ShortName,
+                                        value: 0
+                                    })
+                                    arrayDebtSurplus.push({
+                                        key: data[i].payment.currency.ShortName,
+                                        value: 0
+                                    })
+                                    arrayCreaditSurplus.push({
+                                        key: data[i].payment.currency.ShortName,
+                                        value: 0
+                                    })
+                                }
                             } else if (data[i].IDnotices) {
                                 arrayWhere.push({
                                     IDnotices: data[i].IDnotices
@@ -1309,36 +1362,87 @@ module.exports = {
                                             //  nếu là tài khoản đầu 3,4 : bên có
                                             if (openingBalanceCredit == null && openingBalanceDebit == null) {
                                                 if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
-                                                    debtSurplus += (debtIncurred - creditIncurred);
+                                                    arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, (debtIncurred - creditIncurred))
+                                                    for (let item of arrayDebtSurplus) {
+                                                        if (item.key == nameCurrency) {
+                                                            debtSurplus = item.value
+                                                        }
+                                                    }
                                                     creaditSurplus = null;
                                                 }
                                                 if (checkTypeClause.AccountingCode.slice(0, 1) == '3' || checkTypeClause.AccountingCode.slice(0, 1) == '4') {
                                                     debtSurplus = null;
-                                                    creaditSurplus += (creditIncurred - debtIncurred);
+                                                    arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, nameCurrency, (creditIncurred - debtIncurred))
+                                                    for (let item of arrayCreaditSurplus) {
+                                                        if (item.key == nameCurrency) {
+                                                            creaditSurplus = item.value
+                                                        }
+                                                    }
+
                                                 }
                                             } else {
                                                 if (openingBalanceCredit != null) {
                                                     debtSurplus = null;
-                                                    creaditSurplus += (creditIncurred - debtIncurred);
+                                                    arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, nameCurrency, (creditIncurred - debtIncurred))
+                                                    for (let item of arrayCreaditSurplus) {
+                                                        if (item.key == nameCurrency) {
+                                                            creaditSurplus = item.value
+                                                        }
+                                                    }
                                                 } else if (openingBalanceDebit != null) {
-                                                    debtSurplus += (debtIncurred - creditIncurred);
+                                                    arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, (debtIncurred - creditIncurred))
+                                                    for (let item of arrayDebtSurplus) {
+                                                        if (item.key == nameCurrency) {
+                                                            debtSurplus = item.value
+                                                        }
+                                                    }
                                                     creaditSurplus = null;
                                                 } else {
-                                                    debtSurplus += (debtIncurred - creditIncurred);
-                                                    creaditSurplus += (creditIncurred - debtIncurred);
+                                                    arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, nameCurrency, (creditIncurred - debtIncurred))
+                                                    arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, (debtIncurred - creditIncurred))
+                                                    for (let item of arrayCreaditSurplus) {
+                                                        if (item.key == nameCurrency) {
+                                                            creaditSurplus = item.value
+                                                        }
+                                                    }
+                                                    for (let item of arrayDebtSurplus) {
+                                                        if (item.key == nameCurrency) {
+                                                            debtSurplus = item.value
+                                                        }
+                                                    }
                                                 }
                                             }
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Debt') {
-                                            debtSurplus += debtIncurred - creditIncurred;
+                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, (debtIncurred - creditIncurred))
+                                            for (let item of arrayDebtSurplus) {
+                                                if (item.key == nameCurrency) {
+                                                    debtSurplus = item.value
+                                                }
+                                            }
                                             creaditSurplus += 0;
                                             typeCheck = 'Debt'
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
                                             typeCheck = 'Credit'
                                             debtSurplus += 0;
-                                            creaditSurplus += creditIncurred - debtIncurred;
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, nameCurrency, (creditIncurred - debtIncurred))
+                                            for (let item of arrayCreaditSurplus) {
+                                                if (item.key == nameCurrency) {
+                                                    creaditSurplus = item.value
+                                                }
+                                            }
                                         } else {
-                                            debtSurplus += debtIncurred;
-                                            creaditSurplus += creditIncurred;
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, nameCurrency, creditIncurred)
+                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, debtIncurred)
+                                            for (let item of arrayCreaditSurplus) {
+                                                if (item.key == nameCurrency) {
+                                                    creaditSurplus = item.value
+                                                }
+                                            }
+                                            for (let item of arrayDebtSurplus) {
+                                                if (item.key == nameCurrency) {
+                                                    debtSurplus = item.value
+                                                }
+                                            }
                                         }
                                         // thu: có - GBC
                                         // chi: nợ - GBN
@@ -1358,8 +1462,7 @@ module.exports = {
                                             idAccounting: item.IDAccounting ? item.IDAccounting : null,
                                             creditIncurred: creditIncurred,
                                             debtIncurred: debtIncurred,
-                                            creditIncurredName: creditIncurred + ' ' + nameCurrency,
-                                            debtIncurredName: debtIncurred + ' ' + nameCurrency,
+                                            nameCurrency: nameCurrency,
                                             debtSurplus: debtSurplus,
                                             creaditSurplus: creaditSurplus,
                                             numberOfReceipt: data[i].payment ? (data[i].payment.Type == 'receipt' ? data[i].payment.CodeNumber : '') : '',
@@ -1368,16 +1471,16 @@ module.exports = {
                                             customerName: typeCus == 'supplier' ? supplierName.SupplierName : Object.keys(objCustomer).length > 0 ? objCustomer.name : '',
                                         }
                                         if (arrayIDAccount.length <= 1) {
-                                            totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
-                                            totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, nameCurrency, Number(obj.debtIncurred ? obj.debtIncurred : 0))
+                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, nameCurrency, Number(obj.creditIncurred ? obj.creditIncurred : 0))
                                             totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                             totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                             array.push(obj);
                                             stt += 1;
                                         } else {
                                             if (accountName == '112' || accountName == '111') {
-                                                totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
-                                                totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, nameCurrency, Number(obj.debtIncurred ? obj.debtIncurred : 0))
+                                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, nameCurrency, Number(obj.creditIncurred ? obj.creditIncurred : 0))
                                                 totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                 totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                 array.push(obj);
@@ -1385,15 +1488,15 @@ module.exports = {
                                             } else {
                                                 if (dataSearch.accountSystemID == Number(data[i].IDAccounting)) {
                                                     if (dataSearch.accountSystemOtherID && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
-                                                        totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
-                                                        totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                        arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, nameCurrency, Number(obj.debtIncurred ? obj.debtIncurred : 0))
+                                                        arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, nameCurrency, Number(obj.creditIncurred ? obj.creditIncurred : 0))
                                                         totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                         totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                         array.push(obj);
                                                         stt += 1;
                                                     } else if (!dataSearch.accountSystemOtherID) {
-                                                        totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
-                                                        totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                        arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, nameCurrency, Number(obj.debtIncurred ? obj.debtIncurred : 0))
+                                                        arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, nameCurrency, Number(obj.creditIncurred ? obj.creditIncurred : 0))
                                                         totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                         totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                         array.push(obj);
@@ -1401,8 +1504,8 @@ module.exports = {
                                                     }
                                                 } else if (dataSearch.type) {
                                                     if (dataSearch.accountSystemOtherID && dataSearch.accountSystemOtherID == Number(item.IDAccounting)) {
-                                                        totalCreditIncurred += (obj.creditIncurred ? obj.creditIncurred : 0);
-                                                        totalDebtIncurred += (obj.debtIncurred ? obj.debtIncurred : 0);
+                                                        arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, nameCurrency, Number(obj.debtIncurred ? obj.debtIncurred : 0))
+                                                        arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, nameCurrency, Number(obj.creditIncurred ? obj.creditIncurred : 0))
                                                         totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                         totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                         array.push(obj);
@@ -1453,11 +1556,12 @@ module.exports = {
                                 }
                             }
                         }
+                        console.log(arrayDebtSurplus, arrayCreaditSurplus);
                         var result = {
                             total: {
+                                arrayCreditIncurred,
+                                arrayDebtIncurred,
                                 accountName,
-                                totalCreditIncurred,
-                                totalDebtIncurred,
                                 totalCreaditSurplus,
                                 totalDebtSurplus,
                                 arisingPeriod,

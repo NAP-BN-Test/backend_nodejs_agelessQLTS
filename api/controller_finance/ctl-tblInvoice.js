@@ -671,22 +671,22 @@ module.exports = {
                     data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                     data[i]['payments'] = check ? check.Payments : ''
                     let tblPaymentRInvoice = mtblPaymentRInvoice(db)
-                    // tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
                     await tblPaymentRInvoice.findOne({
                         where: {
                             IDSpecializedSoftware: data[i].id
                         },
-                        // include: [
-                        //     {
-                        //         model: mtblReceiptsPayment(db),
-                        //         required: false,
-                        //         as: 'payment'
-                        //     },
-                        // ],
+                        include: [
+                            {
+                                model: mtblReceiptsPayment(db),
+                                required: false,
+                                as: 'payment'
+                            },
+                        ],
                     }).then(invoice => {
                         if (invoice) {
                             data[i]['receiptPaymentID'] = invoice.IDPayment
-                            // data[i]['receiptPaymentType'] = invoice.payment ? invoice.payment.Type : ''
+                            data[i]['receiptPaymentName'] = invoice.payment ? invoice.payment.CodeNumber : ''
                         }
                     })
                 }
