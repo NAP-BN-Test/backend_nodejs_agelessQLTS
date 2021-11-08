@@ -237,7 +237,7 @@ module.exports = {
                         Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                         Link: body.linkPayroll ? body.linkPayroll : '',
-                        CurrencyID: body.currencyID ? body.currencyID : null,
+                        CurrencyID: body.idCurrency ? body.idCurrency : null,
                     }
                     body.object = JSON.parse(body.object)
                     if (body.object) {
@@ -349,11 +349,11 @@ module.exports = {
                         else
                             update.push({ key: 'Cost', value: body.cost });
                     }
-                    if (body.currencyID || body.currencyID === '') {
-                        if (body.currencyID === '')
+                    if (body.idCurrency || body.idCurrency === '') {
+                        if (body.idCurrency === '')
                             update.push({ key: 'CurrencyID', value: null });
                         else
-                            update.push({ key: 'CurrencyID', value: body.currencyID });
+                            update.push({ key: 'CurrencyID', value: body.idCurrency });
                     }
                     if (body.idNhanVienKTPD || body.idNhanVienKTPD === '') {
                         if (body.idNhanVienKTPD === '')
@@ -631,7 +631,7 @@ module.exports = {
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
-                                    displayName: dataCus ? dataCus.name : '',
+                                    displayName: '[' + (dataCus ? dataCus.customerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
                                     address: dataCus ? dataCus.address : '',
                                     id: element.CustomerID,
                                     type: 'customer',
@@ -761,7 +761,7 @@ module.exports = {
                             branchCode: data.NhanVien ? data.NhanVien.bophan ? data.NhanVien.bophan.chinhanh ? data.NhanVien.bophan.chinhanh.BranchCode : '' : '' : '',
                             supplierName: data.supplier ? data.supplier.SupplierName : '',
                             idNhaCungCap: data.IDSupplier ? Number(data.IDSupplier) : null,
-                            currencyID: data.CurrencyID ? Number(data.CurrencyID) : null,
+                            idCurrency: data.CurrencyID ? Number(data.CurrencyID) : null,
                             linkPayroll: data.Link ? data.Link : '',
                         }
                         var objObject = {};

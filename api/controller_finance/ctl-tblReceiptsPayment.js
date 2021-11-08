@@ -2182,6 +2182,10 @@ module.exports = {
                                 if (item.CodeNumber.length == 7 && Number(item.CodeNumber.slice(3, 7)) != null) {
                                     check = item
                                 }
+                            } else if (body.type == 'accounting') {
+                                if (item.CodeNumber.length == 7 && Number(item.CodeNumber.slice(3, 7)) != null) {
+                                    check = item
+                                }
                             }
                         }
                     })
@@ -2194,6 +2198,8 @@ module.exports = {
                         automaticCode = 'GBN0001'
                     } else if (!check && body.type == 'spending') {
                         automaticCode = 'GBC0001'
+                    } else if (!check && body.type == 'accounting') {
+                        automaticCode = 'PKT0001'
                     } else {
                         automaticCode = await handleCodeNumber(check ? check.CodeNumber : null, body.type)
                     }
