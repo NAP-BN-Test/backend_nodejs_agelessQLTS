@@ -1230,14 +1230,13 @@ module.exports = {
                         })
                         arrayDebtSurplus.push({
                             key: 'VND',
-                            value: 0
+                            value: debtSurplus
                         })
                         arrayCreaditSurplus.push({
                             key: 'VND',
-                            value: 0
+                            value: creaditSurplus
                         })
                         // //////////////////////////////////////////////////////////////////////////////
-                        console.log(arrayCreaditSurplus, arrayDebtSurplus);
                         if (checkAccount131.AccountingCode == '131') {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
@@ -1282,6 +1281,7 @@ module.exports = {
                             }
                         }
                         let arrayCurrency = ['VND']
+                        console.log(arrayCreaditSurplus);
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
                             let nameCurrency = data[i].payment ? (data[i].payment.currency ? data[i].payment.currency.ShortName : 'VND') : 'VND'
