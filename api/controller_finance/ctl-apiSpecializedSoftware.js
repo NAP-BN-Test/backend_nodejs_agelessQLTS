@@ -1602,6 +1602,7 @@ module.exports = {
                                 if (dataCredit[i].statusName == 'Chờ thanh toán') {
                                     dataCredit[i]['remainingAmount'] = 0
                                     dataCredit[i]['paidAmount'] = 0
+                                    dataCredit[i]['paymentAmount'] = 0
                                     array.push(dataCredit[i])
                                 }
                                 if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || dataCredit[i].statusName == 'Chờ thanh toán')
@@ -1617,7 +1618,8 @@ module.exports = {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
                                 dataCredit[i]['remainingAmount'] = check.UnpaidAmount ? check.UnpaidAmount : 0
-                                dataCredit[i]['paidAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
+                                dataCredit[i]['paidAmount'] = check.PaidAmount ? check.PaidAmount : 0
+                                dataCredit[i]['paymentAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
                                 if (check.UnpaidAmount && check.UnpaidAmount != 0 && check.Status == 'Chờ thanh toán') {
                                     dataCredit[i]['payDate'] = check.PayDate
                                     dataCredit[i]['Payments'] = check.Payments

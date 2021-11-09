@@ -627,7 +627,7 @@ module.exports = {
                                     id: element.IDSupplier,
                                     type: 'supplier',
                                 }
-                            } else {
+                            } else if (data.CustomerID) {
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
@@ -637,7 +637,7 @@ module.exports = {
                                     type: 'customer',
                                 }
                             }
-                            obj['objectName'] = obj['object'].displayName
+                            obj['objectName'] = obj['object'] ? obj['object'].displayName : ''
                             array.push(obj);
                             stt += 1;
                         }
@@ -773,7 +773,7 @@ module.exports = {
                                 displayName: '[' + data.supplier.SupplierCode + '] ' + data.supplier.SupplierName,
                                 type: 'supplier',
                             }
-                        else {
+                        else if (data.CustomerID) {
                             let objCustomer = await getDetailCustomer(data.CustomerID ? data.CustomerID : null)
                             objObject = {
                                 name: objCustomer.name,

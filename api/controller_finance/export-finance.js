@@ -1055,6 +1055,8 @@ module.exports = {
                 type = 'debit'
             } else if (objRequest.typeVoucher == 'spending') {
                 type = 'spending'
+            } else if (objRequest.typeVoucher == 'accounting') {
+                type = 'accounting'
             }
             let debtAccount = ''
             let creditAccount = ''
@@ -1115,7 +1117,13 @@ module.exports = {
             nameFile = 'Phiếu chi.docx'
             nameFilePDF = 'Phiếu chi pdf.pdf'
         }
+        else if (objKey != {} && objKey.type == 'accounting') {
+            type = '05-TT.docx'
+            nameFile = 'Phiếu kế toán.docx'
+            nameFilePDF = 'Phiếu kế toán.pdf'
+        }
         var pathTo = 'C:/images_services/ageless_sendmail/'
+        console.log(objKey);
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
             try {
                 if (err) {

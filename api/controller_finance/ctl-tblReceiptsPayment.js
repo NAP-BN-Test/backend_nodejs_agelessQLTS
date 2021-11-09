@@ -213,6 +213,10 @@ async function handleCodeNumber(str, type) {
         automaticCode = 'GBC0001'
         behind = Number(str.slice(3, 11)) + 1
         headerCode = str.slice(0, 3)
+    } else if (type == 'accounting') {
+        automaticCode = 'PKT0001'
+        behind = Number(str.slice(3, 11)) + 1
+        headerCode = str.slice(0, 3)
     }
     if (behind < 10)
         endCode = '000' + behind
@@ -907,6 +911,7 @@ module.exports = {
                                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
                                     let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
                                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+                                    var arrayFile = []
                                     tblYeuCauMuaSam.findAll({
                                         order: [
                                             ['ID', 'DESC']
@@ -1044,10 +1049,24 @@ module.exports = {
                                             arrayRequestShopping[i]['arrayFile'] = arrayFile;
 
                                         }
+                                        for (let item of data) {
+                                            await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: item.ID } }).then(file => {
+                                                if (file.length > 0) {
+                                                    for (var e = 0; e < file.length; e++) {
+                                                        arrayFile.push({
+                                                            name: file[e].Name ? file[e].Name : '',
+                                                            link: file[e].Link ? file[e].Link : '',
+                                                            id: file[e].ID,
+                                                        })
+                                                    }
+                                                }
+                                            })
+                                        }
                                     })
                                     obj['paymentOrder'] = {
                                         id: payment.ID,
                                         code: payment.PaymentOrderCode,
+                                        arrayFile: arrayFile,
                                         arrayRequest: arrayRequestShopping
                                     }
                                 }
@@ -1758,6 +1777,7 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
+                            console.log(data[i].IDCustomer);
                             let dataCus = await getDetailCustomer(data[i].IDCustomer)
                             let dataStaff = await getDetailStaff(data[i].IDStaff)
                             var obj = {
@@ -1829,7 +1849,7 @@ module.exports = {
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
-                                    displayName: dataCus ? dataCus.name : '',
+                                    displayName: '[' + (dataCus ? dataCus.customerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
                                     address: dataCus ? dataCus.address : '',
                                     id: data[i].IDCustomer,
                                     type: 'customer',
@@ -2155,6 +2175,7 @@ module.exports = {
     // get_automatically_increasing_voucher_number
     getAutomaticallyIncreasingVoucherNumber: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
