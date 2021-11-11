@@ -1151,7 +1151,7 @@ module.exports = {
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
                         res.json(result);
-                    }, 900);
+                    }, 2000);
 
                 }
             } catch (error) {

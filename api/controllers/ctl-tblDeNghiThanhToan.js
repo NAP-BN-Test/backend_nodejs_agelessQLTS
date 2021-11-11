@@ -23,6 +23,7 @@ var mtblThemVPP = require('../tables/qlnb/tblThemVPP')
 var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 var mtblPaymentRCredit = require('../tables/financemanage/tblPaymentRCredit')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
+var mtblCurrency = require('../tables/financemanage/tblCurrency')
 
 let dataCustomer = customerData.getCustomerSpecializeSoftware()
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
@@ -536,6 +537,7 @@ module.exports = {
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
                     tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
                     tblDeNghiThanhToan.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDSupplier', sourceKey: 'IDSupplier', as: 'supplier' })
+                    tblDeNghiThanhToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
                     tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
                     tblDeNghiThanhToan.findAll({
                         order: [
@@ -568,6 +570,11 @@ module.exports = {
                             model: mtblDMNhaCungCap(db),
                             required: false,
                             as: 'supplier'
+                        },
+                        {
+                            model: mtblCurrency(db),
+                            required: false,
+                            as: 'currency'
                         },
                         ],
                     }).then(async data => {
@@ -614,6 +621,7 @@ module.exports = {
                                 idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
                                 linkPayroll: element.Link ? element.Link : '',
                                 isCheckPayment: checkPayment,
+                                nameCurrency: element.currency ? element.currency.ShortName : '',
                             }
                             if (element.IDSupplier) {
                                 let supplier = await mtblDMNhaCungCap(db).findOne({
@@ -627,7 +635,7 @@ module.exports = {
                                     id: element.IDSupplier,
                                     type: 'supplier',
                                 }
-                            } else if (data.CustomerID) {
+                            } else if (element.CustomerID) {
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
@@ -637,7 +645,7 @@ module.exports = {
                                     type: 'customer',
                                 }
                             }
-                            obj['objectName'] = obj['object'] ? obj['object'].displayName : ''
+                            obj['objectName'] = obj.object ? obj['object'].displayName : ''
                             array.push(obj);
                             stt += 1;
                         }

@@ -2279,6 +2279,7 @@ module.exports = {
     // get_data_summary_book
     getDataSummaryBook: (req, res) => {
         let body = req.body;
+        console.log(body);
         let dataSearch = JSON.parse(body.dataSearch)
         var arrayIDAccount = []
         if (dataSearch.accountSystemID)
@@ -2289,8 +2290,8 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let stt = 1;
                     let arrayResponse = [];
+                    let sttReponse = 1;
                     for (let customer of dataCustomer) {
                         let accountName = '';
                         var arrayIDAccount = []
@@ -2495,8 +2496,8 @@ module.exports = {
                         let arisingPeriod = 0;
                         let openingBalanceCredit = 0;
                         let openingBalanceDebit = 0;
-                        let endingBalanceDebit = 0;
-                        let endingBalanceCredit = 0;
+                        let endingBalanceDebit = [];
+                        let endingBalanceCredit = [];
                         let stt = 1;
                         let tblAccountingBooks = mtblAccountingBooks(db);
                         arisingPeriod = totalDebtIncurred - totalCreditIncurred;
@@ -2869,15 +2870,37 @@ module.exports = {
                                     ID: dataSearch.accountSystemID
                                 }
                             })
+                            let arrayEndingBalanceDebit = []
+                            for (let debt of arrayDebtIncurred) {
+                                let objPush = {}
+                                for (let credit of arrayCreditIncurred) {
+                                    if (credit.key == debt.key) {
+                                        objPush['key'] = debt.key
+                                        objPush['value'] = debt.value - credit.value
+                                    }
+                                }
+                                arrayEndingBalanceDebit.push(objPush)
+                            }
+                            let arrayEndingBalanceCredit = []
+                            for (let credit of arrayCreditIncurred) {
+                                let objPush = {}
+                                for (let debt of arrayDebtIncurred) {
+                                    if (credit.key == debt.key) {
+                                        objPush['key'] = debt.key
+                                        objPush['value'] = credit.value - debt.value
+                                    }
+                                }
+                                arrayEndingBalanceCredit.push(objPush)
+                            }
                             if (checkType && checkType.TypeClause == "Credit") {
-                                endingBalanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
+                                endingBalanceCredit = arrayEndingBalanceCredit
                                 endingBalanceDebit = null;
                             } else if (checkType && checkType.TypeClause == "Debt") {
                                 endingBalanceCredit = null;
-                                endingBalanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
+                                endingBalanceDebit = arrayEndingBalanceDebit;
                             } else {
-                                let balanceCredit = ((openingBalanceCredit == null || openingBalanceCredit == 0) ? 0 : openingBalanceCredit) + (totalCreditIncurred - totalDebtIncurred);
-                                let balanceDebit = ((openingBalanceDebit == null || openingBalanceDebit == 0) ? 0 : openingBalanceDebit) + (totalDebtIncurred - totalCreditIncurred);
+                                let balanceCredit = arrayEndingBalanceCredit
+                                let balanceDebit = arrayEndingBalanceDebit
                                 if (openingBalanceCredit == null && openingBalanceDebit == null) {
                                     if (checkType && checkType.AccountingCode.slice(0, 1) == '1' || checkType.AccountingCode.slice(0, 1) == '2') {
                                         endingBalanceCredit = null;
@@ -2901,23 +2924,21 @@ module.exports = {
                                 }
                             }
                             let objCustomerRespone = {
-                                stt: stt,
+                                stt: sttReponse,
                                 customerCode: customer.customerCode,
                                 customerID: customer.id,
                                 customerName: customer.name,
                                 type: 'customer',
-                                // debtAccount: debtAccount,
+                                debtAccount: checkType ? checkType.AccountingCode : '',
                                 openingBalanceDebit,
                                 openingBalanceCredit,
                                 arrayCreditIncurred,
                                 arrayDebtIncurred,
-                                totalDebtSurplus,
-                                totalCreaditSurplus,
                                 endingBalanceDebit,
                                 endingBalanceCredit,
                             }
                             arrayResponse.push(objCustomerRespone)
-                            stt += 1
+                            sttReponse += 1
                         })
                     }
                     // let checkAccount = await mtblDMTaiKhoanKeToan(db).findOne({

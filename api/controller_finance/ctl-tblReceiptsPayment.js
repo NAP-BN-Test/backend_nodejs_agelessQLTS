@@ -912,7 +912,7 @@ module.exports = {
                                     let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
                                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
                                     var arrayFile = []
-                                    tblYeuCauMuaSam.findAll({
+                                    await tblYeuCauMuaSam.findAll({
                                         order: [
                                             ['ID', 'DESC']
                                         ],
@@ -1049,18 +1049,16 @@ module.exports = {
                                             arrayRequestShopping[i]['arrayFile'] = arrayFile;
 
                                         }
-                                        for (let item of data) {
-                                            await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: item.ID } }).then(file => {
-                                                if (file.length > 0) {
-                                                    for (var e = 0; e < file.length; e++) {
-                                                        arrayFile.push({
-                                                            name: file[e].Name ? file[e].Name : '',
-                                                            link: file[e].Link ? file[e].Link : '',
-                                                            id: file[e].ID,
-                                                        })
-                                                    }
-                                                }
-                                            })
+                                    })
+                                    await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: payment.ID } }).then(file => {
+                                        if (file.length > 0) {
+                                            for (var e = 0; e < file.length; e++) {
+                                                arrayFile.push({
+                                                    name: file[e].Name ? file[e].Name : '',
+                                                    link: file[e].Link ? file[e].Link : '',
+                                                    id: file[e].ID,
+                                                })
+                                            }
                                         }
                                     })
                                     obj['paymentOrder'] = {
