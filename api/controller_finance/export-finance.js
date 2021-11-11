@@ -1060,21 +1060,39 @@ module.exports = {
             }
             let debtAccount = ''
             let creditAccount = ''
+            let arrayAccount = []
+            let sttAccount = 1;
             for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {
+                arrayAccount.push({
+                    stt: sttAccount,
+                    explain: objRequest.debtFormArr[debt].content,
+                    accountName: objRequest.debtFormArr[debt].debtAccount ? objRequest.debtFormArr[debt].debtAccount.accountingCode : '',
+                    debt: objRequest.debtFormArr[debt].amountOfMoney,
+                    credit: '',
+                })
                 if (objRequest.debtFormArr[debt].debtAccount != '') {
                     if (debt < objRequest.debtFormArr.length - 1)
                         debtAccount += objRequest.debtFormArr[debt].debtAccount.accountingCode + ', '
                     else
                         debtAccount += objRequest.debtFormArr[debt].debtAccount.accountingCode
                 }
+                sttAccount += 1;
             }
             for (let cre = 0; cre < objRequest.hasFormArr.length; cre++) {
+                arrayAccount.push({
+                    stt: sttAccount,
+                    explain: objRequest.hasFormArr[cre].content,
+                    accountName: objRequest.hasFormArr[cre].hasAccount ? objRequest.hasFormArr[cre].hasAccount.accountingCode : '',
+                    debt: '',
+                    credit: objRequest.hasFormArr[cre].amountOfMoney,
+                })
                 if (objRequest.hasFormArr[cre].hasAccount) {
                     if (cre < objRequest.hasFormArr.length - 1)
                         creditAccount += objRequest.hasFormArr[cre].hasAccount.accountingCode + ', '
                     else
                         creditAccount += objRequest.hasFormArr[cre].hasAccount.accountingCode
                 }
+                sttAccount += 1;
             }
             objKey = {
                 "NGÀY": objRequest.date ? moment(objRequest.date).add(7, 'hours').format('DD') : null,
@@ -1090,6 +1108,7 @@ module.exports = {
                 "CÓ TK": creditAccount,
                 "type": type,
                 "LOẠI TIỀN": objRequest.idCurrency ? objRequest.idCurrency.shortName : '',
+                "arrayAccount": arrayAccount,
             }
         }
         let type = '02-TT.docx'
@@ -1121,9 +1140,9 @@ module.exports = {
             type = '05-TT.docx'
             nameFile = 'Phiếu kế toán.docx'
             nameFilePDF = 'Phiếu kế toán.pdf'
+            objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
         }
         var pathTo = 'C:/images_services/ageless_sendmail/'
-        console.log(objKey);
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
             try {
                 if (err) {
