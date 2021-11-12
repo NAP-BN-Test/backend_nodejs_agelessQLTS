@@ -1481,11 +1481,11 @@ module.exports = {
                                                     debtSurplus = item.value
                                                 }
                                             }
-                                            creaditSurplus += 0;
+                                            creaditSurplus = null;
                                             typeCheck = 'Debt'
                                         } else if (checkTypeClause && checkTypeClause.TypeClause == 'Credit') {
                                             typeCheck = 'Credit'
-                                            debtSurplus += 0;
+                                            debtSurplus = null;
                                             arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, nameCurrency, (creditIncurred - debtIncurred))
                                             for (let item of arrayCreaditSurplus) {
                                                 if (item.key == nameCurrency) {
@@ -1587,13 +1587,24 @@ module.exports = {
                                 ID: dataSearch.accountSystemID
                             }
                         })
+                        // Trừ số tiền dư nợ đầu kì để tính tổng phát sinh
+                        let valueOpen = 0;
+                        if (openingBalanceDebit) {
+                            for (let item of arrayCreditIncurred) {
+                                if (item.key == nameCurrencyCheck) {
+                                    valueOpen = item.value - openingBalanceDebit
+                                }
+                                item.value = valueOpen
+                            }
+                        }
+                        // ----------------------------------------------------------
                         let arrayEndingBalanceDebit = []
                         for (let debt of arrayDebtIncurred) {
                             let objPush = {}
                             for (let credit of arrayCreditIncurred) {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
-                                    objPush['value'] = debt.value - credit.value
+                                    objPush['value'] = openingBalanceDebit + debt.value - credit.value
                                 }
                             }
                             arrayEndingBalanceDebit.push(objPush)
@@ -1604,7 +1615,7 @@ module.exports = {
                             for (let debt of arrayDebtIncurred) {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
-                                    objPush['value'] = credit.value - debt.value
+                                    objPush['value'] = openingBalanceCredit + credit.value - debt.value
                                 }
                             }
                             arrayEndingBalanceCredit.push(objPush)

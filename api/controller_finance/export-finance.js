@@ -1,7 +1,7 @@
 const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Sequelize = require('sequelize');
-
+var mModules = require('../constants/modules');
 const Result = require('../constants/result');
 var moment = require('moment');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
@@ -1063,11 +1063,12 @@ module.exports = {
             let arrayAccount = []
             let sttAccount = 1;
             for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {
+
                 arrayAccount.push({
                     stt: sttAccount,
                     explain: objRequest.debtFormArr[debt].content,
                     accountName: objRequest.debtFormArr[debt].debtAccount ? objRequest.debtFormArr[debt].debtAccount.accountingCode : '',
-                    debt: objRequest.debtFormArr[debt].amountOfMoney,
+                    debt: mModules.transform(objRequest.debtFormArr[debt].amountOfMoney),
                     credit: '',
                 })
                 if (objRequest.debtFormArr[debt].debtAccount != '') {
@@ -1084,7 +1085,7 @@ module.exports = {
                     explain: objRequest.hasFormArr[cre].content,
                     accountName: objRequest.hasFormArr[cre].hasAccount ? objRequest.hasFormArr[cre].hasAccount.accountingCode : '',
                     debt: '',
-                    credit: objRequest.hasFormArr[cre].amountOfMoney,
+                    credit: mModules.transform(objRequest.hasFormArr[cre].amountOfMoney),
                 })
                 if (objRequest.hasFormArr[cre].hasAccount) {
                     if (cre < objRequest.hasFormArr.length - 1)
@@ -1101,7 +1102,7 @@ module.exports = {
                 "SỐ PHIẾU": objRequest.voucherNumber ? objRequest.voucherNumber : '',
                 "ĐỊA CHỈ": objRequest.address ? objRequest.address : '',
                 "LÝ DO": objRequest.reason ? objRequest.reason : '',
-                "SỐ TIỀN": objRequest.moneyNumber ? objRequest.moneyNumber : null,
+                "SỐ TIỀN": objRequest.moneyNumber ? mModules.transform(objRequest.moneyNumber) : null,
                 "SỐ TIỀN BẰNG CHỮ": objRequest.moneyText ? objRequest.moneyText : '',
                 "ĐỐI TƯỢNG": objRequest.object ? objRequest.object.displayName : '',
                 "NỢ TK": debtAccount,

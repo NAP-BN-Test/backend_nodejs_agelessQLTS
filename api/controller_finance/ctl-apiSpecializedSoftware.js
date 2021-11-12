@@ -2264,13 +2264,24 @@ module.exports = {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: dataCredit[i].id }
                     })
-                    await mtblPaymentRInvoice(db).findOne({
+                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
+                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                    await tblPaymentRInvoice.findOne({
                         where: {
                             IDSpecializedSoftware: dataCredit[i].id
-                        }
+                        },
+                        include: [
+                            {
+                                model: mtblReceiptsPayment(db),
+                                required: false,
+                                as: 'payment'
+                            },
+                        ],
                     }).then(invoice => {
-                        if (invoice)
+                        if (invoice) {
                             dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
+                            dataCredit[i]['receiptPaymentName'] = invoice.payment ? invoice.payment.CodeNumber : ''
+                        }
                     })
                     if (!check) {
                         await mtblInvoice(db).create({
@@ -2385,13 +2396,24 @@ module.exports = {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: dataCredit[i].id }
                     })
-                    await mtblPaymentRInvoice(db).findOne({
+                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
+                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                    await tblPaymentRInvoice.findOne({
                         where: {
                             IDSpecializedSoftware: dataCredit[i].id
-                        }
+                        },
+                        include: [
+                            {
+                                model: mtblReceiptsPayment(db),
+                                required: false,
+                                as: 'payment'
+                            },
+                        ],
                     }).then(invoice => {
-                        if (invoice)
+                        if (invoice) {
                             dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
+                            dataCredit[i]['receiptPaymentName'] = invoice.payment ? invoice.payment.CodeNumber : ''
+                        }
                     })
                     if (!check) {
                         await mtblInvoice(db).create({
