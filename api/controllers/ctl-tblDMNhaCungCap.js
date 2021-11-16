@@ -164,7 +164,7 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN NHÀ CUNG CẤP') {
+                                if (data.items[i].fields['name'] === 'TÊN NCC') {
                                     userFind['supplierName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
@@ -176,7 +176,7 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'MÃ NHÀ CUNG CẤP') {
+                                if (data.items[i].fields['name'] === 'MÃ NCC') {
                                     userFind['supplierCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind

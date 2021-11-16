@@ -481,8 +481,26 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                console.log(data.items);
                                 if (data.items[i].fields['name'] === 'NGƯỜI ĐỀ NGHỊ') {
                                     userFind['IDNhanVien'] = data.items[i]['searchFields']
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'ĐỐI TƯỢNG') {
+                                    if (data.items[i]['searchFields'].type == 'customer')
+                                        userFind['CustomerID'] = data.items[i]['searchFields'].id
+                                    else if (data.items[i]['searchFields'].type == 'staff')
+                                        userFind['IDNhanVien'] = data.items[i]['searchFields'].id
+                                    else if (data.items[i]['searchFields'].type == 'supplier')
+                                        userFind['IDSupplier'] = data.items[i]['searchFields'].id
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -497,6 +515,18 @@ module.exports = {
                                     userFind['PaymentOrderCode'] = {
                                         [Op.eq]: data.items[i]['searchFields']
                                     }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NỘI DUNG THANH TOÁN') {
+                                    userFind['Contents'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }

@@ -226,6 +226,18 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'SỐ NGÀY ĐƯỢC NỢ') {
+                                    userFind['NumberDate'] = data.items[i]['searchFields']
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                             }
                             if (arraySearchOr.length > 0)
                                 whereObj[Op.or] = arraySearchOr

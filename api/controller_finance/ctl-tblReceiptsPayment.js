@@ -1691,6 +1691,7 @@ module.exports = {
                     let arraySearchNot = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
+                        console.log(data);
                         if (data.search) {
                             where = [
                                 { Type: body.type },
@@ -1711,6 +1712,18 @@ module.exports = {
                             arraySearchAnd.push({ Type: body.type })
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                if (data.items[i].fields['name'] === 'NỘI DUNG') {
+                                    userFind['Reason'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'SỐ CHỨNG TỪ') {
                                     userFind['CodeNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -1728,6 +1741,8 @@ module.exports = {
                                         userFind['IDStaff'] = data.items[i]['searchFields'].id
                                     else if (data.items[i]['searchFields'].type == 'partner')
                                         userFind['IDPartner'] = data.items[i]['searchFields'].id
+                                    else if (data.items[i]['searchFields'].type == 'supplier')
+                                        userFind['SupplierID'] = data.items[i]['searchFields'].id
                                     else
                                         userFind['IDCustomer'] = data.items[i]['searchFields'].id
                                     if (data.items[i].conditionFields['name'] == 'And') {

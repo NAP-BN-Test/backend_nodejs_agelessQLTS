@@ -515,6 +515,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_tbl_currency').post(tblCurrency.getListtblCurrency);
     app.route('/qlnb/delete_tbl_currency').post(checkToken.checkToken, tblCurrency.deletetblCurrency);
     app.route('/qlnb/get_list_name_tbl_currency').post(tblCurrency.getListNametblCurrency);
+    app.route('/qlnb/get_list_tbl_currency_from_date').post(tblCurrency.getListtblCurrencyFromDate);
 
     var tblRate = require('./controller_finance/ctl-tblRate')
     app.route('/qlnb/add_tbl_rate').post(tblRate.addtblRate);

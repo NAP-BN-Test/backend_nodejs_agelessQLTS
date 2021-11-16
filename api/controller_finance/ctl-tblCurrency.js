@@ -304,4 +304,64 @@ module.exports = {
             }
         })
     },
+    // get_list_tbl_currency_from_date
+    getListtblCurrencyFromDate: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var whereObj = {};
+                    let stt = 1;
+                    console.log(body);
+                    let searchNow = moment(body.date).format('YYYY-MM-DD');
+                    mtblCurrency(db).findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: whereObj,
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        for (var i = 0; i < data.length; i++) {
+                            let rateNow = 0;
+                            await mtblRate(db).findOne({
+                                where: {
+                                    Date: { [Op.substring]: searchNow },
+                                    IDCurrency: data[i].ID
+                                }
+                            }).then(Rate => {
+                                if (Rate)
+                                    rateNow = Rate.ExchangeRate ? Rate.ExchangeRate : 1
+                            })
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[[i]].ID),
+                                date: searchNow,
+                                exchangeRate: rateNow,
+                                shortName: data[[i]].ShortName ? data[[i]].ShortName : '',
+                                fullName: data[[i]].FullName ? data[[i]].FullName : '',
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        var count = await mtblCurrency(db).count({ where: whereObj, })
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }
