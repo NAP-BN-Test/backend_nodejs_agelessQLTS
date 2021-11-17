@@ -1681,7 +1681,6 @@ module.exports = {
     // get_list_tbl_receipts_payment
     getListtblReceiptsPayment: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1691,7 +1690,6 @@ module.exports = {
                     let arraySearchNot = [];
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
-                        console.log(data);
                         if (data.search) {
                             where = [
                                 { Type: body.type },
@@ -1756,9 +1754,10 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY TẠO ĐƠN') {
-                                    let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
                                     userFind['Date'] = {
-                                        [Op.substring]: date
+                                        [Op.between]: [startDate, endDate]
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
@@ -1790,7 +1789,6 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
-                            console.log(data[i].IDCustomer);
                             let dataCus = await getDetailCustomer(data[i].IDCustomer)
                             let dataStaff = await getDetailStaff(data[i].IDStaff)
                             var obj = {
