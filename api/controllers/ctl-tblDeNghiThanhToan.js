@@ -537,6 +537,22 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'SỐ TIỀN THANH TOÁN') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['Cost'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                             }
                         }
                         let userObj = [];

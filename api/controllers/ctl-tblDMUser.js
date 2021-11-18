@@ -336,6 +336,94 @@ module.exports = {
             }
         })
     },
+    // update_data_option_for_tbl_dmuser
+    updateDataOptionFortblDMUser: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let dataOption = []
+                    let arrayOptionUser = []
+                    let checkDuplicate = false;
+                    body.dataOptions = JSON.parse(body.dataOptions)
+                    await mtblDMUser(db).findOne({
+                        where: {
+                            ID: body.userID
+                        }
+                    }).then(user => {
+                        if (user) {
+                            arrayOptionUser = user.DataOption ? JSON.parse(user.DataOption) : []
+                            for (let item of arrayOptionUser) {
+                                if (item.key == body.type) {
+                                    item.array = body.dataOptions
+                                    checkDuplicate = true
+                                }
+                            }
+                        }
+                    })
+                    if (checkDuplicate) {
+                        dataOption = arrayOptionUser
+                    } else {
+                        dataOption.push({
+                            key: body.type,
+                            array: body.dataOptions,
+                        })
+                    }
+                    await mtblDMUser(db).update({
+                        DataOption: JSON.stringify(dataOption),
+                    }, { where: { ID: body.userID } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_data_option
+    getDataOption: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let arrayResult = []
+                    await mtblDMUser(db).findOne({
+                        where: {
+                            ID: body.userID
+                        }
+                    }).then(data => {
+                        if (data) {
+                            let dataArr = JSON.parse(data.DataOption)
+                            for (let item of dataArr) {
+                                if (item.key == body.type) {
+                                    arrayResult = item.array
+                                    break;
+                                }
+                            }
+                        }
+                    })
+                    var result = {
+                        array: arrayResult,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
     // delete_tbl_dmuser
     deletetblDMUser: (req, res) => {
         let body = req.body;

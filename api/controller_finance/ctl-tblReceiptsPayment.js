@@ -1710,6 +1710,22 @@ module.exports = {
                             arraySearchAnd.push({ Type: body.type })
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                if (data.items[i].fields['name'] === 'SỐ TIỀN') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['Amount'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'NỘI DUNG') {
                                     userFind['Reason'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -1779,12 +1795,21 @@ module.exports = {
                         }
                     }
                     let stt = 1;
-                    mtblReceiptsPayment(db).findAll({
+                    let tblReceiptsPayment = mtblReceiptsPayment(db);
+                    tblReceiptsPayment.belongsTo(mtblCurrency(db), { foreignKey: 'IDCurrency', sourceKey: 'IDCurrency', as: 'currency' })
+                    tblReceiptsPayment.findAll({
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         order: [
                             ['ID', 'DESC']
+                        ],
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -1800,7 +1825,8 @@ module.exports = {
                                 codeNumber: data[i].CodeNumber ? data[i].CodeNumber : '',
                                 voucherNumber: data[i].VoucherNumber ? data[i].VoucherNumber : '',
                                 voucherDate: data[i].VoucherDate ? data[i].VoucherDate : null,
-                                idCurrency: data[i].IDCurrency ? data[i].IDCurrency : null,
+                                idCurrency: data[i].IDCurrency ? data[i].IDCurrency : '',
+                                nameCurrency: data[i].currency ? data[i].currency.ShortName : null,
                                 date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
                                 customerName: dataCus.name ? dataCus.name : dataStaff.fullName,

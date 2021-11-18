@@ -475,6 +475,22 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                if (data.items[i].fields['name'] === 'SỐ TIỀN') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['Cost'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'NỘI DUNG') {
                                     userFind['Contents'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -674,6 +690,23 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                console.log(data.items[i]);
+                                if (data.items[i].fields['name'] === 'SỐ TIỀN') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['Cost'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'NỘI DUNG') {
                                     userFind['Contents'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
