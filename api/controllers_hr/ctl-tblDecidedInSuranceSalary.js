@@ -206,6 +206,14 @@ module.exports = {
             if (db) {
                 try {
                     var whereOjb = [];
+                    var minimumWage = 0;
+                    await mtblMinWageConfig(db).findOne({
+                        order: [
+                            ['ID', 'DESC']
+                        ]
+                    }).then(data => {
+                        minimumWage = data.MinimumWage
+                    })
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
                         var listStaff = [];
@@ -278,9 +286,65 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TỪ NGÀY') {
-                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
                                     userFind['StartDate'] = {
-                                        [Op.substring]: date
+                                        [Op.between]: [startDate, endDate]
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'ĐẾN NGÀY') {
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    userFind['EndDate'] = {
+                                        [Op.between]: [startDate, endDate]
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'HỆ SỐ') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['Coefficient'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MỨC LƯƠNG') {
+                                    let max = (data.items[i].value1 > data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    let min = (data.items[i].value1 < data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    var listYCMS = [];
+                                    let query = `SELECT * FROM [tblDecidedInsuranceSalary] AS [tblDecidedInsuranceSalary] WHERE [tblDecidedInsuranceSalary].[Coefficient] * ` + minimumWage + ` BETWEEN '` + min + `' AND '` + max + `';`
+                                    console.log(query);
+                                    let dataResult = await db.query(query)
+                                    for (let item of dataResult[0]) {
+                                        listYCMS.push(item.ID)
+                                    }
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
@@ -307,14 +371,6 @@ module.exports = {
                             }
                         }
                     }
-                    var minimumWage = 0;
-                    await mtblMinWageConfig(db).findOne({
-                        order: [
-                            ['ID', 'DESC']
-                        ]
-                    }).then(data => {
-                        minimumWage = data.MinimumWage
-                    })
                     let stt = 1;
                     let tblDecidedInsuranceSalary = mtblDecidedInsuranceSalary(db);
                     tblDecidedInsuranceSalary.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDStaff', sourceKey: 'IDStaff', as: 'staff' })

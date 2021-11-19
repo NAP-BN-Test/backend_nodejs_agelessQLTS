@@ -48,17 +48,15 @@ module.exports = {
         let where = []
         where.push(obj)
         for (var i = 0; i < array.length; i++) {
-            arrayFileAttach.push(array[i].id)
+            arrayFileAttach.push(array[i].id ? array[i].id : array[i].ID)
         }
         await mtblFileAttach(db).findAll({
             where: where
         }).then(async data => {
             for (let file = 0; file < data.length; file++) {
-                console.log(array);
-                console.log(data[file].ID);
                 if (!checkDuplicate(arrayFileAttach, data[file].ID)) {
                     console.log(123);
-                    await ctlFileAttach.deleteRelationshiptblFileAttach(db, data[file].ID)
+                    await ctlFileAttach.deleteRelationshiptblFileAttach(db, data[file].ID ? data[file].ID : data[file].id)
 
                 }
             }
@@ -66,7 +64,7 @@ module.exports = {
         for (var j = 0; j < array.length; j++)
             await mtblFileAttach(db).update(obj, {
                 where: {
-                    ID: array[j].id
+                    ID: array[j].id ? array[j].id : array[j].ID
                 }
             })
     },

@@ -340,9 +340,10 @@ module.exports = {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGÀY QUYẾT ĐỊNH') {
-                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
                                     userFind['Date'] = {
-                                        [Op.substring]: '%' + date + '%'
+                                        [Op.between]: [startDate, endDate]
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
@@ -358,6 +359,63 @@ module.exports = {
                                     userFind['Type'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                     }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LÝ DO') {
+                                    userFind['Reason'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ TIỀN') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['SalaryIncrease'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or].push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
+                                    let arrayStaff = []
+                                    let tblRewardPunishmentRStaff = mtblRewardPunishmentRStaff(db);
+                                    tblRewardPunishmentRStaff.belongsTo(mtblDMNhanvien(db), { foreignKey: 'StaffID', sourceKey: 'StaffID', as: 'staff' })
+                                    await tblRewardPunishmentRStaff.findAll({
+                                        where: { StaffID: data.items[i]['searchFields'] },
+                                        include: [{
+                                            model: mtblDMNhanvien(db),
+                                            required: false,
+                                            as: 'staff'
+                                        },],
+                                    }).then(inc => {
+                                        inc.forEach(item => {
+                                            arrayStaff.push(item.RewardPunishmentID)
+                                        })
+                                    })
+                                    userFind['ID'] = { [Op.in]: arrayStaff }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }

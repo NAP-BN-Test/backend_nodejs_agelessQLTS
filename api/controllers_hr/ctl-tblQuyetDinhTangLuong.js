@@ -460,6 +460,22 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'MỨC TĂNG') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['SalaryIncreas'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
                                     let list = []
                                     await mtblIncreaseSalariesAndStaff(db).findAll({
@@ -496,10 +512,11 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'NGÀY KÍ') {
-                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
-                                    userFind['IncreaseDate'] = {
-                                        [Op.substring]: '%' + date + '%'
+                                if (data.items[i].fields['name'] === 'NGÀY KÝ') {
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    userFind['DecisionDate'] = {
+                                        [Op.between]: [startDate, endDate]
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)

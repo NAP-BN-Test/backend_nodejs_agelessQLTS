@@ -254,7 +254,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             depreciationPrice: data.DepreciationPrice ? data.DepreciationPrice : 0,
             supplierName: data.taisanADD ? data.taisanADD.ncc ? data.taisanADD.ncc.SupplierName : '' : '',
             fileAttach: data.taisanADD ? data.taisanADD.file : [],
-            dateIncreases: data.DepreciationDate ? data.DepreciationDate : '',
+            dateIncreases: data.taisanADD ? data.taisanADD.Date : '',
             date: data.taisanADD ? data.taisanADD.Date : '',
             idTaiSanADD: data.taisanADD ? data.taisanADD.ID : null,
             staffName: staffName,
@@ -386,6 +386,7 @@ module.exports = {
     // update_detail_asset
     updateDetailAsset: (req, res) => {
         let body = req.body;
+        console.log(body);
         body.obj = JSON.parse(body.obj)
         database.connectDatabase().then(async db => {
             if (db) {
@@ -749,7 +750,11 @@ module.exports = {
                 try {
                     let warrantyRemainingMax = 0;
                     let warrantyRemainingMin = 0;
+                    let dateMax = 0;
+                    let dateMin = 0;
+                    let dem = 0
                     let check = false
+                    let checkDate = false
                     let listIDTaiSan = [];
                     let arraySearchAnd = [];
                     let arraySearchOr = [];
@@ -1012,6 +1017,38 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'NGÀY MUA') {
+                                    var list = []
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    await mtblTaiSanADD(db).findAll({
+                                        where: {
+                                            Date: { [Op.between]: [startDate, endDate] }
+                                        }
+                                    }).then(data => {
+                                        for (let item of data) {
+                                            list.push(item.ID)
+                                        }
+                                    })
+                                    userFind['IDTaiSanADD'] = {
+                                        [Op.in]: list
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGÀY HẾT BẢO HÀNH') {
+                                    checkDate = true
+                                    dateMin = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD')
+                                    dateMax = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD')
+                                    body.itemPerPage = 10000000000
+                                }
                             }
                         }
                     } else {
@@ -1099,11 +1136,12 @@ module.exports = {
                                 warrantyRemaining: warrantyRemaining > 0 ? warrantyRemaining : 0,
                                 isCreateReceipt: element.IDReceiptsPayment ? true : false
                             }
-                            console.log(check);
                             if (check && warrantyRemaining >= warrantyRemainingMin && warrantyRemaining <= warrantyRemainingMax || !check) {
-                                console.log(123456);
-                                array.push(obj);
-                                stt += 1;
+                                if (checkDate && moment(dateMax).isAfter(guaranteDate) && moment(dateMin).isBefore(guaranteDate) || !checkDate) {
+                                    array.push(obj);
+                                    stt += 1;
+                                    dem += 1;
+                                }
                             }
                         }
                         var count = await mtblTaiSan(db).count({ where: whereObj })
@@ -1111,7 +1149,7 @@ module.exports = {
                             array: array,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
+                            all: (checkDate || check) ? dem : count
                         }
                         res.json(result);
                     })

@@ -364,10 +364,11 @@ module.exports = {
                     if (checkDuplicate) {
                         dataOption = arrayOptionUser
                     } else {
-                        dataOption.push({
+                        arrayOptionUser.push({
                             key: body.type,
                             array: body.dataOptions,
                         })
+                        dataOption = arrayOptionUser
                     }
                     await mtblDMUser(db).update({
                         DataOption: JSON.stringify(dataOption),
@@ -400,7 +401,7 @@ module.exports = {
                         }
                     }).then(data => {
                         if (data) {
-                            let dataArr = JSON.parse(data.DataOption)
+                            let dataArr = data.DataOption ? JSON.parse(data.DataOption) : []
                             for (let item of dataArr) {
                                 if (item.key == body.type) {
                                     arrayResult = item.array
