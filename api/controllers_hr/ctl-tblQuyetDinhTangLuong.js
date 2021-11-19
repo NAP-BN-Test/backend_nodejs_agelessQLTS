@@ -465,7 +465,7 @@ module.exports = {
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
                                     array.sort(function (a, b) { return a - b });
-                                    userFind['SalaryIncreas'] = { [Op.between]: array }
+                                    userFind['Increase'] = { [Op.between]: array }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }

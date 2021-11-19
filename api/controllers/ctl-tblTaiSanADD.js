@@ -407,6 +407,7 @@ module.exports = {
                             SerialNumber: body.obj.serialNumber ? body.obj.serialNumber : '',
                             Describe: body.obj.describe ? body.obj.describe : '',
                             TSNBCode: body.obj.code ? body.obj.code : '',
+                            AssetName: body.obj.assetName,
                             // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     } else {
@@ -421,6 +422,7 @@ module.exports = {
                             Describe: body.obj.describe ? body.obj.describe : '',
                             TSNBCode: body.obj.code ? body.obj.code : '',
                             Status: status,
+                            AssetName: body.obj.assetName,
                             // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     }
@@ -500,7 +502,7 @@ module.exports = {
                             })
                             await mtblTaiSan(db).create({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa.id : null,
-                                OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
+                                OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : 0,
                                 DepreciationPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
@@ -556,7 +558,7 @@ module.exports = {
                         for (var i = 0; i < body.taisan.length; i++) {
                             mtblTaiSan(db).update({
                                 IDDMHangHoa: body.taisan[i].idDMHangHoa ? body.taisan[i].idDMHangHoa : null,
-                                OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : null,
+                                OriginalPrice: body.taisan[i].originalPrice ? body.taisan[i].originalPrice : 0,
                                 Unit: body.taisan[i].unit ? body.taisan[i].unit : '',
                                 IDTaiSanADD: body.id ? body.id : '',
                                 Specifications: body.taisan[i].specifications ? body.taisan[i].specifications : '',
@@ -847,6 +849,20 @@ module.exports = {
                                 }
                                 if (data.items[i].fields['name'] === 'ĐƠN VỊ') {
                                     userFind['Unit'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SERIAL TÀI SẢN') {
+                                    userFind['SerialNumber'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {

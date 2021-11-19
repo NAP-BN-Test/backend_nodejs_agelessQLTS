@@ -408,9 +408,38 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NGÀY CUNG CẤP') {
-                                    let date = moment(data.items[i]['searchFields']).add(14, 'hours').format('YYYY-MM-DD')
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
                                     userFind['Date'] = {
-                                        [Op.substring]: '%' + date + '%'
+                                        [Op.between]: [startDate, endDate]
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        whereOjb[Op.and] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        whereOjb[Op.or] = userFind
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        whereOjb[Op.not] = userFind
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ LƯỢNG') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    var listYCMS = [];
+                                    await mThemVPPChiTiet(db).findAll({
+                                        where: {
+                                            Amount: { [Op.between]: array }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDThemVPP);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind

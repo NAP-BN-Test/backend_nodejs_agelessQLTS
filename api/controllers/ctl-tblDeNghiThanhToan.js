@@ -536,6 +536,28 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'BỘ PHẬN') {
+                                    let array = []
+                                    await mtblDMNhanvien(db).findAll({
+                                        where: {
+                                            IDBoPhan: data.items[i]['searchFields']
+                                        }
+                                    }).then(data => {
+                                        for (let item of data) {
+                                            array.push(item.ID)
+                                        }
+                                    })
+                                    userFind['IDNhanVien'] = { [Op.in]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'SỐ TIỀN THANH TOÁN') {
                                     let array = []
                                     array.push(data.items[i].value1)

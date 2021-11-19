@@ -162,7 +162,7 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                if (data.items[i].fields['name'] === 'TÊN VĂN PHÒNG PHẨM') {
+                                if (data.items[i].fields['name'] === 'TÊN VPP') {
                                     userFind['VPPName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
@@ -174,7 +174,7 @@ module.exports = {
                                         whereOjb[Op.not] = userFind
                                     }
                                 }
-                                if (data.items[i].fields['name'] === 'MÃ VĂN PHÒNG PHẨM') {
+                                if (data.items[i].fields['name'] === 'MÃ VPP') {
                                     userFind['VPPCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)

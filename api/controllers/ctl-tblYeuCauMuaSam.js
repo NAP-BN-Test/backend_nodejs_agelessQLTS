@@ -903,6 +903,7 @@ module.exports = {
                                     let query = `SELECT [ID], [IDYeuCauMuaSam], [IDDMHangHoa], [Amount], [Price], [IDVanPhongPham], [AssetName] FROM [tblYeuCauMuaSamDetail] AS [tblYeuCauMuaSamDetail] WHERE [tblYeuCauMuaSamDetail].[Amount] * Price BETWEEN '` + min + `' AND '` + max + `';`
                                     let dataResult = await db.query(query)
                                     for (let item of dataResult[0]) {
+                                        console.log(item.Price, item.Amount);
                                         listYCMS.push(item.IDYeuCauMuaSam)
                                     }
                                     userFind['ID'] = {

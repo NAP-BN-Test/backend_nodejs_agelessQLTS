@@ -230,9 +230,10 @@ module.exports = {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'NGÀY TIẾP NHẬN') {
-                                    let date = moment(data.items[i]['searchFields']).add(7, 'hours').format('YYYY-MM-DD')
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
                                     userFind['Date'] = {
-                                        [Op.substring]: date
+                                        [Op.between]: [startDate, endDate]
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
@@ -260,9 +261,14 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'SỐ LƯỢNG') {
+                                    let array = []
+                                    let list = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
                                     await mtblPhanPhoiVPPChiTiet(db).findAll({
                                         where: {
-                                            Amount: Number(data.items[i]['searchFields'])
+                                            Amount: { [Op.between]: array }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {

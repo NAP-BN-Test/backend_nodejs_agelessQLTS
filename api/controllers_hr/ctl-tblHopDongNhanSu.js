@@ -327,6 +327,7 @@ module.exports = {
             if (db) {
                 try {
                     let check;
+                    console.log(body);
                     if (body.contractCode) {
                         check = await mtblHopDongNhanSu(db).findOne({
                             where: { ContractCode: body.contractCode }
