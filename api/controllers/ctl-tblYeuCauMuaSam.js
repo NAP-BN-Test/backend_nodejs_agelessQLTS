@@ -2,6 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
+const Sequelize = require('sequelize');
 var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
 var mtblYeuCauMuaSamDetail = require('../tables/qlnb/tblYeuCauMuaSamDetail')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
@@ -454,7 +455,6 @@ module.exports = {
                 try {
                     if (body.userID)
                         arrayPermission = await ctltblDMUser.getPermissionForUser(body.userID)
-                    console.log(arrayPermission);
                     let whereObj = []
                     let where = []
                     let whereSecond = []
@@ -631,8 +631,36 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
+                                if (data.items[i].fields['name'] === 'LOẠI YÊU CẦU') {
+                                    userFind['Type'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
                                     userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LÝ DO') {
+                                    userFind['Reason'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -757,6 +785,125 @@ module.exports = {
                                             listYCMS.push(item.IDYeuCauMuaSam);
                                         })
                                     })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'ĐƠN GIÁ') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            Price: { [Op.between]: array }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ LƯỢNG') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            Amount: { [Op.between]: array }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ TỒN') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    var listGoods = [];
+                                    await mtblVanPhongPham(db).findAll({
+                                        where: {
+                                            RemainingAmount: { [Op.between]: array }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listGoods.push(item.ID);
+                                        })
+                                    })
+
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            IDVanPhongPham: {
+                                                [Op.in]: listGoods
+                                            }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TỔNG TIỀN') {
+                                    let max = (data.items[i].value1 > data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    let min = (data.items[i].value1 < data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    var listYCMS = [];
+                                    let query = `SELECT [ID], [IDYeuCauMuaSam], [IDDMHangHoa], [Amount], [Price], [IDVanPhongPham], [AssetName] FROM [tblYeuCauMuaSamDetail] AS [tblYeuCauMuaSamDetail] WHERE [tblYeuCauMuaSamDetail].[Amount] * Price BETWEEN '` + min + `' AND '` + max + `';`
+                                    let dataResult = await db.query(query)
+                                    for (let item of dataResult[0]) {
+                                        listYCMS.push(item.IDYeuCauMuaSam)
+                                    }
                                     userFind['ID'] = {
                                         [Op.in]: listYCMS
                                     }

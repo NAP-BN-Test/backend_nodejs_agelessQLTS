@@ -481,7 +481,6 @@ module.exports = {
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
-                                console.log(data.items);
                                 if (data.items[i].fields['name'] === 'NGƯỜI ĐỀ NGHỊ') {
                                     userFind['IDNhanVien'] = data.items[i]['searchFields']
                                     if (data.items[i].conditionFields['name'] == 'And') {

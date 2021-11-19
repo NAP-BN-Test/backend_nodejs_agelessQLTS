@@ -154,6 +154,50 @@ async function getStaffFromTaiSan(db, idTaiSan) {
     })
     return staffName;
 }
+async function getArrayIDTaiSanFromStaff(staffID, db) {
+    let arrayResult = []
+    await mtblTaiSanBanGiao(db).findAll({
+        where: {
+            IDNhanVienSoHuu: staffID
+        }
+    }).then(async data => {
+        for (let item of data) {
+            await mtblTaiSanHistory(db).findAll({
+                where: {
+                    IDTaiSanBanGiao: item.ID,
+                    DateThuHoi: null
+                }
+            }).then(history => {
+                for (let his of history) {
+                    arrayResult.push(his.IDTaiSan)
+                }
+            })
+        }
+    })
+    return arrayResult
+}
+async function getArrayIDTaiSanFromDepartment(departmentID, db) {
+    let arrayResult = []
+    await mtblTaiSanBanGiao(db).findAll({
+        where: {
+            IDBoPhanSoHuu: departmentID
+        }
+    }).then(async data => {
+        for (let item of data) {
+            await mtblTaiSanHistory(db).findAll({
+                where: {
+                    IDTaiSanBanGiao: item.ID,
+                    DateThuHoi: null
+                }
+            }).then(history => {
+                for (let his of history) {
+                    arrayResult.push(his.IDTaiSan)
+                }
+            })
+        }
+    })
+    return arrayResult
+}
 async function getDetailTaiSan(db, idTaiSan) {
     let tblTaiSan = mtblTaiSan(db);
     var obj = {};
@@ -703,6 +747,9 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let warrantyRemainingMax = 0;
+                    let warrantyRemainingMin = 0;
+                    let check = false
                     let listIDTaiSan = [];
                     let arraySearchAnd = [];
                     let arraySearchOr = [];
@@ -793,6 +840,60 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'ĐƠN VỊ') {
+                                    userFind['Unit'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGUYÊN GIÁ') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    userFind['OriginalPrice'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'GIÁ TRỊ CÒN LẠI') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function (a, b) { return a - b });
+                                    console.log(array);
+                                    userFind['DepreciationPrice'] = { [Op.between]: array }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'BẢO HÀNH CÒN LẠI') {
+                                    let max = (data.items[i].value1 > data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    let min = (data.items[i].value1 < data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    warrantyRemainingMax = max
+                                    warrantyRemainingMin = min
+                                    check = true
+                                }
                                 if (data.items[i].fields['name'] === 'MÃ NỘI BỘ') {
                                     userFind['TSNBCode'] = {
                                         [Op.like]: '%' + data.items[i]['searchFields'] + '%'
@@ -869,6 +970,36 @@ module.exports = {
                                         })
                                     })
                                     userFind['IDDMHangHoa'] = {
+                                        [Op.in]: list,
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGƯỜI SỞ HỮU') {
+                                    var list = await getArrayIDTaiSanFromStaff(data.items[i]['searchFields'], db);
+                                    userFind['ID'] = {
+                                        [Op.in]: list,
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'BP SỞ HỮU') {
+                                    var list = await getArrayIDTaiSanFromDepartment(data.items[i]['searchFields'], db);
+                                    userFind['ID'] = {
                                         [Op.in]: list,
                                     }
                                     if (data.items[i].conditionFields['name'] == 'And') {
@@ -968,8 +1099,12 @@ module.exports = {
                                 warrantyRemaining: warrantyRemaining > 0 ? warrantyRemaining : 0,
                                 isCreateReceipt: element.IDReceiptsPayment ? true : false
                             }
-                            array.push(obj);
-                            stt += 1;
+                            console.log(check);
+                            if (check && warrantyRemaining >= warrantyRemainingMin && warrantyRemaining <= warrantyRemainingMax || !check) {
+                                console.log(123456);
+                                array.push(obj);
+                                stt += 1;
+                            }
                         }
                         var count = await mtblTaiSan(db).count({ where: whereObj })
                         var result = {
