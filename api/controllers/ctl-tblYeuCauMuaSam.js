@@ -449,6 +449,7 @@ module.exports = {
     // get_list_tbl_yeucaumuasam
     getListtblYeuCauMuaSam: (req, res) => {
         let body = req.body;
+        console.log(body);
         let arrayPermission = []
         database.connectDatabase().then(async db => {
             if (db) {
@@ -461,6 +462,9 @@ module.exports = {
                     let arraySearchAnd = [];
                     let arraySearchOr = [];
                     let arraySearchNot = [];
+                    let sub = 0;
+                    let max;
+                    let min;
                     if (body.type == 'end') {
                         arraySearchOr.push({ Status: 'Từ chối' })
                         // arraySearchOr.push({ Status: 'Đã thanh toán' })
@@ -897,27 +901,27 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TỔNG TIỀN') {
-                                    let max = (data.items[i].value1 > data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
-                                    let min = (data.items[i].value1 < data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
-                                    var listYCMS = [];
-                                    let query = `SELECT [ID], [IDYeuCauMuaSam], [IDDMHangHoa], [Amount], [Price], [IDVanPhongPham], [AssetName] FROM [tblYeuCauMuaSamDetail] AS [tblYeuCauMuaSamDetail] WHERE [tblYeuCauMuaSamDetail].[Amount] * Price BETWEEN '` + min + `' AND '` + max + `';`
-                                    let dataResult = await db.query(query)
-                                    for (let item of dataResult[0]) {
-                                        console.log(item.Price, item.Amount);
-                                        listYCMS.push(item.IDYeuCauMuaSam)
-                                    }
-                                    userFind['ID'] = {
-                                        [Op.in]: listYCMS
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'And') {
-                                        arraySearchAnd.push(userFind)
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Or') {
-                                        arraySearchOr.push(userFind)
-                                    }
-                                    if (data.items[i].conditionFields['name'] == 'Not') {
-                                        arraySearchNot.push(userFind)
-                                    }
+                                    max = (data.items[i].value1 > data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    min = (data.items[i].value1 < data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    body.itemPerPage = 1000000
+                                    // var listYCMS = [];
+                                    // let query = `SELECT [ID], [IDYeuCauMuaSam], [IDDMHangHoa], [Amount], [Price], [IDVanPhongPham], [AssetName] FROM [tblYeuCauMuaSamDetail] AS [tblYeuCauMuaSamDetail] WHERE [tblYeuCauMuaSamDetail].[Amount] * Price BETWEEN '` + min + `' AND '` + max + `';`
+                                    // let dataResult = await db.query(query)
+                                    // for (let item of dataResult[0]) {
+                                    //     listYCMS.push(item.IDYeuCauMuaSam)
+                                    // }
+                                    // userFind['ID'] = {
+                                    //     [Op.in]: listYCMS
+                                    // }
+                                    // if (data.items[i].conditionFields['name'] == 'And') {
+                                    //     arraySearchAnd.push(userFind)
+                                    // }
+                                    // if (data.items[i].conditionFields['name'] == 'Or') {
+                                    //     arraySearchOr.push(userFind)
+                                    // }
+                                    // if (data.items[i].conditionFields['name'] == 'Not') {
+                                    //     arraySearchNot.push(userFind)
+                                    // }
                                 }
                             }
                         }
@@ -968,7 +972,6 @@ module.exports = {
                         }
                         whereObj[Op.and] = arraySearchAnd
                     }
-                    console.log(arraySearchAnd);
                     if (arraySearchNot.length > 0)
                         whereObj[Op.not] = arraySearchNot
                     let stt = 1;
@@ -981,6 +984,11 @@ module.exports = {
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
                     let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
                     tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+                    if (body.type == 'approval') {
+                        whereObj = [{
+                            Status: 'Chờ phê duyệt'
+                        }]
+                    }
                     tblYeuCauMuaSam.findAll({
                         order: [
                             ['ID', 'DESC']
@@ -1021,6 +1029,7 @@ module.exports = {
                         where: whereObj
                     }).then(async data => {
                         var array = [];
+                        var arrayResult = [];
                         data.forEach(element => {
                             var reasonReject = '';
                             if (element.ReasonReject1) {
@@ -1058,7 +1067,7 @@ module.exports = {
                             array.push(obj);
                             stt += 1;
                         });
-                        for (var i = 0; i < array.length; i++) {
+                        for (let i = 0; i < array.length; i++) {
                             var arrayTaiSan = []
                             var arrayFile = []
                             var total = 0;
@@ -1114,15 +1123,24 @@ module.exports = {
                                 }
                             })
                             array[i]['arrayTaiSan'] = arrayTaiSan;
+                            array[i]['arrayTaiSanApp'] = JSON.stringify(arrayTaiSan);
                             array[i]['arrayFile'] = arrayFile;
-
+                            if (max && min) {
+                                if (total < min || total > max) {
+                                    sub += 1
+                                } else {
+                                    arrayResult.push(array[i])
+                                }
+                            } else {
+                                arrayResult.push(array[i])
+                            }
                         }
                         var count = await tblYeuCauMuaSam.count({ where: whereObj })
                         var result = {
-                            array: array,
+                            array: arrayResult,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: count
+                            all: count - sub
                         }
                         res.json(result);
                     })

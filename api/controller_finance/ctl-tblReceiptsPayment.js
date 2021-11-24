@@ -6,6 +6,7 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblPaymentAccounting = require('../tables/financemanage/tblPaymentAccounting')
+var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
 var database = require('../database');
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 var mtblInvoice = require('../tables/financemanage/tblInvoice')

@@ -227,6 +227,9 @@ async function getStaffContractExpirationData() {
                         // Time: {
                         //     [Op.eq]: null
                         // },
+                        ContractDateEnd: {
+                            [Op.ne]: null
+                        },
                         NoticeTime: {
                             [Op.lte]: nowTime
                         }
@@ -235,6 +238,9 @@ async function getStaffContractExpirationData() {
                         Status: 'Có hiệu lực',
                         NoticeTime: {
                             [Op.lte]: nowTime
+                        },
+                        ContractDateEnd: {
+                            [Op.ne]: null
                         },
                         // Time: {
                         //     [Op.lte]: nowTime
@@ -336,7 +342,6 @@ async function getLeaveAndOvertimeOfUser(userID) {
             if (user) {
                 let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
                 if (permissions.notiNS) {
-                    console.log(permissions.notiNS);
                     for (let ts = 0; ts < permissions.notiNS.length; ts++) {
                         if (permissions.notiNS[ts].key == 'isNotiApprovalTakeLeave' && permissions.notiNS[ts].completed == true) {
                             isNotiApprovalTakeLeave = true
@@ -402,6 +407,9 @@ async function getListContactExpiration(db) {
                 Time: {
                     [Op.eq]: null
                 },
+                ContractDateEnd: {
+                    [Op.ne]: null
+                },
                 NoticeTime: {
                     [Op.substring]: now
                 }
@@ -413,6 +421,9 @@ async function getListContactExpiration(db) {
                 },
                 Time: {
                     [Op.lte]: nowTime
+                },
+                ContractDateEnd: {
+                    [Op.ne]: null
                 },
             }
             ]
@@ -451,7 +462,10 @@ async function getListContactDetail(db, id) {
             ID: id,
             NoticeTime: {
                 [Op.lte]: nowTime
-            }
+            },
+            ContractDateEnd: {
+                [Op.ne]: null
+            },
         },
         order: [
             ['ID', 'DESC']
@@ -486,7 +500,6 @@ async function getStaffContractExpirationDataFollowSocket(socket, id, io) {
                 if (user) {
                     let permissions = user.Permissions ? JSON.parse(user.Permissions) : {}
                     if (permissions.notiNS) {
-                        console.log(permissions.notiNS);
                         for (let ts = 0; ts < permissions.notiNS.length; ts++) {
                             if (permissions.notiNS[ts].key == 'isNotiContract' && permissions.notiNS[ts].completed == true) {
                                 isNotiContract = true
@@ -503,7 +516,6 @@ async function getStaffContractExpirationDataFollowSocket(socket, id, io) {
                     roomLeave = Object.keys(roomLeave)
                     for (let s = 0; s < roomLeave.length; s++) {
                         let socketGet = io.sockets.connected[roomLeave[s]]
-                        console.log(socketGet.userID);
                         if (obj.contractID) {
                             io.sockets.in(socketGet.id).emit('contract-expiration-detail', obj)
                         }

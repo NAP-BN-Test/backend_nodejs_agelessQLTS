@@ -29,6 +29,7 @@ module.exports = function (db) {
         IDReceiptsPayment: Sequelize.BIGINT,
         LiquidationMoney: Sequelize.FLOAT,
         AssetName: Sequelize.STRING,
+        DateIncreases: Sequelize.DATE,
     });
 
     return table;

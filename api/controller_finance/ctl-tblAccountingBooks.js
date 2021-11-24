@@ -1280,8 +1280,11 @@ module.exports = {
             'last_year',
             'this_year',
         ]
-        console.log(body);
         let dataSearch = JSON.parse(body.dataSearch)
+        if (dataSearch.selection != 'date_range') {
+            dataSearch.dateFrom = null
+            dataSearch.dateTo = null
+        }
         const currentYear = new Date().getFullYear()
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1574,7 +1577,7 @@ module.exports = {
                         console.log(arrayDebtSurplus, nameCurrencyCheck);
                         // //////////////////////////////////////////////////////////////////////////////
                         // có api qmcm sẽ phải làm lại
-                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && checkAccount131.AccountingCode == '131') {
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
                                 let dateInvoice = moment(invoice.createdDate).format('YYYY-DD-MM')
@@ -1620,7 +1623,7 @@ module.exports = {
                                 ID: dataSearch.accountSystemID
                             }
                         })
-                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && checkAccount331.AccountingCode == '331') {
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount331 && checkAccount331.AccountingCode == '331')) {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
                             for (credit of arrayCredit) {
                                 let dateInvoice = moment(credit.createdDate).format('YYYY-DD-MM')
@@ -2037,8 +2040,11 @@ module.exports = {
             'last_year',
             'this_year',
         ]
-        console.log(body);
         let dataSearch = JSON.parse(body.dataSearch)
+        if (dataSearch.selection != 'date_range') {
+            dataSearch.dateFrom = null
+            dataSearch.dateTo = null
+        }
         const currentYear = new Date().getFullYear()
         database.connectDatabase().then(async db => {
             if (db) {
@@ -2330,7 +2336,7 @@ module.exports = {
                             value: creaditSurplus
                         })
                         // //////////////////////////////////////////////////////////////////////////////
-                        if (checkAccount131 && checkAccount131.AccountingCode == '131' || !checkAccount131) {
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131') || (!checkAccount131 && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months'))) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
                                 let dateInvoice = moment(invoice.createdDate).format('YYYY-DD-MM')
@@ -2373,7 +2379,7 @@ module.exports = {
                             }
                         }
                         //  lấy dữ liệu credit Những credit chưa thanh toán tự động định khoản vào sổ tài khoản (tài khoản lấy theo pmcm gửi về)
-                        if (checkAccount331 && checkAccount331.AccountingCode == '331' || !checkAccount331) {
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount331.AccountingCode == '331') || (!checkAccount131 && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months'))) {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
                             for (credit of arrayCredit) {
                                 let dateInvoice = moment(credit.createdDate).format('YYYY-DD-MM')
@@ -2656,6 +2662,10 @@ module.exports = {
         let body = req.body;
         console.log(body);
         let dataSearch = JSON.parse(body.dataSearch)
+        if (dataSearch.selection != 'date_range') {
+            dataSearch.dateFrom = null
+            dataSearch.dateTo = null
+        }
         var arrayIDAccount = []
         if (dataSearch.accountSystemID)
             arrayIDAccount.push(dataSearch.accountSystemID)
@@ -4041,5 +4051,4 @@ module.exports = {
             }
         })
     },
-
 }

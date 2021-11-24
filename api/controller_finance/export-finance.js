@@ -1119,29 +1119,32 @@ module.exports = {
             type = '01-TT.docx'
             nameFile = 'Phiếu thu.docx'
             nameFilePDF = 'Phiếu thu pdf.pdf'
+            objKey['SỐ TIỀN'] = objKey['SỐ TIỀN'] + ' ' + objKey['LOẠI TIỀN']
         } else if (objKey != {} && objKey.type == 'spending') {
             type = '03-TT.docx'
             nameFile = 'Giấy báo có.docx'
             nameFilePDF = 'Giấy báo có pdf.pdf'
             objKey["SỐ TIỀN QUY ĐỔI"] = objKey["SỐ TIỀN"]
             objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
+            objKey['SỐ TIỀN'] = objKey['SỐ TIỀN'] + ' ' + objKey['LOẠI TIỀN']
         } else if (objKey != {} && objKey.type == 'debit') {
             type = '04-TT.docx'
             nameFile = 'Giấy báo nợ.docx'
             nameFilePDF = 'Giấy báo nợ pdf.pdf'
-            objKey["SỐ TIỀN QUY ĐỔI"] = objKey["SỐ TIỀN"]
             objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
         }
         else if (objKey != {} && objKey.type == 'payment') {
             type = '02-TT.docx'
             nameFile = 'Phiếu chi.docx'
             nameFilePDF = 'Phiếu chi pdf.pdf'
+            objKey['SỐ TIỀN'] = objKey['SỐ TIỀN'] + ' ' + objKey['LOẠI TIỀN']
         }
         else if (objKey != {} && objKey.type == 'accounting') {
             type = '05-TT.docx'
             nameFile = 'Phiếu kế toán.docx'
             nameFilePDF = 'Phiếu kế toán.pdf'
             objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
+            objKey['SỐ TIỀN'] = objKey['SỐ TIỀN'] + ' ' + objKey['LOẠI TIỀN']
         }
         var pathTo = 'C:/images_services/ageless_sendmail/'
         fs.readFile(pathTo + type, 'binary', async function (err, data) {

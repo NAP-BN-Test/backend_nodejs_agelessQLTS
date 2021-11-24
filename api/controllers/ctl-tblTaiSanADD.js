@@ -254,7 +254,7 @@ async function getDetailTaiSan(db, idTaiSan) {
             depreciationPrice: data.DepreciationPrice ? data.DepreciationPrice : 0,
             supplierName: data.taisanADD ? data.taisanADD.ncc ? data.taisanADD.ncc.SupplierName : '' : '',
             fileAttach: data.taisanADD ? data.taisanADD.file : [],
-            dateIncreases: data.taisanADD ? data.taisanADD.Date : '',
+            dateIncreases: data.DateIncreases ? data.DateIncreases : (data.taisanADD ? data.taisanADD.Date : ''),
             date: data.taisanADD ? data.taisanADD.Date : '',
             idTaiSanADD: data.taisanADD ? data.taisanADD.ID : null,
             staffName: staffName,
@@ -408,7 +408,7 @@ module.exports = {
                             Describe: body.obj.describe ? body.obj.describe : '',
                             TSNBCode: body.obj.code ? body.obj.code : '',
                             AssetName: body.obj.assetName,
-                            // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
+                            DateIncreases: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     } else {
                         obj = {
@@ -423,7 +423,7 @@ module.exports = {
                             TSNBCode: body.obj.code ? body.obj.code : '',
                             Status: status,
                             AssetName: body.obj.assetName,
-                            // DepreciationDate: body.obj.dateIncreases ? body.obj.dateIncreases : null,
+                            DateIncreases: body.obj.dateIncreases ? body.obj.dateIncreases : null,
                         }
                     }
                     await mtblTaiSan(db).update(obj, {
@@ -747,6 +747,7 @@ module.exports = {
     // get_list_tbl_TaiSan_ChuaSuDung
     getListtblTaiSanChuaSuDung: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1059,6 +1060,36 @@ module.exports = {
                                         arraySearchNot.push(userFind)
                                     }
                                 }
+                                if (data.items[i].fields['name'] === 'NGÀY THANH LÝ') {
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    userFind['LiquidationDate'] = {
+                                        [Op.between]: [startDate, endDate]
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LÝ DO') {
+                                    userFind['LiquidationReason'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                                 if (data.items[i].fields['name'] === 'NGÀY HẾT BẢO HÀNH') {
                                     checkDate = true
                                     dateMin = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD')
@@ -1114,6 +1145,7 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         var stt = 1;
+                        let dateCheck;
                         for (let element of data) {
                             let staffName = await getStaffFromTaiSan(db, element.ID);
                             let departmentName = await getDepartFromTaiSan(db, element.ID);
@@ -1122,8 +1154,10 @@ module.exports = {
                             let month = Number(moment().format('MM')) + Number(moment().format('YY') * 12);
                             if (element.taisan) {
                                 guaranteDate = element.taisan.Date ? moment(element.taisan.Date).add(Number(element.GuaranteeMonth), 'M').format('DD/MM/YYYY') : ''
+                                dateCheck = element.taisan.Date ? moment(element.taisan.Date).add(Number(element.GuaranteeMonth), 'M').format('YYYY-MM-DD') : ''
                                 warrantyRemaining = Number(element.GuaranteeMonth) - (Number(month) - (Number(moment(element.taisan.Date).format('MM')) + Number(moment(element.taisan.Date).format('YY')) * 12))
                             }
+                            console.log(element.OriginalPrice);
                             var obj = {
                                 stt: stt,
                                 staffName: staffName,
@@ -1153,7 +1187,7 @@ module.exports = {
                                 isCreateReceipt: element.IDReceiptsPayment ? true : false
                             }
                             if (check && warrantyRemaining >= warrantyRemainingMin && warrantyRemaining <= warrantyRemainingMax || !check) {
-                                if (checkDate && moment(dateMax).isAfter(guaranteDate) && moment(dateMin).isBefore(guaranteDate) || !checkDate) {
+                                if (checkDate && moment(dateCheck).isAfter(dateMin) && moment(dateCheck).isBefore(dateMax) || !checkDate) {
                                     array.push(obj);
                                     stt += 1;
                                     dem += 1;
