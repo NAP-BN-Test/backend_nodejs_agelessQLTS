@@ -12,6 +12,7 @@ var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan'
 var mtblInvoice = require('../tables/financemanage/tblInvoice')
 var mtblPaymentRPayment = require('../tables/financemanage/tblPaymentRPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
+var mtblInvoiceRCurrency = require('../tables/financemanage/tblInvoiceRCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
@@ -59,7 +60,7 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
                         IDSpecializedSoftware: data[d].IDSpecializedSoftware
                     }
                 })
-                if (invoiceOld.ID)
+                if (invoiceOld && invoiceOld.ID)
                     await mtblInvoice(db).update({
                         UnpaidAmount: Number(invoiceOld.UnpaidAmount ? invoiceOld.UnpaidAmount : 0) + Number(data[d].Amount ? data[d].Amount : 0),
                         PaidAmount: Number(invoiceOld.PaidAmount ? invoiceOld.PaidAmount : 0) - Number(data[d].Amount ? data[d].Amount : 0),
@@ -83,7 +84,6 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
             let paymentUpdate = await mtblReceiptsPayment(db).findOne({
                 where: { ID: payment[i].IDPaymentR }
             })
-
             await mtblReceiptsPayment(db).update({
                 UnpaidAmount: paymentUpdate.UnpaidAmount + (payment[i].Amount ? payment[i].Amount : 0),
                 PaidAmount: paymentUpdate.PaidAmount - (payment[i].Amount ? payment[i].Amount : 0),
@@ -744,7 +744,7 @@ async function createTBLCoQuanNhaNuoc(db, date, voucherNumber, moneyNumber, type
 }
 var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
 // 
-async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID) {
+async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currencyID) {
     await mtblPaymentRInvoice(db).findAll({
         where: {
             IDPayment: receiptsPaymentID
@@ -756,15 +756,17 @@ async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID) {
                     IDSpecializedSoftware: item.IDSpecializedSoftware
                 }
             })
-            if (invoiceOld.ID)
-                await mtblInvoice(db).update({
+            if (invoiceOld.ID) {
+                await mtblInvoiceRCurrency(db).update({
                     UnpaidAmount: Number(invoiceOld.UnpaidAmount ? invoiceOld.UnpaidAmount : 0) + Number(item.Amount ? item.Amount : 0),
                     PaidAmount: Number(invoiceOld.PaidAmount ? invoiceOld.PaidAmount : 0) - Number(item.Amount ? item.Amount : 0),
                 }, {
                     where: {
-                        ID: invoiceOld.ID
+                        InvoiceID: invoiceOld.ID,
+                        CurrencyID: currencyID,
                     }
                 })
+            }
         }
     })
     await mtblPaymentRInvoice(db).destroy({
@@ -775,9 +777,9 @@ async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID) {
 }
 
 // tính toán số tiền lại đã thanh toán, chưa thanh toán credit khi tạo phiếu thu
-async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPaymentID, type) {
+async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPaymentID, type, currencyID) {
     if (type == 'update')
-        await addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID)
+        await addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currencyID)
     // reListCreditID = listCreditID.reverse() // đổi vị trí ngược lại các phần tử trong mảng
     listCreditID = listCreditID.sort(function (a, b) { return a - b })
     for (let i = 0; i < listCreditID.length; i++) {
@@ -801,15 +803,23 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                     if ((unpaidAmount - amount) == 0) {
                         status = 'Đã thanh toán'
                     }
-                    await mtblInvoice(db).update({
+                    await mtblInvoiceRCurrency(db).create({
+                        CurrencyID: currencyID,
+                        InvoiceID: data.ID,
+                        InitialAmount: data.InitialAmount ? data.InitialAmount : 0,
                         UnpaidAmount: unpaidAmount - amount,
                         PaidAmount: paidAmount + amount,
                         Status: status,
-                    }, {
-                        where: {
-                            ID: data.ID
-                        }
                     })
+                    // await mtblInvoice(db).update({
+                    //     UnpaidAmount: unpaidAmount - amount,
+                    //     PaidAmount: paidAmount + amount,
+                    //     Status: status,
+                    // }, {
+                    //     where: {
+                    //         ID: data.ID
+                    //     }
+                    // })
                     amount = 0;
                 } else {
                     await mtblPaymentRInvoice(db).create({
@@ -817,15 +827,23 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                         IDSpecializedSoftware: creditID,
                         Amount: unpaidAmount,
                     })
-                    await mtblInvoice(db).update({
+                    await mtblInvoiceRCurrency(db).create({
+                        CurrencyID: currencyID,
+                        InvoiceID: data.ID,
+                        InitialAmount: data.InitialAmount ? data.InitialAmount : 0,
                         UnpaidAmount: 0,
                         PaidAmount: paidAmount + unpaidAmount,
                         Status: 'Đã thanh toán'
-                    }, {
-                        where: {
-                            ID: data.ID
-                        }
                     })
+                    // await mtblInvoice(db).update({
+                    //     UnpaidAmount: 0,
+                    //     PaidAmount: paidAmount + unpaidAmount,
+                    //     Status: 'Đã thanh toán'
+                    // }, {
+                    //     where: {
+                    //         ID: data.ID
+                    //     }
+                    // })
                     amount -= unpaidAmount
                 }
             }
@@ -1264,7 +1282,7 @@ module.exports = {
                     await mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         // tạo bản ghi thanh toán cơ quan nhà nước
                         if (body.type == 'payment' || body.type == 'debit') {
-                            await recalculateTheAmountOfCredit(db, body.amount ? body.amount : 0, listInvoiceID, data.ID, 'create')
+                            await recalculateTheAmountOfCredit(db, body.amount ? body.amount : 0, listInvoiceID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
                         } else {
                             let Payments = 'Tiền mặt'
                             if (body.type == "debit") {
@@ -1595,12 +1613,12 @@ module.exports = {
                     let customerID = body.object.id
                     await database.updateTable(update, mtblReceiptsPayment(db), body.id).then(async response => {
                         if (response == 1) {
-                            await recalculateTheAmountOfCredit(db, (body.amount ? body.amount : 0), listInvoiceID, body.id, 'update')
                             let detail = await mtblReceiptsPayment(db).findOne({
                                 where: {
                                     ID: body.id
                                 }
                             })
+                            await recalculateTheAmountOfCredit(db, (body.amount ? body.amount : 0), listInvoiceID, body.id, 'update', detail.IDCurrency)
                             await deleteAndCreateAllInvoice(db, body.id, listInvoiceID, detail ? detail.Type : null, detail ? detail.Date : null)
 
                             if (type == "customer") {

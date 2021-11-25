@@ -1279,6 +1279,7 @@ module.exports = {
     // get_list_invoice_wait_for_pay_from_customer
     getListInvoiceWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": body.itemPerPage ? body.itemPerPage : 0,
@@ -1286,12 +1287,23 @@ module.exports = {
             },
             "type": body.type
         }
+        let nameCurrency = 'VND'
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         //     if (data) {
         //         if (data.data.status_code == 200) {
         database.connectDatabase().then(async db => {
             try {
                 if (db) {
+                    if (body.currencyID) {
+                        await mtblCurrency(db).findOne({
+                            where: {
+                                ID: body.currencyID
+                            }
+                        }).then(data => {
+                            if (data)
+                                nameCurrency = data.ShortName
+                        })
+                    }
                     if (body.idCustomer != '1') {
                         var result = {
                             arrayCreate: [],
@@ -1309,7 +1321,6 @@ module.exports = {
                         let totalMoney = []
                         let arrayInvoice = []
                         if (body.idReceiptPayment) {
-
                             await mtblReceiptsPayment(db).findOne({
                                 where: {
                                     ID: body.idReceiptPayment
@@ -1333,12 +1344,19 @@ module.exports = {
                             let totalMoneyVND = 0
                             let = arrayExchangeRate = []
                             for (let m = 0; m < data[i].arrayMoney.length; m++) {
-                                arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-                                totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
+                                if (body.currencyID) {
+                                    for (let item of data[i].arrayMoney) {
+                                        if (nameCurrency == item.typeMoney)
+                                            totalMoneyVND = item.total
+                                    }
+                                } else {
+                                    arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
+                                    totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
+                                }
                             }
                             data[i]['totalMoneyVND'] = totalMoneyVND
                             data[i]['totalMoneyDisplay'] = totalMoneyVND
-                            data[i]['typeMoney'] = 'VND'
+                            data[i]['typeMoney'] = nameCurrency
                             data[i]['arrayExchangeRate'] = arrayExchangeRate
                             if (!check) {
                                 await mtblInvoice(db).create({
@@ -1350,10 +1368,8 @@ module.exports = {
                                     arrayCreate.push(data[i])
                                 }
                                 else {
-                                    console.log(arrayInvoice, data[i].id);
                                     if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
                                         array.push(data[i])
-
                                     }
                                 }
                             } else {
@@ -1549,6 +1565,7 @@ module.exports = {
     // get_list_credit_wait_for_pay_from_customer
     getListCreditWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
+        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -1556,6 +1573,197 @@ module.exports = {
             },
             "type": body.type
         }
+        dataCredit = [{
+            id: 100,
+            createdDate: '01/05/2020',
+            invoiceNumber: 'INV0001',
+            total: '1000000',
+            statusName: 'Chờ thanh toám',
+            idCustomer: 10,
+            creditNumber: 'CRE0001',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: 'Yêu cầu Xóa',
+            accountingDebt: '331',
+            accountingCredit: '642',
+            nameAccountingDebt: 'Phải trả người bán',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 102,
+            createdDate: '01/05/2020',
+            invoiceNumber: 'INV0002',
+            total: '1200000',
+            statusName: 'Chờ thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0002',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: '',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 103,
+            createdDate: '03/05/2020',
+            invoiceNumber: 'INV0003',
+            total: '1300000',
+            statusName: 'Đã thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0003',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: 'Yêu cầu xóa',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 104,
+            createdDate: '04/05/2020',
+            invoiceNumber: 'INV0004',
+            total: '1400000',
+            statusName: 'Đã thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0004',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: 'Yêu cầu sửa',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 105,
+            createdDate: '05/05/2020',
+            invoiceNumber: 'INV0005',
+            total: '1500000',
+            statusName: 'Chờ thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0005',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: '',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 106,
+            createdDate: '06/05/2020',
+            invoiceNumber: 'INV0006',
+            total: '1600000',
+            statusName: 'Chờ thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0006',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: '',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 107,
+            createdDate: '07/05/2020',
+            invoiceNumber: 'INV0007',
+            total: '1700000',
+            statusName: 'Đã thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0007',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: 'Yêu cầu xóa',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 108,
+            createdDate: '08/05/2020',
+            invoiceNumber: 'INV0008',
+            total: '1800000',
+            statusName: 'Chờ thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0008',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: '',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 109,
+            createdDate: '10/05/2020',
+            invoiceNumber: 'INV0009',
+            total: '1900000',
+            statusName: 'Chờ thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0009',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: '',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        {
+            id: 110,
+            createdDate: '12/05/2020',
+            invoiceNumber: 'INV0010',
+            total: '12000000',
+            statusName: 'Đã thanh toán',
+            idCustomer: 10,
+            creditNumber: 'CRE0010',
+            typeMoney: 'VND',
+            customerName: 'Công ty tnhh Hòa Phát',
+            employeeName: 'Lê Thị Thảo',
+            idEmployee: 1,
+            content: 'test 01',
+            request: 'Yêu cầu sửa',
+            accountingDebt: '331',
+            nameAccountingDebt: 'Phải trả người bán',
+            accountingCredit: '642',
+            nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
+        },
+        ]
         // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1605,7 +1813,7 @@ module.exports = {
                                     dataCredit[i]['paymentAmount'] = 0
                                     array.push(dataCredit[i])
                                 }
-                                if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || dataCredit[i].statusName == 'Chờ thanh toán')
+                                if (checkDuplicate(arrayUpdate, Number(dataCredit[i].id)) || dataCredit[i].statusName == 'Chờ thanh toán')
                                     updateArr.push(dataCredit[i])
                             } else {
                                 let amountPaid = await mtblPaymentRInvoice(db).findOne({

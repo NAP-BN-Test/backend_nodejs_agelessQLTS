@@ -641,9 +641,6 @@ module.exports = {
                 },
                 "type": body.type
             }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
             if (data) {
                 let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
                 for (let i = 0; i < data.length; i++) {

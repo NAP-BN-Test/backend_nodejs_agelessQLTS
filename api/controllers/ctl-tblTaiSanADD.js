@@ -1715,7 +1715,6 @@ module.exports = {
             }
         })
     },
-
     // get_list_asset_not_use
     getListAssetNotuse: (req, res) => {
         let body = req.body;
