@@ -6,6 +6,7 @@ var mtblInvoice = require('../tables/financemanage/tblInvoice')
 var database = require('../database');
 const axios = require('axios');
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
+var mtblInvoiceRCurrency = require('../tables/financemanage/tblInvoiceRCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 async function deleteRelationshiptblInvoice(db, listID) {
     await mtblInvoice(db).destroy({
@@ -647,13 +648,15 @@ module.exports = {
                     let check = await mtblInvoice(db).findOne({
                         where: { IDSpecializedSoftware: data[i].id }
                     })
+                    let invoiceID;
                     if (!check) {
-                        await mtblInvoice(db).create({
+                        invoiceID = await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
                             Status: data[i].statusName,
                             Request: data[i].request
                         })
                     } else {
+                        invoiceID = check
                         data[i].statusName = check.Status
                         data[i].request = check.Request
                     }
@@ -662,6 +665,28 @@ module.exports = {
                     for (let m = 0; m < data[i].arrayMoney.length; m++) {
                         totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
+                        let currency = await mtblCurrency(db).findOne({
+                            where: {
+                                ShortName: data[i].arrayMoney[m].typeMoney
+                            }
+                        })
+                        if (currency) {
+                            let checkCurrency = await mtblInvoiceRCurrency(db).findOne({
+                                where: {
+                                    CurrencyID: currency.ID,
+                                    InvoiceID: invoiceID.ID,
+                                }
+                            })
+                            if (!checkCurrency)
+                                await mtblInvoiceRCurrency(db).create({
+                                    CurrencyID: currency.ID,
+                                    InvoiceID: invoiceID.ID,
+                                    UnpaidAmount: data[i].arrayMoney[m].total,
+                                    PaidAmount: 0,
+                                    InitialAmount: data[i].arrayMoney[m].total,
+                                    Status: data[i].statusName,
+                                })
+                        }
                     }
                     data[i]['totalMoneyVND'] = totalMoneyVND
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
