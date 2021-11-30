@@ -495,7 +495,7 @@ module.exports = {
                         }
                     })
                     let arrayData = [];
-                    await axios.get(`http://192.168.23.16:1333/dulieuchamcong/index`).then(data => {
+                    await axios.get(`http://dbdev.namanphu.vn:1333/dulieuchamcong/index`).then(data => {
                         if (data.data.length > 0)
                             arrayData = data.data
                     })
@@ -582,7 +582,7 @@ module.exports = {
                 });
                 schedule.scheduleJob({ hour: 11, minute: 59 }, async function () {
                     let arrayData = [];
-                    await axios.get(`http://192.168.23.16:1333/dulieuchamcong/index`).then(data => {
+                    await axios.get(`http://dbdev.namanphu.vn:1333/dulieuchamcong/index`).then(data => {
                         if (data.data.length > 0)
                             arrayData = data.data
                     })

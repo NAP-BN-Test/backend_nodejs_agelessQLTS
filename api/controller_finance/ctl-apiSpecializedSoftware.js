@@ -1414,24 +1414,23 @@ module.exports = {
                                     IDSpecializedSoftware: data[i].id,
                                     Status: data[i].statusName
                                 })
-                                if (data[i].statusName == 'Chờ thanh toán') {
+                                if (data[i].statusName == 'Chờ thanh toán' && totalMoneyVND != 0) {
                                     array.push(data[i])
                                     arrayCreate.push(data[i])
                                 }
                                 else {
-                                    if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                                    if (checkDuplicate(arrayInvoice, Number(data[i].id) && totalMoneyVND != 0)) {
                                         array.push(data[i])
                                     }
                                 }
                             } else {
-                                if (check.Status == 'Chờ thanh toán') {
+                                if (check.Status == 'Chờ thanh toán' && totalMoneyVND != 0) {
                                     // data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                                     // data[i]['payments'] = check ? check.Payments : ''
                                     array.push(data[i])
                                     arrayCreate.push(data[i])
-                                }
-                                else {
-                                    if (checkDuplicate(arrayInvoice, Number(data[i].id))) {
+                                } else {
+                                    if (checkDuplicate(arrayInvoice, Number(data[i].id)) && totalMoneyVND != 0) {
                                         array.push(data[i])
                                     }
                                 }
@@ -2306,7 +2305,7 @@ module.exports = {
                         }
                     }
                 }
-                let totalMoney = await calculateTheTotalForCredit(array)
+                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                 var result = {
                     array: array,
                     status: Constant.STATUS.SUCCESS,
@@ -2378,7 +2377,7 @@ module.exports = {
                         }
                     }
                 }
-                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                 var result = {
                     array: array,
                     status: Constant.STATUS.SUCCESS,
@@ -2436,7 +2435,7 @@ module.exports = {
                             array.push(dataCredit[i])
                     }
                 }
-                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                 var result = {
                     array: array,
                     status: Constant.STATUS.SUCCESS,
@@ -2494,7 +2493,7 @@ module.exports = {
                             array.push(dataCredit[i])
                     }
                 }
-                let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                 var result = {
                     array: array,
                     status: Constant.STATUS.SUCCESS,
