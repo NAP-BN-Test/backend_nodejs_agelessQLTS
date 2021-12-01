@@ -400,7 +400,7 @@ module.exports = function (app) {
 
     app.route('/qlnb/synthetic_information_monthly').post(tblBangLuong.syntheticInformationMonthly);
 
-    app.route('/qlnb/delete_and_create_data_timekeeping').post(tblBangLuong.deleteAndCreateDataTimeKeeping);
+    app.route('/qlnb/delete_and_create_data_timekeeping').get(tblBangLuong.deleteAndCreateDataTimeKeeping);
 
     //---------------------------------------------------------------- Mức đóng bảo hiểm --------------------------------------------------------------------------------------
     var tblMucDongBaoHiem = require('./controllers_hr/ctl-tblMucDongBaoHiem');

@@ -17,9 +17,12 @@ async function filterByDate(userID, dateFinal, array, month, year) {
     var arrayResult = [];
     for (var i = 0; i < array.length; i++) {
         var date = moment(array[i]['Verify Date']).format("YYYY-MM-DD hh:mm:ss")
-        if (Number(date.slice(5, 7)) == month && Number(date.slice(0, 4)) == year) {
-            if (array[i]['User ID'] == userID && Number(date.slice(8, 10)) == dateFinal) {
-                arrayResult.push(array[i]['Verify Date'].slice(9, 22).trim())
+        let monthDate = moment(array[i]['Verify Date']).format("MM")
+        let yearDate = moment(array[i]['Verify Date']).format("YYYY")
+        let mDate = moment(array[i]['Verify Date']).format("DD")
+        if (Number(monthDate) == Number(month) && Number(yearDate) == Number(year)) {
+            if (array[i]['User ID'] == userID && Number(mDate) == Number(dateFinal)) {
+                arrayResult.push(moment(array[i]['Verify Date']).format("HH:MM:ss"))
             }
         }
 
@@ -529,7 +532,7 @@ module.exports = {
                                 }
                             })
                             if (!checkTimekeeping) {
-                                await createDataTimeKeeping(db, year, month, date, staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
+                                await createDataTimeKeeping(db, year, month, Number(date), staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
                             }
                         }
                     }
@@ -552,7 +555,7 @@ module.exports = {
                                             }
                                         })
                                         if (!timeKeeping) {
-                                            await createDataTimeKeeping(db, year, month, date, staffObj[staff].ID, staffObj[staff].IDMayChamCong, arrayData);
+                                            await createDataTimeKeeping(db, year, month, Number(date), staffObj[staff].ID, staffObj[staff].IDMayChamCong, arrayData);
                                         }
                                     }
                                 }
@@ -616,7 +619,7 @@ module.exports = {
                                 }
                             })
                             if (!checkTimekeeping) {
-                                await createDataTimeKeeping(db, year, month, date, staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
+                                await createDataTimeKeeping(db, year, month, Number(date), staff.ID, arrayData[dataTimeKp]['User ID'], arrayData);
                             }
                         }
                     }
@@ -639,7 +642,7 @@ module.exports = {
                                             }
                                         })
                                         if (!timeKeeping) {
-                                            await createDataTimeKeeping(db, year, month, date, staffObj[staff].ID, staffObj[staff].IDMayChamCong, arrayData);
+                                            await createDataTimeKeeping(db, year, month, Number(date), staffObj[staff].ID, staffObj[staff].IDMayChamCong, arrayData);
                                         }
                                     }
                                 }
