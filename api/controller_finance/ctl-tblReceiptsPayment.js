@@ -770,6 +770,7 @@ async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currency
                     await mtblInvoiceRCurrency(db).update({
                         UnpaidAmount: Number(InCurr.UnpaidAmount ? InCurr.UnpaidAmount : 0) + Number(item.Amount ? item.Amount : 0),
                         PaidAmount: Number(InCurr.PaidAmount ? InCurr.PaidAmount : 0) - Number(item.Amount ? item.Amount : 0),
+                        Status: 'Chờ thanh toán'
                     }, {
                         where: {
                             InvoiceID: invoiceOld.ID,

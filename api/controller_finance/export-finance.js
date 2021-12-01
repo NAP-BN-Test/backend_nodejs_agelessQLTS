@@ -1132,6 +1132,7 @@ module.exports = {
             nameFile = 'Giấy báo nợ.docx'
             nameFilePDF = 'Giấy báo nợ pdf.pdf'
             objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
+            objKey["SỐ TIỀN QUY ĐỔI"] = objKey["SỐ TIỀN"]
         }
         else if (objKey != {} && objKey.type == 'payment') {
             type = '02-TT.docx'

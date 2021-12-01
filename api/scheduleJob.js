@@ -475,7 +475,6 @@ module.exports = {
                     })
                 }
                 var job = schedule.scheduleJob({ hour: 23, minute: 59 }, async function () {
-                    console.log(1234567890);
                     let nowCur = moment().add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
                     await mtblCurrency(db).findAll().then(async data => {
                         for (let i = 0; i < data.length; i++) {
