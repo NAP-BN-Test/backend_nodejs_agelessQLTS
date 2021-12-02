@@ -228,6 +228,7 @@ module.exports = function (app) {
     app.route('/qlnb/update_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.updatetblDeNghiThanhToan);
     app.route('/qlnb/delete_tbl_denghi_thanhtoan').post(checkToken.checkToken, tblDeNghiThanhToan.deletetblDeNghiThanhToan);
     app.route('/qlnb/get_list_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.getListtblDeNghiThanhToan);
+    app.route('/qlnb/get_list_tbl_denghi_thanhtoan_app').post(tblDeNghiThanhToan.getListtblDeNghiThanhToanApp);
     app.route('/qlnb/detail_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.detailtblDeNghiThanhToan);
 
     app.route('/qlnb/get_list_name_tbl_denghi_thanhtoan').post(tblDeNghiThanhToan.getListNametblDeNghiThanhToan);

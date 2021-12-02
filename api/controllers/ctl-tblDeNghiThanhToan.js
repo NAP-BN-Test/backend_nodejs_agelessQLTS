@@ -1111,4 +1111,188 @@ module.exports = {
             }
         })
     },
+    // get_list_tbl_denghi_thanhtoan_app
+    getListtblDeNghiThanhToanApp: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let stt = 1;
+                    let tblDeNghiThanhToan = mtblDeNghiThanhToan(db);
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                    tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienKTPD', sourceKey: 'idNhanVienKTPD', as: 'KTPD' })
+                    tblDeNghiThanhToan.belongsTo(mtblDMNhaCungCap(db), { foreignKey: 'IDSupplier', sourceKey: 'IDSupplier', as: 'supplier' })
+                    tblDeNghiThanhToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
+                    tblDeNghiThanhToan.belongsTo(tblDMNhanvien, { foreignKey: 'idNhanVienLDPD', sourceKey: 'idNhanVienLDPD', as: 'LDPD' })
+                    tblDeNghiThanhToan.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: {
+                            [Op.or]: [
+                                {
+                                    TrangThaiPheDuyetKT: 'Chờ phê duyệt',
+                                },
+                                {
+                                    TrangThaiPheDuyetLD: 'Chờ phê duyệt',
+                                },
+                            ]
+                        },
+                        include: [{
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'NhanVien',
+                            include: [{
+                                model: mtblDMBoPhan(db),
+                                required: false,
+                                as: 'bp'
+                            },]
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'KTPD'
+                        },
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'LDPD'
+                        },
+                        {
+                            model: mtblDMNhaCungCap(db),
+                            required: false,
+                            as: 'supplier'
+                        },
+                        {
+                            model: mtblCurrency(db),
+                            required: false,
+                            as: 'currency'
+                        },
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        for (let element of data) {
+                            let dataCus = await getDetailCustomer(element.CustomerID)
+                            let statusKT;
+                            if (element.TrangThaiPheDuyetKT === 'Đã phê duyệt')
+                                statusKT = element.KTPD ? element.KTPD.StaffName : '';
+                            else if (element.TrangThaiPheDuyetKT === 'Từ chối')
+                                statusKT = element.ReasonRejectKTPD ? element.ReasonRejectKTPD : '';
+                            else
+                                statusKT = element.TrangThaiPheDuyetKT ? element.TrangThaiPheDuyetKT : '';
+                            let statusLD;
+                            if (element.TrangThaiPheDuyetLD === 'Đã phê duyệt')
+                                statusLD = element.LDPD ? element.LDPD.StaffName : '';
+                            else if (element.TrangThaiPheDuyetLD === 'Từ chối')
+                                statusLD = element.ReasonRejectLDPD ? element.ReasonRejectLDPD : '';
+                            else
+                                statusLD = element.TrangThaiPheDuyetLD ? element.TrangThaiPheDuyetLD : '';
+                            let checkPayment = false
+                            if (element.IDReceiptsPayment != null) {
+                                checkPayment = true
+                            }
+                            var obj = {
+                                stt: stt,
+                                id: Number(element.ID),
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                currencyID: element.CurrencyID ? element.CurrencyID : null,
+                                nameNhanVien: element.NhanVien ? element.NhanVien.StaffName : '',
+                                costText: element.CostText ? element.CostText : '',
+                                departmentName: element.NhanVien ? element.NhanVien.bp ? element.NhanVien.bp.DepartmentName : '' : '',
+                                contents: element.Contents ? element.Contents : '',
+                                cost: element.Cost ? element.Cost : null,
+                                idNhanVienKTPD: element.IDNhanVienKTPD ? element.IDNhanVienKTPD : null,
+                                nameNhanVienKTPD: element.KTPD ? element.KTPD.StaffName : '',
+                                trangThaiPheDuyetKT: statusKT,
+                                idNhanVienLDPD: element.IDNhanVienLDPD ? element.IDNhanVienLDPD : null,
+                                nameNhanVienLDPD: element.LDPD ? element.LDPD.StaffName : '',
+                                paymentOrderCode: element.PaymentOrderCode ? element.PaymentOrderCode : '',
+                                trangThaiPheDuyetLD: statusLD,
+                                isCreatePayment: element.IDReceiptsPayment ? true : false,
+                                supplierName: element.supplier ? element.supplier.SupplierName : '',
+                                idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
+                                linkPayroll: element.Link ? element.Link : '',
+                                isCheckPayment: checkPayment,
+                                nameCurrency: element.currency ? element.currency.ShortName : '',
+                            }
+                            if (element.IDSupplier) {
+                                let supplier = await mtblDMNhaCungCap(db).findOne({
+                                    where: { ID: element.IDSupplier }
+                                })
+                                obj['object'] = {
+                                    name: supplier ? supplier.SupplierName : '',
+                                    code: supplier ? supplier.SupplierCode : '',
+                                    address: supplier ? supplier.Address : '',
+                                    displayName: '[' + (supplier ? supplier.SupplierCode : '') + '] ' + (supplier ? supplier.SupplierName : ''),
+                                    id: element.IDSupplier,
+                                    type: 'supplier',
+                                }
+                            } else if (element.CustomerID) {
+                                obj['object'] = {
+                                    name: dataCus ? dataCus.name : '',
+                                    code: dataCus ? dataCus.customerCode : '',
+                                    displayName: '[' + (dataCus ? dataCus.customerCode : '') + '] ' + (dataCus ? dataCus.name : ''),
+                                    address: dataCus ? dataCus.address : '',
+                                    id: element.CustomerID,
+                                    type: 'customer',
+                                }
+                            }
+                            obj['objectName'] = obj.object ? obj['object'].displayName : ''
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDDeNghiThanhToan: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayFile'] = arrayFile;
+                            await mtblYeuCauMuaSam(db).findOne({ where: { IDPaymentOrder: array[i].id } }).then(data => {
+                                if (data)
+                                    array[i]['check'] = true;
+                                else
+                                    array[i]['check'] = false;
+                            })
+                        }
+                        var count = await mtblDeNghiThanhToan(db).count({
+                            where: {
+                                [Op.or]: [
+                                    {
+                                        TrangThaiPheDuyetKT: 'Chờ phê duyệt',
+                                    },
+                                    {
+                                        TrangThaiPheDuyetLD: 'Chờ phê duyệt',
+                                    },
+                                ]
+                            },
+                        })
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }
