@@ -41,8 +41,8 @@ module.exports = {
     // },
     config: {
         user: 'sa',
-        password: 'Viet@solution$213%171^198',
-        server: 'dbdev.namanphu.vn',
+        password: 'Viet@solution$213%171^198', // Viet@solution$213%171^198
+        server: 'dbdev.namanphu.vn', //dbdev.namanphu.vn , 192.168.23.16
         database: 'TXAGELESS_QLNB', // GELESS_QLNB con demo
         options: {
             encrypt: false,

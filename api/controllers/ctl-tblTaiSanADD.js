@@ -897,7 +897,6 @@ module.exports = {
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
                                     array.sort(function (a, b) { return a - b });
-                                    console.log(array);
                                     userFind['DepreciationPrice'] = { [Op.between]: array }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
@@ -1096,6 +1095,20 @@ module.exports = {
                                     dateMax = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD')
                                     body.itemPerPage = 10000000000
                                 }
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['StatusUsed'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
                             }
                         }
                     } else {
@@ -1157,7 +1170,6 @@ module.exports = {
                                 dateCheck = element.taisan.Date ? moment(element.taisan.Date).add(Number(element.GuaranteeMonth), 'M').format('YYYY-MM-DD') : ''
                                 warrantyRemaining = Number(element.GuaranteeMonth) - (Number(month) - (Number(moment(element.taisan.Date).format('MM')) + Number(moment(element.taisan.Date).format('YY')) * 12))
                             }
-                            console.log(element.OriginalPrice);
                             var obj = {
                                 stt: stt,
                                 staffName: staffName,

@@ -22,7 +22,7 @@ async function filterByDate(userID, dateFinal, array, month, year) {
         let mDate = moment(array[i]['Verify Date']).format("DD")
         if (Number(monthDate) == Number(month) && Number(yearDate) == Number(year)) {
             if (array[i]['User ID'] == userID && Number(mDate) == Number(dateFinal)) {
-                arrayResult.push(moment(array[i]['Verify Date']).format("HH:MM:ss"))
+                arrayResult.push(moment(array[i]['Verify Date']).format("HH:mm:ss"))
             }
         }
 

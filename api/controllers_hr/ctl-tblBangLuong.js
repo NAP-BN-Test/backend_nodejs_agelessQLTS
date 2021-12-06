@@ -50,7 +50,7 @@ async function filterByDate(userID, dateFinal, array, month, year) {
         let mDate = moment(array[i]['Verify Date']).format("DD")
         if (Number(monthDate) == Number(month) && Number(yearDate) == Number(year)) {
             if (array[i]['User ID'] == userID && Number(mDate) == Number(dateFinal)) {
-                arrayResult.push(moment(array[i]['Verify Date']).format("HH:MM:ss"))
+                arrayResult.push(moment(array[i]['Verify Date']).format("HH:mm:ss"))
             }
         }
 
@@ -649,7 +649,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     let seventeenH = 3600 * 17 + 30 * 60
     let eightH = 3600 * 8
     let twelveH = 3600 * 12 + 30 * 60
-    let thirteenH = 3600 * 13
+    let thirteenH = 3600 * 13 + 30 * 60
     let arrayTimeOfDate = await filterByDate(userID, date, arrayData, month, year)
     let maxTime = await maxTimeArray(arrayTimeOfDate);
     let minTime = await minTimeArray(arrayTimeOfDate);
@@ -2659,7 +2659,6 @@ module.exports = {
                         }
                     })
                 }
-                console.log(arrayMonthCheck);
                 for (let dataTimeKp = 0; dataTimeKp < arrayData.length; dataTimeKp++) {
                     let date = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('DD');
                     let month = moment(arrayData[dataTimeKp]['Verify Date'], 'YYYY-M-D h:m:s').format('MM');

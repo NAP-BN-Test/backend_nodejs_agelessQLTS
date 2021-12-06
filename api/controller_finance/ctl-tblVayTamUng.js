@@ -419,7 +419,8 @@ module.exports = {
                         res.json(result);
                         return
                     }
-                    let listID = JSON.parse(body.listID);
+                    let listID = body.listID.split(',');
+                    console.log(listID);
                     await deleteRelationshiptblVayTamUng(db, listID);
                     var result = {
                         status: Constant.STATUS.SUCCESS,

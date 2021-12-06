@@ -165,7 +165,6 @@ module.exports = {
     // add_tbl_dm_taikhoanketoan
     addtblDMTaiKhoanKeToan: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -182,7 +181,6 @@ module.exports = {
                         res.json(result);
                         return
                     }
-                    console.log(body);
                     let yearNow = Number(moment().format('YYYY'));
                     let checkIsCreate = true;
                     if (body.currencyID)
@@ -196,7 +194,6 @@ module.exports = {
                                 checkIsCreate = false
                         })
                     var result;
-                    console.log(checkIsCreate);
                     if (checkIsCreate == true)
                         await mtblDMTaiKhoanKeToan(db).create({
                             AccountingCode: body.accountingCode ? body.accountingCode : '',
@@ -208,6 +205,7 @@ module.exports = {
                             MoneyCredit: body.moneyCredit ? body.moneyCredit : null,
                             YearStart: yearNow,
                             IsDelete: true,
+                            IsHasCurrency: true, // mặc định cho nhập loại tài khoản
                             CurrencyID: body.currencyID ? body.currencyID : null
                         }).then(async data => {
                             if (body.moneyDebit && body.moneyCredit) {
