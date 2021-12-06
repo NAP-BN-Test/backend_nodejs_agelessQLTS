@@ -719,7 +719,6 @@ function checkConditionPushArrayResult(lenthArray, accountName, accountSystemID,
             } else if (type) {
                 if (accountSystemOtherID && accountSystemOtherID == Number(idAccountingItem)) {
                     check = true
-
                 }
 
             }
@@ -1459,6 +1458,42 @@ module.exports = {
                         if (dataSearch.accountSystemOtherID)
                             arrayIDAccount.push(dataSearch.accountSystemOtherID)
                     }
+                    let isCheckChildAccount = false;
+                    let arrayGetOpeningBalanceCredit = [];
+                    let arrayGetOpeningBalanceDebt = [];
+                    // thêm tài khoản con vào search
+                    let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
+                    tblDMTaiKhoanKeToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
+                    await tblDMTaiKhoanKeToan.findAll({
+                        where: {
+                            IDLevelAbove: dataSearch.accountSystemID
+                        },
+                        include: [
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
+                        ],
+                    }).then(accountChild => {
+                        if (accountChild.length > 0)
+                            isCheckChildAccount = true
+                        for (let accItem of accountChild) {
+                            arrayIDAccount.push(accItem.ID)
+                            if (accItem.MoneyCredit && accItem.MoneyCredit > 0) {
+                                arrayGetOpeningBalanceCredit.push({
+                                    key: accItem.currency ? accItem.currency.ShortName : 'VND',
+                                    value: accItem.MoneyCredit
+                                })
+                            }
+                            if (accItem.MoneyDebit && accItem.MoneyDebit > 0)
+                                arrayGetOpeningBalanceDebt.push({
+                                    key: accItem.currency ? accItem.currency.ShortName : 'VND',
+                                    value: accItem.MoneyDebit
+                                })
+                        }
+                    })
+                    // ------------------------------------------
                     var whereOjb = [];
                     if (arrayIDAccount.length > 0)
                         whereOjb.push({
@@ -1642,10 +1677,19 @@ module.exports = {
                         if (dataSearch.customerID)
                             objCustomer = await getDetailCustomer(dataSearch.customerID)
                         // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
-                        let checkAccount131 = await mtblDMTaiKhoanKeToan(db).findOne({
+                        let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
+                        tblDMTaiKhoanKeToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
+                        let checkAccount = await tblDMTaiKhoanKeToan.findOne({
                             where: {
                                 ID: dataSearch.accountSystemID
-                            }
+                            },
+                            include: [
+                                {
+                                    model: mtblCurrency(db),
+                                    required: false,
+                                    as: 'currency'
+                                },
+                            ],
                         })
                         let checkCccountSystemOtherID;
                         if (dataSearch.accountSystemOtherID)
@@ -1655,10 +1699,10 @@ module.exports = {
                                 }
                             })
                         let nameCurrencyCheck = 'VND'
-                        if (checkAccount131) {
+                        if (checkAccount) {
                             await mtblCurrency(db).findOne({
                                 where: {
-                                    ID: checkAccount131.CurrencyID
+                                    ID: checkAccount.CurrencyID
                                 }
                             }).then(data => {
                                 if (data)
@@ -1666,14 +1710,6 @@ module.exports = {
                             })
                         }
                         // Chỉ để demo sau sẽ có sửa
-                        arrayCreditIncurred.push({
-                            key: nameCurrencyCheck,
-                            value: debtSurplus
-                        })
-                        arrayDebtIncurred.push({
-                            key: nameCurrencyCheck,
-                            value: 0
-                        })
                         arrayDebtSurplus.push({
                             key: nameCurrencyCheck,
                             value: debtSurplus
@@ -1682,10 +1718,19 @@ module.exports = {
                             key: nameCurrencyCheck,
                             value: creaditSurplus
                         })
+                        arrayCreditIncurred.push({
+                            key: nameCurrencyCheck,
+                            value: debtSurplus
+                        })
+                        arrayDebtIncurred.push({
+                            key: nameCurrencyCheck,
+                            value: 0
+                        })
+
                         // //////////////////////////////////////////////////////////////////////////////
                         // có api qmcm sẽ phải làm lại
                         let arrayCurrency = [nameCurrencyCheck]
-                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131')) {
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '131')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
                                 for (let checkCurr of invoice.arrayTotal) {
@@ -1728,7 +1773,7 @@ module.exports = {
                                                 number: invoice.invoiceNumber,
                                                 reason: invoice.customerName + ' chưa thanh toán',
                                                 idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
-                                                creditIncurred: 0,
+                                                creditIncurred: null,
                                                 debtIncurred: dataInvoice.value,
                                                 debtSurplus: 0, // số dư phải tính
                                                 creaditSurplus: null,
@@ -1739,16 +1784,30 @@ module.exports = {
                                                 nameCurrency: dataInvoice.key
                                             }
                                             arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                            // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
-                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
-                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                            for (let item of arrayDebtSurplus) {
-                                                if (item.key == dataInvoice.key) {
-                                                    debtSurplus = item.value
+                                            if ((openingBalanceCredit != null)) {
+                                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, -Number(dataInvoice.value))
+                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                for (let item of arrayCreaditSurplus) {
+                                                    if (item.key == dataInvoice.key) {
+                                                        creaditSurplus = item.value
+                                                    }
                                                 }
+                                                obj['creaditSurplus'] = creaditSurplus
+                                                obj['debtSurplus'] = null
+                                            } else {
+                                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
+                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                for (let item of arrayDebtSurplus) {
+                                                    if (item.key == dataInvoice.key) {
+                                                        debtSurplus = item.value
+                                                    }
+                                                }
+
+                                                obj['debtSurplus'] = debtSurplus
+                                                obj['creaditSurplus'] = null
                                             }
-                                            obj['debtSurplus'] = debtSurplus
                                             array.push(obj);
                                             stt += 1;
                                         }
@@ -1757,12 +1816,7 @@ module.exports = {
                             }
                         }
                         //  lấy dữ liệu credit Những credit chưa thanh toán tự động định khoản vào sổ tài khoản (tài khoản lấy theo pmcm gửi về)
-                        let checkAccount331 = await mtblDMTaiKhoanKeToan(db).findOne({
-                            where: {
-                                ID: dataSearch.accountSystemID
-                            }
-                        })
-                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount331 && checkAccount331.AccountingCode == '331')) {
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '331')) {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
                             for (credit of arrayCredit) {
                                 for (let checkCurr of credit.arrayTotal) {
@@ -1815,15 +1869,33 @@ module.exports = {
                                                 customerName: credit.customerName,
                                                 nameCurrency: dataCredit.key
                                             }
-                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
-                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataCredit.key, Number(dataCredit.value))
-                                            for (let item of arrayCreaditSurplus) {
-                                                if (item.key == dataCredit.key) {
-                                                    creaditSurplus = item.value
+                                            if ((openingBalanceDebit != null)) {
+                                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
+
+                                                // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
+                                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataCredit.key, Number(dataCredit.value))
+                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                for (let item of arrayDebtSurplus) {
+                                                    if (item.key == dataCredit.key) {
+                                                        debtSurplus = item.value
+                                                    }
                                                 }
+                                                obj['debtSurplus'] = debtSurplus
+                                                obj['creaditSurplus'] = null
+                                            } else {
+                                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
+                                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataCredit.key, Number(dataCredit.value))
+                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                                for (let item of arrayCreaditSurplus) {
+                                                    if (item.key == dataCredit.key) {
+                                                        creaditSurplus = item.value
+                                                    }
+                                                }
+                                                obj['creaditSurplus'] = creaditSurplus
+                                                obj['debtSurplus'] = null
                                             }
-                                            obj['creaditSurplus'] = creaditSurplus
-                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                             array.push(obj);
                                             stt += 1;
                                         }
@@ -1896,9 +1968,8 @@ module.exports = {
                                 },],
                             }).then(async accounting => {
                                 if (accounting) {
-                                    console.log(arrayDebtSurplus);
                                     for (item of accounting) {
-                                        if (checkConditionPushArrayResult(arrayIDAccount.length, accountName, dataSearch.accountSystemID, data[i].IDAccounting, item.IDAccounting, dataSearch.accountSystemOtherID, dataSearch.type)) {
+                                        if (checkConditionPushArrayResult(arrayIDAccount.length, accountName, dataSearch.accountSystemID, data[i].IDAccounting, item.IDAccounting, dataSearch.accountSystemOtherID, dataSearch.type) || isCheckChildAccount) {
                                             let checkTypeClause = await mtblDMTaiKhoanKeToan(db).findOne({
                                                 where: {
                                                     ID: data[i].IDAccounting
@@ -2012,7 +2083,7 @@ module.exports = {
                                                 reason: reason,
                                                 idAccounting: item.IDAccounting ? item.IDAccounting : null,
                                                 creditIncurred: creditIncurred,
-                                                debtIncurred: debtIncurred,
+                                                debtIncurred: debtIncurred == 0 ? null : debtIncurred,
                                                 nameCurrency: nameCurrency,
                                                 debtSurplus: debtSurplus,
                                                 creaditSurplus: creaditSurplus,
@@ -2039,13 +2110,6 @@ module.exports = {
                                 ID: dataSearch.accountSystemID
                             }
                         })
-                        let curencyOfAccount;
-                        if (checkType)
-                            curencyOfAccount = await mtblCurrency(db).findOne({
-                                where: {
-                                    ID: checkType.CurrencyID
-                                }
-                            })
                         // Trừ số tiền dư nợ đầu kì để tính tổng phát sinh
                         let valueOpen = 0;
                         if (openingBalanceDebit) {
@@ -2063,11 +2127,13 @@ module.exports = {
                             for (let credit of arrayCreditIncurred) {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
-                                    if (curencyOfAccount && curencyOfAccount.ShortName == credit.key)
+                                    if (checkAccount.currency && checkAccount.currency.ShortName == credit.key)
                                         objPush['value'] = openingBalanceDebit + debt.value - credit.value
+                                    else if (!checkAccount.currency && credit.key == 'VND') {
+                                        objPush['value'] = openingBalanceDebit + debt.value - credit.value
+                                    }
                                     else
                                         objPush['value'] = debt.value - credit.value
-
                                 }
                             }
                             arrayEndingBalanceDebit.push(objPush)
@@ -2078,9 +2144,11 @@ module.exports = {
                             for (let debt of arrayDebtIncurred) {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
-                                    if (curencyOfAccount && curencyOfAccount.ShortName == credit.key)
+                                    if (checkAccount.currency && checkAccount.currency.ShortName == credit.key)
                                         objPush['value'] = openingBalanceCredit + credit.value - debt.value
-                                    else
+                                    else if (!checkAccount.currency && credit.key == 'VND') {
+                                        objPush['value'] = openingBalanceCredit + credit.value - debt.value
+                                    } else
                                         objPush['value'] = credit.value - debt.value
                                 }
                             }
@@ -2117,6 +2185,8 @@ module.exports = {
                                 }
                             }
                         }
+                        openingBalanceDebit = arrayGetOpeningBalanceDebt;
+                        openingBalanceCredit = arrayGetOpeningBalanceCredit;
                         var result = {
                             total: {
                                 arrayCreditIncurred,
