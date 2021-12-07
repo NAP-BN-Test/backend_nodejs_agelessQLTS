@@ -918,7 +918,7 @@ async function addValueOfArray(array, nameCurrency, plusValue) {
     }
     return array
 }
-async function addObjToArray(array, arrayPush) {
+async function addObjToArray(array, arrayPush, operater = '+') {
     let arrayResult = []
     let arrayCheck = []
     for (let item of array) {
@@ -927,9 +927,15 @@ async function addObjToArray(array, arrayPush) {
     for (let arr of array) {
         for (let arrP of arrayPush) {
             if (arr.key == arrP.key) {
-                arr.value = Number(arr.value) + Number(arrP.value)
+                if (operater == '+')
+                    arr.value = Number(arr.value) + Number(arrP.value)
+                else
+                    arr.value = Number(arr.value) - Number(arrP.value)
             } else if (!checkDuplicate(arrayCheck, arrP.key)) {
-                arrayResult.push(arrP)
+                arrayResult.push({
+                    key: arrP.key,
+                    value: arrP.value,
+                })
                 arrayCheck.push(arrP.key)
             }
         }
@@ -1691,6 +1697,20 @@ module.exports = {
                                 },
                             ],
                         })
+                        // Thêm số dư đầu kí và cuối kì nếu tài khoản không có tài khoản con
+                        if (!isCheckChildAccount) {
+                            if (checkAccount.MoneyCredit && checkAccount.MoneyCredit > 0) {
+                                arrayGetOpeningBalanceCredit.push({
+                                    key: checkAccount.currency ? checkAccount.currency.ShortName : 'VND',
+                                    value: checkAccount.MoneyCredit
+                                })
+                            }
+                            if (checkAccount.MoneyDebit && checkAccount.MoneyDebit > 0)
+                                arrayGetOpeningBalanceDebt.push({
+                                    key: checkAccount.currency ? checkAccount.currency.ShortName : 'VND',
+                                    value: checkAccount.MoneyDebit
+                                })
+                        }
                         let checkCccountSystemOtherID;
                         if (dataSearch.accountSystemOtherID)
                             checkCccountSystemOtherID = await mtblDMTaiKhoanKeToan(db).findOne({
@@ -1698,38 +1718,36 @@ module.exports = {
                                     ID: dataSearch.accountSystemOtherID
                                 }
                             })
-                        let nameCurrencyCheck = 'VND'
-                        if (checkAccount) {
-                            await mtblCurrency(db).findOne({
-                                where: {
-                                    ID: checkAccount.CurrencyID
-                                }
-                            }).then(data => {
-                                if (data)
-                                    nameCurrencyCheck = data.ShortName
-                            })
-                        }
-                        // Chỉ để demo sau sẽ có sửa
-                        arrayDebtSurplus.push({
-                            key: nameCurrencyCheck,
-                            value: debtSurplus
-                        })
-                        arrayCreaditSurplus.push({
-                            key: nameCurrencyCheck,
-                            value: creaditSurplus
-                        })
-                        arrayCreditIncurred.push({
-                            key: nameCurrencyCheck,
-                            value: debtSurplus
-                        })
-                        arrayDebtIncurred.push({
-                            key: nameCurrencyCheck,
-                            value: 0
-                        })
-
                         // //////////////////////////////////////////////////////////////////////////////
                         // có api qmcm sẽ phải làm lại
+                        nameCurrencyCheck = 'VND'
                         let arrayCurrency = [nameCurrencyCheck]
+                        arrayGetOpeningBalanceDebt.forEach(item => {
+                            if (!checkDuplicate(arrayCurrency, item.key))
+                                arrayCurrency.push(item.key)
+                        })
+                        arrayGetOpeningBalanceCredit.forEach(item => {
+                            if (!checkDuplicate(arrayCurrency, item.key))
+                                arrayCurrency.push(item.key)
+                        })
+                        for (let cur of arrayCurrency) {
+                            arrayDebtSurplus.push({
+                                key: cur,
+                                value: 0
+                            })
+                            arrayCreaditSurplus.push({
+                                key: cur,
+                                value: 0
+                            })
+                            arrayCreditIncurred.push({
+                                key: cur,
+                                value: 0
+                            })
+                            arrayDebtIncurred.push({
+                                key: cur,
+                                value: 0
+                            })
+                        }
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '131')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
@@ -1903,6 +1921,8 @@ module.exports = {
                                 }
                             }
                         }
+                        await addObjToArray(arrayDebtSurplus, arrayGetOpeningBalanceDebt)
+                        await addObjToArray(arrayCreaditSurplus, arrayGetOpeningBalanceCredit)
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
                             let nameCurrency = data[i].payment ? (data[i].payment.currency ? data[i].payment.currency.ShortName : 'VND') : 'VND'
@@ -2110,50 +2130,34 @@ module.exports = {
                                 ID: dataSearch.accountSystemID
                             }
                         })
-                        // Trừ số tiền dư nợ đầu kì để tính tổng phát sinh
-                        let valueOpen = 0;
-                        if (openingBalanceDebit) {
-                            for (let item of arrayCreditIncurred) {
-                                if (item.key == nameCurrencyCheck) {
-                                    valueOpen = item.value - openingBalanceDebit
-                                    item.value = valueOpen
-                                }
-                            }
-                        }
                         // ----------------------------------------------------------
+
                         let arrayEndingBalanceDebit = []
                         for (let debt of arrayDebtIncurred) {
                             let objPush = {}
                             for (let credit of arrayCreditIncurred) {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
-                                    if (checkAccount.currency && checkAccount.currency.ShortName == credit.key)
-                                        objPush['value'] = openingBalanceDebit + debt.value - credit.value
-                                    else if (!checkAccount.currency && credit.key == 'VND') {
-                                        objPush['value'] = openingBalanceDebit + debt.value - credit.value
-                                    }
-                                    else
-                                        objPush['value'] = debt.value - credit.value
+                                    objPush['value'] = debt.value - credit.value
                                 }
                             }
                             arrayEndingBalanceDebit.push(objPush)
                         }
+                        await addObjToArray(arrayEndingBalanceDebit, arrayGetOpeningBalanceDebt)
+
                         let arrayEndingBalanceCredit = []
                         for (let credit of arrayCreditIncurred) {
                             let objPush = {}
                             for (let debt of arrayDebtIncurred) {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
-                                    if (checkAccount.currency && checkAccount.currency.ShortName == credit.key)
-                                        objPush['value'] = openingBalanceCredit + credit.value - debt.value
-                                    else if (!checkAccount.currency && credit.key == 'VND') {
-                                        objPush['value'] = openingBalanceCredit + credit.value - debt.value
-                                    } else
-                                        objPush['value'] = credit.value - debt.value
+                                    objPush['value'] = credit.value - debt.value
                                 }
                             }
                             arrayEndingBalanceCredit.push(objPush)
                         }
+                        await addObjToArray(arrayEndingBalanceCredit, arrayGetOpeningBalanceCredit)
+
                         if (checkType && checkType.TypeClause == "Credit") {
                             endingBalanceCredit = arrayEndingBalanceCredit
                             endingBalanceDebit = null;

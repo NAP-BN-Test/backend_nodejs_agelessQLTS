@@ -688,6 +688,7 @@ module.exports = {
                                 idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
                                 linkPayroll: element.Link ? element.Link : '',
                                 isCheckPayment: checkPayment,
+                                status: element.Status ? element.Status : '',
                                 nameCurrency: element.currency ? element.currency.ShortName : '',
                             }
                             if (element.IDSupplier) {
@@ -967,13 +968,12 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    await mtblDeNghiThanhToan(db).update({
-                        TrangThaiPheDuyetLD: 'Đã phê duyệt'
-                    }, {
-                        where: { ID: body.id }
-                    })
                     let ycmsSearch = await mtblYeuCauMuaSam(db).findOne({ where: { IDPaymentOrder: body.id } })
+                    let objUpdate = {
+                        TrangThaiPheDuyetLD: 'Đã phê duyệt',
+                    }
                     if (ycmsSearch) {
+                        objUpdate['Status'] = 'Chờ nhập kho'
                         if (ycmsSearch.Type == 'Tài sản') {
                             await mtblYeuCauMuaSam(db).update({
                                 Status: 'Đã thanh toán',
@@ -1019,6 +1019,9 @@ module.exports = {
                             })
                         }
                     }
+                    await mtblDeNghiThanhToan(db).update(objUpdate, {
+                        where: { ID: body.id }
+                    })
                     var result = {
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
