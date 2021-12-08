@@ -1748,7 +1748,9 @@ module.exports = {
                                 value: 0
                             })
                         }
-                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '131')) {
+                        await addObjToArray(arrayDebtSurplus, arrayGetOpeningBalanceDebt)
+                        await addObjToArray(arrayCreaditSurplus, arrayGetOpeningBalanceCredit)
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '131' || checkAccount.AccountingCode == '511')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
                                 for (let checkCurr of invoice.arrayTotal) {
@@ -1804,6 +1806,7 @@ module.exports = {
                                             arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
                                             if ((openingBalanceCredit != null)) {
                                                 arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, -Number(dataInvoice.value))
+                                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(obj.debtIncurred ? obj.debtIncurred : 0))
                                                 totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                 totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                                 for (let item of arrayCreaditSurplus) {
@@ -1814,6 +1817,7 @@ module.exports = {
                                                 obj['creaditSurplus'] = creaditSurplus
                                                 obj['debtSurplus'] = null
                                             } else {
+                                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, Number(obj.creditIncurred ? obj.creditIncurred : 0))
                                                 arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
                                                 totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                 totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
@@ -1834,7 +1838,7 @@ module.exports = {
                             }
                         }
                         //  lấy dữ liệu credit Những credit chưa thanh toán tự động định khoản vào sổ tài khoản (tài khoản lấy theo pmcm gửi về)
-                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '331')) {
+                        if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '331' || checkAccount.AccountingCode == '642')) {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
                             for (credit of arrayCredit) {
                                 for (let checkCurr of credit.arrayTotal) {
@@ -1889,8 +1893,7 @@ module.exports = {
                                             }
                                             if ((openingBalanceDebit != null)) {
                                                 arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
-
-                                                // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
+                                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, Number((obj.creditIncurred ? obj.creditIncurred : 0)))
                                                 arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataCredit.key, Number(dataCredit.value))
                                                 totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                 totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
@@ -1902,6 +1905,7 @@ module.exports = {
                                                 obj['debtSurplus'] = debtSurplus
                                                 obj['creaditSurplus'] = null
                                             } else {
+                                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataCredit.key, Number(obj.debtIncurred ? obj.creditIncurred : 0))
                                                 arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
                                                 arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataCredit.key, Number(dataCredit.value))
                                                 totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
@@ -1921,8 +1925,6 @@ module.exports = {
                                 }
                             }
                         }
-                        await addObjToArray(arrayDebtSurplus, arrayGetOpeningBalanceDebt)
-                        await addObjToArray(arrayCreaditSurplus, arrayGetOpeningBalanceCredit)
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
                             let nameCurrency = data[i].payment ? (data[i].payment.currency ? data[i].payment.currency.ShortName : 'VND') : 'VND'
@@ -2131,7 +2133,6 @@ module.exports = {
                             }
                         })
                         // ----------------------------------------------------------
-
                         let arrayEndingBalanceDebit = []
                         for (let debt of arrayDebtIncurred) {
                             let objPush = {}
@@ -2139,12 +2140,14 @@ module.exports = {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
                                     objPush['value'] = debt.value - credit.value
+                                } else {
+                                    objPush['key'] = debt.key
+                                    objPush['value'] = debt.value
                                 }
                             }
                             arrayEndingBalanceDebit.push(objPush)
                         }
                         await addObjToArray(arrayEndingBalanceDebit, arrayGetOpeningBalanceDebt)
-
                         let arrayEndingBalanceCredit = []
                         for (let credit of arrayCreditIncurred) {
                             let objPush = {}
@@ -2157,7 +2160,6 @@ module.exports = {
                             arrayEndingBalanceCredit.push(objPush)
                         }
                         await addObjToArray(arrayEndingBalanceCredit, arrayGetOpeningBalanceCredit)
-
                         if (checkType && checkType.TypeClause == "Credit") {
                             endingBalanceCredit = arrayEndingBalanceCredit
                             endingBalanceDebit = null;
@@ -3240,7 +3242,7 @@ module.exports = {
                             // Chỉ để demo sau sẽ có sửa
                             arrayCreditIncurred.push({
                                 key: nameCurrencyCheck,
-                                value: debtSurplus
+                                value: 0
                             })
                             arrayDebtIncurred.push({
                                 key: nameCurrencyCheck,
@@ -3248,11 +3250,11 @@ module.exports = {
                             })
                             arrayDebtSurplus.push({
                                 key: nameCurrencyCheck,
-                                value: debtSurplus
+                                value: 0
                             })
                             arrayCreaditSurplus.push({
                                 key: nameCurrencyCheck,
-                                value: creaditSurplus
+                                value: 0
                             })
                             let arrayCurrency = []
                             arrayCurrency.push(nameCurrencyCheck)
@@ -3976,7 +3978,7 @@ module.exports = {
                                     // Chỉ để demo sau sẽ có sửa
                                     arrayCreditIncurred.push({
                                         key: nameCurrencyCheck,
-                                        value: debtSurplus
+                                        value: 0
                                     })
                                     arrayDebtIncurred.push({
                                         key: nameCurrencyCheck,
@@ -3984,11 +3986,11 @@ module.exports = {
                                     })
                                     arrayDebtSurplus.push({
                                         key: nameCurrencyCheck,
-                                        value: debtSurplus
+                                        value: 0
                                     })
                                     arrayCreaditSurplus.push({
                                         key: nameCurrencyCheck,
-                                        value: creaditSurplus
+                                        value: 0
                                     })
                                     let arrayCurrency = []
                                     arrayCurrency.push(nameCurrencyCheck)

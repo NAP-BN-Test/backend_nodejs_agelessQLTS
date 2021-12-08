@@ -908,6 +908,7 @@ module.exports = {
     //  get_detail_tbl_receipts_payment
     detailtblReceiptsPayment: async (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1281,11 +1282,12 @@ module.exports = {
     // add_tbl_receipts_payment
     addtblReceiptsPayment: async (req, res) => {
         let body = req.body;
+        console.log(body);
         var listInvoiceID = []
         if (body.listInvoiceID)
             listInvoiceID = JSON.parse(body.listInvoiceID)
-        var listCredit = JSON.parse(body.listCredit)
-        var listDebit = JSON.parse(body.listDebit)
+        var listCredit = body.listCredit ? JSON.parse(body.listCredit) : []
+        var listDebit = body.listDebit ? JSON.parse(body.listDebit) : []
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1501,9 +1503,10 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
-                    var listInvoiceID = JSON.parse(body.listInvoiceID)
-                    var listCredit = JSON.parse(body.listCredit)
-                    var listDebit = JSON.parse(body.listDebit)
+
+                    var listInvoiceID = body.listInvoiceID ? JSON.parse(body.listInvoiceID) : []
+                    var listCredit = body.listCredit ? JSON.parse(body.listCredit) : []
+                    var listDebit = body.listDebit ? JSON.parse(body.listDebit) : []
                     await createRate(db, body.exchangeRate, body.idCurrency)
                     await mtblAccountingBooks(db).destroy({ where: { IDPayment: body.id } })
                     var withdrawalMoney = (body.withdrawal ? Number(body.withdrawal) : 0);
@@ -2323,6 +2326,10 @@ module.exports = {
                                 if (item.CodeNumber.length == 7 && Number(item.CodeNumber.slice(3, 7)) != null) {
                                     check = item
                                 }
+                            } else if (body.type == 'inventoryReceiving') {
+                                if (item.CodeNumber.length == 7 && Number(item.CodeNumber.slice(3, 7)) != null) {
+                                    check = item
+                                }
                             }
                         }
                     })
@@ -2335,6 +2342,8 @@ module.exports = {
                         automaticCode = 'GBN0001'
                     } else if (!check && body.type == 'spending') {
                         automaticCode = 'GBC0001'
+                    } else if (!check && body.type == 'inventoryReceiving') {
+                        automaticCode = 'PNK0001'
                     } else if (!check && body.type == 'accounting') {
                         automaticCode = 'PKT0001'
                     } else {

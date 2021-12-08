@@ -284,35 +284,6 @@ module.exports = {
                             }
                             return res.json(result);
                         }
-                        await mtblDMTaiKhoanKeToan(db).update({
-                            MoneyCredit: body.moneyCredit,
-                            MoneyDebit: body.moneyDebit,
-                        }, {
-                            where: { ID: body.id }
-                        })
-                        if (accountID) {
-                            do {
-                                await mtblDMTaiKhoanKeToan(db).findOne({
-                                    where: { ID: accountID }
-                                }).then(async data => {
-                                    if (data) {
-                                        await mtblDMTaiKhoanKeToan(db).update({
-                                            MoneyCredit: Number(data.MoneyCredit ? data.MoneyCredit : 0) + Number(body.moneyCredit) - Number(moneyOldCredit),
-                                            MoneyDebit: Number(data.MoneyDebit ? data.MoneyDebit : 0) + Number(body.moneyDebit) - Number(moneyOlddebt),
-                                        }, {
-                                            where: { ID: accountID }
-                                        })
-                                        if (!data.IDLevelAbove)
-                                            check = false
-                                        else
-                                            accountID = data.IDLevelAbove
-                                    } else {
-                                        check = false
-                                    }
-                                })
-
-                            } while (check == true);
-                        }
                     }
                     let update = [];
                     if (body.accountingCode || body.accountingCode === '')
@@ -324,6 +295,24 @@ module.exports = {
                             update.push({ key: 'IDLoaiTaiKhoanKeToan', value: null });
                         else
                             update.push({ key: 'IDLoaiTaiKhoanKeToan', value: body.idLoaiTaiKhoanKeToan });
+                    }
+                    if (body.moneyCredit || body.moneyCredit === '') {
+                        if (body.moneyCredit === '')
+                            update.push({ key: 'MoneyCredit', value: null });
+                        else
+                            update.push({ key: 'MoneyCredit', value: body.moneyCredit });
+                    }
+                    if (body.moneyDebit || body.moneyDebit === '') {
+                        if (body.moneyDebit === '')
+                            update.push({ key: 'MoneyDebit', value: null });
+                        else
+                            update.push({ key: 'MoneyDebit', value: body.moneyDebit });
+                    }
+                    if (body.currencyID || body.currencyID === '') {
+                        if (body.currencyID === '')
+                            update.push({ key: 'CurrencyID', value: null });
+                        else
+                            update.push({ key: 'CurrencyID', value: body.currencyID });
                     }
                     database.updateTable(update, mtblDMTaiKhoanKeToan(db), body.id).then(response => {
                         if (response == 1) {

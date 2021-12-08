@@ -885,7 +885,6 @@ module.exports = {
                                 }
                             }
                         })
-                        var arrayObj = await getDetailYCMS(db, data.ID)
                         obj['arrayFile'] = arrayFile;
                         var result = {
                             obj: obj,
