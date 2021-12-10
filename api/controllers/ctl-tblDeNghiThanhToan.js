@@ -161,6 +161,8 @@ async function getDetailYCMS(db, id) {
                                 amount: amount,
                                 unitPrice: price,
                                 assetName: obj.line[j] ? obj.line[j].AssetName : '',
+                                unit: data.Unit
+
                             })
                     })
                 } else {
@@ -178,6 +180,7 @@ async function getDetailYCMS(db, id) {
                                 assetName: obj.line[j] ? obj.line[j].AssetName : '',
                                 remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
                                 id: Number(obj.line[j].IDVanPhongPham),
+                                unit: data.Unit,
                             })
                         }
                     })
@@ -759,6 +762,7 @@ module.exports = {
     // detail_tbl_denghi_thanhtoan
     detailtblDeNghiThanhToan: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

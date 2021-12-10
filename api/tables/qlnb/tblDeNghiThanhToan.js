@@ -26,6 +26,7 @@ module.exports = function (db) {
         IsNotification: Sequelize.BOOLEAN,
         CurrencyID: Sequelize.BIGINT,
         Status: Sequelize.STRING,
+        IDReceipts: Sequelize.BIGINT, // ID phiếu nhập kho
     });
 
     return table;

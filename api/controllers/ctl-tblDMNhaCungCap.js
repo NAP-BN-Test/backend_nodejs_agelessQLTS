@@ -374,7 +374,11 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    mtblDMNhaCungCap(db).findAll().then(data => {
+                    mtblDMNhaCungCap(db).findAll({
+                        order: [
+                            ['SupplierName', 'ASC']
+                        ],
+                    }).then(data => {
                         var array = [];
                         data.forEach(element => {
                             var obj = {

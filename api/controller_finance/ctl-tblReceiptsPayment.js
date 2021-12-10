@@ -159,6 +159,25 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
         }
     }).then(async data => {
         for (var i = 0; i < data.length; i++) {
+            if (data[i] && data[i].Type == 'payment') {
+                await mtblDeNghiThanhToan(db).update({
+                    IDReceiptsPayment: null,
+                    Status: 'Chờ tạo phiếu chi',
+                }, {
+                    where: {
+                        IDReceiptsPayment: data[i].ID
+                    }
+                })
+            } else if (data[i] && data[i].Type == 'inventoryReceiving') {
+                await mtblDeNghiThanhToan(db).update({
+                    IDReceipts: null,
+                    Status: 'Chờ nhập kho',
+                }, {
+                    where: {
+                        IDReceipts: data[i].ID
+                    }
+                })
+            }
             if (data[i].Type == 'payment')
                 await mtblVayTamUng(db).update({
                     IDReceiptsPayment: null,
@@ -189,15 +208,6 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
         }
     })
     await mtblPaymentAccounting(db).destroy({
-        where: {
-            IDReceiptsPayment: {
-                [Op.in]: listID
-            }
-        }
-    })
-    await mtblDeNghiThanhToan(db).update({
-        IDReceiptsPayment: null
-    }, {
         where: {
             IDReceiptsPayment: {
                 [Op.in]: listID
@@ -235,6 +245,10 @@ async function handleCodeNumber(str, type) {
         behind = Number(str.slice(3, 11)) + 1
         headerCode = str.slice(0, 3)
     } else if (type == 'accounting') {
+        automaticCode = 'PKT0001'
+        behind = Number(str.slice(3, 11)) + 1
+        headerCode = str.slice(0, 3)
+    } else if (type == 'inventoryReceiving') {
         automaticCode = 'PKT0001'
         behind = Number(str.slice(3, 11)) + 1
         headerCode = str.slice(0, 3)
@@ -969,8 +983,14 @@ module.exports = {
                                 staffID: data.IDStaff ? data.IDStaff : null,
                                 staffName: 'Chưa có dữ liệu' ? 'Chưa có dữ liệu' : null,
                             }
+                            let where = {}
+                            if (data.Type == 'payment') {
+                                where = { IDReceiptsPayment: data.ID }
+                            } else {
+                                where = { IDReceipts: data.ID }
+                            }
                             await mtblDeNghiThanhToan(db).findOne({
-                                where: { IDReceiptsPayment: data.ID }
+                                where: where
                             }).then(async payment => {
                                 if (payment) {
                                     let arrayRequestShopping = []
@@ -1083,6 +1103,7 @@ module.exports = {
                                                                 unitPrice: price,
                                                                 id: arrayRequestShopping[i].line[j].ID,
                                                                 assetName: arrayRequestShopping[i].line[j].AssetName ? arrayRequestShopping[i].line[j].AssetName : '',
+                                                                unit: data.Unit
                                                             })
                                                         }
                                                     })
@@ -1101,6 +1122,7 @@ module.exports = {
                                                                 unitPrice: price,
                                                                 id: arrayRequestShopping[i].line[j].ID,
                                                                 assetName: arrayRequestShopping[i].line[j].AssetName ? arrayRequestShopping[i].line[j].AssetName : '',
+                                                                unit: data.Unit
                                                             })
                                                         }
                                                     })
@@ -1382,11 +1404,21 @@ module.exports = {
                             }
                         }
                         if (body.paymentOrderID) {
-                            await mtblDeNghiThanhToan(db).update({
-                                IDReceiptsPayment: data.ID
-                            }, {
-                                where: { ID: body.paymentOrderID }
-                            })
+                            if (body.type == 'payment') {
+                                await mtblDeNghiThanhToan(db).update({
+                                    IDReceiptsPayment: data.ID,
+                                    Status: 'Đã tạo phiếu chi',
+                                }, {
+                                    where: { ID: body.paymentOrderID }
+                                })
+                            } else {
+                                await mtblDeNghiThanhToan(db).update({
+                                    IDReceipts: data.ID,
+                                    Status: 'Chờ tạo phiếu chi',
+                                }, {
+                                    where: { ID: body.paymentOrderID }
+                                })
+                            }
 
                         }
                         // -------------------------------------------------------------------------------------------------------------------------
@@ -2008,6 +2040,18 @@ module.exports = {
                             })
                             obj['arrayCredit'] = arrayCredit
                             obj['arrayDebit'] = arraydebit
+                            let wherePayment = {}
+                            if (data[i].Type == 'payment') {
+                                wherePayment = { IDReceiptsPayment: data[i].ID }
+                            } else {
+                                wherePayment = { IDReceipts: data[i].ID }
+                            }
+                            await mtblDeNghiThanhToan(db).findOne({
+                                where: wherePayment
+                            }).then(payment => {
+                                if (payment)
+                                    obj['paymentOrderID'] = payment.ID
+                            })
                             array.push(obj);
                             stt += 1;
                         }

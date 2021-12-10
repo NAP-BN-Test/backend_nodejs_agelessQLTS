@@ -1955,8 +1955,16 @@ module.exports = {
                             IDSpecializedSoftware: data[i].id
                         }
                     }).then(invoice => {
-                        if (invoice)
-                            data[i]['receiptPaymentID'] = invoice.IDPayment
+                        if (invoice.length > 0) {
+                            let arrayReceiptPayment = []
+                            for (let item of invoice) {
+                                arrayReceiptPayment.push({
+                                    receiptPaymentID: item.IDPayment,
+                                    receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
+                                })
+                            }
+                            data[i]['arrayReceiptPayment'] = arrayReceiptPayment
+                        }
                     })
                     if (!check) {
                         await mtblInvoice(db).create({
@@ -2185,9 +2193,15 @@ module.exports = {
                             },
                         ],
                     }).then(invoice => {
-                        if (invoice) {
-                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
-                            dataCredit[i]['receiptPaymentName'] = invoice.payment ? invoice.payment.CodeNumber : ''
+                        if (invoice.length > 0) {
+                            let arrayReceiptPayment = []
+                            for (let item of invoice) {
+                                arrayReceiptPayment.push({
+                                    receiptPaymentID: item.IDPayment,
+                                    receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
+                                })
+                            }
+                            dataCredit[i]['arrayReceiptPayment'] = arrayReceiptPayment
                         }
                     })
                     if (!check) {

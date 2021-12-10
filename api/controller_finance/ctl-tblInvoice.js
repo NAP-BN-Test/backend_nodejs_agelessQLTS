@@ -694,7 +694,7 @@ module.exports = {
                     data[i]['payments'] = check ? check.Payments : ''
                     let tblPaymentRInvoice = mtblPaymentRInvoice(db)
                     tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                    await tblPaymentRInvoice.findOne({
+                    await tblPaymentRInvoice.findAll({
                         where: {
                             IDSpecializedSoftware: data[i].id
                         },
@@ -706,9 +706,15 @@ module.exports = {
                             },
                         ],
                     }).then(invoice => {
-                        if (invoice) {
-                            data[i]['receiptPaymentID'] = invoice.IDPayment
-                            data[i]['receiptPaymentName'] = invoice.payment ? invoice.payment.CodeNumber : ''
+                        if (invoice.length > 0) {
+                            let arrayReceiptPayment = []
+                            for (let item of invoice) {
+                                arrayReceiptPayment.push({
+                                    receiptPaymentID: item.IDPayment,
+                                    receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
+                                })
+                            }
+                            data[i]['arrayReceiptPayment'] = arrayReceiptPayment
                         }
                     })
                 }

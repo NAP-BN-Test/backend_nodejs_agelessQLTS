@@ -1467,38 +1467,78 @@ module.exports = {
                     let isCheckChildAccount = false;
                     let arrayGetOpeningBalanceCredit = [];
                     let arrayGetOpeningBalanceDebt = [];
+                    let arrayWhere = []
                     // thêm tài khoản con vào search
                     let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
                     tblDMTaiKhoanKeToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
-                    await tblDMTaiKhoanKeToan.findAll({
-                        where: {
-                            IDLevelAbove: dataSearch.accountSystemID
-                        },
-                        include: [
-                            {
-                                model: mtblCurrency(db),
-                                required: false,
-                                as: 'currency'
+                    if (!dataSearch.currencyID)
+                        await tblDMTaiKhoanKeToan.findAll({
+                            where: {
+                                IDLevelAbove: dataSearch.accountSystemID
                             },
-                        ],
-                    }).then(accountChild => {
-                        if (accountChild.length > 0)
-                            isCheckChildAccount = true
-                        for (let accItem of accountChild) {
-                            arrayIDAccount.push(accItem.ID)
-                            if (accItem.MoneyCredit && accItem.MoneyCredit > 0) {
-                                arrayGetOpeningBalanceCredit.push({
-                                    key: accItem.currency ? accItem.currency.ShortName : 'VND',
-                                    value: accItem.MoneyCredit
-                                })
+                            include: [
+                                {
+                                    model: mtblCurrency(db),
+                                    required: false,
+                                    as: 'currency'
+                                },
+                            ],
+                        }).then(accountChild => {
+                            if (accountChild.length > 0)
+                                isCheckChildAccount = true
+                            for (let accItem of accountChild) {
+                                arrayIDAccount.push(accItem.ID)
+                                if (accItem.MoneyCredit && accItem.MoneyCredit > 0) {
+                                    arrayGetOpeningBalanceCredit.push({
+                                        key: accItem.currency ? accItem.currency.ShortName : 'VND',
+                                        value: accItem.MoneyCredit
+                                    })
+                                }
+                                if (accItem.MoneyDebit && accItem.MoneyDebit > 0)
+                                    arrayGetOpeningBalanceDebt.push({
+                                        key: accItem.currency ? accItem.currency.ShortName : 'VND',
+                                        value: accItem.MoneyDebit
+                                    })
                             }
-                            if (accItem.MoneyDebit && accItem.MoneyDebit > 0)
-                                arrayGetOpeningBalanceDebt.push({
-                                    key: accItem.currency ? accItem.currency.ShortName : 'VND',
-                                    value: accItem.MoneyDebit
-                                })
-                        }
-                    })
+                        })
+                    else {
+                        await mtblReceiptsPayment(db).findAll({
+                            where: {
+                                IDCurrency: dataSearch.currencyID
+                            }
+                        }).then(data => {
+                            for (item of data) {
+                                arrayWhere.push(item.ID)
+                            }
+                        })
+                        await tblDMTaiKhoanKeToan.findOne({
+                            where: {
+                                IDLevelAbove: dataSearch.accountSystemID,
+                                CurrencyID: dataSearch.currencyID,
+                            },
+                            include: [
+                                {
+                                    model: mtblCurrency(db),
+                                    required: false,
+                                    as: 'currency'
+                                },
+                            ],
+                        }).then(accountChild => {
+                            if (accountChild) {
+                                if (accountChild.MoneyCredit && accountChild.MoneyCredit > 0) {
+                                    arrayGetOpeningBalanceCredit.push({
+                                        key: accountChild.currency ? accountChild.currency.ShortName : 'VND',
+                                        value: accountChild.MoneyCredit
+                                    })
+                                }
+                                if (accountChild.MoneyDebit && accountChild.MoneyDebit > 0)
+                                    arrayGetOpeningBalanceDebt.push({
+                                        key: accountChild.currency ? accountChild.currency.ShortName : 'VND',
+                                        value: accountChild.MoneyDebit
+                                    })
+                            }
+                        })
+                    }
                     // ------------------------------------------
                     var whereOjb = [];
                     if (arrayIDAccount.length > 0)
@@ -1581,7 +1621,6 @@ module.exports = {
                         })
                     }
                     let typeCus = 'customer'
-                    let arrayWhere = []
                     let supplierName = {}
                     if (dataSearch.customerID)
                         if (dataSearch.type == 'supplier') {
@@ -1611,18 +1650,6 @@ module.exports = {
                                 }
                             })
                         }
-                    if (dataSearch.currencyID) {
-                        await mtblReceiptsPayment(db).findAll({
-                            where: {
-                                IDCurrency: dataSearch.currencyID
-                            }
-                        }).then(data => {
-                            for (item of data) {
-                                arrayWhere.push(item.ID)
-                            }
-                        })
-
-                    }
                     if (dataSearch.customerID || dataSearch.currencyID) {
                         whereOjb.push({
                             IDPayment: {
@@ -1720,8 +1747,8 @@ module.exports = {
                             })
                         // //////////////////////////////////////////////////////////////////////////////
                         // có api qmcm sẽ phải làm lại
-                        nameCurrencyCheck = 'VND'
-                        let arrayCurrency = [nameCurrencyCheck]
+                        // nameCurrencyCheck = 'VND'
+                        let arrayCurrency = []
                         arrayGetOpeningBalanceDebt.forEach(item => {
                             if (!checkDuplicate(arrayCurrency, item.key))
                                 arrayCurrency.push(item.key)
@@ -1932,7 +1959,7 @@ module.exports = {
                                 arrayWhere.push({
                                     IDPayment: data[i].IDPayment
                                 })
-                                if (!checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
+                                if (data[i].payment.currency && !checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
                                     arrayCurrency.push(data[i].payment.currency.ShortName)
                                     arrayCreditIncurred.push({
                                         key: data[i].payment.currency.ShortName,
@@ -2140,9 +2167,6 @@ module.exports = {
                                 if (credit.key == debt.key) {
                                     objPush['key'] = debt.key
                                     objPush['value'] = debt.value - credit.value
-                                } else {
-                                    objPush['key'] = debt.key
-                                    objPush['value'] = debt.value
                                 }
                             }
                             arrayEndingBalanceDebit.push(objPush)
@@ -2619,7 +2643,7 @@ module.exports = {
                                                 number: invoice.invoiceNumber,
                                                 reason: invoice.customerName + ' chưa thanh toán',
                                                 idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
-                                                creditIncurred: 0,
+                                                creditIncurred: dataInvoice.value,
                                                 debtIncurred: dataInvoice.value,
                                                 debtSurplus: 0, // số dư phải tính
                                                 creaditSurplus: null,
@@ -2630,8 +2654,9 @@ module.exports = {
                                                 nameCurrency: dataInvoice.key
                                             }
                                             arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                            // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
+                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
                                             arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, Number(dataInvoice.value))
                                             totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                             totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                             for (let item of arrayDebtSurplus) {
@@ -2692,7 +2717,7 @@ module.exports = {
                                                 reason: credit.customerName + ' chưa thanh toán',
                                                 idAccounting: credit.invoiceID ? credit.invoiceID : null,
                                                 creditIncurred: dataCredit.value,
-                                                debtIncurred: 0,
+                                                debtIncurred: dataCredit.value,
                                                 debtSurplus: null, // số dư phải tính
                                                 creaditSurplus: null,
                                                 numberOfReceipt: '',
@@ -2701,15 +2726,18 @@ module.exports = {
                                                 customerName: credit.customerName,
                                                 nameCurrency: dataCredit.key
                                             }
-                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
-                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataCredit.key, Number(dataCredit.value))
+                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
+                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
+                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, Number(dataInvoice.value))
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
                                             for (let item of arrayCreaditSurplus) {
                                                 if (item.key == dataCredit.key) {
                                                     creaditSurplus = item.value
                                                 }
                                             }
                                             obj['creaditSurplus'] = creaditSurplus
-                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                             array.push(obj);
                                             stt += 1;
                                         }
@@ -2724,7 +2752,7 @@ module.exports = {
                                 arrayWhere.push({
                                     IDPayment: data[i].IDPayment
                                 })
-                                if (!checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
+                                if (data[i].payment.currency && !checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
                                     arrayCurrency.push(data[i].payment.currency.ShortName)
                                     arrayCreditIncurred.push({
                                         key: data[i].payment.currency.ShortName,
@@ -3412,7 +3440,7 @@ module.exports = {
                                     arrayWhere.push({
                                         IDPayment: data[i].IDPayment
                                     })
-                                    if (!checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
+                                    if (data[i].payment.currency && !checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
                                         arrayCurrency.push(data[i].payment.currency.ShortName)
                                         arrayCreditIncurred.push({
                                             key: data[i].payment.currency.ShortName,
@@ -4001,7 +4029,7 @@ module.exports = {
                                             arrayWhere.push({
                                                 IDPayment: data[i].IDPayment
                                             })
-                                            if (!checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
+                                            if (data[i].payment.currency && !checkDuplicate(arrayCurrency, data[i].payment.currency.ShortName)) {
                                                 arrayCurrency.push(data[i].payment.currency.ShortName)
                                                 arrayCreditIncurred.push({
                                                     key: data[i].payment.currency.ShortName,

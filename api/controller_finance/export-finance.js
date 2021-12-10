@@ -1057,13 +1057,14 @@ module.exports = {
                 type = 'spending'
             } else if (objRequest.typeVoucher == 'accounting') {
                 type = 'accounting'
+            } else if (objRequest.typeVoucher == 'inventoryReceiving') {
+                type = 'inventoryReceiving'
             }
             let debtAccount = ''
             let creditAccount = ''
             let arrayAccount = []
             let sttAccount = 1;
             for (let debt = 0; debt < objRequest.debtFormArr.length; debt++) {
-
                 arrayAccount.push({
                     stt: sttAccount,
                     explain: objRequest.debtFormArr[debt].content,
@@ -1111,6 +1112,9 @@ module.exports = {
                 "LOẠI TIỀN": objRequest.idCurrency ? objRequest.idCurrency.shortName : '',
                 "arrayAccount": arrayAccount,
             }
+            if (objKey != {} && objKey.type == 'inventoryReceiving') {
+                objKey['arrayAccount'] = objRequest.listInventoryReceiving
+            }
         }
         let type = '02-TT.docx'
         let nameFile = 'Phiếu chi.docx'
@@ -1146,6 +1150,17 @@ module.exports = {
             nameFilePDF = 'Phiếu kế toán.pdf'
             objKey["NGÀY"] = objKey["NGÀY"] + '/' + objKey["THÁNG"] + '/' + objKey["NĂM"]
             objKey['SỐ TIỀN'] = objKey['SỐ TIỀN'] + ' ' + objKey['LOẠI TIỀN']
+        }
+        else if (objKey != {} && objKey.type == 'inventoryReceiving') {
+            type = '06-TT.docx'
+            nameFile = 'Phiếu nhập kho.docx'
+            nameFilePDF = 'Phiếu nhập kho.pdf'
+            objKey['SỐ TIỀN'] = objKey['SỐ TIỀN'] + ' ' + objKey['LOẠI TIỀN']
+            let total = 0;
+            for (let item of objKey['arrayAccount']) {
+                total += item.totalPrice
+            }
+            objKey['TỔNG TIỀN'] = total
         }
         var pathTo = 'C:/images_services/ageless_sendmail/'
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
