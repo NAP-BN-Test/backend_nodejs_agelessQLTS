@@ -1989,6 +1989,27 @@ module.exports = {
                                     }
                                 })
                             }
+                            if (arrayCurrency.length < 1) {
+                                if (!checkDuplicate(arrayCurrency, 'VND')) {
+                                    arrayCurrency.push('VND')
+                                    arrayCreditIncurred.push({
+                                        key: 'VND',
+                                        value: 0
+                                    })
+                                    arrayDebtIncurred.push({
+                                        key: 'VND',
+                                        value: 0
+                                    })
+                                    arrayDebtSurplus.push({
+                                        key: 'VND',
+                                        value: 0
+                                    })
+                                    arrayCreaditSurplus.push({
+                                        key: 'VND',
+                                        value: 0
+                                    })
+                                }
+                            }
                             let clauseType = "Credit"
                             if (data[i].ClauseType == "Credit") {
                                 clauseType = "Debit"
@@ -2581,25 +2602,8 @@ module.exports = {
                                     ID: dataSearch.accountSystemOtherID
                                 }
                             })
-                        // Chỉ để demo sau sẽ có sửa
-                        arrayCreditIncurred.push({
-                            key: 'VND',
-                            value: 0
-                        })
-                        arrayDebtIncurred.push({
-                            key: 'VND',
-                            value: 0
-                        })
-                        arrayDebtSurplus.push({
-                            key: 'VND',
-                            value: debtSurplus
-                        })
-                        arrayCreaditSurplus.push({
-                            key: 'VND',
-                            value: creaditSurplus
-                        })
                         // //////////////////////////////////////////////////////////////////////////////
-                        let arrayCurrency = ['VND']
+                        let arrayCurrency = []
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'all' || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131') || (!checkAccount131 && dataSearch.selection == 'all')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
@@ -2670,8 +2674,10 @@ module.exports = {
                                         }
                                     }
                                 }
+                                console.log(arrayCreditIncurred);
                             }
                         }
+                        console.log(arrayCurrency, 12345, arrayCreditIncurred);
                         //  lấy dữ liệu credit Những credit chưa thanh toán tự động định khoản vào sổ tài khoản (tài khoản lấy theo pmcm gửi về)
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount331 && checkAccount331.AccountingCode == '331') || (!checkAccount331 && dataSearch.selection == 'all')) {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
@@ -2745,6 +2751,7 @@ module.exports = {
                                 }
                             }
                         }
+                        console.log(arrayCurrency, 12345, arrayCreditIncurred);
                         for (var i = 0; i < data.length; i++) {
                             var arrayWhere = []
                             let nameCurrency = data[i].payment ? (data[i].payment.currency ? data[i].payment.currency.ShortName : 'VND') : 'VND'

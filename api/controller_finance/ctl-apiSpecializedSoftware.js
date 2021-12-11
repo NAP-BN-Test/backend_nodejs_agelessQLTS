@@ -1950,22 +1950,31 @@ module.exports = {
                     }
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
                     data[i]['totalMoneyVND'] = totalMoneyVND
-                    await mtblPaymentRInvoice(db).findOne({
+                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
+                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+                    let arrayReceiptPayment = []
+                    await tblPaymentRInvoice.findAll({
                         where: {
                             IDSpecializedSoftware: data[i].id
-                        }
+                        },
+                        include: [
+                            {
+                                model: mtblReceiptsPayment(db),
+                                required: false,
+                                as: 'payment'
+                            },
+                        ],
                     }).then(invoice => {
-                        if (invoice.length > 0) {
-                            let arrayReceiptPayment = []
+                        if (invoice && invoice.length > 0) {
                             for (let item of invoice) {
                                 arrayReceiptPayment.push({
                                     receiptPaymentID: item.IDPayment,
                                     receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
                                 })
                             }
-                            data[i]['arrayReceiptPayment'] = arrayReceiptPayment
                         }
                     })
+                    data[i]['arrayReceiptPayment'] = arrayReceiptPayment
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
@@ -2181,7 +2190,8 @@ module.exports = {
                     let invoiceID;
                     let tblPaymentRInvoice = mtblPaymentRInvoice(db)
                     tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                    await tblPaymentRInvoice.findOne({
+                    let arrayReceiptPayment = []
+                    await tblPaymentRInvoice.findAll({
                         where: {
                             IDSpecializedSoftware: dataCredit[i].id
                         },
@@ -2193,17 +2203,16 @@ module.exports = {
                             },
                         ],
                     }).then(invoice => {
-                        if (invoice.length > 0) {
-                            let arrayReceiptPayment = []
+                        if (invoice && invoice.length > 0) {
                             for (let item of invoice) {
                                 arrayReceiptPayment.push({
                                     receiptPaymentID: item.IDPayment,
                                     receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
                                 })
                             }
-                            dataCredit[i]['arrayReceiptPayment'] = arrayReceiptPayment
                         }
                     })
+                    dataCredit[i]['arrayReceiptPayment'] = arrayReceiptPayment
                     if (!check) {
                         invoiceID = await mtblInvoice(db).create({
                             IDSpecializedSoftware: dataCredit[i].id,
@@ -2356,7 +2365,8 @@ module.exports = {
                     })
                     let tblPaymentRInvoice = mtblPaymentRInvoice(db)
                     tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                    await tblPaymentRInvoice.findOne({
+                    let arrayReceiptPayment = []
+                    await tblPaymentRInvoice.findAll({
                         where: {
                             IDSpecializedSoftware: dataCredit[i].id
                         },
@@ -2369,10 +2379,17 @@ module.exports = {
                         ],
                     }).then(invoice => {
                         if (invoice) {
-                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
-                            dataCredit[i]['receiptPaymentName'] = invoice.payment ? invoice.payment.CodeNumber : ''
+                            if (invoice && invoice.length > 0) {
+                                for (let item of invoice) {
+                                    arrayReceiptPayment.push({
+                                        receiptPaymentID: item.IDPayment,
+                                        receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
+                                    })
+                                }
+                            }
                         }
                     })
+                    data[i]['arrayReceiptPayment'] = arrayReceiptPayment
                     if (!check) {
                         await mtblInvoice(db).create({
                             IDSpecializedSoftware: dataCredit[i].id,
