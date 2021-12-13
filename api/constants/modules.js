@@ -37,7 +37,37 @@ function checkDuplicate(array, elm) {
 let ctlFileAttach = require('../controllers/ctl-tblFileAttach');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 const libre = require('libreoffice-convert-win');
-
+async function readGroup(group) {
+    let readDigit = [
+        ' Không',
+        ' Một',
+        ' Hai',
+        ' Ba',
+        ' Bốn',
+        ' Năm',
+        ' Sáu',
+        ' Bảy',
+        ' Tám',
+        ' Chín',
+    ];
+    let temp = '';
+    if (group == '000') return '';
+    //read number hundreds
+    temp = readDigit[parseInt(group.substring(0, 1))] + ' Trăm';
+    //read number tens
+    if (group.substring(1, 2) == '0')
+        if (group.substring(2, 3) == '0') return temp;
+        else {
+            temp += ' Lẻ' + readDigit[parseInt(group.substring(2, 3))];
+            return temp;
+        }
+    else temp += readDigit[parseInt(group.substring(1, 2))] + ' Mươi';
+    //read number
+    if (group.substring(2, 3) == '5') temp += ' Lăm';
+    else if (group.substring(2, 3) != '0')
+        temp += readDigit[parseInt(group.substring(2, 3))];
+    return temp;
+}
 var dayInWeek = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 module.exports = {
     checkDuplicate,
@@ -322,5 +352,71 @@ module.exports = {
         } else {
             return amount.toString();
         }
+    },
+    readMoney: async function (num, endingText = ' đồng chẵn.') {
+        if (num == null || num == '') return '';
+        let temp = '';
+        //length <= 18
+
+        while (num.length < 18) {
+            num = '0' + num;
+        }
+        let g1 = num.substring(0, 3);
+        let g2 = num.substring(3, 6);
+        let g3 = num.substring(6, 9);
+        let g4 = num.substring(9, 12);
+        let g5 = num.substring(12, 15);
+        let g6 = num.substring(15, 18);
+        //read group1 ---------------------
+        if (g1 != '000') {
+            temp = await readGroup(g1);
+            temp += ' Triệu';
+        }
+        //read group2-----------------------
+        if (g2 != '000') {
+            temp += await readGroup(g2);
+            temp += ' Nghìn';
+        }
+        //read group3 ---------------------
+        if (g3 != '000') {
+            temp += await readGroup(g3);
+            temp += ' Tỷ';
+        }
+
+        //read group2-----------------------
+        if (g4 != '000') {
+            temp += await readGroup(g4);
+            temp += ' Triệu';
+        }
+        //---------------------------------
+        if (g5 != '000') {
+            temp += await readGroup(g5);
+            temp += ' Nghìn';
+        }
+        //-----------------------------------
+        temp = temp + await readGroup(g6);
+        //---------------------------------
+        // Refine
+        temp = temp.replace('Một Mươi', 'Mười');
+        temp = temp.trim();
+        temp = temp.replace('Không Trăm', '');
+        //        if (temp.indexOf("Không Trăm") == 0) temp = temp.substring(10);
+        temp = temp.trim();
+        temp = temp.replace('Mười Không', 'Mười');
+        temp = temp.trim();
+        temp = temp.replace('Mươi Không', 'Mươi');
+        temp = temp.trim();
+        if (temp.indexOf('Lẻ') == 0) temp = temp.substring(2);
+        temp = temp.trim();
+        temp = temp.replace('Mươi Một', 'Mươi Mốt');
+        temp = temp.trim();
+
+        //Change Case
+        return (
+            '' +
+            temp.substring(0, 1).toUpperCase() +
+            temp.substring(1).toLowerCase() +
+            endingText.toLowerCase()
+        );
     }
 }

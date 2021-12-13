@@ -1161,6 +1161,8 @@ module.exports = {
                 total += item.totalPrice
             }
             objKey['TỔNG TIỀN'] = total
+            console.log(total);
+            objKey['SỐ TIỀN BẰNG CHỮ'] = await mModules.readMoney(total.toString())
         }
         var pathTo = 'C:/images_services/ageless_sendmail/'
         fs.readFile(pathTo + type, 'binary', async function (err, data) {
