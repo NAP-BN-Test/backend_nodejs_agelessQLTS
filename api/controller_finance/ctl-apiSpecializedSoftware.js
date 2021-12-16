@@ -1615,7 +1615,6 @@ module.exports = {
     // get_list_credit_wait_for_pay_from_customer
     getListCreditWaitForPayFromCustomer: async (req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": 10,
@@ -2230,7 +2229,9 @@ module.exports = {
                     }
                     let totalMoneyVND = 0
                     let arrayExchangeRate = []
+                    let arrayCurrency = []
                     for (let m = 0; m < dataCredit[i].arrayMoney.length; m++) {
+                        arrayCurrency.push(dataCredit[i].arrayMoney[m].typeMoney)
                         totalMoneyVND += await calculateMoneyFollowVND(db, dataCredit[i].arrayMoney[m].typeMoney, (dataCredit[i].arrayMoney[m].total ? dataCredit[i].arrayMoney[m].total : 0), moment(dataCredit[i].createdDate).format('YYYY-DD-MM'))
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, dataCredit[i].arrayMoney[m].typeMoney, moment(dataCredit[i].createdDate).format('YYYY-DD-MM')))
                         let currency = await mtblCurrency(db).findOne({
@@ -2260,6 +2261,31 @@ module.exports = {
                     dataCredit[i]['arrayExchangeRate'] = arrayExchangeRate
                     dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                     dataCredit[i]['payments'] = check ? check.Payments : ''
+                    let paidAmountArray = [];
+                    let remainingAmountArray = [];
+                    for (let cur of arrayCurrency) {
+                        let currency = await mtblCurrency(db).findOne({
+                            where: {
+                                ShortName: cur
+                            }
+                        })
+                        let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
+                            where: {
+                                CurrencyID: currency.ID,
+                                InvoiceID: check.ID,
+                            }
+                        })
+                        paidAmountArray.push({
+                            key: cur,
+                            value: ObjAmount.PaidAmount ? ObjAmount.PaidAmount : null,
+                        })
+                        remainingAmountArray.push({
+                            key: cur,
+                            value: ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : null,
+                        })
+                    }
+                    dataCredit[i]['paidAmountArray'] = paidAmountArray;
+                    dataCredit[i]['remainingAmountArray'] = remainingAmountArray;
                 }
                 let totalMoneyVND = 0
                 for (let a = 0; a < totalMoney.length; a++) {
