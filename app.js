@@ -417,3 +417,22 @@ app.post('/notification-yeucau', async function (req, res) {
     }
     res.json(result);
 })
+app.post('/backup_db', async function (req, res) {
+    let body = req.body;
+    let nameDatabase = body.name
+    let query = `BACKUP DATABASE ${nameDatabase} TO DISK ='C:\\Program Files\\Microsoft SQL Server\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA\\${nameDatabase}_copy.bark';
+    RESTORE DATABASE ${nameDatabase}_Copy 
+        FROM DISK='C:\\Program Files\\Microsoft SQL Server\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA\\${nameDatabase}_copy.bark'
+        WITH 
+            MOVE '${nameDatabase}' TO 'C:\\Program Files\\Microsoft SQL Server\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA\\${nameDatabase}_Copy.mdf',
+            MOVE '${nameDatabase}_log' to  'C:\\Program Files\\Microsoft SQL Server\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA\\${nameDatabase}_Copy_log.ldf';`
+    database.connectDatabase().then(async db => {
+        console.log(query);
+        await db.query(query)
+        var result = {
+            status: 1,
+            message: '',
+        }
+        res.json(result);
+    })
+})
