@@ -1942,10 +1942,36 @@ module.exports = {
                     })
                     let totalMoneyVND = 0
                     let arrayExchangeRate = []
-
+                    let arrayCurrency = []
                     for (let m = 0; m < data[i].arrayMoney.length; m++) {
+                        arrayCurrency.push(data[i].arrayMoney[m].typeMoney)
                         arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
                         totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
+                        let paidAmountArray = []
+                        let remainingAmountArray = []
+                        for (let cur of arrayCurrency) {
+                            let currency = await mtblCurrency(db).findOne({
+                                where: {
+                                    ShortName: cur
+                                }
+                            })
+                            let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
+                                where: {
+                                    CurrencyID: currency.ID,
+                                    InvoiceID: check.ID,
+                                }
+                            })
+                            paidAmountArray.push({
+                                key: cur,
+                                value: ObjAmount.PaidAmount ? ObjAmount.PaidAmount : null,
+                            })
+                            remainingAmountArray.push({
+                                key: cur,
+                                value: ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : null,
+                            })
+                        }
+                        data[i]['paidAmountArray'] = paidAmountArray;
+                        data[i]['remainingAmountArray'] = remainingAmountArray;
                     }
                     data[i]['arrayExchangeRate'] = arrayExchangeRate
                     data[i]['totalMoneyVND'] = totalMoneyVND

@@ -8,6 +8,7 @@ var mModules = require('../constants/modules');
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblCreditDebtnotices = require('../tables/financemanage/tblCreditDebtnotices')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
+var mtblCustomerRCurrency = require('../tables/financemanage/tblCustomerRCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 var dataCredit = [{
@@ -963,6 +964,7 @@ async function convertArrayToArray(arrayDebtIncurred, arrayCreditIncurred) {
     return arrayDebtIncurred
 }
 var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
+var mtblCustomer = require('../tables/financemanage/tblCustomer')
 
 module.exports = {
     deleteRelationshiptblAccountingBooks,
@@ -1707,8 +1709,10 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         let objCustomer = {}
-                        if (dataSearch.customerID)
+                        console.log(dataSearch);
+                        if (dataSearch.customerID) {
                             objCustomer = await getDetailCustomer(dataSearch.customerID)
+                        }
                         // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
                         let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
                         tblDMTaiKhoanKeToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
@@ -1774,6 +1778,61 @@ module.exports = {
                                 key: cur,
                                 value: 0
                             })
+                        }
+                        if (dataSearch.customerID) {
+                            arrayGetOpeningBalanceDebt = []
+                            let tblCustomerRCurrency = mtblCustomerRCurrency(db);
+                            tblCustomerRCurrency.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
+                            if (dataSearch.type == 'customer') {
+                                let customerID = await mtblCustomer(db).findOne({
+                                    where: {
+                                        IDSpecializedSoftware: dataSearch.customerID
+                                    }
+                                })
+                                await tblCustomerRCurrency.findAll({
+                                    where: {
+                                        CustomerID: customerID ? customerID.ID : null
+                                    },
+                                    include: [
+                                        {
+                                            model: mtblCurrency(db),
+                                            required: false,
+                                            as: 'currency'
+                                        },
+                                    ],
+                                }).then(cus => {
+                                    console.log(cus.length);
+                                    for (let item of cus) {
+                                        arrayGetOpeningBalanceDebt.push({
+                                            key: item.currency ? item.currency.ShortName : '',
+                                            value: item.Surplus
+                                        })
+                                        arrayGetOpeningBalanceCredit = [];
+                                    }
+                                })
+                            } else {
+                                await tblCustomerRCurrency.findAll({
+                                    where: {
+                                        SupplierID: dataSearch.customerID
+                                    },
+                                    include: [
+                                        {
+                                            model: mtblCurrency(db),
+                                            required: false,
+                                            as: 'currency'
+                                        },
+                                    ],
+                                }).then(cus => {
+                                    for (let item of cus) {
+                                        arrayGetOpeningBalanceDebt.push({
+                                            key: item.currency ? item.currency : '',
+                                            value: item.Surplus
+                                        })
+                                        arrayGetOpeningBalanceCredit = [];
+                                    }
+                                })
+                            }
+
                         }
                         await addObjToArray(arrayDebtSurplus, arrayGetOpeningBalanceDebt)
                         await addObjToArray(arrayCreaditSurplus, arrayGetOpeningBalanceCredit)
