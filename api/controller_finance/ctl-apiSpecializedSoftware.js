@@ -1532,7 +1532,7 @@ module.exports = {
                         })
                     }
 
-                    var array = []
+                    var arrayUpdate = []
                     var arrayCreate = []
                     let totalMoney = []
                     let arrayInvoice = []
@@ -1577,27 +1577,51 @@ module.exports = {
                             data[i]['typeMoney'] = nameCurrency
                             data[i]['arrayExchangeRate'] = arrayExchangeRate
                             if (!check) {
+                                data[i]['remainingAmount'] = 0
+                                data[i]['paidAmount'] = 0
+                                data[i]['paymentAmount'] = 0
+                                data[i]['total'] = data[i]
                                 await mtblInvoice(db).create({
                                     IDSpecializedSoftware: data[i].id,
                                     Status: data[i].statusName
                                 })
                                 if (data[i].statusName == 'Chờ thanh toán' && totalMoneyVND != 0) {
-                                    array.push(data[i])
+                                    arrayUpdate.push(data[i])
                                     arrayCreate.push(data[i])
                                 } else {
                                     if (checkDuplicate(arrayInvoice, Number(data[i].id) && totalMoneyVND != 0)) {
-                                        array.push(data[i])
+                                        arrayUpdate.push(data[i])
                                     }
                                 }
                             } else {
-                                if (check.Status == 'Chờ thanh toán' && totalMoneyVND != 0) {
-                                    // data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
-                                    // data[i]['payments'] = check ? check.Payments : ''
-                                    array.push(data[i])
-                                    arrayCreate.push(data[i])
-                                } else {
-                                    if (checkDuplicate(arrayInvoice, Number(data[i].id)) && totalMoneyVND != 0) {
-                                        array.push(data[i])
+                                let amountPaid = await mtblPaymentRInvoice(db).findOne({
+                                    where: {
+                                        IDPayment: body.idReceiptPayment ? body.idReceiptPayment : null,
+                                        IDSpecializedSoftware: check.IDSpecializedSoftware ? check.IDSpecializedSoftware : null
+                                    }
+                                })
+                                let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
+                                    where: {
+                                        CurrencyID: body.currencyID,
+                                        InvoiceID: check.ID,
+                                    }
+                                })
+                                if (ObjAmount) {
+                                    data[i].statusName = ObjAmount.Status
+                                    data[i].request = check.Request
+                                    data[i]['remainingAmount'] = ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : 0
+                                    data[i]['paidAmount'] = ObjAmount.PaidAmount ? ObjAmount.PaidAmount : 0
+                                    data[i]['paymentAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
+                                    if (ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                        data[i]['payDate'] = ObjAmount.PayDate
+                                        data[i]['Payments'] = ObjAmount.Payments
+                                        arrayCreate.push(data[i])
+                                        arrayUpdate.push(data[i])
+                                    }
+                                    if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                        data[i]['payDate'] = check.PayDate
+                                        data[i]['Payments'] = check.Payments
+                                        arrayUpdate.push(data[i])
                                     }
                                 }
                             }
@@ -1609,7 +1633,7 @@ module.exports = {
                     }
                     var result = {
                         arrayCreate: arrayCreate,
-                        arrayUpdate: array,
+                        arrayUpdate: arrayUpdate,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                         all: 10,
