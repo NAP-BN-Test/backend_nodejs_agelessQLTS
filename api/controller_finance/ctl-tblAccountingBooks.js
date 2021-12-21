@@ -1791,7 +1791,8 @@ module.exports = {
                                 })
                                 await tblCustomerRCurrency.findAll({
                                     where: {
-                                        CustomerID: customerID ? customerID.ID : null
+                                        CustomerID: customerID ? customerID.ID : null,
+                                        AccountID: dataSearch.accountSystemID
                                     },
                                     include: [
                                         {
@@ -1801,19 +1802,27 @@ module.exports = {
                                         },
                                     ],
                                 }).then(cus => {
-                                    console.log(cus.length);
                                     for (let item of cus) {
-                                        arrayGetOpeningBalanceDebt.push({
-                                            key: item.currency ? item.currency.ShortName : '',
-                                            value: item.Surplus
-                                        })
-                                        arrayGetOpeningBalanceCredit = [];
+                                        if (item.IsDebtAccount) {
+                                            arrayGetOpeningBalanceDebt.push({
+                                                key: item.currency ? item.currency.ShortName : '',
+                                                value: item.Surplus
+                                            })
+                                            arrayGetOpeningBalanceCredit = [];
+                                        } else {
+                                            arrayGetOpeningBalanceCredit.push({
+                                                key: item.currency ? item.currency.ShortName : '',
+                                                value: item.Surplus
+                                            })
+                                            arrayGetOpeningBalanceDebt = [];
+                                        }
                                     }
                                 })
                             } else {
                                 await tblCustomerRCurrency.findAll({
                                     where: {
-                                        SupplierID: dataSearch.customerID
+                                        SupplierID: dataSearch.customerID,
+                                        AccountID: dataSearch.accountSystemID
                                     },
                                     include: [
                                         {
@@ -1824,15 +1833,22 @@ module.exports = {
                                     ],
                                 }).then(cus => {
                                     for (let item of cus) {
-                                        arrayGetOpeningBalanceDebt.push({
-                                            key: item.currency ? item.currency : '',
-                                            value: item.Surplus
-                                        })
-                                        arrayGetOpeningBalanceCredit = [];
+                                        if (item.IsDebtAccount) {
+                                            arrayGetOpeningBalanceDebt.push({
+                                                key: item.currency ? item.currency.ShortName : '',
+                                                value: item.Surplus
+                                            })
+                                            arrayGetOpeningBalanceCredit = [];
+                                        } else {
+                                            arrayGetOpeningBalanceCredit.push({
+                                                key: item.currency ? item.currency.ShortName : '',
+                                                value: item.Surplus
+                                            })
+                                            arrayGetOpeningBalanceDebt = [];
+                                        }
                                     }
                                 })
                             }
-
                         }
                         await addObjToArray(arrayDebtSurplus, arrayGetOpeningBalanceDebt)
                         await addObjToArray(arrayCreaditSurplus, arrayGetOpeningBalanceCredit)

@@ -12,6 +12,8 @@ module.exports = function (db) {
         SupplierID: Sequelize.BIGINT,
         Type: Sequelize.STRING,
         Surplus: Sequelize.FLOAT,
+        AccountID: Sequelize.BIGINT,
+        IsDebtAccount: Sequelize.BOOLEAN,
     });
 
     return table;
