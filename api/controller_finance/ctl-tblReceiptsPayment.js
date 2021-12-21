@@ -943,9 +943,9 @@ module.exports = {
                                         }
                                     })
                                     if (invoice && invoice.IsInvoice) {
-                                        listInvoiceID.push(item.IDSpecializedSoftware)
+                                        listInvoiceID.push(Number(item.IDSpecializedSoftware))
                                     } else if (invoice && !invoice.IsInvoice) {
-                                        listCreditID.push(item.IDSpecializedSoftware)
+                                        listCreditID.push(Number(item.IDSpecializedSoftware))
                                     }
                                 }
                             })

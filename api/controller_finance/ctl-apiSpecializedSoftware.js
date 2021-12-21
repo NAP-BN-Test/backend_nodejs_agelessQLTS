@@ -1555,6 +1555,7 @@ module.exports = {
                     }
                     let totalMoneyVND = 0
                     for (var i = 0; i < data.length; i++) {
+                        totalMoneyVND = 0;
                         if (data[i].idCustomer == Number(body.idCustomer)) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: data[i].id }
@@ -1589,7 +1590,6 @@ module.exports = {
                                     }
                                 }
                             } else {
-                                console.log(totalMoneyVND);
                                 if (check.Status == 'Chờ thanh toán' && totalMoneyVND != 0) {
                                     // data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                                     // data[i]['payments'] = check ? check.Payments : ''
