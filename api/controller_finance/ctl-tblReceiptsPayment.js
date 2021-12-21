@@ -824,9 +824,9 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                 }
             })
             if (data.ID && amount > 0) {
-                let paidAmount = invoiceRCurrency.PaidAmount ? invoiceRCurrency.PaidAmount : 0
-                let unpaidAmount = invoiceRCurrency.UnpaidAmount ? invoiceRCurrency.UnpaidAmount : 0
-                let initialAmount = invoiceRCurrency.InitialAmount ? invoiceRCurrency.InitialAmount : 0
+                let paidAmount = invoiceRCurrency ? invoiceRCurrency.PaidAmount : 0
+                let unpaidAmount = invoiceRCurrency ? invoiceRCurrency.UnpaidAmount : 0
+                let initialAmount = invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0
                     // ------------------------------------------------------------------------------------------------------------------------------
                 if (unpaidAmount >= amount) {
                     await mtblPaymentRInvoice(db).create({
@@ -1537,12 +1537,14 @@ module.exports = {
     // update_tbl_receipts_payment
     updatetblReceiptsPayment: (req, res) => {
         let body = req.body;
+        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
 
                     var listInvoiceID = body.listInvoiceID ? JSON.parse(body.listInvoiceID) : []
+                    var listCreditID = body.listCreditID ? JSON.parse(body.listCreditID) : []
                     var listCredit = body.listCredit ? JSON.parse(body.listCredit) : []
                     var listDebit = body.listDebit ? JSON.parse(body.listDebit) : []
                     await createRate(db, body.exchangeRate, body.idCurrency)
@@ -1711,8 +1713,19 @@ module.exports = {
                                     ID: body.id
                                 }
                             })
-                            await recalculateTheAmountOfCredit(db, (body.amount ? body.amount : 0), listInvoiceID, body.id, 'update', detail.IDCurrency)
-                                // await deleteAndCreateAllInvoice(db, body.id, listInvoiceID, detail ? detail.Type : null, detail ? detail.Date : null)
+                            await addUpTheAmountForCreditsAndDelete(db, body.id, detail ? detail.IDCurrency : null)
+                            if (body.type == 'accounting') {
+                                let amountMin = 0
+                                if (Number(body.invoiceTotal) > Number(body.creditTotal)) {
+                                    amountMin = body.creditTotal ? body.creditTotal : 0
+                                } else {
+                                    amountMin = body.invoiceTotal ? body.invoiceTotal : 0
+                                }
+                                await recalculateTheAmountOfCredit(db, amountMin, listCreditID, body.id, 'create', detail ? detail.IDCurrency : null)
+                                await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, body.id, 'create', detail ? detail.IDCurrency : null)
+                            } else {
+                                await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, body.id, 'create', detail ? detail.IDCurrency : null)
+                            }
                             if (type == "customer") {
                                 let listUndefinedID = [];
                                 await mtblReceiptsPayment(db).findAll({

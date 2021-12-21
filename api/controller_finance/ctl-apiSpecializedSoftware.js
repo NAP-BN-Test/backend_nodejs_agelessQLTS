@@ -1506,7 +1506,6 @@ module.exports = {
     // get_list_invoice_wait_for_pay_from_customer
     getListInvoiceWaitForPayFromCustomer: async(req, res) => {
         var body = req.body
-        console.log(body);
         var obj = {
             "paging": {
                 "pageSize": body.itemPerPage ? body.itemPerPage : 0,
@@ -1536,6 +1535,7 @@ module.exports = {
                     var arrayCreate = []
                     let totalMoney = []
                     let arrayInvoice = []
+                    let arrayUpdateCheck = []
                     if (body.idReceiptPayment) {
                         await mtblReceiptsPayment(db).findOne({
                             where: {
@@ -1549,6 +1549,7 @@ module.exports = {
                             }).then(invoice => {
                                 invoice.forEach(element => {
                                     arrayInvoice.push(Number(element.IDSpecializedSoftware))
+                                    arrayUpdateCheck.push(Number(element.IDSpecializedSoftware))
                                 })
                             })
                         })
@@ -1586,7 +1587,6 @@ module.exports = {
                                     Status: data[i].statusName
                                 })
                                 if (data[i].statusName == 'Chờ thanh toán' && totalMoneyVND != 0) {
-                                    arrayUpdate.push(data[i])
                                     arrayCreate.push(data[i])
                                 } else {
                                     if (checkDuplicate(arrayInvoice, Number(data[i].id) && totalMoneyVND != 0)) {
@@ -1616,9 +1616,8 @@ module.exports = {
                                         data[i]['payDate'] = ObjAmount.PayDate
                                         data[i]['Payments'] = ObjAmount.Payments
                                         arrayCreate.push(data[i])
-                                        arrayUpdate.push(data[i])
                                     }
-                                    if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                    if (checkDuplicate(arrayUpdateCheck, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
                                         data[i]['payDate'] = check.PayDate
                                         data[i]['Payments'] = check.Payments
                                         arrayUpdate.push(data[i])
@@ -1828,7 +1827,6 @@ module.exports = {
                 let array = []
                 let updateArr = []
                 if (dataCredit) {
-
                     let arrayUpdate = []
                     let where = {}
                     if (body.idReceiptPayment) {
