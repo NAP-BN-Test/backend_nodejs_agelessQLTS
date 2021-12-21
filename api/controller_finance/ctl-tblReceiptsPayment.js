@@ -117,7 +117,9 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
     }
     await mtblCoQuanNhaNuoc(db).destroy({
         where: {
-            ReceiptsPaymentID: { [Op.in]: listID }
+            ReceiptsPaymentID: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblPaymentRPayment(db).destroy({
@@ -196,7 +198,7 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
                         IDReceiptsPayment: data[i].ID
                     }
                 })
-            // Thêm mới số tiền không xác định
+                // Thêm mới số tiền không xác định
             arrayCustomerID.push(data[i].IDCustomer)
         }
     })
@@ -617,95 +619,95 @@ async function getDetailStaff(id) {
 }
 async function getDetailPartner(id) {
     dataPartner = [{
-        id: "2",
-        partnerCode: "LOCK LOCK",
-        name: "Công ty TNHH Lock & Lock",
-        tax: "01245782110",
-        address: "Số 72A Nguyễn Trãi phường Thượng Đỉnh Thanh Xuân Hà Nội",
-        mobile: "0823145678",
-        fax: "045784124",
-        email: "locklockvn@gmail",
-    },
-    {
-        id: "3",
-        partnerCode: "HOA PHAT",
-        name: "Công ty TNHH Hòa Phát ",
-        tax: "012345678",
-        address: "Số 12 Bạch Mai Hà Nội",
-        mobile: "089745120",
-        fax: "023145216",
-        email: "hoaphat123@gmail.com",
-    },
-    {
-        id: "4",
-        partnerCode: "MEDIA MART",
-        name: "Siêu thị điện máy xanh media mart",
-        tax: "012345801",
-        address: "Số 1 Trương Định Hà Nội",
-        mobile: "089724152",
-        fax: "021465741",
-        email: "mediamart4546@gmail.com",
-    },
-    {
-        id: "5",
-        partnerCode: "GLOMED",
-        name: "Công ty dược phẩm Glomed  ",
-        tax: "012465563",
-        address: "Số 34 Huỳnh Thúc Kháng Hà Nội",
-        mobile: "012568523",
-        fax: "012457821",
-        email: "glomeddp@gmail.com",
-    },
-    {
-        id: "6",
-        partnerCode: "THUONG ĐINH",
-        name: "Công ty giầy Thượng Đỉnh",
-        tax: "012489660",
-        address: "Số 2 Kim Ngưu Hà Nội",
-        mobile: "021565635",
-        fax: "014653225",
-        email: "thuongdinhgiay@gmail.com",
-    },
-    {
-        id: "7",
-        partnerCode: "GIAY THANG LONG",
-        name: "Công ty TNHH giày Thăng Long",
-        tax: "012457821",
-        address: "Số 2A Phường Khương Trung Thanh Xuân Hà Nội",
-        mobile: "012465623",
-        fax: "01774125",
-        email: "giaytot@gmail.com",
-    },
-    {
-        id: "8",
-        partnerCode: "VINH DOAN",
-        name: "Công ty cổ phần Vĩnh Đoàn",
-        tax: "012458990",
-        address: "Số 60 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-        mobile: "021565650",
-        fax: "0158555245",
-        email: "vinhdoan123@gmail.com",
-    },
-    {
-        id: "9",
-        partnerCode: "SINO VANLOCK",
-        name: "Công ty sản xuất thiết bị điện Sino vanlock",
-        tax: "0124456685",
-        address: "SỐ 10 nguyễn Văn Cừ Long Biên Hà Nội",
-        mobile: "0154878741",
-        fax: "0157878865",
-        email: "sinovanlock@gmail.com",
-    },
-    {
-        id: "10",
-        partnerCode: "TRUNG NGUYEN",
-        name: "Tập đoàn cà phê Trung Nguyên",
-        tax: "0125748546",
-        address: "Thị Cấm Phường Xuân Phương Nam Từ Liêm Hà Nội",
-        mobile: "045654565",
-        fax: "013245422",
-        email: "trugnnguyen@gmail.com",
-    },
+            id: "2",
+            partnerCode: "LOCK LOCK",
+            name: "Công ty TNHH Lock & Lock",
+            tax: "01245782110",
+            address: "Số 72A Nguyễn Trãi phường Thượng Đỉnh Thanh Xuân Hà Nội",
+            mobile: "0823145678",
+            fax: "045784124",
+            email: "locklockvn@gmail",
+        },
+        {
+            id: "3",
+            partnerCode: "HOA PHAT",
+            name: "Công ty TNHH Hòa Phát ",
+            tax: "012345678",
+            address: "Số 12 Bạch Mai Hà Nội",
+            mobile: "089745120",
+            fax: "023145216",
+            email: "hoaphat123@gmail.com",
+        },
+        {
+            id: "4",
+            partnerCode: "MEDIA MART",
+            name: "Siêu thị điện máy xanh media mart",
+            tax: "012345801",
+            address: "Số 1 Trương Định Hà Nội",
+            mobile: "089724152",
+            fax: "021465741",
+            email: "mediamart4546@gmail.com",
+        },
+        {
+            id: "5",
+            partnerCode: "GLOMED",
+            name: "Công ty dược phẩm Glomed  ",
+            tax: "012465563",
+            address: "Số 34 Huỳnh Thúc Kháng Hà Nội",
+            mobile: "012568523",
+            fax: "012457821",
+            email: "glomeddp@gmail.com",
+        },
+        {
+            id: "6",
+            partnerCode: "THUONG ĐINH",
+            name: "Công ty giầy Thượng Đỉnh",
+            tax: "012489660",
+            address: "Số 2 Kim Ngưu Hà Nội",
+            mobile: "021565635",
+            fax: "014653225",
+            email: "thuongdinhgiay@gmail.com",
+        },
+        {
+            id: "7",
+            partnerCode: "GIAY THANG LONG",
+            name: "Công ty TNHH giày Thăng Long",
+            tax: "012457821",
+            address: "Số 2A Phường Khương Trung Thanh Xuân Hà Nội",
+            mobile: "012465623",
+            fax: "01774125",
+            email: "giaytot@gmail.com",
+        },
+        {
+            id: "8",
+            partnerCode: "VINH DOAN",
+            name: "Công ty cổ phần Vĩnh Đoàn",
+            tax: "012458990",
+            address: "Số 60 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+            mobile: "021565650",
+            fax: "0158555245",
+            email: "vinhdoan123@gmail.com",
+        },
+        {
+            id: "9",
+            partnerCode: "SINO VANLOCK",
+            name: "Công ty sản xuất thiết bị điện Sino vanlock",
+            tax: "0124456685",
+            address: "SỐ 10 nguyễn Văn Cừ Long Biên Hà Nội",
+            mobile: "0154878741",
+            fax: "0157878865",
+            email: "sinovanlock@gmail.com",
+        },
+        {
+            id: "10",
+            partnerCode: "TRUNG NGUYEN",
+            name: "Tập đoàn cà phê Trung Nguyên",
+            tax: "0125748546",
+            address: "Thị Cấm Phường Xuân Phương Nam Từ Liêm Hà Nội",
+            mobile: "045654565",
+            fax: "013245422",
+            email: "trugnnguyen@gmail.com",
+        },
 
     ]
     var obj = {}
@@ -805,8 +807,8 @@ async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currency
 async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPaymentID, type, currencyID) {
     if (type == 'update')
         await addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currencyID)
-    // reListCreditID = listCreditID.reverse() // đổi vị trí ngược lại các phần tử trong mảng
-    listCreditID = listCreditID.sort(function (a, b) { return a - b })
+        // reListCreditID = listCreditID.reverse() // đổi vị trí ngược lại các phần tử trong mảng
+    listCreditID = listCreditID.sort(function(a, b) { return a - b })
     amount = Number(amount)
     for (let i = 0; i < listCreditID.length; i++) {
         let creditID = listCreditID[i]
@@ -825,7 +827,7 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                 let paidAmount = invoiceRCurrency.PaidAmount ? invoiceRCurrency.PaidAmount : 0
                 let unpaidAmount = invoiceRCurrency.UnpaidAmount ? invoiceRCurrency.UnpaidAmount : 0
                 let initialAmount = invoiceRCurrency.InitialAmount ? invoiceRCurrency.InitialAmount : 0
-                // ------------------------------------------------------------------------------------------------------------------------------
+                    // ------------------------------------------------------------------------------------------------------------------------------
                 if (unpaidAmount >= amount) {
                     await mtblPaymentRInvoice(db).create({
                         IDPayment: receiptsPaymentID,
@@ -837,17 +839,17 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                         status = 'Đã thanh toán'
                     }
                     await mtblInvoiceRCurrency(db).update({
-                        InitialAmount: invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0,
-                        UnpaidAmount: unpaidAmount - amount,
-                        PaidAmount: paidAmount + amount,
-                        Status: status,
-                    }, {
-                        where: {
-                            CurrencyID: currencyID,
-                            InvoiceID: data.ID,
-                        }
-                    })
-                    // cập nhật trang thái đồng thời cho invoice để hiện thị dữ liệu trạng thái
+                            InitialAmount: invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0,
+                            UnpaidAmount: unpaidAmount - amount,
+                            PaidAmount: paidAmount + amount,
+                            Status: status,
+                        }, {
+                            where: {
+                                CurrencyID: currencyID,
+                                InvoiceID: data.ID,
+                            }
+                        })
+                        // cập nhật trang thái đồng thời cho invoice để hiện thị dữ liệu trạng thái
                     amount = 0;
                 } else {
                     await mtblPaymentRInvoice(db).create({
@@ -869,18 +871,18 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                     amount -= unpaidAmount
                 }
                 let checkStatusOfInvoice = true
-                // check tất cả các invoice của currency đã thanh toán hết chưa
+                    // check tất cả các invoice của currency đã thanh toán hết chưa
                 await mtblInvoiceRCurrency(db).findAll({
-                    where: {
-                        InvoiceID: data.ID,
-                    }
-                }).then(data => {
-                    for (let inv of data) {
-                        if (inv.Status == 'Chờ thanh toán')
-                            checkStatusOfInvoice = false
-                    }
-                })
-                // cập nhật trang thái đồng thời cho invoice để hiện thị dữ liệu trạng thái
+                        where: {
+                            InvoiceID: data.ID,
+                        }
+                    }).then(data => {
+                        for (let inv of data) {
+                            if (inv.Status == 'Chờ thanh toán')
+                                checkStatusOfInvoice = false
+                        }
+                    })
+                    // cập nhật trang thái đồng thời cho invoice để hiện thị dữ liệu trạng thái
                 if (checkStatusOfInvoice == true) {
                     let payment = await mtblReceiptsPayment(db).findOne({
                         where: {
@@ -920,7 +922,7 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
 module.exports = {
     deleteRelationshiptblReceiptsPayment,
     //  get_detail_tbl_receipts_payment
-    detailtblReceiptsPayment: async (req, res) => {
+    detailtblReceiptsPayment: async(req, res) => {
         let body = req.body;
         console.log(body);
         database.connectDatabase().then(async db => {
@@ -932,10 +934,20 @@ module.exports = {
                     }).then(async data => {
                         if (data) {
                             var listInvoiceID = []
-                            await mtblPaymentRInvoice(db).findAll({ where: { IDPayment: data.ID } }).then(data => {
-                                data.forEach(item => {
-                                    listInvoiceID.push(Number(item.IDSpecializedSoftware))
-                                })
+                            var listCreditID = []
+                            await mtblPaymentRInvoice(db).findAll({ where: { IDPayment: data.ID } }).then(async data => {
+                                for (let item of data) {
+                                    let invoice = await mtblInvoice(db).findOne({
+                                        where: {
+                                            IDSpecializedSoftware: item.IDSpecializedSoftware
+                                        }
+                                    })
+                                    if (invoice && invoice.IsInvoice) {
+                                        listInvoiceID.push(item.IDSpecializedSoftware)
+                                    } else if (invoice && !invoice.IsInvoice) {
+                                        listCreditID.push(item.IDSpecializedSoftware)
+                                    }
+                                }
                             })
                             var currency = await mtblRate(db).findOne({
                                 where: { IDCurrency: data.IDCurrency },
@@ -1010,35 +1022,35 @@ module.exports = {
                                             ['ID', 'DESC']
                                         ],
                                         include: [{
-                                            model: tblDMBoPhan,
-                                            required: false,
-                                            as: 'phongban',
-                                            include: [{
-                                                model: mtblDMChiNhanh(db),
+                                                model: tblDMBoPhan,
                                                 required: false,
-                                                as: 'chinhanh',
-                                            }]
-                                        },
-                                        {
-                                            model: mtblDMNhanvien(db),
-                                            required: false,
-                                            as: 'NhanVien'
-                                        },
-                                        {
-                                            model: mtblDMNhanvien(db),
-                                            required: false,
-                                            as: 'PheDuyet1',
-                                        },
-                                        {
-                                            model: mtblDMNhanvien(db),
-                                            required: false,
-                                            as: 'PheDuyet2',
-                                        },
-                                        {
-                                            model: tblYeuCauMuaSamDetail,
-                                            required: false,
-                                            as: 'line'
-                                        },
+                                                as: 'phongban',
+                                                include: [{
+                                                    model: mtblDMChiNhanh(db),
+                                                    required: false,
+                                                    as: 'chinhanh',
+                                                }]
+                                            },
+                                            {
+                                                model: mtblDMNhanvien(db),
+                                                required: false,
+                                                as: 'NhanVien'
+                                            },
+                                            {
+                                                model: mtblDMNhanvien(db),
+                                                required: false,
+                                                as: 'PheDuyet1',
+                                            },
+                                            {
+                                                model: mtblDMNhanvien(db),
+                                                required: false,
+                                                as: 'PheDuyet2',
+                                            },
+                                            {
+                                                model: tblYeuCauMuaSamDetail,
+                                                required: false,
+                                                as: 'line'
+                                            },
                                         ],
                                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                                         limit: Number(body.itemPerPage),
@@ -1220,7 +1232,7 @@ module.exports = {
                                     model: mtblDMTaiKhoanKeToan(db),
                                     required: false,
                                     as: 'acc'
-                                },],
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data.ID,
                                     type: "CREDIT"
@@ -1243,7 +1255,7 @@ module.exports = {
                                     model: mtblDMTaiKhoanKeToan(db),
                                     required: false,
                                     as: 'acc'
-                                },],
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data.ID,
                                     type: "DEBIT"
@@ -1264,6 +1276,7 @@ module.exports = {
                             obj['arrayCredit'] = arrayCredit
                             obj['arrayDebit'] = arraydebit
                             obj['listInvoiceID'] = listInvoiceID
+                            obj['listCreditID'] = listCreditID
                             let unspecifiedAmount = 0;
                             await mtblCustomer(db).findOne({
                                 where: {
@@ -1302,12 +1315,14 @@ module.exports = {
         })
     },
     // add_tbl_receipts_payment
-    addtblReceiptsPayment: async (req, res) => {
+    addtblReceiptsPayment: async(req, res) => {
         let body = req.body;
-        console.log(body);
         var listInvoiceID = []
+        var listCreditID = []
         if (body.listInvoiceID)
             listInvoiceID = JSON.parse(body.listInvoiceID)
+        if (body.listCreditID)
+            listCreditID = JSON.parse(body.listCreditID)
         var listCredit = body.listCredit ? JSON.parse(body.listCredit) : []
         var listDebit = body.listDebit ? JSON.parse(body.listDebit) : []
         database.connectDatabase().then(async db => {
@@ -1356,29 +1371,18 @@ module.exports = {
                     else
                         objCreate['IDCustomer'] = body.object.id
                     await mtblReceiptsPayment(db).create(objCreate).then(async data => {
-                        // tạo bản ghi thanh toán cơ quan nhà nước
-                        // if (body.type == 'payment' || body.type == 'debit') {
-                        await recalculateTheAmountOfCredit(db, body.amount ? body.amount : 0, listInvoiceID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
-                        // } else {
-                        //     let Payments = 'Tiền mặt'
-                        //     if (body.type == "debit") {
-                        //         Payments = 'Chuyển khoản'
-                        //     } else if (body.type == "spending") {
-                        //         Payments = 'Chuyển khoản'
-                        //     }
-                        //     for (let i = 0; i < listInvoiceID.length; i++) {
-                        //         await mtblInvoice(db).update({
-                        //             // Status: 'Đã thanh toán',
-                        //             Payments: Payments,
-                        //             PayDate: body.date ? body.date : null,
-                        //         }, { where: { IDSpecializedSoftware: listInvoiceID[i] } })
-                        //         await mtblPaymentRInvoice(db).create({
-                        //             IDPayment: data.ID,
-                        //             IDSpecializedSoftware: listInvoiceID[i],
-                        //             // Amount: amount,
-                        //         })
-                        //     }
-                        // }
+                        if (body.type == 'accounting') {
+                            let amountMin = 0
+                            if (Number(body.invoiceTotal) > Number(body.creditTotal)) {
+                                amountMin = body.creditTotal ? body.creditTotal : 0
+                            } else {
+                                amountMin = body.invoiceTotal ? body.invoiceTotal : 0
+                            }
+                            await recalculateTheAmountOfCredit(db, amountMin, listCreditID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
+                            await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
+                        } else {
+                            await recalculateTheAmountOfCredit(db, body.amount ? body.amount : 0, listInvoiceID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
+                        }
                         if (body.object.type == 'cqnn' && body.object.id == 11) {
                             let typeCoQuanNhaNuoc = 'debtNotices'
                             if (body.type && body.type == 'receipt') {
@@ -1427,7 +1431,9 @@ module.exports = {
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
                                     IDCustomer: body.object.id,
-                                    UnpaidAmount: { [Op.ne]: 0 },
+                                    UnpaidAmount: {
+                                        [Op.ne]: 0
+                                    },
                                 },
                                 order: [
                                     ['ID', 'ASC']
@@ -1438,13 +1444,13 @@ module.exports = {
                                         // Trường hợp nếu tiền rút lớn hơn hoặc bằng số tiền chưa thanh toán
                                         if (withdrawalMoney > item.UnpaidAmount) {
                                             withdrawalMoney = withdrawalMoney - item.UnpaidAmount
-                                            // Tạo trước khi update
+                                                // Tạo trước khi update
                                             await mtblPaymentRPayment(db).create({
-                                                IDPayment: data.ID,
-                                                IDPaymentR: item.ID,
-                                                Amount: item.UnpaidAmount,
-                                            })
-                                            // Cập nhật số tiền thanh toán và không thanh toán của phiếu
+                                                    IDPayment: data.ID,
+                                                    IDPaymentR: item.ID,
+                                                    Amount: item.UnpaidAmount,
+                                                })
+                                                // Cập nhật số tiền thanh toán và không thanh toán của phiếu
                                             await mtblReceiptsPayment(db).update({
                                                 UnpaidAmount: 0,
                                                 PaidAmount: item.InitialAmount,
@@ -1706,13 +1712,15 @@ module.exports = {
                                 }
                             })
                             await recalculateTheAmountOfCredit(db, (body.amount ? body.amount : 0), listInvoiceID, body.id, 'update', detail.IDCurrency)
-                            // await deleteAndCreateAllInvoice(db, body.id, listInvoiceID, detail ? detail.Type : null, detail ? detail.Date : null)
+                                // await deleteAndCreateAllInvoice(db, body.id, listInvoiceID, detail ? detail.Type : null, detail ? detail.Date : null)
                             if (type == "customer") {
                                 let listUndefinedID = [];
                                 await mtblReceiptsPayment(db).findAll({
                                     where: {
                                         IDCustomer: customerID,
-                                        UnpaidAmount: { [Op.ne]: 0 },
+                                        UnpaidAmount: {
+                                            [Op.ne]: 0
+                                        },
                                     },
                                     order: [
                                         ['ID', 'DESC']
@@ -1819,8 +1827,10 @@ module.exports = {
                                     let array = []
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
-                                    array.sort(function (a, b) { return a - b });
-                                    userFind['Amount'] = { [Op.between]: array }
+                                    array.sort(function(a, b) { return a - b });
+                                    userFind['Amount'] = {
+                                        [Op.between]: array
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -1832,7 +1842,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NỘI DUNG') {
-                                    userFind['Reason'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Reason'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -1844,7 +1856,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'SỐ CHỨNG TỪ') {
-                                    userFind['CodeNumber'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['CodeNumber'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -1909,13 +1923,11 @@ module.exports = {
                         order: [
                             ['ID', 'DESC']
                         ],
-                        include: [
-                            {
-                                model: mtblCurrency(db),
-                                required: false,
-                                as: 'currency'
-                            },
-                        ],
+                        include: [{
+                            model: mtblCurrency(db),
+                            required: false,
+                            as: 'currency'
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -2006,7 +2018,7 @@ module.exports = {
                                     model: mtblDMTaiKhoanKeToan(db),
                                     required: false,
                                     as: 'acc'
-                                },],
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data[i].ID,
                                     type: "CREDIT"
@@ -2025,7 +2037,7 @@ module.exports = {
                                     model: mtblDMTaiKhoanKeToan(db),
                                     required: false,
                                     as: 'acc'
-                                },],
+                                }, ],
                                 where: {
                                     IDReceiptsPayment: data[i].ID,
                                     type: "DEBIT"
@@ -2135,15 +2147,18 @@ module.exports = {
                             [Op.or]: [{
                                 [Op.and]: {
                                     IDCustomer: body.idCustomer,
-                                    UnpaidAmount: { [Op.ne]: 0 },
+                                    UnpaidAmount: {
+                                        [Op.ne]: 0
+                                    },
                                 }
                             }, {
                                 ID: {
                                     [Op.in]: listUndefinedID
                                 }
-                            }
-                            ],
-                            ID: { [Op.ne]: (body.receiptID ? body.receiptID : null) },
+                            }],
+                            ID: {
+                                [Op.ne]: (body.receiptID ? body.receiptID : null)
+                            },
                             Type: body.type,
                             IDCurrency: body.currencyID ? body.currencyID : null
                         },
@@ -2154,7 +2169,7 @@ module.exports = {
                             model: mtblCurrency(db),
                             required: false,
                             as: 'currency'
-                        },],
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -2256,7 +2271,9 @@ module.exports = {
                     tblReceiptsPayment.findAll({
                         where: {
                             IDCustomer: body.idCustomer,
-                            UnpaidAmount: { [Op.ne]: 0 },
+                            UnpaidAmount: {
+                                [Op.ne]: 0
+                            },
                         },
                         order: [
                             ['ID', 'DESC']
@@ -2265,7 +2282,7 @@ module.exports = {
                             model: mtblCurrency(db),
                             required: false,
                             as: 'currency'
-                        },],
+                        }, ],
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
@@ -2419,7 +2436,9 @@ module.exports = {
                     if (body.voucherNumber)
                         where['VoucherNumber'] = body.voucherNumber
                     if (body.id)
-                        where['ID'] = { [Op.ne]: body.id }
+                        where['ID'] = {
+                            [Op.ne]: body.id
+                        }
                     await mtblReceiptsPayment(db).findOne({
                         where: where
                     }).then(data => {

@@ -170,8 +170,10 @@ module.exports = {
                         invoiceID = await mtblInvoice(db).create({
                             IDSpecializedSoftware: data[i].id,
                             Status: data[i].statusName,
-                            Request: data[i].request
+                            Request: data[i].request,
+                            IsInvoice: true
                         })
+                        check = invoiceID
                     } else {
                         invoiceID = check
                         data[i].statusName = check.Status

@@ -271,7 +271,7 @@ let data = [{
                 typeMoney: 'USD',
             },
         ],
-        statusName: 'Đã thanh toán',
+        statusName: 'Chờ thanh toán',
         idCustomer: 2,
         customerName: 'Công ty tnhh Is Tech Vina',
         content: 'Demo 2',
@@ -297,7 +297,7 @@ let data = [{
                 typeMoney: 'USD',
             },
         ],
-        statusName: 'Đã thanh toán',
+        statusName: 'Chờ thanh toán',
         idCustomer: 2,
         customerName: 'Công ty tnhh Is Tech Vina',
         content: 'Demo 2',
@@ -323,7 +323,7 @@ let data = [{
                 typeMoney: 'USD',
             },
         ],
-        statusName: 'Đã thanh toán',
+        statusName: 'Chờ thanh toán',
         idCustomer: 2,
         customerName: 'Công ty tnhh Is Tech Vina',
         content: 'Demo 2',
@@ -2397,8 +2397,10 @@ module.exports = {
                             Status: dataCredit[i].statusName,
                             Request: dataCredit[i].request,
                             InitialAmount: dataCredit[i].total,
-                            UnpaidAmount: dataCredit[i].total
+                            UnpaidAmount: dataCredit[i].total,
+                            IsInvoice: false
                         })
+                        check = invoiceID
                     } else {
                         invoiceID = check
                         dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
