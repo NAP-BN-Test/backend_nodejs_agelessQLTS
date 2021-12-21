@@ -12,7 +12,7 @@ var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 var mtblInvoiceRCurrency = require('../tables/financemanage/tblInvoiceRCurrency')
     // data model invoice của KH
-data = [{
+let data = [{
         id: 1,
         createdDate: '01/05/2021',
         refNumber: 'REF0001',
@@ -324,7 +324,7 @@ data = [{
             },
         ],
         statusName: 'Đã thanh toán',
-        idCustomer: 1,
+        idCustomer: 2,
         customerName: 'Công ty tnhh Is Tech Vina',
         content: 'Demo 2',
         request: 'Yêu cầu xóa',
@@ -1176,6 +1176,8 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
     return result
 }
 module.exports = {
+    data,
+    dataCredit,
     getCustomerSpecializeSoftware,
     // get_list_department
     getListDepartment: async(req, res) => {
@@ -1529,44 +1531,34 @@ module.exports = {
                                 nameCurrency = data.ShortName
                         })
                     }
-                    if (body.idCustomer != '1') {
-                        var result = {
-                            arrayCreate: [],
-                            arrayUpdate: [],
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 0,
-                            totalMoney: [],
-                            totalMoneyVND: 0,
-                        }
-                        res.json(result);
-                    } else {
-                        var array = []
-                        var arrayCreate = []
-                        let totalMoney = []
-                        let arrayInvoice = []
-                        if (body.idReceiptPayment) {
-                            await mtblReceiptsPayment(db).findOne({
+
+                    var array = []
+                    var arrayCreate = []
+                    let totalMoney = []
+                    let arrayInvoice = []
+                    if (body.idReceiptPayment) {
+                        await mtblReceiptsPayment(db).findOne({
+                            where: {
+                                ID: body.idReceiptPayment
+                            }
+                        }).then(async data => {
+                            await mtblPaymentRInvoice(db).findAll({
                                 where: {
-                                    ID: body.idReceiptPayment
+                                    IDPayment: data.ID
                                 }
-                            }).then(async data => {
-                                await mtblPaymentRInvoice(db).findAll({
-                                    where: {
-                                        IDPayment: data.ID
-                                    }
-                                }).then(invoice => {
-                                    invoice.forEach(element => {
-                                        arrayInvoice.push(Number(element.IDSpecializedSoftware))
-                                    })
+                            }).then(invoice => {
+                                invoice.forEach(element => {
+                                    arrayInvoice.push(Number(element.IDSpecializedSoftware))
                                 })
                             })
-                        }
-                        for (var i = 0; i < data.length; i++) {
+                        })
+                    }
+                    let totalMoneyVND = 0
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].idCustomer == Number(body.idCustomer)) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: data[i].id }
                             })
-                            let totalMoneyVND = 0
                             let arrayExchangeRate = []
                             for (let m = 0; m < data[i].arrayMoney.length; m++) {
                                 if (body.currencyID) {
@@ -1597,6 +1589,7 @@ module.exports = {
                                     }
                                 }
                             } else {
+                                console.log(totalMoneyVND);
                                 if (check.Status == 'Chờ thanh toán' && totalMoneyVND != 0) {
                                     // data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
                                     // data[i]['payments'] = check ? check.Payments : ''
@@ -1610,21 +1603,20 @@ module.exports = {
                             }
                         }
                         totalMoney = await calculateTheTotalAmountOfEachCurrency(arrayCreate)
-                        let totalMoneyVND = 0
                         for (let a = 0; a < totalMoney.length; a++) {
                             totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
                         }
-                        var result = {
-                            arrayCreate: arrayCreate,
-                            arrayUpdate: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: totalMoney,
-                            totalMoneyVND: totalMoneyVND,
-                        }
-                        res.json(result);
                     }
+                    var result = {
+                        arrayCreate: arrayCreate,
+                        arrayUpdate: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: 10,
+                        totalMoney: totalMoney,
+                        totalMoneyVND: totalMoneyVND,
+                    }
+                    res.json(result);
                 } else {
                     res.json(Result.SYS_ERROR_RESULT)
                 }
@@ -1812,32 +1804,23 @@ module.exports = {
                 let array = []
                 let updateArr = []
                 if (dataCredit) {
-                    if (body.idCustomer != '10') {
-                        var result = {
-                            arrayCreate: [],
-                            arrayUpdate: [],
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: [],
+
+                    let arrayUpdate = []
+                    let where = {}
+                    if (body.idReceiptPayment) {
+                        where = {
+                            IDPayment: body.idReceiptPayment
                         }
-                        res.json(result);
-                    } else {
-                        let arrayUpdate = []
-                        let where = {}
-                        if (body.idReceiptPayment) {
-                            where = {
-                                IDPayment: body.idReceiptPayment
-                            }
+                    }
+                    await mtblPaymentRInvoice(db).findAll({
+                        where: where
+                    }).then(data => {
+                        for (item of data) {
+                            arrayUpdate.push(Number(item.IDSpecializedSoftware))
                         }
-                        await mtblPaymentRInvoice(db).findAll({
-                            where: where
-                        }).then(data => {
-                            for (item of data) {
-                                arrayUpdate.push(Number(item.IDSpecializedSoftware))
-                            }
-                        })
-                        for (let i = 0; i < dataCredit.length; i++) {
+                    })
+                    for (let i = 0; i < dataCredit.length; i++) {
+                        if (dataCredit[i].idCustomer == Number(body.idCustomer)) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: dataCredit[i].id }
                             })
@@ -1901,17 +1884,18 @@ module.exports = {
                             }
                             dataCredit[i]['total'] = totalMoneyVND
                         }
-                        let totalMoney = await calculateTheTotalForCredit(array)
-                        var result = {
-                            arrayCreate: array,
-                            arrayUpdate: updateArr,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: totalMoney,
-                        }
-                        res.json(result);
                     }
+
+                    let totalMoney = await calculateTheTotalForCredit(array)
+                    var result = {
+                        arrayCreate: array,
+                        arrayUpdate: updateArr,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: 10,
+                        totalMoney: totalMoney,
+                    }
+                    res.json(result);
                 } else {
                     res.json(Result.SYS_ERROR_RESULT)
                 }
