@@ -1714,8 +1714,8 @@ module.exports = {
                                 }
                             })
                             await addUpTheAmountForCreditsAndDelete(db, body.id, detail ? detail.IDCurrency : null)
+                            let amountMin = 0
                             if (body.type == 'accounting') {
-                                let amountMin = 0
                                 if (Number(body.invoiceTotal) > Number(body.creditTotal)) {
                                     amountMin = body.creditTotal ? body.creditTotal : 0
                                 } else {
