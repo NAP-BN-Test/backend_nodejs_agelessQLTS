@@ -1061,6 +1061,7 @@ module.exports = {
                             }
                             let tblCustomerRCurrency = mtblCustomerRCurrency(db);
                             tblCustomerRCurrency.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
+                            let arrayCheckCurrenCyCustomer = []
                             for (let customer of customerArr) {
                                 let whereCustomer = {}
                                 if (dataSearch.type == 'supplier')
@@ -1080,25 +1081,34 @@ module.exports = {
                                         required: false,
                                         as: 'currency'
                                     }, ],
-                                }).then(cus => {
+                                }).then(async cus => {
                                     for (let item of cus) {
+                                        let currencyNameCus = (item.currency ? item.currency.ShortName : 'VND');
+                                        if (!checkDuplicate(arrayCheckCurrenCyCustomer, currencyNameCus)) {
+                                            if (item.IsDebtAccount) {
+                                                arrayGetOpeningBalanceDebt.push({
+                                                    key: currencyNameCus,
+                                                    value: 0,
+                                                })
+                                            } else {
+                                                arrayGetOpeningBalanceCredit.push({
+                                                    key: currencyNameCus,
+                                                    value: 0,
+                                                })
+                                            }
+                                            arrayCheckCurrenCyCustomer.push(currencyNameCus)
+                                        }
+                                        console.log(123456, arrayGetOpeningBalanceDebt);
                                         if (item.IsDebtAccount) {
-                                            arrayGetOpeningBalanceDebt.push({
-                                                    key: item.currency ? item.currency.ShortName : '',
-                                                    value: item.Surplus
-                                                })
-                                                // arrayGetOpeningBalanceCredit = [];
+                                            arrayGetOpeningBalanceDebt = await addValueOfArray(arrayGetOpeningBalanceDebt, currencyNameCus, item.Surplus)
                                         } else {
-                                            arrayGetOpeningBalanceCredit.push({
-                                                    key: item.currency ? item.currency.ShortName : '',
-                                                    value: item.Surplus
-                                                })
-                                                // arrayGetOpeningBalanceDebt = [];
+                                            arrayGetOpeningBalanceCredit = await addValueOfArray(arrayGetOpeningBalanceCredit, currencyNameCus, item.Surplus)
                                         }
                                     }
                                 })
                             }
                         }
+                        console.log(arrayGetOpeningBalanceDebt);
                         await addObjToArray(arrayDebtSurplus, arrayGetOpeningBalanceDebt)
                         await addObjToArray(arrayCreaditSurplus, arrayGetOpeningBalanceCredit)
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '131' || checkAccount.AccountingCode == '511')) {

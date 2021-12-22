@@ -1381,7 +1381,6 @@ module.exports = {
                             await recalculateTheAmountOfCredit(db, amountMin, listCreditID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
                             await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
                         } else {
-                            console.log(1234567);
                             await recalculateTheAmountOfCredit(db, body.amount ? body.amount : 0, listInvoiceID, data.ID, 'create', body.idCurrency ? body.idCurrency : null)
                         }
                         if (body.object.type == 'cqnn' && body.object.id == 11) {
