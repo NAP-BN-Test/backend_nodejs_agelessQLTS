@@ -671,6 +671,7 @@ module.exports = {
             dataSearch.dateFrom = null
             dataSearch.dateTo = null
         }
+        console.log(dataSearch);
         const currentYear = new Date().getFullYear()
         database.connectDatabase().then(async db => {
             if (db) {
@@ -1022,9 +1023,16 @@ module.exports = {
                                         ID: dataSearch.customerID
                                     }
                                 })
+                            } else if (dataSearch.customerID && !dataSearch.type) {
+                                customerArr = await mtblCustomer(db).findAll({
+                                    where: {
+                                        IDSpecializedSoftware: dataSearch.customerID
+                                    }
+                                })
                             } else if (!dataSearch.customerID) {
                                 customerArr = await mtblCustomer(db).findAll()
                             }
+                            console.log(customerArr.length);
                             let tblCustomerRCurrency = mtblCustomerRCurrency(db);
                             tblCustomerRCurrency.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
                             let arrayCheckCurrenCyCustomer = []
