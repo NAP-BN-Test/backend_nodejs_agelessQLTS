@@ -1006,40 +1006,6 @@ module.exports = {
                                     value: checkAccount.MoneyDebit
                                 })
                         }
-                        let checkCccountSystemOtherID;
-                        if (dataSearch.accountSystemOtherID)
-                            checkCccountSystemOtherID = await mtblDMTaiKhoanKeToan(db).findOne({
-                                where: {
-                                    ID: dataSearch.accountSystemOtherID
-                                }
-                            })
-                        let arrayCurrency = []
-                        arrayGetOpeningBalanceDebt.forEach(item => {
-                            if (!checkDuplicate(arrayCurrency, item.key))
-                                arrayCurrency.push(item.key)
-                        })
-                        arrayGetOpeningBalanceCredit.forEach(item => {
-                            if (!checkDuplicate(arrayCurrency, item.key))
-                                arrayCurrency.push(item.key)
-                        })
-                        for (let cur of arrayCurrency) {
-                            arrayDebtSurplus.push({
-                                key: cur,
-                                value: 0
-                            })
-                            arrayCreaditSurplus.push({
-                                key: cur,
-                                value: 0
-                            })
-                            arrayCreditIncurred.push({
-                                key: cur,
-                                value: 0
-                            })
-                            arrayDebtIncurred.push({
-                                key: cur,
-                                value: 0
-                            })
-                        }
                         // Xử lý khi chọn tk 131 hay 331 khi chọn khách hàng sẽ lấy số dư đầu kì của khách hàng
                         if (checkAccount && checkAccount.AccountingCode == '131' || checkAccount.AccountingCode == '331') {
                             let customerArr = [];
@@ -1108,7 +1074,40 @@ module.exports = {
                                 })
                             }
                         }
-                        console.log(arrayGetOpeningBalanceDebt);
+                        let checkCccountSystemOtherID;
+                        if (dataSearch.accountSystemOtherID)
+                            checkCccountSystemOtherID = await mtblDMTaiKhoanKeToan(db).findOne({
+                                where: {
+                                    ID: dataSearch.accountSystemOtherID
+                                }
+                            })
+                        let arrayCurrency = []
+                        arrayGetOpeningBalanceDebt.forEach(item => {
+                            if (!checkDuplicate(arrayCurrency, item.key))
+                                arrayCurrency.push(item.key)
+                        })
+                        arrayGetOpeningBalanceCredit.forEach(item => {
+                            if (!checkDuplicate(arrayCurrency, item.key))
+                                arrayCurrency.push(item.key)
+                        })
+                        for (let cur of arrayCurrency) {
+                            arrayDebtSurplus.push({
+                                key: cur,
+                                value: 0
+                            })
+                            arrayCreaditSurplus.push({
+                                key: cur,
+                                value: 0
+                            })
+                            arrayCreditIncurred.push({
+                                key: cur,
+                                value: 0
+                            })
+                            arrayDebtIncurred.push({
+                                key: cur,
+                                value: 0
+                            })
+                        }
                         await addObjToArray(arrayDebtSurplus, arrayGetOpeningBalanceDebt)
                         await addObjToArray(arrayCreaditSurplus, arrayGetOpeningBalanceCredit)
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '131' || checkAccount.AccountingCode == '511')) {
