@@ -1481,7 +1481,7 @@ module.exports = {
                                                 accountingReciprocalCode: item.accounting ? item.accounting.AccountingCode : '',
                                                 numberReceipts: item.NumberReceipts ? item.NumberReceipts : '',
                                                 createDate: item.CreateDate ? moment(item.CreateDate).format('DD/MM/YYYY') : null,
-                                                entryDate: item.EntryDate ? moment(item.EntryDate).format('DD/MM/YYYY') : null,
+                                                entryDate: data[i].payment ? moment(data[i].payment.Date).format('DD/MM/YYYY') : null,
                                                 number: item.Number ? item.Number : '',
                                                 reason: reason,
                                                 idAccounting: item.IDAccounting ? item.IDAccounting : null,

@@ -259,7 +259,7 @@ let data = [{
     },
     {
         id: 11,
-        createdDate: '02/05/2021',
+        createdDate: '12/05/2021',
         refNumber: 'REF00011',
         invoiceNumber: 'INV00011',
         arrayMoney: [{
@@ -285,7 +285,7 @@ let data = [{
     },
     {
         id: 12,
-        createdDate: '02/05/2021',
+        createdDate: '13/05/2021',
         refNumber: 'REF00012',
         invoiceNumber: 'INV00012',
         arrayMoney: [{
@@ -311,7 +311,7 @@ let data = [{
     },
     {
         id: 13,
-        createdDate: '02/05/2021',
+        createdDate: '14/05/2021',
         refNumber: 'REF00013',
         invoiceNumber: 'INV00013',
         arrayMoney: [{
@@ -597,7 +597,7 @@ var dataCredit = [{
     },
     {
         id: 111,
-        createdDate: '01/05/2021',
+        createdDate: '13/05/2021',
         invoiceNumber: 'INV00011',
         statusName: 'Chờ thanh toán',
         idCustomer: 2,
@@ -623,7 +623,7 @@ var dataCredit = [{
     },
     {
         id: 112,
-        createdDate: '01/05/2021',
+        createdDate: '14/05/2021',
         invoiceNumber: 'INV00012',
         statusName: 'Chờ thanh toán',
         idCustomer: 2,
@@ -649,7 +649,7 @@ var dataCredit = [{
     },
     {
         id: 113,
-        createdDate: '01/05/2021',
+        createdDate: '15/05/2021',
         invoiceNumber: 'INV00013',
         statusName: 'Chờ thanh toán',
         idCustomer: 2,
