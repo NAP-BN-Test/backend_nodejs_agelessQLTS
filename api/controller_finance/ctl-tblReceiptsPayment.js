@@ -855,7 +855,7 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                     await mtblPaymentRInvoice(db).create({
                         IDPayment: receiptsPaymentID,
                         IDSpecializedSoftware: creditID,
-                        Amount: initialAmount,
+                        Amount: unpaidAmount,
                     })
                     await mtblInvoiceRCurrency(db).update({
                         InitialAmount: invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0,

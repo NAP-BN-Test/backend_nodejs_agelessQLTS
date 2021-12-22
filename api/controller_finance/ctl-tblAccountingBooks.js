@@ -11,504 +11,8 @@ var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblCustomerRCurrency = require('../tables/financemanage/tblCustomerRCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
-var dataCredit = [{
-        id: 100,
-        createdDate: '01/05/2021',
-        invoiceNumber: 'INV0001',
-        statusName: 'Chờ thanh toám',
-        idCustomer: 10,
-        creditNumber: 'CRE0001',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: 'Yêu cầu Xóa',
-        accountingDebt: '331',
-        accountingCredit: '642',
-        nameAccountingDebt: 'Phải trả người bán',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1000000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '100',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-    {
-        id: 102,
-        createdDate: '01/05/2021',
-        invoiceNumber: 'INV0002',
-        statusName: 'Chờ thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0002',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: '',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1100000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '110',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-    {
-        id: 103,
-        createdDate: '03/05/2021',
-        invoiceNumber: 'INV0003',
-        statusName: 'Đã thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0003',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: 'Yêu cầu xóa',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1200000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '120',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-    {
-        id: 104,
-        createdDate: '04/05/2021',
-        invoiceNumber: 'INV0004',
-        statusName: 'Đã thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0004',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: 'Yêu cầu sửa',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-            total: '1300000',
-            typeMoney: 'VND',
-        }, ],
-    },
-    {
-        id: 105,
-        createdDate: '05/05/2021',
-        invoiceNumber: 'INV0005',
-        statusName: 'Chờ thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0005',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: '',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1500000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '150',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-    {
-        id: 106,
-        createdDate: '06/05/2021',
-        invoiceNumber: 'INV0006',
-        statusName: 'Chờ thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0006',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: '',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1600000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '160',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-    {
-        id: 107,
-        createdDate: '07/05/2021',
-        invoiceNumber: 'INV0007',
-        statusName: 'Đã thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0007',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: 'Yêu cầu xóa',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1700000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '170',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-    {
-        id: 108,
-        createdDate: '08/05/2021',
-        invoiceNumber: 'INV0008',
-        statusName: 'Chờ thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0008',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: '',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-            total: '1800000',
-            typeMoney: 'VND',
-        }, ],
-    },
-    {
-        id: 109,
-        createdDate: '10/05/2021',
-        invoiceNumber: 'INV0009',
-        statusName: 'Chờ thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0009',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: '',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1900000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '190',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-    {
-        id: 110,
-        createdDate: '12/05/2021',
-        invoiceNumber: 'INV0010',
-        statusName: 'Đã thanh toán',
-        idCustomer: 10,
-        creditNumber: 'CRE0010',
-        customerName: 'Công ty tnhh Hòa Phát',
-        employeeName: 'Lê Thị Thảo',
-        idEmployee: 1,
-        content: 'test 01',
-        request: 'Yêu cầu sửa',
-        accountingDebt: '331',
-        nameAccountingDebt: 'Phải trả người bán',
-        accountingCredit: '642',
-        nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-        arrayMoney: [{
-                total: '1750000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '175',
-                typeMoney: 'USD',
-            },
-        ],
-    },
-]
-var dataInvoice = [{
-        id: 1,
-        createdDate: '01/05/2021',
-        refNumber: 'REF0001',
-        invoiceNumber: 'INV0001',
-        arrayMoney: [{
-                total: '1000000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '100',
-                typeMoney: 'USD',
-            },
-
-        ],
-        statusName: 'Đã thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 1',
-        request: '',
-        departmentName: 'Sáng chế',
-        departmentID: 10025,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 2,
-        createdDate: '02/05/2021',
-        refNumber: 'REF0002',
-        invoiceNumber: 'INV0002',
-        arrayMoney: [{
-                total: '1100000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '10',
-                typeMoney: 'USD',
-            },
-        ],
-        statusName: 'Đã thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 2',
-        request: 'Yêu cầu xóa',
-        departmentName: 'KẾ TOÁN',
-        departmentID: 10026,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 3,
-        createdDate: '03/05/2021',
-        refNumber: 'REF0003',
-        invoiceNumber: 'INV0003',
-        arrayMoney: [{
-                total: '1200000',
-                typeMoney: 'VND',
-            },
-
-        ],
-        statusName: 'Đã thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 3',
-        request: 'Yêu cầu sửa',
-        departmentName: 'Sáng chế',
-        departmentID: 10025,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 4,
-        createdDate: '04/05/2021',
-        refNumber: 'REF0004',
-        invoiceNumber: 'INV0004',
-        arrayMoney: [{
-                total: '1300000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '100',
-                typeMoney: 'USD',
-            },
-
-        ],
-        statusName: 'Đã thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 4',
-        request: 'Yêu cầu sửa',
-        departmentName: 'HÀNH CHÍNH NHÂN SỰ',
-        departmentID: 10027,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 5,
-        createdDate: '05/05/2021',
-        refNumber: 'REF0005',
-        invoiceNumber: 'INV0005',
-        arrayMoney: [{
-                total: '1400000',
-                typeMoney: 'VND',
-            },
-
-        ],
-        statusName: 'Đã thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 5',
-        request: '',
-        departmentName: 'Sáng chế',
-        departmentID: 10025,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 6,
-        createdDate: '06/05/2021',
-        refNumber: 'REF0006',
-        invoiceNumber: 'INV0006',
-        arrayMoney: [{
-                total: '1500000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '100',
-                typeMoney: 'USD',
-            },
-        ],
-        statusName: 'Đã thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 6',
-        request: 'Yêu cầu xóa',
-        departmentName: 'Sáng chế',
-        departmentID: 10025,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 7,
-        createdDate: '07/05/2021',
-        refNumber: 'REF0007',
-        invoiceNumber: 'INV0007',
-        arrayMoney: [{
-                total: '1600000',
-                typeMoney: 'VND',
-            },
-
-        ],
-        statusName: 'Chờ thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 7',
-        request: 'Yêu cầu xóa',
-        departmentName: 'KẾ TOÁN',
-        departmentID: 10026,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 8,
-        createdDate: '08/05/2021',
-        refNumber: 'REF0008',
-        invoiceNumber: 'INV0008',
-        arrayMoney: [{
-                total: '100',
-                typeMoney: 'USD',
-            },
-
-        ],
-        statusName: 'Chờ thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 8',
-        request: 'Yêu cầu sửa',
-        departmentName: 'Sáng chế',
-        departmentID: 10025,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 9,
-        createdDate: '09/05/2021',
-        refNumber: 'REF0009',
-        invoiceNumber: 'INV0009',
-        arrayMoney: [{
-                total: '2000000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '130',
-                typeMoney: 'USD',
-            },
-
-        ],
-        statusName: 'Chờ thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 9',
-        request: 'Yêu cầu sửa',
-        departmentName: 'Ban NH3',
-        departmentID: 10035,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-    {
-        id: 10,
-        createdDate: '10/05/2021',
-        refNumber: 'REF0010',
-        invoiceNumber: 'INV0010',
-        arrayMoney: [{
-            total: '123',
-            typeMoney: 'VND',
-        }, ],
-        statusName: 'Chờ thanh toán',
-        idCustomer: 1,
-        customerName: 'Công ty tnhh An Phú',
-        content: 'Demo 10',
-        request: 'Yêu cầu sửa',
-        departmentName: 'Ban NH3',
-        departmentID: 10035,
-        accountingDebt: '131',
-        nameAccountingDebt: 'Phải thu khách hàng',
-        accountingCredit: '511',
-        nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-    },
-];
+var dataCredit = customerData.dataCredit
+var dataInvoice = customerData.data
 var mtblInvoice = require('../tables/financemanage/tblInvoice')
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 async function deleteRelationshiptblAccountingBooks(db, listID) {
@@ -1152,253 +656,6 @@ module.exports = {
     // get_list_tbl_accounting_books
     getListtblAccountingBooks: async(req, res) => {
         let body = req.body;
-        dataInvoice = [{
-                id: 1,
-                createdDate: '01/05/2021',
-                refNumber: 'REF0001',
-                invoiceNumber: 'INV0001',
-                arrayMoney: [{
-                        total: '1000000',
-                        typeMoney: 'VND',
-                    },
-                    {
-                        total: '100',
-                        typeMoney: 'USD',
-                    },
-
-                ],
-                statusName: 'Đã thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 1',
-                request: '',
-                departmentName: 'Sáng chế',
-                departmentID: 10025,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 2,
-                createdDate: '02/05/2021',
-                refNumber: 'REF0002',
-                invoiceNumber: 'INV0002',
-                arrayMoney: [{
-                        total: '1100000',
-                        typeMoney: 'VND',
-                    },
-                    {
-                        total: '10',
-                        typeMoney: 'USD',
-                    },
-                ],
-                statusName: 'Đã thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 2',
-                request: 'Yêu cầu xóa',
-                departmentName: 'KẾ TOÁN',
-                departmentID: 10026,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 3,
-                createdDate: '03/05/2021',
-                refNumber: 'REF0003',
-                invoiceNumber: 'INV0003',
-                arrayMoney: [{
-                        total: '1200000',
-                        typeMoney: 'VND',
-                    },
-
-                ],
-                statusName: 'Đã thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 3',
-                request: 'Yêu cầu sửa',
-                departmentName: 'Sáng chế',
-                departmentID: 10025,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 4,
-                createdDate: '04/05/2021',
-                refNumber: 'REF0004',
-                invoiceNumber: 'INV0004',
-                arrayMoney: [{
-                        total: '1300000',
-                        typeMoney: 'VND',
-                    },
-                    {
-                        total: '100',
-                        typeMoney: 'USD',
-                    },
-
-                ],
-                statusName: 'Đã thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 4',
-                request: 'Yêu cầu sửa',
-                departmentName: 'HÀNH CHÍNH NHÂN SỰ',
-                departmentID: 10027,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 5,
-                createdDate: '05/05/2021',
-                refNumber: 'REF0005',
-                invoiceNumber: 'INV0005',
-                arrayMoney: [{
-                        total: '1400000',
-                        typeMoney: 'VND',
-                    },
-
-                ],
-                statusName: 'Đã thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 5',
-                request: '',
-                departmentName: 'Sáng chế',
-                departmentID: 10025,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 6,
-                createdDate: '06/05/2021',
-                refNumber: 'REF0006',
-                invoiceNumber: 'INV0006',
-                arrayMoney: [{
-                        total: '1500000',
-                        typeMoney: 'VND',
-                    },
-                    {
-                        total: '100',
-                        typeMoney: 'USD',
-                    },
-                ],
-                statusName: 'Đã thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 6',
-                request: 'Yêu cầu xóa',
-                departmentName: 'Sáng chế',
-                departmentID: 10025,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 7,
-                createdDate: '07/05/2021',
-                refNumber: 'REF0007',
-                invoiceNumber: 'INV0007',
-                arrayMoney: [{
-                        total: '1600000',
-                        typeMoney: 'VND',
-                    },
-
-                ],
-                statusName: 'Chờ thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 7',
-                request: 'Yêu cầu xóa',
-                departmentName: 'KẾ TOÁN',
-                departmentID: 10026,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 8,
-                createdDate: '08/05/2021',
-                refNumber: 'REF0008',
-                invoiceNumber: 'INV0008',
-                arrayMoney: [{
-                        total: '100',
-                        typeMoney: 'USD',
-                    },
-
-                ],
-                statusName: 'Chờ thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 8',
-                request: 'Yêu cầu sửa',
-                departmentName: 'Sáng chế',
-                departmentID: 10025,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 9,
-                createdDate: '09/05/2021',
-                refNumber: 'REF0009',
-                invoiceNumber: 'INV0009',
-                arrayMoney: [{
-                        total: '2000000',
-                        typeMoney: 'VND',
-                    },
-                    {
-                        total: '130',
-                        typeMoney: 'USD',
-                    },
-
-                ],
-                statusName: 'Chờ thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 9',
-                request: 'Yêu cầu sửa',
-                departmentName: 'Ban NH3',
-                departmentID: 10035,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-            {
-                id: 10,
-                createdDate: '10/05/2021',
-                refNumber: 'REF0010',
-                invoiceNumber: 'INV0010',
-                arrayMoney: [{
-                    total: '123',
-                    typeMoney: 'VND',
-                }, ],
-                statusName: 'Chờ thanh toán',
-                idCustomer: 1,
-                customerName: 'Công ty tnhh An Phú',
-                content: 'Demo 10',
-                request: 'Yêu cầu sửa',
-                departmentName: 'Ban NH3',
-                departmentID: 10035,
-                accountingDebt: '131',
-                nameAccountingDebt: 'Phải thu khách hàng',
-                accountingCredit: '511',
-                nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-            },
-        ];
         let array = [
             'first_six_months',
             'last_six_months',
@@ -1719,7 +976,6 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         let objCustomer = {}
-                        console.log(dataSearch);
                         if (dataSearch.customerID) {
                             objCustomer = await getDetailCustomer(dataSearch.customerID)
                         }
@@ -1757,9 +1013,6 @@ module.exports = {
                                     ID: dataSearch.accountSystemOtherID
                                 }
                             })
-                            // //////////////////////////////////////////////////////////////////////////////
-                            // có api qmcm sẽ phải làm lại
-                            // nameCurrencyCheck = 'VND'
                         let arrayCurrency = []
                         arrayGetOpeningBalanceDebt.forEach(item => {
                             if (!checkDuplicate(arrayCurrency, item.key))
@@ -1787,28 +1040,41 @@ module.exports = {
                                 value: 0
                             })
                         }
-                        if (dataSearch.customerID) {
+                        // Xử lý khi chọn tk 131 hay 331 khi chọn khách hàng sẽ lấy số dư đầu kì của khách hàng
+                        if (checkAccount && checkAccount.AccountingCode == '131' || checkAccount.AccountingCode == '331') {
+                            let customerArr = [];
                             arrayGetOpeningBalanceDebt = []
+                            if (dataSearch.customerID && dataSearch.type == 'customer') {
+                                customerArr = await mtblCustomer(db).findAll({
+                                    where: {
+                                        IDSpecializedSoftware: dataSearch.customerID
+                                    }
+                                })
+                            } else if (dataSearch.customerID && dataSearch.type == 'supplier') {
+                                customerArr = await mtblDMNhaCungCap(db).findAll({
+                                    where: {
+                                        ID: dataSearch.customerID
+                                    }
+                                })
+                            } else if (!dataSearch.customerID) {
+                                customerArr = await mtblCustomer(db).findAll()
+                            }
                             let tblCustomerRCurrency = mtblCustomerRCurrency(db);
                             tblCustomerRCurrency.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
-                            let whereCus = {}
-                            if (checkAccount && checkAccount.AccountingCode == '131' || checkAccount.AccountingCode == '331') {
-                                whereCus = {
-                                    SupplierID: dataSearch.customerID,
-                                    AccountID: dataSearch.accountSystemID
-                                }
-                            }
-                            let customerID = await mtblCustomer(db).findAll({
-                                where: {
-                                    IDSpecializedSoftware: dataSearch.customerID
-                                }
-                            })
-                            for (let customer of customerID) {
-                                await tblCustomerRCurrency.findAll({
-                                    where: {
+                            for (let customer of customerArr) {
+                                let whereCustomer = {}
+                                if (dataSearch.type == 'supplier')
+                                    whereCustomer = {
+                                        SupplierID: customer ? customer.ID : null,
+                                        AccountID: dataSearch.accountSystemID
+                                    }
+                                else
+                                    whereCustomer = {
                                         CustomerID: customer ? customer.ID : null,
                                         AccountID: dataSearch.accountSystemID
-                                    },
+                                    }
+                                await tblCustomerRCurrency.findAll({
+                                    where: whereCustomer,
                                     include: [{
                                         model: mtblCurrency(db),
                                         required: false,
@@ -1818,16 +1084,16 @@ module.exports = {
                                     for (let item of cus) {
                                         if (item.IsDebtAccount) {
                                             arrayGetOpeningBalanceDebt.push({
-                                                key: item.currency ? item.currency.ShortName : '',
-                                                value: item.Surplus
-                                            })
-                                            arrayGetOpeningBalanceCredit = [];
+                                                    key: item.currency ? item.currency.ShortName : '',
+                                                    value: item.Surplus
+                                                })
+                                                // arrayGetOpeningBalanceCredit = [];
                                         } else {
                                             arrayGetOpeningBalanceCredit.push({
-                                                key: item.currency ? item.currency.ShortName : '',
-                                                value: item.Surplus
-                                            })
-                                            arrayGetOpeningBalanceDebt = [];
+                                                    key: item.currency ? item.currency.ShortName : '',
+                                                    value: item.Surplus
+                                                })
+                                                // arrayGetOpeningBalanceDebt = [];
                                         }
                                     }
                                 })
