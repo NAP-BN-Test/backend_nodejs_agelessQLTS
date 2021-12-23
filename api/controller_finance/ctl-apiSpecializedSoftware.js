@@ -586,14 +586,9 @@ var dataCredit = [{
         accountingCredit: '642',
         nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
         arrayMoney: [{
-                total: '1750000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '175',
-                typeMoney: 'USD',
-            },
-        ],
+            total: '1750000',
+            typeMoney: 'VND',
+        }, ],
     },
     {
         id: 111,
@@ -612,14 +607,9 @@ var dataCredit = [{
         nameAccountingDebt: 'Phải trả người bán',
         nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
         arrayMoney: [{
-                total: '1000000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '100',
-                typeMoney: 'USD',
-            },
-        ],
+            total: '1000000',
+            typeMoney: 'VND',
+        }, ],
     },
     {
         id: 112,
@@ -638,14 +628,9 @@ var dataCredit = [{
         nameAccountingDebt: 'Phải trả người bán',
         nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
         arrayMoney: [{
-                total: '1000000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '100',
-                typeMoney: 'USD',
-            },
-        ],
+            total: '1000000',
+            typeMoney: 'VND',
+        }, ],
     },
     {
         id: 113,
@@ -664,14 +649,9 @@ var dataCredit = [{
         nameAccountingDebt: 'Phải trả người bán',
         nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
         arrayMoney: [{
-                total: '1000000',
-                typeMoney: 'VND',
-            },
-            {
-                total: '100',
-                typeMoney: 'USD',
-            },
-        ],
+            total: '1000000',
+            typeMoney: 'VND',
+        }, ],
     },
 ]
 dataStaff = [
