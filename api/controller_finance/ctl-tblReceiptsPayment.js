@@ -1333,6 +1333,10 @@ module.exports = {
                     if (Number(body.amountInvCre ? body.amountInvCre : 0) < Number(body.amount))
                         unpaidAmount = body.amount ? Math.abs(Number(body.amountInvCre ? body.amountInvCre : 0) - Number(body.amount)) : 0;
                     let paidAmount = body.amountInvCre ? body.amountInvCre : 0;
+                    let unknown = true
+                    if (body.type != 'accounting') {
+                        unknown = unpaidAmount == 0 ? false : true
+                    }
                     let objCreate = {
                         Type: body.type ? body.type : '',
                         RPType: body.rpType ? body.rpType : '',
@@ -1358,7 +1362,7 @@ module.exports = {
                         //  số tiền chưa dùng
                         UnpaidAmount: paidAmount != 0 ? unpaidAmount : (body.amount ? body.amount : 0),
                         Withdrawal: body.withdrawal ? body.withdrawal : null,
-                        Unknown: unpaidAmount == 0 ? false : true,
+                        Unknown: unknown,
                         ExchangeRate: body.exchangeRate ? body.exchangeRate : 0,
                     }
                     body.object = JSON.parse(body.object)
