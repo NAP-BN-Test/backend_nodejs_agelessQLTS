@@ -1420,9 +1420,7 @@ module.exports = {
             if (db) {
                 if (data) {
                     let array = []
-                    let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
                     for (let i = 0; i < data.length; i++) {
-                        console.log(data[i].idCustomer, Number(body.idCustomer));
                         if (data[i].idCustomer == Number(body.idCustomer)) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: data[i].id }
@@ -1451,6 +1449,7 @@ module.exports = {
                                 // data[i]['totalAmountByCurrency'] = totalMoneyVND
                         }
                     }
+                    let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                     let totalMoneyVND = 0
                     for (let a = 0; a < totalMoney.length; a++) {
                         totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
