@@ -1867,12 +1867,12 @@ module.exports = {
                                         if (ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
                                             dataCredit[i]['payDate'] = ObjAmount.PayDate
                                             dataCredit[i]['Payments'] = ObjAmount.Payments
-                                            arrayCreate.push(dataCredit[i])
+                                            array.push(dataCredit[i])
                                         }
-                                        if (checkDuplicate(arrayUpdateCheck, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                        if (checkDuplicate(updateArr, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
                                             dataCredit[i]['payDate'] = check.PayDate
                                             dataCredit[i]['Payments'] = check.Payments
-                                            arrayUpdate.push(dataCredit[i])
+                                            updateArr.push(dataCredit[i])
                                         }
                                     }
                                 } else {
