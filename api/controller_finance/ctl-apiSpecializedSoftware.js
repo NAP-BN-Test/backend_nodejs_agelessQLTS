@@ -1910,8 +1910,7 @@ module.exports = {
                             dataCredit[i]['total'] = totalMoneyVND
                         }
                     }
-
-                    let totalMoney = await calculateTheTotalForCredit(array)
+                    let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                     var result = {
                         arrayCreate: array,
                         arrayUpdate: updateArr,
@@ -1970,7 +1969,7 @@ module.exports = {
                             }
                         }
                     }
-                    let totalMoney = await calculateTheTotalForCredit(array)
+                    let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                     var result = {
                         array: array,
                         status: Constant.STATUS.SUCCESS,
