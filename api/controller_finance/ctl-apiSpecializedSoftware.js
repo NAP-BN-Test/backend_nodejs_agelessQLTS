@@ -1738,7 +1738,6 @@ module.exports = {
             if (db) {
                 if (dataCredit) {
                     let array = []
-                    let totalMoney = await calculateTheTotalForCredit(dataCredit)
                     for (let i = 0; i < dataCredit.length; i++) {
                         if (dataCredit[i].idCustomer == Number(body.idCustomer)) {
                             let check = await mtblInvoice(db).findOne({
@@ -1759,6 +1758,7 @@ module.exports = {
                             array.push(dataCredit[i])
                         }
                     }
+                    let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
                     var result = {
                         array: array,
                         status: Constant.STATUS.SUCCESS,
