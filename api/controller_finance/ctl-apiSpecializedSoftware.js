@@ -1419,19 +1419,11 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (data) {
-                    // if (data.data.status_code == 200) {
-                    if (body.idCustomer != '1') {
-                        var result = {
-                            array: [],
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: [],
-                            // all: data.data.data.pager.rowsCount
-                        }
-                    } else {
-                        let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
-                        for (let i = 0; i < data.length; i++) {
+                    let array = []
+                    let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
+                    for (let i = 0; i < data.length; i++) {
+                        console.log(data[i].idCustomer, Number(body.idCustomer));
+                        if (data[i].idCustomer == Number(body.idCustomer)) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: data[i].id }
                             })
@@ -1455,29 +1447,28 @@ module.exports = {
                                 data[i].statusName = check.Status
                                 data[i].request = check.Request
                             }
-                            // data[i]['totalAmountByCurrency'] = totalMoneyVND
-                        }
-                        let totalMoneyVND = 0
-                        for (let a = 0; a < totalMoney.length; a++) {
-                            totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                        }
-                        var result = {
-                            array: data,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: totalMoney,
-                            totalMoneyVND: totalMoneyVND,
-                            // all: data.data.data.pager.rowsCount
+                            array.push(data[i])
+                                // data[i]['totalAmountByCurrency'] = totalMoneyVND
                         }
                     }
-                    res.json(result);
-                    // } else {
-                    //     res.json(Result.SYS_ERROR_RESULT)
-                    // }
-                } else {
-                    res.json(Result.SYS_ERROR_RESULT)
+                    let totalMoneyVND = 0
+                    for (let a = 0; a < totalMoney.length; a++) {
+                        totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                    }
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: 10,
+                        totalMoney: totalMoney,
+                        totalMoneyVND: totalMoneyVND,
+                        // all: data.data.data.pager.rowsCount
+                    }
                 }
+                res.json(result);
+                // } else {
+                //     res.json(Result.SYS_ERROR_RESULT)
+                // }
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
             }
@@ -1580,32 +1571,57 @@ module.exports = {
                                         IDSpecializedSoftware: check.IDSpecializedSoftware ? check.IDSpecializedSoftware : null
                                     }
                                 })
-                                let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
-                                    where: {
-                                        CurrencyID: body.currencyID,
+                                let whereINCu = {}
+                                if (body.currencyID) {
+                                    whereINCu = {
+                                        CurrencyID: body.currencyID ? body.currencyID : null,
                                         InvoiceID: check.ID,
                                     }
-                                })
-                                if (ObjAmount) {
-                                    data[i].statusName = ObjAmount.Status
-                                    data[i].request = check.Request
-                                    data[i]['remainingAmount'] = ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : 0
-                                    data[i]['paidAmount'] = ObjAmount.PaidAmount ? ObjAmount.PaidAmount : 0
-                                    data[i]['paymentAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
-                                    if (ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
-                                        data[i]['payDate'] = ObjAmount.PayDate
-                                        data[i]['Payments'] = ObjAmount.Payments
-                                        arrayCreate.push(data[i])
+                                    let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
+                                        where: whereINCu
+                                    })
+                                    if (ObjAmount) {
+                                        data[i].statusName = ObjAmount.Status
+                                        data[i].request = check.Request
+                                        data[i]['remainingAmount'] = ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : 0
+                                        data[i]['paidAmount'] = ObjAmount.PaidAmount ? ObjAmount.PaidAmount : 0
+                                        data[i]['paymentAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
+                                        if (ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                            data[i]['payDate'] = ObjAmount.PayDate
+                                            data[i]['Payments'] = ObjAmount.Payments
+                                            arrayCreate.push(data[i])
+                                        }
+                                        if (checkDuplicate(arrayUpdateCheck, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                            data[i]['payDate'] = check.PayDate
+                                            data[i]['Payments'] = check.Payments
+                                            arrayUpdate.push(data[i])
+                                        }
                                     }
-                                    if (checkDuplicate(arrayUpdateCheck, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
-                                        data[i]['payDate'] = check.PayDate
-                                        data[i]['Payments'] = check.Payments
-                                        arrayUpdate.push(data[i])
+                                } else {
+                                    whereINCu = {
+                                        InvoiceID: check.ID,
+                                    }
+                                    let ObjAmount = await mtblInvoiceRCurrency(db).findAll({
+                                        where: whereINCu
+                                    })
+                                    if (ObjAmount.length > 0) {
+                                        let isCheck = false
+                                        for (let item of ObjAmount) {
+                                            if (item.Status == 'Chờ thanh toán')
+                                                isCheck = true
+                                        }
+                                        if (isCheck) {
+                                            data[i]['payDate'] = ObjAmount.PayDate
+                                            data[i]['Payments'] = ObjAmount.Payments
+                                            arrayCreate.push(data[i])
+                                        }
                                     }
                                 }
+
                             }
                         }
                         totalMoney = await calculateTheTotalAmountOfEachCurrency(arrayCreate)
+                        totalMoneyVND = 0
                         for (let a = 0; a < totalMoney.length; a++) {
                             totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
                         }
@@ -1649,21 +1665,10 @@ module.exports = {
             //         if (data.data.status_code == 200) {
         database.connectDatabase().then(async db => {
             if (db) {
-                if (body.idCustomer != '1') {
-                    var result = {
-                        arrayCreate: [],
-                        arrayUpdate: [],
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                        all: 0,
-                        totalMoney: [],
-                        totalMoneyVND: 0,
-                    }
-                    res.json(result);
-                } else {
-                    var array = []
-                    let totalMoney = []
-                    for (var i = 0; i < data.length; i++) {
+                var array = []
+                let totalMoney = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].idCustomer == Number(body.idCustomer)) {
                         let check = await mtblInvoice(db).findOne({
                             where: { IDSpecializedSoftware: data[i].id }
                         })
@@ -1691,24 +1696,24 @@ module.exports = {
                             }
                         }
                     }
-                    totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                    let totalMoneyVND = 0
-                    for (let a = 0; a < totalMoney.length; a++) {
-                        totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                    }
-                    var result = {
-                        array: array,
-                        // array: data.data.data.list,
-                        status: Constant.STATUS.SUCCESS,
-                        message: Constant.MESSAGE.ACTION_SUCCESS,
-                        all: 10,
-                        totalMoney: totalMoney,
-                        totalMoneyVND: totalMoneyVND,
-
-                        // all: data.data.data.pager.rowsCount
-                    }
-                    res.json(result);
                 }
+                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
+                let totalMoneyVND = 0
+                for (let a = 0; a < totalMoney.length; a++) {
+                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
+                }
+                var result = {
+                    array: array,
+                    // array: data.data.data.list,
+                    status: Constant.STATUS.SUCCESS,
+                    message: Constant.MESSAGE.ACTION_SUCCESS,
+                    all: 10,
+                    totalMoney: totalMoney,
+                    totalMoneyVND: totalMoneyVND,
+
+                    // all: data.data.data.pager.rowsCount
+                }
+                res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
 
@@ -1732,17 +1737,11 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 if (dataCredit) {
-                    if (body.idCustomer != '10') {
-                        var result = {
-                            array: [],
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: [],
-                        }
-                    } else {
-                        let totalMoney = await calculateTheTotalForCredit(dataCredit)
-                        for (let i = 0; i < dataCredit.length; i++) {
+                    let array = []
+                    let totalMoney = await calculateTheTotalForCredit(dataCredit)
+                    for (let i = 0; i < dataCredit.length; i++) {
+                        if (data[i].idCustomer == Number(body.idCustomer)) {
+
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: dataCredit[i].id }
                             })
@@ -1758,15 +1757,16 @@ module.exports = {
                                 dataCredit[i].statusName = check.Status
                                 dataCredit[i].request = check.Request
                             }
+                            array.push(dataCredit[i])
                         }
-                        var result = {
-                            array: dataCredit,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: totalMoney,
-                            // all: data.data.data.pager.rowsCount
-                        }
+                    }
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: 10,
+                        totalMoney: totalMoney,
+                        // all: data.data.data.pager.rowsCount
                     }
                     res.json(result);
                     // } else {
@@ -1849,29 +1849,53 @@ module.exports = {
                                         IDSpecializedSoftware: check.IDSpecializedSoftware ? check.IDSpecializedSoftware : null
                                     }
                                 })
-                                let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
-                                    where: {
-                                        CurrencyID: body.currencyID,
+                                let whereINCu = {}
+                                if (body.currencyID) {
+                                    whereINCu = {
+                                        CurrencyID: body.currencyID ? body.currencyID : null,
                                         InvoiceID: check.ID,
                                     }
-                                })
-                                if (ObjAmount) {
-                                    dataCredit[i].statusName = ObjAmount.Status
-                                    dataCredit[i].request = check.Request
-                                    dataCredit[i]['remainingAmount'] = ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : 0
-                                    dataCredit[i]['paidAmount'] = ObjAmount.PaidAmount ? ObjAmount.PaidAmount : 0
-                                    dataCredit[i]['paymentAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
-                                    if (ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
-                                        dataCredit[i]['payDate'] = ObjAmount.PayDate
-                                        dataCredit[i]['Payments'] = ObjAmount.Payments
-                                        array.push(dataCredit[i])
+                                    let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
+                                        where: whereINCu
+                                    })
+                                    if (ObjAmount) {
+                                        dataCredit[i].statusName = ObjAmount.Status
+                                        dataCredit[i].request = check.Request
+                                        dataCredit[i]['remainingAmount'] = ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : 0
+                                        dataCredit[i]['paidAmount'] = ObjAmount.PaidAmount ? ObjAmount.PaidAmount : 0
+                                        dataCredit[i]['paymentAmount'] = amountPaid ? (amountPaid.Amount ? amountPaid.Amount : 0) : 0
+                                        if (ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                            dataCredit[i]['payDate'] = ObjAmount.PayDate
+                                            dataCredit[i]['Payments'] = ObjAmount.Payments
+                                            arrayCreate.push(dataCredit[i])
+                                        }
+                                        if (checkDuplicate(arrayUpdateCheck, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                            dataCredit[i]['payDate'] = check.PayDate
+                                            dataCredit[i]['Payments'] = check.Payments
+                                            arrayUpdate.push(dataCredit[i])
+                                        }
                                     }
-                                    if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
-                                        dataCredit[i]['payDate'] = check.PayDate
-                                        dataCredit[i]['Payments'] = check.Payments
-                                        updateArr.push(dataCredit[i])
+                                } else {
+                                    whereINCu = {
+                                        InvoiceID: check.ID,
+                                    }
+                                    let ObjAmount = await mtblInvoiceRCurrency(db).findAll({
+                                        where: whereINCu
+                                    })
+                                    if (ObjAmount.length > 0) {
+                                        let isCheck = false
+                                        for (let item of ObjAmount) {
+                                            if (item.Status == 'Chờ thanh toán')
+                                                isCheck = true
+                                        }
+                                        if (isCheck) {
+                                            dataCredit[i]['payDate'] = ObjAmount.PayDate
+                                            dataCredit[i]['Payments'] = ObjAmount.Payments
+                                            array.push(dataCredit[i])
+                                        }
                                     }
                                 }
+
                             }
                             let totalMoneyVND = 0;
                             for (let m = 0; m < dataCredit[i].arrayMoney.length; m++) {
@@ -1922,16 +1946,9 @@ module.exports = {
             if (db) {
                 let array = []
                 if (dataCredit) {
-                    if (body.idCustomer != '10') {
-                        var result = {
-                            array: [],
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: [],
-                        }
-                    } else {
-                        for (let i = 0; i < dataCredit.length; i++) {
+                    for (let i = 0; i < dataCredit.length; i++) {
+                        if (data[i].idCustomer == Number(body.idCustomer)) {
+
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: dataCredit[i].id }
                             })
@@ -1953,14 +1970,14 @@ module.exports = {
                                 }
                             }
                         }
-                        let totalMoney = await calculateTheTotalForCredit(array)
-                        var result = {
-                            array: array,
-                            status: Constant.STATUS.SUCCESS,
-                            message: Constant.MESSAGE.ACTION_SUCCESS,
-                            all: 10,
-                            totalMoney: totalMoney,
-                        }
+                    }
+                    let totalMoney = await calculateTheTotalForCredit(array)
+                    var result = {
+                        array: array,
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                        all: 10,
+                        totalMoney: totalMoney,
                     }
                     res.json(result);
                 } else {
