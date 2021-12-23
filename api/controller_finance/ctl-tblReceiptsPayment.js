@@ -2291,6 +2291,9 @@ module.exports = {
                             UnpaidAmount: {
                                 [Op.ne]: 0
                             },
+                            Type: {
+                                [Op.ne]: 'accounting'
+                            }
                         },
                         order: [
                             ['ID', 'DESC']

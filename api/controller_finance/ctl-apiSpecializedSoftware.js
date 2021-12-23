@@ -1740,8 +1740,7 @@ module.exports = {
                     let array = []
                     let totalMoney = await calculateTheTotalForCredit(dataCredit)
                     for (let i = 0; i < dataCredit.length; i++) {
-                        if (data[i].idCustomer == Number(body.idCustomer)) {
-
+                        if (dataCredit[i].idCustomer == Number(body.idCustomer)) {
                             let check = await mtblInvoice(db).findOne({
                                 where: { IDSpecializedSoftware: dataCredit[i].id }
                             })
