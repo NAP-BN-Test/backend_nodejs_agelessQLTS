@@ -1867,7 +1867,7 @@ module.exports = {
                                             dataCredit[i]['Payments'] = ObjAmount.Payments
                                             array.push(dataCredit[i])
                                         }
-                                        if (checkDuplicate(updateArr, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
+                                        if (checkDuplicate(arrayUpdate, Number(check.IDSpecializedSoftware)) || ObjAmount.UnpaidAmount && ObjAmount.UnpaidAmount != 0 && ObjAmount.Status == 'Chờ thanh toán') {
                                             dataCredit[i]['payDate'] = check.PayDate
                                             dataCredit[i]['Payments'] = check.Payments
                                             updateArr.push(dataCredit[i])
