@@ -808,7 +808,7 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
     if (type == 'update')
         await addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currencyID)
         // reListCreditID = listCreditID.reverse() // đổi vị trí ngược lại các phần tử trong mảng
-    listCreditID = listCreditID.sort(function(a, b) { return a - b })
+        // listCreditID = listCreditID.sort(function(a, b) { return a - b })
     amount = Number(amount)
     for (let i = 0; i < listCreditID.length; i++) {
         let creditID = listCreditID[i]
