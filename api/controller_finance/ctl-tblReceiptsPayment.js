@@ -464,14 +464,22 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
     }
 }
 async function getDetailCustomer(id) {
-    let dataCustomer = await customerData.getListCustomerOfPMCM()
-    var obj = {}
-    dataCustomer.forEach(item => {
-        if (item.id == id) {
-            obj = item
+    database.connectDatabase().then(async db => {
+        if (db) {
+            try {
+                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
+                var obj = {}
+                dataCustomer.forEach(item => {
+                    if (item.id == id) {
+                        obj = item
+                    }
+                })
+                return obj
+            } catch (e) {
+                console.log(e + '' + 123);
+            }
         }
     })
-    return obj
 
 }
 async function getDetailStaff(id) {
@@ -2024,7 +2032,7 @@ module.exports = {
                                 nameCurrency: data[i].currency ? data[i].currency.ShortName : null,
                                 date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
                                 idCustomer: data[i].IDCustomer ? data[i].IDCustomer : null,
-                                customerName: dataCus.name ? dataCus.name : dataStaff.fullName,
+                                customerName: dataCus ? dataCus.name : dataStaff.fullName,
                                 staffName: dataStaff.fullName,
                                 address: data[i].Address ? data[i].Address : '',
                                 amount: data[i].Amount ? data[i].Amount : null,

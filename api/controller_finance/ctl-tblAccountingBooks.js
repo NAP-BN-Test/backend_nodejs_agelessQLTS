@@ -209,15 +209,22 @@ async function getCreditWaitPay(db, objWaitForPay, stt, customerName = '') {
     return obj;
 }
 async function getDetailCustomer(id) {
-    let dataCustomer = await customerData.getListCustomerOfPMCM()
-    var obj = {}
-    dataCustomer.forEach(item => {
-        if (item.id == id) {
-            obj = item
+    database.connectDatabase().then(async db => {
+        if (db) {
+            try {
+                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
+                var obj = {}
+                dataCustomer.forEach(item => {
+                    if (item.id == id) {
+                        obj = item
+                    }
+                })
+                return obj
+            } catch (e) {
+                console.log(e + '' + 123);
+            }
         }
     })
-    return obj
-
 }
 
 function checkConditionPushArrayResult(lenthArray, accountName, accountSystemID, idAccounting, idAccountingItem, accountSystemOtherID, type) {

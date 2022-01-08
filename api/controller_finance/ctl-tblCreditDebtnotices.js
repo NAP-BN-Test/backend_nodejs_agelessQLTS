@@ -15,15 +15,22 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 
 async function getDetailCustomer(id) {
-    let dataCustomer = await customerData.getListCustomerOfPMCM()
-    var obj = {}
-    dataCustomer.forEach(item => {
-        if (item.id == id) {
-            obj = item
+    database.connectDatabase().then(async db => {
+        if (db) {
+            try {
+                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
+                var obj = {}
+                dataCustomer.forEach(item => {
+                    if (item.id == id) {
+                        obj = item
+                    }
+                })
+                return obj
+            } catch (e) {
+                console.log(e + '' + 123);
+            }
         }
     })
-    return obj
-
 }
 async function getDetailStaff(db, id) {
     let obj = await mtblDMNhanvien(db).findOne({
@@ -194,14 +201,22 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
     }
 }
 async function getDetailCustomer(id) {
-    let dataCustomer = await customerData.getListCustomerOfPMCM()
-    var obj = {}
-    dataCustomer.forEach(item => {
-        if (item.id == id) {
-            obj = item
+    database.connectDatabase().then(async db => {
+        if (db) {
+            try {
+                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
+                var obj = {}
+                dataCustomer.forEach(item => {
+                    if (item.id == id) {
+                        obj = item
+                    }
+                })
+                return obj
+            } catch (e) {
+                console.log(e + '' + 123);
+            }
         }
     })
-    return obj
 
 }
 async function createLoanAdvances(db, IDnoticesCD, loanAdvanceIDs, type) {

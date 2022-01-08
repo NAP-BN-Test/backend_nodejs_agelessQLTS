@@ -24,8 +24,6 @@ var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 var mtblPaymentRCredit = require('../tables/financemanage/tblPaymentRCredit')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
-var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
-
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     let arrayReceiptsPayment = []
 

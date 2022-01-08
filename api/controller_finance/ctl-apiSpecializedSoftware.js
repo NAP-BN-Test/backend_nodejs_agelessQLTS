@@ -1247,7 +1247,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 let array = []
-                let dataCustomer = await customerData.getListCustomer(db)
+                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
                 for (c = 0; c < dataCustomer.length; c++) {
                     array.push({
                         name: dataCustomer[c].name,
