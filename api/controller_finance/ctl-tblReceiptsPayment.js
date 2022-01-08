@@ -464,7 +464,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
     }
 }
 async function getDetailCustomer(id) {
-    let dataCustomer = customerData.getCustomerSpecializeSoftware()
+    let dataCustomer = await customerData.getListCustomerOfPMCM()
     var obj = {}
     dataCustomer.forEach(item => {
         if (item.id == id) {
@@ -1773,16 +1773,23 @@ module.exports = {
                             })
                             await addUpTheAmountForCreditsAndDelete(db, body.id, detail ? detail.IDCurrency : null)
                             let amountMin = body.amount ? body.amount : 0
-                            if (body.type == 'accounting') {
-                                if (Number(body.invoiceTotal) > Number(body.creditTotal)) {
-                                    amountMin = body.creditTotal ? body.creditTotal : 0
-                                } else {
-                                    amountMin = body.invoiceTotal ? body.invoiceTotal : 0
-                                }
-                                await recalculateTheAmountOfCredit(db, amountMin, listCreditID, body.id, 'create', detail ? detail.IDCurrency : null)
-                                await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, body.id, 'create', detail ? detail.IDCurrency : null)
+                            var allotment = []
+                            if (body.allotment)
+                                allotment = JSON.parse(body.allotment)
+                            if (allotment.length > 0) {
+                                await allotmentInvoiceOrCredit(db, allotment, body.id, detail ? detail.IDCurrency : null)
                             } else {
-                                await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, body.id, 'create', detail ? detail.IDCurrency : null)
+                                if (body.type == 'accounting') {
+                                    if (Number(body.invoiceTotal) > Number(body.creditTotal)) {
+                                        amountMin = body.creditTotal ? body.creditTotal : 0
+                                    } else {
+                                        amountMin = body.invoiceTotal ? body.invoiceTotal : 0
+                                    }
+                                    await recalculateTheAmountOfCredit(db, amountMin, listCreditID, body.id, 'create', detail ? detail.IDCurrency : null)
+                                    await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, body.id, 'create', detail ? detail.IDCurrency : null)
+                                } else {
+                                    await recalculateTheAmountOfCredit(db, amountMin, listInvoiceID, body.id, 'create', detail ? detail.IDCurrency : null)
+                                }
                             }
                             if (type == "customer") {
                                 let listUndefinedID = [];

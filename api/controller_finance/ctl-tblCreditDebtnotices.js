@@ -12,9 +12,10 @@ var database = require('../database');
 var mModules = require('../constants/modules');
 var mtblVayTamUng = require('../tables/financemanage/tblVayTamUng')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 
 async function getDetailCustomer(id) {
-    let dataCustomer = customerData.getCustomerSpecializeSoftware()
+    let dataCustomer = await customerData.getListCustomerOfPMCM()
     var obj = {}
     dataCustomer.forEach(item => {
         if (item.id == id) {
@@ -193,7 +194,7 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
     }
 }
 async function getDetailCustomer(id) {
-    let dataCustomer = customerData.getCustomerSpecializeSoftware()
+    let dataCustomer = await customerData.getListCustomerOfPMCM()
     var obj = {}
     dataCustomer.forEach(item => {
         if (item.id == id) {

@@ -592,7 +592,7 @@ module.exports = {
                 try {
                     // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(async data => {
                     //     if (data) {
-                    let dataCustomer = customerData.getCustomerSpecializeSoftware()
+                    let dataCustomer = await customerData.getListCustomerOfPMCM(db)
                     // var array = data.data.data;
                     var array = dataCustomer;
                     var arrayResult = [];
@@ -690,12 +690,6 @@ module.exports = {
                         all: count
                     }
                     res.json(result);
-                    //     }
-                    //     else {
-                    //         res.json(Result.SYS_ERROR_RESULT)
-                    //     }
-                    //     // console.log(data.data);
-                    // })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)
@@ -713,7 +707,7 @@ module.exports = {
                 try {
                     // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(async data => {
                     //     if (data) {
-                    let dataCustomer = customerData.getCustomerSpecializeSoftware()
+                    let dataCustomer = await customerData.getListCustomerOfPMCM(db)
                     // var array = data.data.data;
                     var array = dataCustomer;
                     var arrayResult = [];
@@ -775,7 +769,6 @@ module.exports = {
                                     totalUndefind += Number(item.Amount);
                                 })
                             })
-                            console.log(arrayInvoice);
                             var obj = {
                                 stt: stt,
                                 id: Number(data.IDSpecializedSoftware),

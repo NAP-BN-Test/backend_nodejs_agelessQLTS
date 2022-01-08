@@ -255,7 +255,7 @@ let stylePublic = {
     },
 }
 async function getDetailCustomer(id) {
-    let dataCustomer = customerData.getCustomerSpecializeSoftware()
+    let dataCustomer = await customerData.getListCustomerOfPMCM()
     var obj = {}
     dataCustomer.forEach(item => {
         if (item.id == id) {

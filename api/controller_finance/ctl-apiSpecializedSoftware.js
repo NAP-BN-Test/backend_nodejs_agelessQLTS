@@ -3,10 +3,13 @@ const Result = require('../constants/result');
 const Constant = require('../constants/constant');
 var mtblInvoice = require('../tables/financemanage/tblInvoice')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblCustomer = require('../tables/financemanage/tblCustomer');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var moment = require('moment');
+var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
+
 const Op = require('sequelize').Op;
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
@@ -345,315 +348,6 @@ totalMoney = [{
     type: 'USD',
 }
 ];
-var dataCredit = [{
-    id: 100,
-    createdDate: '01/05/2021',
-    invoiceNumber: 'INV0001',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0001',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu Xóa',
-    accountingDebt: '331',
-    accountingCredit: '642',
-    nameAccountingDebt: 'Phải trả người bán',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1000000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '100',
-        typeMoney: 'USD',
-    },
-    ],
-},
-{
-    id: 102,
-    createdDate: '01/05/2021',
-    invoiceNumber: 'INV0002',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0002',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: '',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1100000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '110',
-        typeMoney: 'USD',
-    },
-    ],
-},
-{
-    id: 103,
-    createdDate: '03/05/2021',
-    invoiceNumber: 'INV0003',
-    statusName: 'Đã thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0003',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu xóa',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1200000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '120',
-        typeMoney: 'USD',
-    },
-    ],
-},
-{
-    id: 104,
-    createdDate: '04/05/2021',
-    invoiceNumber: 'INV0004',
-    statusName: 'Đã thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0004',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu sửa',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1300000',
-        typeMoney: 'VND',
-    },],
-},
-{
-    id: 105,
-    createdDate: '05/05/2021',
-    invoiceNumber: 'INV0005',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0005',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: '',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1500000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '150',
-        typeMoney: 'USD',
-    },
-    ],
-},
-{
-    id: 106,
-    createdDate: '06/05/2021',
-    invoiceNumber: 'INV0006',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0006',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: '',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1600000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '160',
-        typeMoney: 'USD',
-    },
-    ],
-},
-{
-    id: 107,
-    createdDate: '07/05/2021',
-    invoiceNumber: 'INV0007',
-    statusName: 'Đã thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0007',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu xóa',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1700000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '170',
-        typeMoney: 'USD',
-    },
-    ],
-},
-{
-    id: 108,
-    createdDate: '08/05/2021',
-    invoiceNumber: 'INV0008',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0008',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: '',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1800000',
-        typeMoney: 'VND',
-    },],
-},
-{
-    id: 109,
-    createdDate: '10/05/2021',
-    invoiceNumber: 'INV0009',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0009',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: '',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1900000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '190',
-        typeMoney: 'USD',
-    },
-    ],
-},
-{
-    id: 110,
-    createdDate: '12/05/2021',
-    invoiceNumber: 'INV0010',
-    statusName: 'Đã thanh toán',
-    idCustomer: 10,
-    creditNumber: 'CRE0010',
-    customerName: 'Công ty tnhh Hòa Phát',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu sửa',
-    accountingDebt: '331',
-    nameAccountingDebt: 'Phải trả người bán',
-    accountingCredit: '642',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1750000',
-        typeMoney: 'VND',
-    },],
-},
-{
-    id: 111,
-    createdDate: '13/05/2021',
-    invoiceNumber: 'INV00011',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 2,
-    creditNumber: 'CRE00011',
-    customerName: 'Công ty tnhh Is Tech Vina',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu Xóa',
-    accountingDebt: '331',
-    accountingCredit: '642',
-    nameAccountingDebt: 'Phải trả người bán',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1000000',
-        typeMoney: 'VND',
-    },],
-},
-{
-    id: 112,
-    createdDate: '14/05/2021',
-    invoiceNumber: 'INV00012',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 2,
-    creditNumber: 'CRE00012',
-    customerName: 'Công ty tnhh Is Tech Vina',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu Xóa',
-    accountingDebt: '331',
-    accountingCredit: '642',
-    nameAccountingDebt: 'Phải trả người bán',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1000000',
-        typeMoney: 'VND',
-    },],
-},
-{
-    id: 113,
-    createdDate: '15/05/2021',
-    invoiceNumber: 'INV00013',
-    statusName: 'Chờ thanh toán',
-    idCustomer: 2,
-    creditNumber: 'CRE00013',
-    customerName: 'Công ty tnhh Is Tech Vina',
-    employeeName: 'Lê Thị Thảo',
-    idEmployee: 1,
-    content: 'test 01',
-    request: 'Yêu cầu Xóa',
-    accountingDebt: '331',
-    accountingCredit: '642',
-    nameAccountingDebt: 'Phải trả người bán',
-    nameAccountingCredit: 'Chi phí quản lý doanh nghiệp',
-    arrayMoney: [{
-        total: '1000000',
-        typeMoney: 'VND',
-    },],
-},
-]
 dataStaff = [
 
     {
@@ -967,9 +661,45 @@ let dataCustomer = [{
 },
 ]
 
-function getCustomerSpecializeSoftware() {
-
-    return dataCustomer
+async function getListCustomerOfPMCM(db) {
+    let arrayResult = []
+    await mtblCustomer(db).findAll().then(customer => {
+        for (let cus of customer) {
+            arrayResult.push({
+                "customerCode": "",
+                "name": cus.Name ? cus.Name : '',
+                // "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+                "tax": cus.Tax ? cus.Tax : '',
+                "countryName": cus.CountryName ? cus.CountryName : '',
+                "address": cus.Address ? cus.Address : '',
+                "mobile": cus.Mobile ? cus.Mobile : '',
+                "fax": cus.Fax ? cus.Fax : '',
+                "email": cus.email ? cus.email : '',
+                "id": cus.IDSpecializedSoftware ? cus.IDSpecializedSoftware : null,
+            })
+        }
+    })
+    return arrayResult
+}
+async function getListInvoiceAndCreditOfPMCM(db) {
+    let arrayResult = []
+    await mtblCustomer(db).findAll().then(customer => {
+        for (let cus of customer) {
+            arrayResult.push({
+                "customerCode": "",
+                "name": cus.Name ? cus.Name : '',
+                // "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+                "tax": cus.Tax ? cus.Tax : '',
+                "countryName": cus.CountryName ? cus.CountryName : '',
+                "address": cus.Address ? cus.Address : '',
+                "mobile": cus.Mobile ? cus.Mobile : '',
+                "fax": cus.Fax ? cus.Fax : '',
+                "email": cus.email ? cus.email : '',
+                "id": cus.IDSpecializedSoftware ? cus.IDSpecializedSoftware : null,
+            })
+        }
+    })
+    return arrayResult
 }
 
 // data
@@ -1156,9 +886,7 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
     return result
 }
 module.exports = {
-    data,
-    dataCredit,
-    getCustomerSpecializeSoftware,
+    getListCustomerOfPMCM,
     // change_customer_data
     changeCustomerData: async (req, res) => {
         let body = req.body;
@@ -1316,22 +1044,160 @@ module.exports = {
     },
     // get_list_customer
     getListCustomer: async (req, res) => {
-        // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(data => {
-        if (dataCustomer) {
-            var result = {
-                // array: data.data.data,
-                array: dataCustomer,
-                status: Constant.STATUS.SUCCESS,
-                message: Constant.MESSAGE.ACTION_SUCCESS,
-                all: 10
-                // all: data.data.data.length
+        let obj = {
+            "paging": {
+                "pageSize": 0,
+                "currentPage": 0,
+                "rowsCount": 0
             }
-            res.json(result);
-        } else {
-            res.json(Result.SYS_ERROR_RESULT)
         }
-        // console.log(data.data);
-        // })
+        try {
+            database.connectDatabase().then(async db => {
+                try {
+                    if (db) {
+                        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/list_pmtc`, obj).then(async data => {
+                            console.log('Đã kết nối với PMCM');
+                            for (let cus of data.data.data.list) {
+                                let cucCheck = await mtblCustomer(db).findOne({
+                                    where: {
+                                        IDSpecializedSoftware: cus.id ? cus.id : null
+                                    }
+                                })
+                                if (!cucCheck)
+                                    await mtblCustomer(db).create({
+                                        IDSpecializedSoftware: cus.id ? cus.id : null,
+                                        Name: cus.name ? cus.name : '',
+                                        Address: cus.address ? cus.address : '',
+                                        Emails: cus.emails ? cus.emails : '',
+                                        Email: cus.email ? cus.email : '',
+                                        ContactPersonEmail: cus.contactPersonEmail ? cus.contactPersonEmail : '',
+                                        Mobile: cus.mobile ? cus.mobile : '',
+                                        Fax: cus.fax ? cus.fax : '',
+                                        CountryName: cus.countryName ? cus.countryName : '',
+                                        CreatedDate: cus.createdDate ? cus.createdDate : null,
+                                        Tax: cus.tax ? cus.tax : '',
+                                        OldID: cus.oldId ? cus.oldId : null,
+                                        NewID: cus.newId ? cus.newId : null,
+                                        Debt: cus.debt ? cus.debt : '',
+                                        Note: cus.note ? cus.note : '',
+                                        DebtDate: cus.debtDate ? cus.debtDate : null,
+                                        DebtDescription: cus.debtDescription ? cus.debtDescription : '',
+                                    })
+                                else
+                                    await mtblCustomer(db).update({
+                                        Name: cus.name ? cus.name : '',
+                                        Address: cus.address ? cus.address : '',
+                                        Emails: cus.emails ? cus.emails : '',
+                                        Email: cus.email ? cus.email : '',
+                                        ContactPersonEmail: cus.contactPersonEmail ? cus.contactPersonEmail : '',
+                                        Mobile: cus.mobile ? cus.mobile : '',
+                                        Fax: cus.fax ? cus.fax : '',
+                                        CountryName: cus.countryName ? cus.countryName : '',
+                                        CreatedDate: cus.createdDate ? cus.createdDate : null,
+                                        Tax: cus.tax ? cus.tax : '',
+                                        OldID: cus.oldId ? cus.oldId : null,
+                                        NewID: cus.newId ? cus.newId : null,
+                                        Debt: cus.debt ? cus.debt : '',
+                                        Note: cus.note ? cus.note : '',
+                                        DebtDate: cus.debtDate ? cus.debtDate : null,
+                                        DebtDescription: cus.debtDescription ? cus.debtDescription : '',
+                                    }, {
+                                        where: {
+                                            IDSpecializedSoftware: cus.id ? cus.id : null,
+                                        }
+                                    })
+                            }
+                        })
+                        req.json(1);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+
+            })
+
+        } catch (error) {
+            console.log(error + '');
+        }
+    },
+    // insert_data_invoice_and_credit
+    insertDataInvoiceAndCredit: async (req, res) => {
+        let obj = {
+            "paging": {
+                "pageSize": 10000000,
+                "currentPage": 1,
+                "rowsCount": 0
+            }
+        }
+        try {
+            database.connectDatabase().then(async db => {
+                try {
+                    if (db) {
+                        await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/list_pmtc`, obj).then(async data => {
+                            console.log('Đã kết nối với PMCM');
+                            console.log(data.data.data.list);
+                            for (let cus of data.data.data.list) {
+                                let cucCheck = await mtblCustomer(db).findOne({
+                                    where: {
+                                        IDSpecializedSoftware: cus.id ? cus.id : null
+                                    }
+                                })
+                                if (!cucCheck)
+                                    await mtblCustomer(db).create({
+                                        IDSpecializedSoftware: cus.id ? cus.id : null,
+                                        Name: cus.name ? cus.name : '',
+                                        Address: cus.address ? cus.address : '',
+                                        Emails: cus.emails ? cus.emails : '',
+                                        Email: cus.email ? cus.email : '',
+                                        ContactPersonEmail: cus.contactPersonEmail ? cus.contactPersonEmail : '',
+                                        Mobile: cus.mobile ? cus.mobile : '',
+                                        Fax: cus.fax ? cus.fax : '',
+                                        CountryName: cus.countryName ? cus.countryName : '',
+                                        CreatedDate: cus.createdDate ? cus.createdDate : null,
+                                        Tax: cus.tax ? cus.tax : '',
+                                        OldID: cus.oldId ? cus.oldId : null,
+                                        NewID: cus.newId ? cus.newId : null,
+                                        Debt: cus.debt ? cus.debt : '',
+                                        Note: cus.note ? cus.note : '',
+                                        DebtDate: cus.debtDate ? cus.debtDate : null,
+                                        DebtDescription: cus.debtDescription ? cus.debtDescription : '',
+                                    })
+                                else
+                                    await mtblCustomer(db).update({
+                                        Name: cus.name ? cus.name : '',
+                                        Address: cus.address ? cus.address : '',
+                                        Emails: cus.emails ? cus.emails : '',
+                                        Email: cus.email ? cus.email : '',
+                                        ContactPersonEmail: cus.contactPersonEmail ? cus.contactPersonEmail : '',
+                                        Mobile: cus.mobile ? cus.mobile : '',
+                                        Fax: cus.fax ? cus.fax : '',
+                                        CountryName: cus.countryName ? cus.countryName : '',
+                                        CreatedDate: cus.createdDate ? cus.createdDate : null,
+                                        Tax: cus.tax ? cus.tax : '',
+                                        OldID: cus.oldId ? cus.oldId : null,
+                                        NewID: cus.newId ? cus.newId : null,
+                                        Debt: cus.debt ? cus.debt : '',
+                                        Note: cus.note ? cus.note : '',
+                                        DebtDate: cus.debtDate ? cus.debtDate : null,
+                                        DebtDescription: cus.debtDescription ? cus.debtDescription : '',
+                                    }, {
+                                        where: {
+                                            IDSpecializedSoftware: cus.id ? cus.id : null,
+                                        }
+                                    })
+                            }
+                        })
+                        req.json(1);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+
+            })
+
+        } catch (error) {
+            console.log(error + '');
+        }
     },
     // get_list_user
     getListUser: async (req, res) => {
@@ -1381,6 +1247,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 let array = []
+                let dataCustomer = await customerData.getListCustomer(db)
                 for (c = 0; c < dataCustomer.length; c++) {
                     array.push({
                         name: dataCustomer[c].name,

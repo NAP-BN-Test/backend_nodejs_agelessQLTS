@@ -24,8 +24,8 @@ var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 var mtblPaymentRCredit = require('../tables/financemanage/tblPaymentRCredit')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
+var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 
-let dataCustomer = customerData.getCustomerSpecializeSoftware()
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     let arrayReceiptsPayment = []
 
@@ -209,15 +209,16 @@ async function getDetailYCMS(db, id) {
 }
 var mModules = require('../constants/modules');
 async function getDetailCustomer(id) {
-    let dataCustomer = customerData.getCustomerSpecializeSoftware()
-    var obj = {}
-    dataCustomer.forEach(item => {
-        if (item.id == id) {
-            obj = item
-        }
+    await database.connectDatabase().then(async db => {
+        let dataCustomer = await customerData.getListCustomerOfPMCM(db)
+        var obj = {}
+        dataCustomer.forEach(item => {
+            if (item.id == id) {
+                obj = item
+            }
+        })
+        return obj
     })
-    return obj
-
 }
 
 module.exports = {

@@ -97,7 +97,7 @@ async function getInvoiceWaitForPayInDB(db, dataRequest, account, customerID = n
                     })
                 }
                 dataRequest[i]['arrayTotal'] = arrayTotal
-                    // if (check.Status == 'Chờ thanh toán')
+                // if (check.Status == 'Chờ thanh toán')
                 array.push(dataRequest[i])
             }
         }
@@ -209,7 +209,7 @@ async function getCreditWaitPay(db, objWaitForPay, stt, customerName = '') {
     return obj;
 }
 async function getDetailCustomer(id) {
-    let dataCustomer = customerData.getCustomerSpecializeSoftware()
+    let dataCustomer = await customerData.getListCustomerOfPMCM()
     var obj = {}
     dataCustomer.forEach(item => {
         if (item.id == id) {
@@ -262,137 +262,137 @@ function checkForDuplicateObjInArray(obj, array) {
     return result
 }
 dataCustomer = [{
-        "customerCode": "KH0001",
-        "name": "Công ty tnhh An Phú",
-        "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
-        "tax": "123456789",
-        "countryName": "Việt Nam",
-        "address": "Số 2 Hoàng Mai Hà Nội",
-        "mobile": "098705124",
-        "fax": "01234567",
-        "email": "anphu@gmail.com",
-        "id": 1,
-    },
-    {
-        "customerCode": "KH0002",
-        "name": "Công ty tnhh Is Tech Vina",
-        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
-        "tax": "01245870",
-        "countryName": "Việt Nam",
-        "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
-        "mobile": "082457145",
-        "fax": "0241368451",
-        "email": "istech@gmail.com",
-        "id": 2,
-    },
-    {
-        "customerCode": "KH0003",
-        "name": "Công ty cổ phần Orion Việt Nam",
-        "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
-        "tax": "012341250",
-        "countryName": "Việt nam",
-        "address": "Số 12 Bạch Mai Hà Nội",
-        "mobile": "0315456554",
-        "fax": "132456545",
-        "email": "orion13@gmail.com",
-        "id": 3,
-    },
-    {
-        "customerCode": "KH0004",
-        "name": "Công ty TNHH Rồng Việt",
-        "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
-        "tax": "01323255",
-        "countryName": "Việt Nam",
-        "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-        "mobile": "0445445474",
-        "fax": "1135635",
-        "email": "rongviet@gmail.com",
-        "id": 4,
-    },
-    {
-        "customerCode": "KH0005",
-        "name": "Công ty cổ phần và thương mại Đức Việt",
-        "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
-        "tax": "017654124",
-        "countryName": "Việt Nam",
-        "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
-        "mobile": "0444545401",
-        "fax": "75241241241",
-        "email": "ducviet0209@gmail.com",
-        "id": 5,
-    },
-    {
-        "customerCode": "KH0006",
-        "name": "Công ty TNHH 1 thành viên Bảo Minh",
-        "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
-        "tax": "154654565",
-        "countryName": "Việt Nam",
-        "address": "Số 25 Ba Đình Hà Nội",
-        "mobile": "045102474",
-        "fax": "02137244",
-        "email": "baominh56@gmail.com",
-        "id": 6,
-    },
-    {
-        "customerCode": "KH0007",
-        "name": "Công ty Sx và Tm Minh Hòa",
-        "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
-        "tax": "04785635432",
-        "countryName": "Việt Nam",
-        "address": "Số 21 Hàng Mã Hà Nội",
-        "mobile": "0045454510",
-        "fax": "415265654",
-        "email": "minhhoa1212@gmail.com",
-        "id": 7,
-    },
-    {
-        "customerCode": "KH0008",
-        "name": "Công ty cổ phần EC",
-        "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
-        "tax": "45454545",
-        "countryName": "Việt Nam",
-        "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
-        "mobile": "012345474",
-        "fax": "012244635",
-        "email": "ec1312@gmail.com",
-        "id": 8,
-    },
-    {
-        "customerCode": "KH0009",
-        "name": "Công ty cổ phần Thu Hương",
-        "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
-        "tax": "012546565",
-        "countryName": "Việt Nam",
-        "address": "Số 24 Bạch Mai Hà Nội",
-        "mobile": "015245454",
-        "fax": "45552478",
-        "email": "thuhuong34@gmail.com",
-        "id": 9,
-    },
-    {
-        "customerCode": "KH0010",
-        "name": "Công ty tnhh Hòa Phát",
-        "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
-        "tax": "014775745",
-        "countryName": "Việt Nam",
-        "address": "Số 2 Phố Huế Hà Nội",
-        "mobile": "045245401",
-        "fax": "021455235",
-        "email": "hoaphat0102@gmail.com",
-        "id": 10,
-    },
-    {
-        "customerCode": "KH0011",
-        "name": "Cơ quan nhà nước",
-        "attributesChangeLog": "Cơ quan nhà nước",
-        "tax": "014775745",
-        "countryName": "Việt Nam",
-        "address": "Số 2 Phố Huế Hà Nội",
-        "mobile": "045245401",
-        "fax": "021455235",
-        "email": "cqnnvn@gmail.com",
-        "id": 11,
-    },
+    "customerCode": "KH0001",
+    "name": "Công ty tnhh An Phú",
+    "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
+    "tax": "123456789",
+    "countryName": "Việt Nam",
+    "address": "Số 2 Hoàng Mai Hà Nội",
+    "mobile": "098705124",
+    "fax": "01234567",
+    "email": "anphu@gmail.com",
+    "id": 1,
+},
+{
+    "customerCode": "KH0002",
+    "name": "Công ty tnhh Is Tech Vina",
+    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
+    "tax": "01245870",
+    "countryName": "Việt Nam",
+    "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
+    "mobile": "082457145",
+    "fax": "0241368451",
+    "email": "istech@gmail.com",
+    "id": 2,
+},
+{
+    "customerCode": "KH0003",
+    "name": "Công ty cổ phần Orion Việt Nam",
+    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
+    "tax": "012341250",
+    "countryName": "Việt nam",
+    "address": "Số 12 Bạch Mai Hà Nội",
+    "mobile": "0315456554",
+    "fax": "132456545",
+    "email": "orion13@gmail.com",
+    "id": 3,
+},
+{
+    "customerCode": "KH0004",
+    "name": "Công ty TNHH Rồng Việt",
+    "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
+    "tax": "01323255",
+    "countryName": "Việt Nam",
+    "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
+    "mobile": "0445445474",
+    "fax": "1135635",
+    "email": "rongviet@gmail.com",
+    "id": 4,
+},
+{
+    "customerCode": "KH0005",
+    "name": "Công ty cổ phần và thương mại Đức Việt",
+    "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
+    "tax": "017654124",
+    "countryName": "Việt Nam",
+    "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
+    "mobile": "0444545401",
+    "fax": "75241241241",
+    "email": "ducviet0209@gmail.com",
+    "id": 5,
+},
+{
+    "customerCode": "KH0006",
+    "name": "Công ty TNHH 1 thành viên Bảo Minh",
+    "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
+    "tax": "154654565",
+    "countryName": "Việt Nam",
+    "address": "Số 25 Ba Đình Hà Nội",
+    "mobile": "045102474",
+    "fax": "02137244",
+    "email": "baominh56@gmail.com",
+    "id": 6,
+},
+{
+    "customerCode": "KH0007",
+    "name": "Công ty Sx và Tm Minh Hòa",
+    "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
+    "tax": "04785635432",
+    "countryName": "Việt Nam",
+    "address": "Số 21 Hàng Mã Hà Nội",
+    "mobile": "0045454510",
+    "fax": "415265654",
+    "email": "minhhoa1212@gmail.com",
+    "id": 7,
+},
+{
+    "customerCode": "KH0008",
+    "name": "Công ty cổ phần EC",
+    "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
+    "tax": "45454545",
+    "countryName": "Việt Nam",
+    "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
+    "mobile": "012345474",
+    "fax": "012244635",
+    "email": "ec1312@gmail.com",
+    "id": 8,
+},
+{
+    "customerCode": "KH0009",
+    "name": "Công ty cổ phần Thu Hương",
+    "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
+    "tax": "012546565",
+    "countryName": "Việt Nam",
+    "address": "Số 24 Bạch Mai Hà Nội",
+    "mobile": "015245454",
+    "fax": "45552478",
+    "email": "thuhuong34@gmail.com",
+    "id": 9,
+},
+{
+    "customerCode": "KH0010",
+    "name": "Công ty tnhh Hòa Phát",
+    "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
+    "tax": "014775745",
+    "countryName": "Việt Nam",
+    "address": "Số 2 Phố Huế Hà Nội",
+    "mobile": "045245401",
+    "fax": "021455235",
+    "email": "hoaphat0102@gmail.com",
+    "id": 10,
+},
+{
+    "customerCode": "KH0011",
+    "name": "Cơ quan nhà nước",
+    "attributesChangeLog": "Cơ quan nhà nước",
+    "tax": "014775745",
+    "countryName": "Việt Nam",
+    "address": "Số 2 Phố Huế Hà Nội",
+    "mobile": "045245401",
+    "fax": "021455235",
+    "email": "cqnnvn@gmail.com",
+    "id": 11,
+},
 ]
 async function findAcountingFollowLevel(db, level, idLevelAbove) {
     var result = []
@@ -403,7 +403,7 @@ async function findAcountingFollowLevel(db, level, idLevelAbove) {
             model: mtblDMLoaiTaiKhoanKeToan(db),
             required: false,
             as: 'Loai'
-        }, ],
+        },],
         where: {
             Levels: level,
             IDLevelAbove: idLevelAbove,
@@ -654,7 +654,7 @@ module.exports = {
         })
     },
     // get_list_tbl_accounting_books
-    getListtblAccountingBooks: async(req, res) => {
+    getListtblAccountingBooks: async (req, res) => {
         let body = req.body;
         let array = [
             'first_six_months',
@@ -742,7 +742,7 @@ module.exports = {
                     let arrayGetOpeningBalanceCredit = [];
                     let arrayGetOpeningBalanceDebt = [];
                     let arrayWhere = []
-                        // thêm tài khoản con vào search
+                    // thêm tài khoản con vào search
                     let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
                     tblDMTaiKhoanKeToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
                     if (!dataSearch.currencyID)
@@ -754,7 +754,7 @@ module.exports = {
                                 model: mtblCurrency(db),
                                 required: false,
                                 as: 'currency'
-                            }, ],
+                            },],
                         }).then(accountChild => {
                             if (accountChild.length > 0)
                                 isCheckChildAccount = true
@@ -792,7 +792,7 @@ module.exports = {
                                 model: mtblCurrency(db),
                                 required: false,
                                 as: 'currency'
-                            }, ],
+                            },],
                         }).then(accountChild => {
                             if (accountChild) {
                                 if (accountChild.MoneyCredit && accountChild.MoneyCredit > 0) {
@@ -959,20 +959,20 @@ module.exports = {
                             ['ID', 'ASC']
                         ],
                         include: [{
-                                model: tblReceiptsPayment,
+                            model: tblReceiptsPayment,
+                            required: false,
+                            as: 'payment',
+                            include: [{
+                                model: mtblCurrency(db),
                                 required: false,
-                                as: 'payment',
-                                include: [{
-                                    model: mtblCurrency(db),
-                                    required: false,
-                                    as: 'currency',
-                                }]
-                            },
-                            {
-                                model: mtblDMTaiKhoanKeToan(db),
-                                required: false,
-                                as: 'accounting'
-                            }
+                                as: 'currency',
+                            }]
+                        },
+                        {
+                            model: mtblDMTaiKhoanKeToan(db),
+                            required: false,
+                            as: 'accounting'
+                        }
                         ],
                     }).then(async data => {
                         var array = [];
@@ -984,16 +984,16 @@ module.exports = {
                         let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
                         tblDMTaiKhoanKeToan.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
                         let checkAccount = await tblDMTaiKhoanKeToan.findOne({
-                                where: {
-                                    ID: dataSearch.accountSystemID
-                                },
-                                include: [{
-                                    model: mtblCurrency(db),
-                                    required: false,
-                                    as: 'currency'
-                                }, ],
-                            })
-                            // Thêm số dư đầu kí và cuối kì nếu tài khoản không có tài khoản con
+                            where: {
+                                ID: dataSearch.accountSystemID
+                            },
+                            include: [{
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },],
+                        })
+                        // Thêm số dư đầu kí và cuối kì nếu tài khoản không có tài khoản con
                         if (!isCheckChildAccount) {
                             if (checkAccount.MoneyCredit && checkAccount.MoneyCredit > 0) {
                                 arrayGetOpeningBalanceCredit.push({
@@ -1054,7 +1054,7 @@ module.exports = {
                                         model: mtblCurrency(db),
                                         required: false,
                                         as: 'currency'
-                                    }, ],
+                                    },],
                                 }).then(async cus => {
                                     for (let item of cus) {
                                         let currencyNameCus = (item.currency ? item.currency.ShortName : 'VND');
@@ -1358,15 +1358,15 @@ module.exports = {
                             await tblAccountingBooks.findAll({
                                 where: {
                                     [Op.and]: [{
-                                            [Op.or]: arrayWhere
-                                        },
-                                        {
-                                            ID: {
-                                                [Op.ne]: data[i].ID
-                                            }
-                                        }, {
-                                            ClauseType: clauseType
+                                        [Op.or]: arrayWhere
+                                    },
+                                    {
+                                        ID: {
+                                            [Op.ne]: data[i].ID
                                         }
+                                    }, {
+                                        ClauseType: clauseType
+                                    }
                                     ]
                                 },
                                 order: [
@@ -1376,7 +1376,7 @@ module.exports = {
                                     model: mtblDMTaiKhoanKeToan(db),
                                     required: false,
                                     as: 'accounting'
-                                }, ],
+                                },],
                             }).then(async accounting => {
                                 if (accounting) {
                                     for (item of accounting) {
@@ -1391,8 +1391,8 @@ module.exports = {
                                             let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
                                             if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
                                                 typeCheck = 'Biexual'
-                                                    //  nếu là tài khoản đầu 1,2 : bên nợ
-                                                    //  nếu là tài khoản đầu 3,4 : bên có
+                                                //  nếu là tài khoản đầu 1,2 : bên nợ
+                                                //  nếu là tài khoản đầu 3,4 : bên có
                                                 if (openingBalanceCredit == null && openingBalanceDebit == null) {
                                                     if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
                                                         arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, (debtIncurred - creditIncurred))
@@ -1517,11 +1517,11 @@ module.exports = {
                         }
                         var count = await mtblAccountingBooks(db).count({ where: whereOjb, })
                         let checkType = await mtblDMTaiKhoanKeToan(db).findOne({
-                                where: {
-                                    ID: dataSearch.accountSystemID
-                                }
-                            })
-                            // ----------------------------------------------------------
+                            where: {
+                                ID: dataSearch.accountSystemID
+                            }
+                        })
+                        // ----------------------------------------------------------
                         let arrayEndingBalanceDebit = []
                         for (let debt of arrayDebtIncurred) {
                             let objPush = {}
@@ -1896,20 +1896,20 @@ module.exports = {
                             ['ID', 'ASC']
                         ],
                         include: [{
-                                model: tblReceiptsPayment,
+                            model: tblReceiptsPayment,
+                            required: false,
+                            as: 'payment',
+                            include: [{
+                                model: mtblCurrency(db),
                                 required: false,
-                                as: 'payment',
-                                include: [{
-                                    model: mtblCurrency(db),
-                                    required: false,
-                                    as: 'currency',
-                                }]
-                            },
-                            {
-                                model: mtblDMTaiKhoanKeToan(db),
-                                required: false,
-                                as: 'accounting'
-                            }
+                                as: 'currency',
+                            }]
+                        },
+                        {
+                            model: mtblDMTaiKhoanKeToan(db),
+                            required: false,
+                            as: 'accounting'
+                        }
                         ],
                     }).then(async data => {
                         var array = [];
@@ -1919,7 +1919,7 @@ module.exports = {
                         let creaditSurplus = 0;
                         if (dataSearch.customerID)
                             objCustomer = await getDetailCustomer(dataSearch.customerID)
-                            // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
+                        // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
                         let checkAccount131;
                         let checkAccount331;
                         if (dataSearch.accountSystemID) {
@@ -1941,7 +1941,7 @@ module.exports = {
                                     ID: dataSearch.accountSystemOtherID
                                 }
                             })
-                            // //////////////////////////////////////////////////////////////////////////////
+                        // //////////////////////////////////////////////////////////////////////////////
                         let arrayCurrency = []
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'all' || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131') || (!checkAccount131 && dataSearch.selection == 'all')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
@@ -2132,15 +2132,15 @@ module.exports = {
                             await tblAccountingBooks.findAll({
                                 where: {
                                     [Op.and]: [{
-                                            [Op.or]: arrayWhere
-                                        },
-                                        {
-                                            ID: {
-                                                [Op.ne]: data[i].ID
-                                            }
-                                        }, {
-                                            ClauseType: clauseType
+                                        [Op.or]: arrayWhere
+                                    },
+                                    {
+                                        ID: {
+                                            [Op.ne]: data[i].ID
                                         }
+                                    }, {
+                                        ClauseType: clauseType
+                                    }
                                     ]
                                 },
                                 order: [
@@ -2150,7 +2150,7 @@ module.exports = {
                                     model: mtblDMTaiKhoanKeToan(db),
                                     required: false,
                                     as: 'accounting'
-                                }, ],
+                                },],
                             }).then(async accounting => {
                                 if (accounting) {
                                     for (item of accounting) {
@@ -2567,33 +2567,33 @@ module.exports = {
                                 ['ID', 'ASC']
                             ],
                             include: [{
-                                    model: tblReceiptsPayment,
+                                model: tblReceiptsPayment,
+                                required: false,
+                                as: 'payment',
+                                include: [{
+                                    model: mtblCurrency(db),
                                     required: false,
-                                    as: 'payment',
-                                    include: [{
-                                        model: mtblCurrency(db),
-                                        required: false,
-                                        as: 'currency',
-                                    }]
-                                },
-                                {
-                                    model: mtblDMTaiKhoanKeToan(db),
-                                    required: false,
-                                    as: 'accounting'
-                                }
+                                    as: 'currency',
+                                }]
+                            },
+                            {
+                                model: mtblDMTaiKhoanKeToan(db),
+                                required: false,
+                                as: 'accounting'
+                            }
                             ],
                         }).then(async data => {
                             var array = [];
                             let objCustomer = {}
                             if (customer.id)
                                 objCustomer = await getDetailCustomer(customer.id)
-                                // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
+                            // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
                             let checkAccount131 = await mtblDMTaiKhoanKeToan(db).findOne({
-                                    where: {
-                                        ID: dataSearch.accountSystemID
-                                    }
-                                })
-                                // Xử lý khi chọn tk 131 hay 331 khi chọn khách hàng sẽ lấy số dư đầu kì của khách hàng
+                                where: {
+                                    ID: dataSearch.accountSystemID
+                                }
+                            })
+                            // Xử lý khi chọn tk 131 hay 331 khi chọn khách hàng sẽ lấy số dư đầu kì của khách hàng
                             if (checkAccount131 && checkAccount131.AccountingCode == '131' || checkAccount131.AccountingCode == '331') {
                                 let customerArr = [];
                                 arrayGetOpeningBalanceDebt = []
@@ -2617,7 +2617,7 @@ module.exports = {
                                             model: mtblCurrency(db),
                                             required: false,
                                             as: 'currency'
-                                        }, ],
+                                        },],
                                     }).then(async cus => {
                                         for (let item of cus) {
                                             let currencyNameCus = (item.currency ? item.currency.ShortName : 'VND');
@@ -2681,7 +2681,7 @@ module.exports = {
                             })
                             let arrayCurrency = []
                             arrayCurrency.push(nameCurrencyCheck)
-                                // //////////////////////////////////////////////////////////////////////////////
+                            // //////////////////////////////////////////////////////////////////////////////
                             if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131')) {
                                 let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', customer.id ? customer.id : null)
                                 for (invoice of arrayInvoice) {
@@ -2736,7 +2736,7 @@ module.exports = {
                                                     nameCurrency: dataInvoice.key
                                                 }
                                                 arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                                    // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
+                                                // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
                                                 arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
                                                 totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
                                                 totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
@@ -2872,15 +2872,15 @@ module.exports = {
                                 await tblAccountingBooks.findAll({
                                     where: {
                                         [Op.and]: [{
-                                                [Op.or]: arrayWhere
-                                            },
-                                            {
-                                                ID: {
-                                                    [Op.ne]: data[i].ID
-                                                }
-                                            }, {
-                                                ClauseType: clauseType
+                                            [Op.or]: arrayWhere
+                                        },
+                                        {
+                                            ID: {
+                                                [Op.ne]: data[i].ID
                                             }
+                                        }, {
+                                            ClauseType: clauseType
+                                        }
                                         ]
                                     },
                                     order: [
@@ -2890,7 +2890,7 @@ module.exports = {
                                         model: mtblDMTaiKhoanKeToan(db),
                                         required: false,
                                         as: 'accounting'
-                                    }, ],
+                                    },],
                                 }).then(async accounting => {
                                     if (accounting) {
                                         for (item of accounting) {
@@ -2904,8 +2904,8 @@ module.exports = {
                                             let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
                                             if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
                                                 typeCheck = 'Biexual'
-                                                    //  nếu là tài khoản đầu 1,2 : bên nợ
-                                                    //  nếu là tài khoản đầu 3,4 : bên có
+                                                //  nếu là tài khoản đầu 1,2 : bên nợ
+                                                //  nếu là tài khoản đầu 3,4 : bên có
                                                 if (openingBalanceCredit == null && openingBalanceDebit == null) {
                                                     if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
                                                         arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, (debtIncurred - creditIncurred))
@@ -3066,12 +3066,12 @@ module.exports = {
                                 })
                             }
                             let checkType = await mtblDMTaiKhoanKeToan(db).findOne({
-                                    where: {
-                                        ID: dataSearch.accountSystemID
-                                    }
-                                })
-                                // gán vào obj để không bị thay đổi arrayDebtIncurred
-                                // Tính số dư cuối kì
+                                where: {
+                                    ID: dataSearch.accountSystemID
+                                }
+                            })
+                            // gán vào obj để không bị thay đổi arrayDebtIncurred
+                            // Tính số dư cuối kì
                             let arrayEndingBalanceDebit = [];
                             let arrayEndingBalanceCredit = [];
                             for (let i = 0; i < arrayDebtIncurred.length; i++) {
@@ -3092,7 +3092,7 @@ module.exports = {
                                 arrayEndingBalanceCredit.push(obj)
                             }
                             await convertArrayToArray(arrayEndingBalanceCredit, arrayDebtIncurred)
-                                // ------------------------------------------------------------------------------
+                            // ------------------------------------------------------------------------------
                             if (checkType && checkType.TypeClause == "Credit") {
                                 endingBalanceCredit = arrayEndingBalanceCredit
                                 endingBalanceDebit = null;
@@ -3363,20 +3363,20 @@ module.exports = {
                                         ['ID', 'ASC']
                                     ],
                                     include: [{
-                                            model: tblReceiptsPayment,
+                                        model: tblReceiptsPayment,
+                                        required: false,
+                                        as: 'payment',
+                                        include: [{
+                                            model: mtblCurrency(db),
                                             required: false,
-                                            as: 'payment',
-                                            include: [{
-                                                model: mtblCurrency(db),
-                                                required: false,
-                                                as: 'currency',
-                                            }]
-                                        },
-                                        {
-                                            model: mtblDMTaiKhoanKeToan(db),
-                                            required: false,
-                                            as: 'accounting'
-                                        }
+                                            as: 'currency',
+                                        }]
+                                    },
+                                    {
+                                        model: mtblDMTaiKhoanKeToan(db),
+                                        required: false,
+                                        as: 'accounting'
+                                    }
                                     ],
                                 }).then(async data => {
                                     var array = [];
@@ -3417,7 +3417,7 @@ module.exports = {
                                                     model: mtblCurrency(db),
                                                     required: false,
                                                     as: 'currency'
-                                                }, ],
+                                                },],
                                             }).then(async cus => {
                                                 for (let item of cus) {
                                                     let currencyNameCus = (item.currency ? item.currency.ShortName : 'VND');
@@ -3507,15 +3507,15 @@ module.exports = {
                                         await tblAccountingBooks.findAll({
                                             where: {
                                                 [Op.and]: [{
-                                                        [Op.or]: arrayWhere
-                                                    },
-                                                    {
-                                                        ID: {
-                                                            [Op.ne]: data[i].ID
-                                                        }
-                                                    }, {
-                                                        ClauseType: clauseType
+                                                    [Op.or]: arrayWhere
+                                                },
+                                                {
+                                                    ID: {
+                                                        [Op.ne]: data[i].ID
                                                     }
+                                                }, {
+                                                    ClauseType: clauseType
+                                                }
                                                 ]
                                             },
                                             order: [
@@ -3525,7 +3525,7 @@ module.exports = {
                                                 model: mtblDMTaiKhoanKeToan(db),
                                                 required: false,
                                                 as: 'accounting'
-                                            }, ],
+                                            },],
                                         }).then(async accounting => {
                                             if (accounting) {
                                                 for (item of accounting) {
@@ -3539,8 +3539,8 @@ module.exports = {
                                                     let debtIncurred = accounting.length < 2 ? (data[i].DebtIncurred ? data[i].DebtIncurred : 0) : (item.CreditIncurred ? item.CreditIncurred : 0);
                                                     if (checkTypeClause && checkTypeClause.TypeClause == 'Biexual') {
                                                         typeCheck = 'Biexual'
-                                                            //  nếu là tài khoản đầu 1,2 : bên nợ
-                                                            //  nếu là tài khoản đầu 3,4 : bên có
+                                                        //  nếu là tài khoản đầu 1,2 : bên nợ
+                                                        //  nếu là tài khoản đầu 3,4 : bên có
                                                         if (openingBalanceCredit == null && openingBalanceDebit == null) {
                                                             if (checkTypeClause.AccountingCode.slice(0, 1) == '1' || checkTypeClause.AccountingCode.slice(0, 1) == '2') {
                                                                 arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, nameCurrency, (debtIncurred - creditIncurred))
