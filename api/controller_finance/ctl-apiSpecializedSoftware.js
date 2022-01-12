@@ -15,330 +15,7 @@ var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 var mtblInvoiceRCurrency = require('../tables/financemanage/tblInvoiceRCurrency')
 // data model invoice của KH
-let data = [{
-    id: 1,
-    createdDate: '01/05/2021',
-    refNumber: 'REF0001',
-    invoiceNumber: 'INV0001',
-    arrayMoney: [{
-        total: '1000000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '100',
-        typeMoney: 'USD',
-    },
-    ],
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 1',
-    request: '',
-    departmentName: 'Sáng chế',
-    departmentID: 10025,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 2,
-    createdDate: '02/05/2021',
-    refNumber: 'REF0002',
-    invoiceNumber: 'INV0002',
-    arrayMoney: [{
-        total: '1100000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '10',
-        typeMoney: 'USD',
-    },
-    ],
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 2',
-    request: 'Yêu cầu xóa',
-    departmentName: 'KẾ TOÁN',
-    departmentID: 10026,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 3,
-    createdDate: '03/05/2021',
-    refNumber: 'REF0003',
-    invoiceNumber: 'INV0003',
-    arrayMoney: [{
-        total: '1200000',
-        typeMoney: 'VND',
-    },
-
-    ],
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 3',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Sáng chế',
-    departmentID: 10025,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 4,
-    createdDate: '04/05/2021',
-    refNumber: 'REF0004',
-    invoiceNumber: 'INV0004',
-    arrayMoney: [{
-        total: '1300000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '100',
-        typeMoney: 'USD',
-    },
-
-    ],
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 4',
-    request: 'Yêu cầu sửa',
-    departmentName: 'HÀNH CHÍNH NHÂN SỰ',
-    departmentID: 10027,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 5,
-    createdDate: '05/05/2021',
-    refNumber: 'REF0005',
-    invoiceNumber: 'INV0005',
-    arrayMoney: [{
-        total: '1400000',
-        typeMoney: 'VND',
-    },
-
-    ],
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 5',
-    request: '',
-    departmentName: 'Sáng chế',
-    departmentID: 10025,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 6,
-    createdDate: '06/05/2021',
-    refNumber: 'REF0006',
-    invoiceNumber: 'INV0006',
-    arrayMoney: [{
-        total: '1500000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '100',
-        typeMoney: 'USD',
-    },
-    ],
-    statusName: 'Đã thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 6',
-    request: 'Yêu cầu xóa',
-    departmentName: 'Sáng chế',
-    departmentID: 10025,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 7,
-    createdDate: '07/05/2021',
-    refNumber: 'REF0007',
-    invoiceNumber: 'INV0007',
-    arrayMoney: [{
-        total: '1600000',
-        typeMoney: 'VND',
-    },
-
-    ],
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 7',
-    request: 'Yêu cầu xóa',
-    departmentName: 'KẾ TOÁN',
-    departmentID: 10026,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 8,
-    createdDate: '08/05/2021',
-    refNumber: 'REF0008',
-    invoiceNumber: 'INV0008',
-    arrayMoney: [{
-        total: '100',
-        typeMoney: 'USD',
-    },
-
-    ],
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 8',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Sáng chế',
-    departmentID: 10025,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 9,
-    createdDate: '09/05/2021',
-    refNumber: 'REF0009',
-    invoiceNumber: 'INV0009',
-    arrayMoney: [{
-        total: '2000000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '130',
-        typeMoney: 'USD',
-    },
-
-    ],
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 9',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Ban NH3',
-    departmentID: 10035,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 10,
-    createdDate: '10/05/2021',
-    refNumber: 'REF0010',
-    invoiceNumber: 'INV0010',
-    arrayMoney: [{
-        total: '123',
-        typeMoney: 'VND',
-    },],
-    statusName: 'Chờ thanh toán',
-    idCustomer: 1,
-    customerName: 'Công ty tnhh An Phú',
-    content: 'Demo 10',
-    request: 'Yêu cầu sửa',
-    departmentName: 'Ban NH3',
-    departmentID: 10035,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 11,
-    createdDate: '12/05/2021',
-    refNumber: 'REF00011',
-    invoiceNumber: 'INV00011',
-    arrayMoney: [{
-        total: '1100000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '10',
-        typeMoney: 'USD',
-    },
-    ],
-    statusName: 'Chờ thanh toán',
-    idCustomer: 2,
-    customerName: 'Công ty tnhh Is Tech Vina',
-    content: 'Demo 2',
-    request: 'Yêu cầu xóa',
-    departmentName: 'KẾ TOÁN',
-    departmentID: 10026,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 12,
-    createdDate: '13/05/2021',
-    refNumber: 'REF00012',
-    invoiceNumber: 'INV00012',
-    arrayMoney: [{
-        total: '1200000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '12',
-        typeMoney: 'USD',
-    },
-    ],
-    statusName: 'Chờ thanh toán',
-    idCustomer: 2,
-    customerName: 'Công ty tnhh Is Tech Vina',
-    content: 'Demo 2',
-    request: 'Yêu cầu xóa',
-    departmentName: 'KẾ TOÁN',
-    departmentID: 10026,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-{
-    id: 13,
-    createdDate: '14/05/2021',
-    refNumber: 'REF00013',
-    invoiceNumber: 'INV00013',
-    arrayMoney: [{
-        total: '1300000',
-        typeMoney: 'VND',
-    },
-    {
-        total: '15',
-        typeMoney: 'USD',
-    },
-    ],
-    statusName: 'Chờ thanh toán',
-    idCustomer: 2,
-    customerName: 'Công ty tnhh Is Tech Vina',
-    content: 'Demo 2',
-    request: 'Yêu cầu xóa',
-    departmentName: 'KẾ TOÁN',
-    departmentID: 10026,
-    accountingDebt: '131',
-    nameAccountingDebt: 'Phải thu khách hàng',
-    accountingCredit: '511',
-    nameAccountingCredit: 'Doanh thu bán hàng và cung cấp dịch vụ',
-},
-];
+let data = [];
 totalMoney = [{
     total: 1000000000,
     type: 'VND',
@@ -491,6 +168,7 @@ function checkDuplicate(array, elm) {
 }
 var database = require('../database');
 var mtblDMNhaCungCap = require('../tables/qlnb/tblDMNhaCungCap');
+var mtblDMUser = require('../tables/constants/tblDMUser');
 
 async function calculateTheTotalForCredit(array) {
     let arrayResult = []
@@ -683,19 +361,62 @@ async function getListCustomerOfPMCM(db) {
 }
 async function getListInvoiceAndCreditOfPMCM(db) {
     let arrayResult = []
-    await mtblCustomer(db).findAll().then(customer => {
-        for (let cus of customer) {
+    let tblInvoice = mtblInvoice(db);
+    let tblDMUser = mtblDMUser(db);
+    let tblDMNhanvien = mtblDMNhanvien(db);
+    tblInvoice.belongsTo(mtblCustomer(db), { foreignKey: 'IDCustomer', sourceKey: 'IDCustomer', as: 'cus' })
+    tblDMUser.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien', as: 'staff' })
+    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
+    tblInvoice.belongsTo(tblDMUser, { foreignKey: 'UserID', sourceKey: 'UserID', as: 'user' })
+    await tblInvoice.findAll(
+        {
+            include: [
+                {
+                    model: mtblCustomer(db),
+                    required: false,
+                    as: 'cus'
+                },
+                {
+                    model: tblDMUser,
+                    required: false,
+                    as: 'user',
+                    include: [
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'staff',
+                            include: [
+                                {
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'department'
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        }
+    ).then(async invoice => {
+        for (let inv of invoice) {
             arrayResult.push({
-                "customerCode": "",
-                "name": cus.Name ? cus.Name : '',
-                // "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
-                "tax": cus.Tax ? cus.Tax : '',
-                "countryName": cus.CountryName ? cus.CountryName : '',
-                "address": cus.Address ? cus.Address : '',
-                "mobile": cus.Mobile ? cus.Mobile : '',
-                "fax": cus.Fax ? cus.Fax : '',
-                "email": cus.email ? cus.email : '',
-                "id": cus.IDSpecializedSoftware ? cus.IDSpecializedSoftware : null,
+                id: inv.IDSpecializedSoftware ? inv.IDSpecializedSoftware : null,
+                createdDate: inv.CreatedDate,
+                refNumber: inv.RefNumber ? JSON.parse(inv.RefNumber) : '',
+                invoiceNumber: inv.InvoiceNumber,
+                typeMoney: inv.TypeMoney,
+                moneyTotal: inv.MoneyTotal,
+                statusName: inv.Status,
+                idCustomer: inv.IDCustomer,
+                customerName: inv.IDCustomer ? inv.cus.Name : '',
+                content: inv.Contents,
+                request: inv.Request,
+                userID: inv.UserID,
+                userName: inv.UserID ? inv.user.Username : '',
+                departmentName: inv.UserID ? (inv.user.staff ? (inv.user.staff.IDBoPhan ? inv.user.staff.IDBoPhan.DepartmentName : null) : null) : '',
+                departmentID: inv.UserID ? (inv.user.staff ? inv.user.staff.IDBoPhan : null) : '',
+                accounting: '131',
+                nameAccounting: 'Phải thu khách hàng',
             })
         }
     })
@@ -887,6 +608,7 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
 }
 module.exports = {
     getListCustomerOfPMCM,
+    getListInvoiceAndCreditOfPMCM,
     // change_customer_data
     changeCustomerData: async (req, res) => {
         let body = req.body;
@@ -932,98 +654,7 @@ module.exports = {
     },
     // get_list_partner
     getListPartner: async (req, res) => {
-        dataPartner = [{
-            id: "2",
-            partnerCode: "LOCK LOCK",
-            name: "Công ty TNHH Lock & Lock",
-            tax: "01245782110",
-            address: "Số 72A Nguyễn Trãi phường Thượng Đỉnh Thanh Xuân Hà Nội",
-            mobile: "0823145678",
-            fax: "045784124",
-            email: "locklockvn@gmail",
-        },
-        {
-            id: "3",
-            partnerCode: "HOA PHAT",
-            name: "Công ty TNHH Hòa Phát ",
-            tax: "012345678",
-            address: "Số 12 Bạch Mai Hà Nội",
-            mobile: "089745120",
-            fax: "023145216",
-            email: "hoaphat123@gmail.com",
-        },
-        {
-            id: "4",
-            partnerCode: "MEDIA MART",
-            name: "Siêu thị điện máy xanh media mart",
-            tax: "012345801",
-            address: "Số 1 Trương Định Hà Nội",
-            mobile: "089724152",
-            fax: "021465741",
-            email: "mediamart4546@gmail.com",
-        },
-        {
-            id: "5",
-            partnerCode: "GLOMED",
-            name: "Công ty dược phẩm Glomed  ",
-            tax: "012465563",
-            address: "Số 34 Huỳnh Thúc Kháng Hà Nội",
-            mobile: "012568523",
-            fax: "012457821",
-            email: "glomeddp@gmail.com",
-        },
-        {
-            id: "6",
-            partnerCode: "THUONG ĐINH",
-            name: "Công ty giầy Thượng Đỉnh",
-            tax: "012489660",
-            address: "Số 2 Kim Ngưu Hà Nội",
-            mobile: "021565635",
-            fax: "014653225",
-            email: "thuongdinhgiay@gmail.com",
-        },
-        {
-            id: "7",
-            partnerCode: "GIAY THANG LONG",
-            name: "Công ty TNHH giày Thăng Long",
-            tax: "012457821",
-            address: "Số 2A Phường Khương Trung Thanh Xuân Hà Nội",
-            mobile: "012465623",
-            fax: "01774125",
-            email: "giaytot@gmail.com",
-        },
-        {
-            id: "8",
-            partnerCode: "VINH DOAN",
-            name: "Công ty cổ phần Vĩnh Đoàn",
-            tax: "012458990",
-            address: "Số 60 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-            mobile: "021565650",
-            fax: "0158555245",
-            email: "vinhdoan123@gmail.com",
-        },
-        {
-            id: "9",
-            partnerCode: "SINO VANLOCK",
-            name: "Công ty sản xuất thiết bị điện Sino vanlock",
-            tax: "0124456685",
-            address: "SỐ 10 nguyễn Văn Cừ Long Biên Hà Nội",
-            mobile: "0154878741",
-            fax: "0157878865",
-            email: "sinovanlock@gmail.com",
-        },
-        {
-            id: "10",
-            partnerCode: "TRUNG NGUYEN",
-            name: "Tập đoàn cà phê Trung Nguyên",
-            tax: "0125748546",
-            address: "Thị Cấm Phường Xuân Phương Nam Từ Liêm Hà Nội",
-            mobile: "045654565",
-            fax: "013245422",
-            email: "trugnnguyen@gmail.com",
-        },
-
-        ]
+        dataPartner = []
         // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/share`).then(data => {
         // console.log(data.data);
         if (dataPartner) {
@@ -1056,7 +687,7 @@ module.exports = {
                 try {
                     if (db) {
                         await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/list_pmtc`, obj).then(async data => {
-                            console.log('Đã kết nối với PMCM');
+                            console.log('------------------------------------------- Đã kết nối với PMCM -----------------------------------------');
                             for (let cus of data.data.data.list) {
                                 let cucCheck = await mtblCustomer(db).findOne({
                                     where: {
@@ -1067,6 +698,7 @@ module.exports = {
                                     await mtblCustomer(db).create({
                                         IDSpecializedSoftware: cus.id ? cus.id : null,
                                         Name: cus.name ? cus.name : '',
+                                        Code: cus.code ? cus.code : '',
                                         Address: cus.address ? cus.address : '',
                                         Emails: cus.emails ? cus.emails : '',
                                         Email: cus.email ? cus.email : '',
@@ -1108,7 +740,7 @@ module.exports = {
                                     })
                             }
                         })
-                        req.json(1);
+                        res.json(1);
                     }
                 } catch (error) {
                     console.log(error);
@@ -1134,62 +766,75 @@ module.exports = {
                 try {
                     if (db) {
                         await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/list_pmtc`, obj).then(async data => {
-                            console.log('Đã kết nối với PMCM');
-                            console.log(data.data.data.list);
-                            for (let cus of data.data.data.list) {
-                                let cucCheck = await mtblCustomer(db).findOne({
+                            console.log('------------------------------------------------------Đã kết nối với PMCM-------------------------------------------------------------');
+                            for (let inv of data.data.data.list) {
+                                let invCheck = await mtblInvoice(db).findOne({
                                     where: {
-                                        IDSpecializedSoftware: cus.id ? cus.id : null
+                                        IDSpecializedSoftware: inv.id ? inv.id : null
                                     }
                                 })
-                                if (!cucCheck)
-                                    await mtblCustomer(db).create({
-                                        IDSpecializedSoftware: cus.id ? cus.id : null,
-                                        Name: cus.name ? cus.name : '',
-                                        Address: cus.address ? cus.address : '',
-                                        Emails: cus.emails ? cus.emails : '',
-                                        Email: cus.email ? cus.email : '',
-                                        ContactPersonEmail: cus.contactPersonEmail ? cus.contactPersonEmail : '',
-                                        Mobile: cus.mobile ? cus.mobile : '',
-                                        Fax: cus.fax ? cus.fax : '',
-                                        CountryName: cus.countryName ? cus.countryName : '',
-                                        CreatedDate: cus.createdDate ? cus.createdDate : null,
-                                        Tax: cus.tax ? cus.tax : '',
-                                        OldID: cus.oldId ? cus.oldId : null,
-                                        NewID: cus.newId ? cus.newId : null,
-                                        Debt: cus.debt ? cus.debt : '',
-                                        Note: cus.note ? cus.note : '',
-                                        DebtDate: cus.debtDate ? cus.debtDate : null,
-                                        DebtDescription: cus.debtDescription ? cus.debtDescription : '',
+                                let status = inv.status == 2 ? 'Chờ thanh toán' : (inv.status == 3 ? 'Yêu cầu sửa' : (inv.status == 4 ? 'Yêu cầu xóa' : (inv.status == 5 ? 'Yêu cầu thanh toán' : 'Chờ thanh toán')))
+                                let request = inv.status == 3 ? 'Yêu cầu sửa' : (inv.status == 4 ? 'Yêu cầu xóa' : (inv.status == 5 ? 'Yêu cầu thanh toán' : ''))
+                                let customer = !inv.addressBookId ? null : await mtblCustomer(db).findOne({
+                                    where: {
+                                        IDSpecializedSoftware: inv.addressBookId
+                                    }
+                                })
+                                let user = !inv.userName ? null : await mtblDMUser(db).findOne({
+                                    where: {
+                                        Username: inv.userName
+                                    }
+                                })
+                                console.log(inv.grandTotal.length);
+                                if (!invCheck)
+                                    await mtblInvoice(db).create({
+                                        IDSpecializedSoftware: inv.id ? inv.id : null,
+                                        Status: status,
+                                        VoucherNumber: null,// chưa thấy dùng đến
+                                        Request: request,
+                                        Payments: null, // chưa thấy dùng đến
+                                        PayDate: null, // bên mình sẽ thanh toán mới tạo
+                                        IsInvoice: inv.type == 1 ? true : false,
+                                        RefNumber: inv.refDetailModels ? JSON.stringify(inv.refDetailModels) : '',
+                                        CreatedDate: inv.createDate ? moment(inv.createDate).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                                        IDCustomer: customer ? customer.ID : null,
+                                        InvoiceNumber: inv.no ? inv.no : '',
+                                        CurrencyID: null, // hiện tại chưa dùng đến
+                                        Contents: inv.note ? inv.note : '',
+                                        UserID: user ? user.ID : null,
+                                        AccountID: null, //phần mềm chuyển môn chưa gửi sang
+                                        MoneyTotal: inv.grandTotal.length >= 1 ? inv.grandTotal[0].total : null,
+                                        TypeMoney: inv.grandTotal.length >= 1 ? (inv.grandTotal[0].unit == 1 ? 'USD' : (inv.grandTotal[0].unit == 2 ? 'EURO' : (inv.grandTotal[0].unit == 3 ? 'FRANCE' : 'VND'))) : 'VND',
                                     })
                                 else
-                                    await mtblCustomer(db).update({
-                                        Name: cus.name ? cus.name : '',
-                                        Address: cus.address ? cus.address : '',
-                                        Emails: cus.emails ? cus.emails : '',
-                                        Email: cus.email ? cus.email : '',
-                                        ContactPersonEmail: cus.contactPersonEmail ? cus.contactPersonEmail : '',
-                                        Mobile: cus.mobile ? cus.mobile : '',
-                                        Fax: cus.fax ? cus.fax : '',
-                                        CountryName: cus.countryName ? cus.countryName : '',
-                                        CreatedDate: cus.createdDate ? cus.createdDate : null,
-                                        Tax: cus.tax ? cus.tax : '',
-                                        OldID: cus.oldId ? cus.oldId : null,
-                                        NewID: cus.newId ? cus.newId : null,
-                                        Debt: cus.debt ? cus.debt : '',
-                                        Note: cus.note ? cus.note : '',
-                                        DebtDate: cus.debtDate ? cus.debtDate : null,
-                                        DebtDescription: cus.debtDescription ? cus.debtDescription : '',
+                                    await mtblInvoice(db).update({
+                                        Status: status,
+                                        VoucherNumber: null,// chưa thấy dùng đến
+                                        Request: request,
+                                        Payments: null, // chưa thấy dùng đến
+                                        PayDate: null, // bên mình sẽ thanh toán mới tạo
+                                        IsInvoice: inv.type == 1 ? true : false,
+                                        RefNumber: inv.refDetailModels ? JSON.stringify(inv.refDetailModels) : '',
+                                        CreatedDate: inv.createDate ? moment(inv.createDate).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                                        IDCustomer: customer ? customer.ID : null,
+                                        InvoiceNumber: inv.no ? inv.no : '',
+                                        CurrencyID: null, // hiện tại chưa dùng đến
+                                        Contents: inv.note ? inv.note : '',
+                                        UserID: user ? user.ID : null,
+                                        AccountID: null, //phần mềm chuyển môn chưa gửi sang
+                                        MoneyTotal: inv.grandTotal.length >= 1 ? inv.grandTotal[0].total : null,
+                                        TypeMoney: inv.grandTotal.length >= 1 ? (inv.grandTotal[0].unit == 1 ? 'USD' : (inv.grandTotal[0].unit == 2 ? 'EURO' : (inv.grandTotal[0].unit == 3 ? 'FRANCE' : 'VND'))) : 'VND',
                                     }, {
                                         where: {
-                                            IDSpecializedSoftware: cus.id ? cus.id : null,
+                                            IDSpecializedSoftware: inv.id ? inv.id : null,
                                         }
                                     })
                             }
                         })
-                        req.json(1);
+                        res.json(1);
                     }
                 } catch (error) {
+                    res.json(0);
                     console.log(error);
                 }
 

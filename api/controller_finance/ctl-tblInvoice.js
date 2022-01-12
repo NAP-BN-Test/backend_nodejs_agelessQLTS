@@ -147,18 +147,11 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
 module.exports = {
     deleteRelationshiptblInvoice,
     // get_list_tbl_invoice
-    getListtblInvoice: async(req, res) => {
+    getListtblInvoice: async (req, res) => {
         var body = req.body
-        let data = dataExport.data
-        console.log(data);
         database.connectDatabase().then(async db => {
-            var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
+            let data = await dataExport.getListInvoiceAndCreditOfPMCM(db)
+            console.log(data);
             if (data) {
                 let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
                 for (let i = 0; i < data.length; i++) {
@@ -249,7 +242,7 @@ module.exports = {
                             model: mtblReceiptsPayment(db),
                             required: false,
                             as: 'payment'
-                        }, ],
+                        },],
                     }).then(invoice => {
                         if (invoice && invoice.length > 0) {
                             for (let item of invoice) {

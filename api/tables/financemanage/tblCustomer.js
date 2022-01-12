@@ -12,6 +12,7 @@ module.exports = function (db) {
         AmountSpent: Sequelize.FLOAT,
         AmountReceivable: Sequelize.FLOAT,
         Name: Sequelize.STRING,
+        Code: Sequelize.STRING,
         Address: Sequelize.STRING,
         Emails: Sequelize.STRING,
         Email: Sequelize.STRING,
