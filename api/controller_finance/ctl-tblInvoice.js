@@ -20,6 +20,11 @@ async function deleteRelationshiptblInvoice(db, listID) {
 }
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
+var mtblDMUser = require('../tables/constants/tblDMUser');
+var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
+var mtblCustomer = require('../tables/financemanage/tblCustomer');
+var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
+var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 
 function checkDuplicate(array, elm) {
     var check = false;
@@ -144,134 +149,134 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
         })
     return result
 }
+
+
+async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
+    let arrayResult = [];
+    let totalMoney = 0;
+    let tblInvoice = mtblInvoice(db);
+    let tblDMUser = mtblDMUser(db);
+    let tblDMNhanvien = mtblDMNhanvien(db);
+    let tblDMBoPhan = mtblDMBoPhan(db);
+    tblInvoice.belongsTo(mtblCustomer(db), { foreignKey: 'IDCustomer', sourceKey: 'IDCustomer', as: 'cus' })
+    tblDMUser.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanvien', sourceKey: 'IDNhanvien', as: 'staff' })
+    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'branch' })
+    tblDMNhanvien.belongsTo(tblDMBoPhan, { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'department' })
+    tblInvoice.belongsTo(tblDMUser, { foreignKey: 'UserID', sourceKey: 'UserID', as: 'user' })
+    await tblInvoice.findAll(
+        {
+            include: [
+                {
+                    model: mtblCustomer(db),
+                    required: false,
+                    as: 'cus'
+                },
+                {
+                    model: tblDMUser,
+                    required: false,
+                    as: 'user',
+                    include: [
+                        {
+                            model: tblDMNhanvien,
+                            required: false,
+                            as: 'staff',
+                            include: [
+                                {
+                                    model: tblDMBoPhan,
+                                    required: false,
+                                    as: 'department',
+                                    include: [
+                                        {
+                                            model: mtblDMChiNhanh(db),
+                                            required: false,
+                                            as: 'branch'
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            offset: Number(itemPerPage) * (Number(page) - 1),
+            limit: Number(itemPerPage),
+            where: whereObj,
+        }
+    ).then(async data => {
+        for (let i = 0; i < data.length; i++) {
+            let obj = {
+                id: data[i].IDSpecializedSoftware ? data[i].IDSpecializedSoftware : null,
+                createdDate: data[i].CreatedDate,
+                refNumber: data[i].RefNumber ? JSON.parse(data[i].RefNumber) : '',
+                invoiceNumber: data[i].InvoiceNumber,
+                typeMoney: data[i].TypeMoney,
+                moneyTotal: data[i].MoneyTotal,
+                statusName: data[i].Status,
+                idCustomer: data[i].IDCustomer,
+                customerName: data[i].IDCustomer ? data[i].cus.Name : '',
+                content: data[i].Contents,
+                request: data[i].Request,
+                userID: data[i].UserID,
+                userName: data[i].UserID ? data[i].user.Username : '',
+                departmentName: data[i].UserID ? (data[i].user.staff ? (data[i].user.staff.IDBoPhan ? data[i].user.staff.department.DepartmentName : null) : null) : '',
+                departmentID: data[i].UserID ? (data[i].user.staff ? data[i].user.staff.IDBoPhan : null) : '',
+                branchName: data[i].UserID ? (data[i].user.staff ? (data[i].user.staff.IDBoPhan ? (data[i].user.staff.department.IDChiNhanh ? data[i].user.staff.department.branch.BranchName : null) : null) : null) : null,
+                branchID: data[i].UserID ? (data[i].user.staff ? data[i].user.staff.IDBoPhan : (data[i].user.staff.department.IDChiNhanh ? data[i].user.staff.department.IDChiNhanh : null)) : '',
+                AccountID: data[i] ? data[i].AccountID : null,
+                AccountName: data[i].AccountName,
+            }
+            let tblPaymentRInvoice = mtblPaymentRInvoice(db)
+            tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
+            let arrayReceiptPayment = []
+            await tblPaymentRInvoice.findAll({
+                where: {
+                    IDSpecializedSoftware: data[i].ID
+                },
+                include: [{
+                    model: mtblReceiptsPayment(db),
+                    required: false,
+                    as: 'payment'
+                },],
+            }).then(invoice => {
+                if (invoice && invoice.length > 0) {
+                    for (let item of invoice) {
+                        arrayReceiptPayment.push({
+                            receiptPaymentID: item.IDPayment,
+                            receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
+                        })
+                    }
+                }
+            })
+            obj['arrayReceiptPayment'] = arrayReceiptPayment
+            arrayResult.push(obj)
+        }
+    })
+    var count = await mtblInvoice(db).count({
+        where: whereObj
+    })
+    var result = {
+        array: arrayResult,
+        status: Constant.STATUS.SUCCESS,
+        message: Constant.MESSAGE.ACTION_SUCCESS,
+        all: count,
+        totalMoney: totalMoney,
+    }
+    return result
+}
 module.exports = {
+    getDataInvoiceByCondition,
     deleteRelationshiptblInvoice,
     // get_list_tbl_invoice
     getListtblInvoice: async (req, res) => {
         var body = req.body
-        database.connectDatabase().then(async db => {
-            let data = await dataExport.getListInvoiceAndCreditOfPMCM(db)
-            console.log(data);
-            if (data) {
-                let totalMoney = await calculateTheTotalAmountOfEachCurrency(data)
-                for (let i = 0; i < data.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: data[i].id }
-                    })
-                    let invoiceID;
-                    if (!check) {
-                        invoiceID = await mtblInvoice(db).create({
-                            IDSpecializedSoftware: data[i].id,
-                            Status: data[i].statusName,
-                            Request: data[i].request,
-                            IsInvoice: true
-                        })
-                        check = invoiceID
-                    } else {
-                        invoiceID = check
-                        data[i].statusName = check.Status
-                        data[i].request = check.Request
-                    }
-                    let totalMoneyVND = 0
-                    let arrayExchangeRate = []
-                    let arrayCurrency = []
-                    for (let m = 0; m < data[i].arrayMoney.length; m++) {
-                        arrayCurrency.push(data[i].arrayMoney[m].typeMoney)
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-                        arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-                        let currency = await mtblCurrency(db).findOne({
-                            where: {
-                                ShortName: data[i].arrayMoney[m].typeMoney
-                            }
-                        })
-                        if (currency) {
-                            let checkCurrency = await mtblInvoiceRCurrency(db).findOne({
-                                where: {
-                                    CurrencyID: currency.ID,
-                                    InvoiceID: invoiceID.ID,
-                                }
-                            })
-                            if (!checkCurrency)
-                                await mtblInvoiceRCurrency(db).create({
-                                    CurrencyID: currency.ID,
-                                    InvoiceID: invoiceID.ID,
-                                    UnpaidAmount: data[i].arrayMoney[m].total,
-                                    PaidAmount: 0,
-                                    InitialAmount: data[i].arrayMoney[m].total,
-                                    Status: data[i].statusName,
-                                })
-                        }
-                        let paidAmountArray = []
-                        let remainingAmountArray = []
-                        for (let cur of arrayCurrency) {
-                            let currency = await mtblCurrency(db).findOne({
-                                where: {
-                                    ShortName: cur
-                                }
-                            })
-                            let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
-                                where: {
-                                    CurrencyID: currency.ID,
-                                    InvoiceID: check.ID,
-                                }
-                            })
-                            paidAmountArray.push({
-                                key: cur,
-                                value: ObjAmount.PaidAmount ? ObjAmount.PaidAmount : null,
-                            })
-                            remainingAmountArray.push({
-                                key: cur,
-                                value: ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : null,
-                            })
-                        }
-                        data[i]['paidAmountArray'] = paidAmountArray;
-                        data[i]['remainingAmountArray'] = remainingAmountArray;
-                    }
-                    data[i]['totalMoneyVND'] = totalMoneyVND
-                    data[i]['arrayExchangeRate'] = arrayExchangeRate
-                    data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
-                    data[i]['payments'] = check ? check.Payments : ''
-                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
-                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                    let arrayReceiptPayment = []
-                    await tblPaymentRInvoice.findAll({
-                        where: {
-                            IDSpecializedSoftware: data[i].id
-                        },
-                        include: [{
-                            model: mtblReceiptsPayment(db),
-                            required: false,
-                            as: 'payment'
-                        },],
-                    }).then(invoice => {
-                        if (invoice && invoice.length > 0) {
-                            for (let item of invoice) {
-                                arrayReceiptPayment.push({
-                                    receiptPaymentID: item.IDPayment,
-                                    receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
-                                })
-                            }
-                        }
-                    })
-                    data[i]['arrayReceiptPayment'] = arrayReceiptPayment
-                }
-                let totalMoneyVND = 0
-                for (let a = 0; a < totalMoney.length; a++) {
-                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                }
-                var result = {
-                    array: data,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                    totalMoneyVND: totalMoneyVND,
-
-                }
+        try {
+            database.connectDatabase().then(async db => {
+                let result = await getDataInvoiceByCondition(db, body.itemPerPage, body.page, { IsInvoice: true })
                 res.json(result);
-            } else {
-                res.json(Result.SYS_ERROR_RESULT)
-            }
-        })
+            })
+        } catch (error) {
+            console.log(error);
+            res.json(Result.SYS_ERROR_RESULT)
+        }
     },
 }

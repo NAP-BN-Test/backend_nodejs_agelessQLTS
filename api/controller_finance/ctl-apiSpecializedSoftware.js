@@ -8,12 +8,13 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var moment = require('moment');
-var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
+var ctlInvoice = require('../controller_finance/ctl-tblInvoice')
 
 const Op = require('sequelize').Op;
 var mtblReceiptsPayment = require('../tables/financemanage/tblReceiptsPayment')
 var mtblPaymentRInvoice = require('../tables/financemanage/tblPaymentRInvoice')
 var mtblInvoiceRCurrency = require('../tables/financemanage/tblInvoiceRCurrency')
+var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 // data model invoice của KH
 let data = [];
 totalMoney = [{
@@ -785,7 +786,11 @@ module.exports = {
                                         Username: inv.userName
                                     }
                                 })
-                                console.log(inv.grandTotal.length);
+                                let account = !inv.recondingTxName ? null : await mtblDMTaiKhoanKeToan(db).findOne({
+                                    where: {
+                                        AccountingCode: inv.recondingTxName
+                                    }
+                                })
                                 if (!invCheck)
                                     await mtblInvoice(db).create({
                                         IDSpecializedSoftware: inv.id ? inv.id : null,
@@ -802,7 +807,8 @@ module.exports = {
                                         CurrencyID: null, // hiện tại chưa dùng đến
                                         Contents: inv.note ? inv.note : '',
                                         UserID: user ? user.ID : null,
-                                        AccountID: null, //phần mềm chuyển môn chưa gửi sang
+                                        AccountID: account ? account.ID : null,
+                                        AccountName: inv.recondingTxName ? inv.recondingTxName : null,
                                         MoneyTotal: inv.grandTotal.length >= 1 ? inv.grandTotal[0].total : null,
                                         TypeMoney: inv.grandTotal.length >= 1 ? (inv.grandTotal[0].unit == 1 ? 'USD' : (inv.grandTotal[0].unit == 2 ? 'EURO' : (inv.grandTotal[0].unit == 3 ? 'FRANCE' : 'VND'))) : 'VND',
                                     })
@@ -821,7 +827,8 @@ module.exports = {
                                         CurrencyID: null, // hiện tại chưa dùng đến
                                         Contents: inv.note ? inv.note : '',
                                         UserID: user ? user.ID : null,
-                                        AccountID: null, //phần mềm chuyển môn chưa gửi sang
+                                        AccountID: account ? account.ID : null,
+                                        AccountName: inv.recondingTxName ? inv.recondingTxName : null,
                                         MoneyTotal: inv.grandTotal.length >= 1 ? inv.grandTotal[0].total : null,
                                         TypeMoney: inv.grandTotal.length >= 1 ? (inv.grandTotal[0].unit == 1 ? 'USD' : (inv.grandTotal[0].unit == 2 ? 'EURO' : (inv.grandTotal[0].unit == 3 ? 'FRANCE' : 'VND'))) : 'VND',
                                     }, {
@@ -892,7 +899,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 let array = []
-                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
+                let dataCustomer = await getListCustomerOfPMCM(db)
                 for (c = 0; c < dataCustomer.length; c++) {
                     array.push({
                         name: dataCustomer[c].name,
@@ -1554,74 +1561,21 @@ module.exports = {
             }
         })
     },
+
+
+
+
     // invoice-------------------------------------------------------------------------------------------------------------------------------------
     // get_list_invoice_wait_for_pay
     getListInvoiceWaitForPay: async (req, res) => {
         var body = req.body
-        var obj = {
-            "paging": {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
         database.connectDatabase().then(async db => {
             if (db) {
-                var array = []
-                let totalMoney = []
-                let totalMoneyVNDR = 0
-                for (var i = 0; i < data.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: data[i].id }
-                    })
-                    let totalMoneyVND = 0
-                    let arrayExchangeRate = []
-
-                    for (let m = 0; m < data[i].arrayMoney.length; m++) {
-                        arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-                    }
-                    data[i]['totalMoneyVND'] = totalMoneyVND
-                    data[i]['arrayExchangeRate'] = arrayExchangeRate
-                    await mtblPaymentRInvoice(db).findOne({
-                        where: {
-                            IDSpecializedSoftware: data[i].id
-                        }
-                    }).then(invoice => {
-                        if (invoice)
-                            data[i]['receiptPaymentID'] = invoice.IDPayment
-                    })
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: data[i].id,
-                            Status: data[i].statusName
-                        })
-                        if (data[i].statusName == 'Chờ thanh toán') {
-                            totalMoneyVNDR += totalMoneyVND
-                            array.push(data[i])
-
-                        }
-                    } else {
-                        if (check.Status == 'Chờ thanh toán') {
-                            data[i]['payDate'] = null
-                            data[i]['payments'] = null
-                            array.push(data[i])
-                            totalMoneyVNDR += totalMoneyVND
-                        }
-                    }
+                let objWhere = {
+                    Status: 'Chờ thanh toán',
+                    IsInvoice: true,
                 }
-                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                var result = {
-                    array: array,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                    totalMoneyVND: totalMoneyVNDR,
-                }
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -1632,114 +1586,13 @@ module.exports = {
     // get_list_invoice_paid
     getListInvoicePaid: async (req, res) => {
         var body = req.body
-        console.log(body);
-        var obj = {
-            "paging": {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
         database.connectDatabase().then(async db => {
             if (db) {
-                var array = []
-                let totalMoney = []
-                for (var i = 0; i < data.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: data[i].id }
-                    })
-                    let totalMoneyVND = 0
-                    let arrayExchangeRate = []
-                    let arrayCurrency = []
-                    for (let m = 0; m < data[i].arrayMoney.length; m++) {
-                        arrayCurrency.push(data[i].arrayMoney[m].typeMoney)
-                        arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-                        let paidAmountArray = []
-                        let remainingAmountArray = []
-                        for (let cur of arrayCurrency) {
-                            let currency = await mtblCurrency(db).findOne({
-                                where: {
-                                    ShortName: cur
-                                }
-                            })
-                            let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
-                                where: {
-                                    CurrencyID: currency.ID,
-                                    InvoiceID: check.ID,
-                                }
-                            })
-                            paidAmountArray.push({
-                                key: cur,
-                                value: ObjAmount.PaidAmount ? ObjAmount.PaidAmount : null,
-                            })
-                            remainingAmountArray.push({
-                                key: cur,
-                                value: ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : null,
-                            })
-                        }
-                        data[i]['paidAmountArray'] = paidAmountArray;
-                        data[i]['remainingAmountArray'] = remainingAmountArray;
-                    }
-                    data[i]['arrayExchangeRate'] = arrayExchangeRate
-                    data[i]['totalMoneyVND'] = totalMoneyVND
-                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
-                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                    let arrayReceiptPayment = []
-                    await tblPaymentRInvoice.findAll({
-                        where: {
-                            IDSpecializedSoftware: data[i].id
-                        },
-                        include: [{
-                            model: mtblReceiptsPayment(db),
-                            required: false,
-                            as: 'payment'
-                        },],
-                    }).then(invoice => {
-                        if (invoice && invoice.length > 0) {
-                            for (let item of invoice) {
-                                arrayReceiptPayment.push({
-                                    receiptPaymentID: item.IDPayment,
-                                    receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
-                                })
-                            }
-                        }
-                    })
-                    data[i]['arrayReceiptPayment'] = arrayReceiptPayment
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: data[i].id,
-                            Status: data[i].statusName
-                        })
-                        if (data[i].statusName == 'Đã thanh toán')
-                            array.push(data[i])
-                    } else {
-                        if (check.Status == 'Đã thanh toán') {
-                            data[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
-                            data[i]['payments'] = check ? check.Payments : ''
-                            array.push(data[i])
-                        }
-                    }
+                let objWhere = {
+                    Status: 'Đã thanh toán',
+                    IsInvoice: true,
                 }
-                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                let totalMoneyVND = 0
-                for (let a = 0; a < totalMoney.length; a++) {
-                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                }
-                var result = {
-                    array: array,
-                    // array: data.data.data.list,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                    totalMoneyVND: totalMoneyVND,
-
-                    // all: data.data.data.pager.rowsCount
-                }
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -1750,71 +1603,13 @@ module.exports = {
     // get_list_invoice_edit_request
     getListInvoiceEditRequest: async (req, res) => {
         var body = req.body
-        var obj = {
-            "paging": {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
         database.connectDatabase().then(async db => {
             if (db) {
-                var array = []
-                let totalMoney = []
-                for (var i = 0; i < data.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: data[i].id }
-                    })
-                    let totalMoneyVND = 0
-                    let arrayExchangeRate = []
-
-                    for (let m = 0; m < data[i].arrayMoney.length; m++) {
-                        arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-                    }
-                    data[i]['arrayExchangeRate'] = arrayExchangeRate
-
-                    data[i]['totalMoneyVND'] = totalMoneyVND
-                    await mtblPaymentRInvoice(db).findOne({
-                        where: {
-                            IDSpecializedSoftware: data[i].id
-                        }
-                    }).then(invoice => {
-                        if (invoice)
-                            data[i]['receiptPaymentID'] = invoice.IDPayment
-                    })
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: data[i].id,
-                            Status: data[i].statusName
-                        })
-                        if (data[i].request == 'Yêu cầu sửa')
-                            array.push(data[i])
-                    } else {
-                        console.log(check.Status);
-                        if (check.Request == 'Yêu cầu sửa')
-                            array.push(data[i])
-                    }
+                let objWhere = {
+                    Status: 'Yêu cầu sửa',
+                    IsInvoice: true,
                 }
-                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                let totalMoneyVND = 0
-                for (let a = 0; a < totalMoney.length; a++) {
-                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                }
-                var result = {
-                    array: array,
-                    // array: data.data.data.list,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                    totalMoneyVND: totalMoneyVND,
-
-                    // all: data.data.data.pager.rowsCount
-                }
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -1825,71 +1620,13 @@ module.exports = {
     // get_list_invoice_delete_request
     getListInvoiceDeleteRequest: async (req, res) => {
         var body = req.body
-        console.log(body);
-        var obj = {
-            "paging": {
-                "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                "currentPage": body.page ? body.page : 0
-            },
-            "type": body.type
-        }
-        // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(data => {
-        //     if (data) {
-        //         if (data.data.status_code == 200) {
         database.connectDatabase().then(async db => {
             if (db) {
-                var array = []
-                let totalMoney = []
-                for (var i = 0; i < data.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: data[i].id }
-                    })
-                    let totalMoneyVND = 0
-                    let arrayExchangeRate = []
-
-                    for (let m = 0; m < data[i].arrayMoney.length; m++) {
-                        arrayExchangeRate.push(await getExchangeRateFromDate(db, data[i].arrayMoney[m].typeMoney, moment(data[i].createdDate).format('YYYY-DD-MM')))
-                        totalMoneyVND += await calculateMoneyFollowVND(db, data[i].arrayMoney[m].typeMoney, (data[i].arrayMoney[m].total ? data[i].arrayMoney[m].total : 0), moment(data[i].createdDate).format('YYYY-DD-MM'))
-                    }
-                    data[i]['arrayExchangeRate'] = arrayExchangeRate
-
-                    data[i]['totalMoneyVND'] = totalMoneyVND
-                    await mtblPaymentRInvoice(db).findOne({
-                        where: {
-                            IDSpecializedSoftware: data[i].id
-                        }
-                    }).then(invoice => {
-                        if (invoice)
-                            data[i]['receiptPaymentID'] = invoice.IDPayment
-                    })
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: data[i].id,
-                            Status: data[i].statusName
-                        })
-                        if (data[i].request == 'Yêu cầu xóa')
-                            array.push(data[i])
-                    } else {
-                        if (check.Request == 'Yêu cầu xóa')
-                            array.push(data[i])
-                    }
+                let objWhere = {
+                    Status: 'Yêu cầu xóa',
+                    IsInvoice: true,
                 }
-                totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                let totalMoneyVND = 0
-                for (let a = 0; a < totalMoney.length; a++) {
-                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                }
-                var result = {
-                    array: array,
-                    // array: data.data.data.list,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                    totalMoneyVND: totalMoneyVND,
-
-                    // all: data.data.data.pager.rowsCount
-                }
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -1904,136 +1641,11 @@ module.exports = {
     getListCredit: async (req, res) => {
         var body = req.body
         database.connectDatabase().then(async db => {
-            var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-            if (dataCredit) {
-                // Tính số tiền trong arrayMoney
-                let totalMoney = await calculateTheTotalAmountOfEachCurrency(dataCredit)
-                for (let i = 0; i < dataCredit.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: dataCredit[i].id }
-                    })
-                    let invoiceID;
-                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
-                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                    let arrayReceiptPayment = []
-                    await tblPaymentRInvoice.findAll({
-                        where: {
-                            IDSpecializedSoftware: dataCredit[i].id
-                        },
-                        include: [{
-                            model: mtblReceiptsPayment(db),
-                            required: false,
-                            as: 'payment'
-                        },],
-                    }).then(invoice => {
-                        if (invoice && invoice.length > 0) {
-                            for (let item of invoice) {
-                                arrayReceiptPayment.push({
-                                    receiptPaymentID: item.IDPayment,
-                                    receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
-                                })
-                            }
-                        }
-                    })
-                    dataCredit[i]['arrayReceiptPayment'] = arrayReceiptPayment
-                    if (!check) {
-                        invoiceID = await mtblInvoice(db).create({
-                            IDSpecializedSoftware: dataCredit[i].id,
-                            Status: dataCredit[i].statusName,
-                            Request: dataCredit[i].request,
-                            InitialAmount: dataCredit[i].total,
-                            UnpaidAmount: dataCredit[i].total,
-                            IsInvoice: false
-                        })
-                        check = invoiceID
-                    } else {
-                        invoiceID = check
-                        dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
-                        dataCredit[i]['payments'] = check ? check.Payments : ''
-                        dataCredit[i].statusName = check.Status
-                        dataCredit[i].request = check.total
-                    }
-                    let totalMoneyVND = 0
-                    let arrayExchangeRate = []
-                    let arrayCurrency = []
-                    for (let m = 0; m < dataCredit[i].arrayMoney.length; m++) {
-                        arrayCurrency.push(dataCredit[i].arrayMoney[m].typeMoney)
-                        totalMoneyVND += await calculateMoneyFollowVND(db, dataCredit[i].arrayMoney[m].typeMoney, (dataCredit[i].arrayMoney[m].total ? dataCredit[i].arrayMoney[m].total : 0), moment(dataCredit[i].createdDate).format('YYYY-DD-MM'))
-                        arrayExchangeRate.push(await getExchangeRateFromDate(db, dataCredit[i].arrayMoney[m].typeMoney, moment(dataCredit[i].createdDate).format('YYYY-DD-MM')))
-                        let currency = await mtblCurrency(db).findOne({
-                            where: {
-                                ShortName: dataCredit[i].arrayMoney[m].typeMoney
-                            }
-                        })
-                        if (currency) {
-                            let checkCurrency = await mtblInvoiceRCurrency(db).findOne({
-                                where: {
-                                    CurrencyID: currency.ID,
-                                    InvoiceID: invoiceID.ID,
-                                }
-                            })
-                            if (!checkCurrency)
-                                await mtblInvoiceRCurrency(db).create({
-                                    CurrencyID: currency.ID,
-                                    InvoiceID: invoiceID.ID,
-                                    UnpaidAmount: dataCredit[i].arrayMoney[m].total,
-                                    PaidAmount: 0,
-                                    InitialAmount: dataCredit[i].arrayMoney[m].total,
-                                    Status: dataCredit[i].statusName,
-                                })
-                        }
-                    }
-                    dataCredit[i]['totalMoneyVND'] = totalMoneyVND
-                    dataCredit[i]['arrayExchangeRate'] = arrayExchangeRate
-                    dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
-                    dataCredit[i]['payments'] = check ? check.Payments : ''
-                    let paidAmountArray = [];
-                    let remainingAmountArray = [];
-                    for (let cur of arrayCurrency) {
-                        let currency = await mtblCurrency(db).findOne({
-                            where: {
-                                ShortName: cur
-                            }
-                        })
-                        let ObjAmount = await mtblInvoiceRCurrency(db).findOne({
-                            where: {
-                                CurrencyID: currency.ID,
-                                InvoiceID: check.ID,
-                            }
-                        })
-                        paidAmountArray.push({
-                            key: cur,
-                            value: ObjAmount.PaidAmount ? ObjAmount.PaidAmount : null,
-                        })
-                        remainingAmountArray.push({
-                            key: cur,
-                            value: ObjAmount.UnpaidAmount ? ObjAmount.UnpaidAmount : null,
-                        })
-                    }
-                    dataCredit[i]['paidAmountArray'] = paidAmountArray;
-                    dataCredit[i]['remainingAmountArray'] = remainingAmountArray;
+            if (db) {
+                let objWhere = {
+                    IsInvoice: false,
                 }
-                let totalMoneyVND = 0
-                for (let a = 0; a < totalMoney.length; a++) {
-                    totalMoneyVND += await calculateMoneyFollowVND(db, totalMoney[a].type, totalMoney[a].total, totalMoney[a].date)
-                }
-                var result = {
-                    array: dataCredit,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                }
-
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -2044,60 +1656,12 @@ module.exports = {
     getListCreditWaitForPay: async (req, res) => {
         var body = req.body
         database.connectDatabase().then(async db => {
-            let array = []
-            var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-            if (dataCredit) {
-                for (let i = 0; i < dataCredit.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: dataCredit[i].id }
-                    })
-                    await mtblPaymentRInvoice(db).findOne({
-                        where: {
-                            IDSpecializedSoftware: dataCredit[i].id
-                        }
-                    }).then(invoice => {
-                        if (invoice)
-                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
-                    })
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: dataCredit[i].id,
-                            Status: dataCredit[i].statusName,
-                            Request: dataCredit[i].request
-                        })
-                        if (dataCredit[i].statusName == 'Chờ thanh toán')
-                            array.push(dataCredit[i])
-                    } else {
-                        dataCredit[i].unpaidAmount = check.UnpaidAmount ? check.UnpaidAmount : 0
-                        dataCredit[i].initialAmount = check.InitialAmount ? check.InitialAmount : 0
-                        dataCredit[i].paidAmount = check.PaidAmount ? check.PaidAmount : 0
-                        dataCredit[i].statusName = check.Status
-                        dataCredit[i].request = check.Request
-                        if (check.Status == 'Chờ thanh toán' && dataCredit[i].statusName == 'Chờ thanh toán') {
-                            dataCredit[i]['payDate'] = null
-                            dataCredit[i]['payments'] = null
-                            array.push(dataCredit[i])
-                        }
-                    }
+            if (db) {
+                let objWhere = {
+                    Status: 'Chờ thanh toán',
+                    IsInvoice: false,
                 }
-                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                var result = {
-                    array: array,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                }
-
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -2108,74 +1672,12 @@ module.exports = {
     getListCreditPaid: async (req, res) => {
         var body = req.body
         database.connectDatabase().then(async db => {
-            let array = []
-            var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-            if (dataCredit) {
-                for (let i = 0; i < dataCredit.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: dataCredit[i].id }
-                    })
-                    let tblPaymentRInvoice = mtblPaymentRInvoice(db)
-                    tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
-                    let arrayReceiptPayment = []
-                    await tblPaymentRInvoice.findAll({
-                        where: {
-                            IDSpecializedSoftware: dataCredit[i].id
-                        },
-                        include: [{
-                            model: mtblReceiptsPayment(db),
-                            required: false,
-                            as: 'payment'
-                        },],
-                    }).then(invoice => {
-                        if (invoice) {
-                            if (invoice && invoice.length > 0) {
-                                for (let item of invoice) {
-                                    arrayReceiptPayment.push({
-                                        receiptPaymentID: item.IDPayment,
-                                        receiptPaymentName: item.payment ? item.payment.CodeNumber : ''
-                                    })
-                                }
-                            }
-                        }
-                    })
-                    data[i]['arrayReceiptPayment'] = arrayReceiptPayment
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: dataCredit[i].id,
-                            Status: dataCredit[i].statusName,
-                            Request: dataCredit[i].request
-                        })
-                        if (dataCredit[i].statusName == 'Đã thanh toán')
-                            array.push(data[i])
-                    } else {
-                        dataCredit[i].statusName = check.Status
-                        dataCredit[i].request = check.Request
-                        if (check.Status == 'Đã thanh toán') {
-                            dataCredit[i]['payDate'] = check ? (check.PayDate ? moment(check.PayDate).format('DD/MM/YYYY') : null) : ''
-                            dataCredit[i]['payments'] = check ? check.Payments : ''
-                            array.push(dataCredit[i])
-                        }
-                    }
+            if (db) {
+                let objWhere = {
+                    Status: 'Đã thanh toán',
+                    IsInvoice: false,
                 }
-                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                var result = {
-                    array: array,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                }
-
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -2187,53 +1689,12 @@ module.exports = {
         var body = req.body
         database.connectDatabase().then(async db => {
             let array = []
-            var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-            if (dataCredit) {
-                for (let i = 0; i < dataCredit.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: dataCredit[i].id }
-                    })
-                    await mtblPaymentRInvoice(db).findOne({
-                        where: {
-                            IDSpecializedSoftware: dataCredit[i].id
-                        }
-                    }).then(invoice => {
-                        if (invoice)
-                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
-                    })
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: dataCredit[i].id,
-                            Status: dataCredit[i].statusName,
-                            Request: dataCredit[i].request
-                        })
-                        if (dataCredit[i].request == 'Yêu cầu sửa')
-                            array.push(data[i])
-                    } else {
-                        dataCredit[i].statusName = check.Status
-                        dataCredit[i].request = check.Request
-                        if (check.Request == 'Yêu cầu sửa')
-                            array.push(dataCredit[i])
-                    }
+            if (db) {
+                let objWhere = {
+                    Status: 'Yêu cầu sửa',
+                    IsInvoice: false,
                 }
-                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                var result = {
-                    array: array,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                }
-
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)
@@ -2245,53 +1706,12 @@ module.exports = {
         var body = req.body
         database.connectDatabase().then(async db => {
             let array = []
-            var obj = {
-                "paging": {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
-            if (dataCredit) {
-                for (let i = 0; i < dataCredit.length; i++) {
-                    let check = await mtblInvoice(db).findOne({
-                        where: { IDSpecializedSoftware: dataCredit[i].id }
-                    })
-                    await mtblPaymentRInvoice(db).findOne({
-                        where: {
-                            IDSpecializedSoftware: dataCredit[i].id
-                        }
-                    }).then(invoice => {
-                        if (invoice)
-                            dataCredit[i]['receiptPaymentID'] = invoice.IDPayment
-                    })
-                    if (!check) {
-                        await mtblInvoice(db).create({
-                            IDSpecializedSoftware: dataCredit[i].id,
-                            Status: dataCredit[i].statusName,
-                            Request: dataCredit[i].request
-                        })
-                        if (dataCredit[i].request == 'Yêu cầu xóa')
-                            array.push(data[i])
-                    } else {
-                        dataCredit[i].statusName = check.Status
-                        dataCredit[i].request = check.Request
-                        if (check.Request == 'Yêu cầu xóa')
-                            array.push(dataCredit[i])
-                    }
+            if (db) {
+                let objWhere = {
+                    Status: 'Yêu cầu xóa',
+                    IsInvoice: false,
                 }
-                let totalMoney = await calculateTheTotalAmountOfEachCurrency(array)
-                var result = {
-                    array: array,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10,
-                    totalMoney: totalMoney,
-                }
-
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
                 res.json(result);
             } else {
                 res.json(Result.SYS_ERROR_RESULT)

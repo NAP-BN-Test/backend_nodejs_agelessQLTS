@@ -25,6 +25,7 @@ module.exports = function (db) {
         Contents: Sequelize.STRING,
         UserID: Sequelize.BIGINT,
         AccountID: Sequelize.BIGINT,
+        AccountName: Sequelize.BIGINT,
         MoneyTotal: Sequelize.FLOAT,
         TypeMoney: Sequelize.STRING,
     });
