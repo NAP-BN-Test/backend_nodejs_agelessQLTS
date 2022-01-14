@@ -354,7 +354,8 @@ async function getListCustomerOfPMCM(db) {
                 "mobile": cus.Mobile ? cus.Mobile : '',
                 "fax": cus.Fax ? cus.Fax : '',
                 "email": cus.email ? cus.email : '',
-                "id": cus.IDSpecializedSoftware ? cus.IDSpecializedSoftware : null,
+                "idPMCM": cus.IDSpecializedSoftware ? cus.IDSpecializedSoftware : null,
+                "id": cus.ID ? cus.ID : null,
             })
         }
     })
@@ -791,6 +792,12 @@ module.exports = {
                                         AccountingCode: inv.recondingTxName
                                     }
                                 })
+                                let typeMoney = inv.grandTotal.length >= 1 ? (inv.grandTotal[0].unit == 1 ? 'USD' : (inv.grandTotal[0].unit == 2 ? 'EURO' : (inv.grandTotal[0].unit == 3 ? 'FRANCE' : 'VND'))) : 'VND'
+                                let currency = await mtblCurrency(db).findOne({
+                                    where: {
+                                        ShortName: typeMoney
+                                    }
+                                })
                                 if (!invCheck)
                                     await mtblInvoice(db).create({
                                         IDSpecializedSoftware: inv.id ? inv.id : null,
@@ -804,13 +811,13 @@ module.exports = {
                                         CreatedDate: inv.createDate ? moment(inv.createDate).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                                         IDCustomer: customer ? customer.ID : null,
                                         InvoiceNumber: inv.no ? inv.no : '',
-                                        CurrencyID: null, // hiện tại chưa dùng đến
+                                        CurrencyID: currency ? currency.ID : null,
                                         Contents: inv.note ? inv.note : '',
                                         UserID: user ? user.ID : null,
                                         AccountID: account ? account.ID : null,
                                         AccountName: inv.recondingTxName ? inv.recondingTxName : null,
                                         MoneyTotal: inv.grandTotal.length >= 1 ? inv.grandTotal[0].total : null,
-                                        TypeMoney: inv.grandTotal.length >= 1 ? (inv.grandTotal[0].unit == 1 ? 'USD' : (inv.grandTotal[0].unit == 2 ? 'EURO' : (inv.grandTotal[0].unit == 3 ? 'FRANCE' : 'VND'))) : 'VND',
+                                        TypeMoney: typeMoney,
                                     })
                                 else
                                     await mtblInvoice(db).update({
@@ -824,13 +831,13 @@ module.exports = {
                                         CreatedDate: inv.createDate ? moment(inv.createDate).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') : null,
                                         IDCustomer: customer ? customer.ID : null,
                                         InvoiceNumber: inv.no ? inv.no : '',
-                                        CurrencyID: null, // hiện tại chưa dùng đến
+                                        CurrencyID: currency ? currency.ID : null,
                                         Contents: inv.note ? inv.note : '',
                                         UserID: user ? user.ID : null,
                                         AccountID: account ? account.ID : null,
                                         AccountName: inv.recondingTxName ? inv.recondingTxName : null,
                                         MoneyTotal: inv.grandTotal.length >= 1 ? inv.grandTotal[0].total : null,
-                                        TypeMoney: inv.grandTotal.length >= 1 ? (inv.grandTotal[0].unit == 1 ? 'USD' : (inv.grandTotal[0].unit == 2 ? 'EURO' : (inv.grandTotal[0].unit == 3 ? 'FRANCE' : 'VND'))) : 'VND',
+                                        TypeMoney: typeMoney,
                                     }, {
                                         where: {
                                             IDSpecializedSoftware: inv.id ? inv.id : null,
@@ -1634,7 +1641,23 @@ module.exports = {
             }
         })
     },
+    // get_list_invoice_payment_request
+    getListInvoicePaymentRequest: async (req, res) => {
+        var body = req.body
+        database.connectDatabase().then(async db => {
+            if (db) {
+                let objWhere = {
+                    Status: 'Yêu cầu thanh toán',
+                    IsInvoice: true,
+                }
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
 
+            }
+        })
+    },
 
     // credit-------------------------------------------------------------------------------------------------------------------------------------
     // get_list_credit
@@ -1701,7 +1724,7 @@ module.exports = {
             }
         })
     },
-    // get_list_Credit_delete_request
+    // get_list_credit_delete_request
     getListCreditDeleteRequest: async (req, res) => {
         var body = req.body
         database.connectDatabase().then(async db => {
@@ -1709,6 +1732,23 @@ module.exports = {
             if (db) {
                 let objWhere = {
                     Status: 'Yêu cầu xóa',
+                    IsInvoice: false,
+                }
+                let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)
+                res.json(result);
+            } else {
+                res.json(Result.SYS_ERROR_RESULT)
+            }
+        })
+    },
+    // get_list_credit_payment_request
+    getListCreditPaymentRequest: async (req, res) => {
+        var body = req.body
+        database.connectDatabase().then(async db => {
+            let array = []
+            if (db) {
+                let objWhere = {
+                    Status: 'Yêu cầu thanh toán',
                     IsInvoice: false,
                 }
                 let result = await ctlInvoice.getDataInvoiceByCondition(db, body.itemPerPage, body.page, objWhere)

@@ -485,6 +485,34 @@ async function calculateTheTotalForCredit(db, array) {
     })
     return arrayResult
 }
+
+async function getTotalInvioceOrCredit(db, customerID, isInvoice) {
+    let arrResult = [];
+    await mtblInvoice(db).findAll({
+        where: {
+            IDCustomer: customerID,
+            IsInvoice: isInvoice,
+        }
+    }).then(data => {
+        let arrayCurrency = []
+        for (let item of data) {
+            if (!checkDuplicate(arrayCurrency, item.TypeMoney)) {
+                arrayCurrency.push(item.TypeMoney)
+                arrResult.push({
+                    typeMoney: item.TypeMoney,
+                    total: Number(item.MoneyTotal),
+                })
+            } else {
+                for (let element of arrResult) {
+                    if (element.typeMoney == item.TypeMoney)
+                        element.total = item.MoneyTotal
+                }
+            }
+        }
+    })
+    return arrResult
+}
+
 const axios = require('axios');
 module.exports = {
     deleteRelationshiptblCustomer,
@@ -590,76 +618,19 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(async data => {
-                    //     if (data) {
-                    let dataCustomer = await customerData.getListCustomerOfPMCM(db)
-                    // var array = data.data.data;
-                    var array = dataCustomer;
                     var arrayResult = [];
                     var stt = 1;
-                    let arrayInvoice = []
-                    let arrayCredit = []
-                    for (var i = 0; i < array.length; i++) {
-                        if (array[i].id == 1) {
-                            arrayInvoice = await calculateTheTotalAmountOfEachCurrency(db, data)
-                            // arrayCredit = await calculateTheTotalForCredit(db, dataCredit)
-                            arrayCredit = [
-                                {
-                                    typeMoney: 'VND',
-                                    total: 0
-                                }]
-                        } else if (array[i].id == 10) {
-                            // arrayInvoice = await calculateTheTotalAmountOfEachCurrency(db, data)
-                            arrayCredit = await calculateTheTotalForCredit(db, dataCredit)
-                            arrayInvoice = [
-                                {
-                                    typeMoney: 'VND',
-                                    total: 0
-                                }]
-                        } else {
-                            arrayInvoice = [
-                                {
-                                    typeMoney: 'VND',
-                                    total: 0
-                                }]
-                            arrayCredit = [
-                                {
-                                    typeMoney: 'VND',
-                                    total: 0
-                                }]
-                        }
-                        var cus = await mtblCustomer(db).findOne({
-                            where: {
-                                IDSpecializedSoftware: array[i].id
-                            }
-                        })
-                        if (!cus) {
-                            await mtblCustomer(db).create({
-                                IDSpecializedSoftware: array[i].id ? array[i].id : null,
-                                AmountUnspecified: 0,
-                                AmountSpent: 0,
-                                AmountReceivable: 0,
-                            })
-                        }
-                        let totalInv = 0;
-                        let totalUndefind = 0;
-                        let totalCredit = 0;
-                        await mtblCustomer(db).findOne({
-                            where: { IDSpecializedSoftware: array[i].id },
-                        }).then(async data => {
-                            for (var inv = 0; inv < data.length; inv++) {
-                                if (data[inv].idCustomer == array[i].id) {
-                                    totalInv += Number(data[inv].total)
-                                }
-                            }
-                            for (var cre = 0; cre < dataCredit.length; cre++) {
-                                if (dataCredit[cre].idCustomer == array[i].id) {
-                                    totalCredit += Number(dataCredit[cre].total)
-                                }
-                            }
+                    await mtblCustomer(db).findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                    }).then(async customer => {
+                        for (let cus of customer) {
+                            let arrayInvoice = await getTotalInvioceOrCredit(db, cus.ID, true);
+                            let totalUndefind = 0;
+                            let arrayCredit = await getTotalInvioceOrCredit(db, cus.ID, false);
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
-                                    IDCustomer: array[i].id,
+                                    IDCustomer: cus.ID,
                                     UnpaidAmount: { [Op.ne]: 0 },
                                 }
                             }).then(data => {
@@ -669,19 +640,19 @@ module.exports = {
                             })
                             var obj = {
                                 stt: stt,
-                                id: Number(data.IDSpecializedSoftware),
-                                name: array[i].name ? array[i].name : '',
-                                code: array[i].customerCode ? array[i].customerCode : '',
-                                address: array[i].address ? array[i].address : '',
-                                idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : 0,
+                                idSpecializedSoftware: Number(cus.IDSpecializedSoftware),
+                                id: Number(cus.ID),
+                                name: cus.Name ? cus.Name : '',
+                                code: cus.Code ? cus.Code : '',
+                                address: cus.Address ? cus.Address : '',
                                 amountUnspecified: [{ total: totalUndefind, typeMoney: 'VND' }, { total: 0, typeMoney: 'USD' }],
                                 amountSpent: arrayCredit,
                                 amountReceivable: arrayInvoice,
                             }
                             arrayResult.push(obj);
                             stt += 1;
-                        })
-                    }
+                        }
+                    })
                     var count = await mtblCustomer(db).count()
                     var result = {
                         array: arrayResult,
@@ -705,96 +676,53 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    // await axios.get(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/address_book/partners_share`).then(async data => {
-                    //     if (data) {
-                    let dataCustomer = await customerData.getListCustomerOfPMCM(db)
-                    // var array = data.data.data;
-                    var array = dataCustomer;
                     var arrayResult = [];
                     var stt = 1;
-                    let arrayInvoice = []
-                    let arrayCredit = []
-                    for (var i = 0; i < array.length; i++) {
-                        if (array[i].id == 1) {
-                            arrayInvoice = await calculateTheTotalAmountOfEachCurrency(db, data)
-                            arrayCredit = await calculateTheTotalForCredit(db, dataCredit)
-                        } else {
-                            arrayInvoice = [
-                                {
-                                    typeMoney: 'VND',
-                                    total: 0
-                                }]
-                            arrayCredit = [
-                                {
-                                    typeMoney: 'VND',
-                                    total: 0
-                                }]
+                    let arrCus = []
+                    await mtblInvoice(db).findAll().then(invoice => {
+                        for (let inv of invoice)
+                            arrCus.push(inv.IDCustomer)
+                    })
+                    await mtblReceiptsPayment(db).findAll().then(payment => {
+                        for (let pay of payment)
+                            arrCus.push(pay.IDCustomer)
+                    })
+                    await mtblCustomer(db).findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: {
+                            ID: { [Op.in]: arrCus }
                         }
-                        var cus = await mtblCustomer(db).findOne({
-                            where: {
-                                IDSpecializedSoftware: array[i].id
-                            }
-                        })
-                        if (!cus) {
-                            await mtblCustomer(db).create({
-                                IDSpecializedSoftware: array[i].id ? array[i].id : null,
-                                AmountUnspecified: 0,
-                                AmountSpent: 0,
-                                AmountReceivable: 0,
-                            })
-                        }
-                        let totalInv = 0;
-                        let totalUndefind = 0;
-                        let totalCredit = 0;
-                        await mtblCustomer(db).findOne({
-                            where: { IDSpecializedSoftware: array[i].id },
-                        }).then(async data => {
-                            for (var inv = 0; inv < data.length; inv++) {
-                                if (data[inv].idCustomer == array[i].id) {
-                                    totalInv += Number(data[inv].total)
-                                }
-                            }
-                            for (var cre = 0; cre < dataCredit.length; cre++) {
-                                if (dataCredit[cre].idCustomer == array[i].id) {
-                                    totalCredit += Number(dataCredit[cre].total)
-                                }
-                            }
+                    }).then(async customer => {
+                        for (let cus of customer) {
+                            let arrayInvoice = await getTotalInvioceOrCredit(db, cus.ID, true);
+                            let totalUndefind = 0;
+                            let arrayCredit = await getTotalInvioceOrCredit(db, cus.ID, false);
                             await mtblReceiptsPayment(db).findAll({
                                 where: {
-                                    IDCustomer: array[i].id,
+                                    IDCustomer: cus.ID,
                                     UnpaidAmount: { [Op.ne]: 0 },
                                 }
                             }).then(data => {
                                 data.forEach(item => {
-                                    totalUndefind += Number(item.Amount);
+                                    totalUndefind += Number(item.UnpaidAmount);
                                 })
                             })
                             var obj = {
                                 stt: stt,
-                                id: Number(data.IDSpecializedSoftware),
-                                name: array[i].name ? array[i].name : '',
-                                code: array[i].customerCode ? array[i].customerCode : '',
-                                address: array[i].address ? array[i].address : '',
-                                idSpecializedSoftware: data.IDSpecializedSoftware ? data.IDSpecializedSoftware : 0,
+                                idSpecializedSoftware: Number(cus.IDSpecializedSoftware),
+                                id: Number(cus.ID),
+                                name: cus.Name ? cus.Name : '',
+                                code: cus.Code ? cus.Code : '',
+                                address: cus.Address ? cus.Address : '',
                                 amountUnspecified: [{ total: totalUndefind, typeMoney: 'VND' }, { total: 0, typeMoney: 'USD' }],
                                 amountSpent: arrayCredit,
                                 amountReceivable: arrayInvoice,
                             }
-                            let checkCredit = false
-                            arrayCredit.forEach(item => {
-                                if (item.total != 0)
-                                    checkCredit = true
-                            })
-                            let checkInvoice = false
-                            arrayInvoice.forEach(item => {
-                                if (item.total != 0)
-                                    checkInvoice = true
-                            })
-                            if (totalUndefind != 0 || checkCredit == true || checkInvoice == true)
-                                arrayResult.push(obj);
+                            arrayResult.push(obj);
                             stt += 1;
-                        })
-                    }
+                        }
+                    })
                     var count = await mtblCustomer(db).count()
                     var result = {
                         array: arrayResult,
@@ -803,12 +731,6 @@ module.exports = {
                         all: count
                     }
                     res.json(result);
-                    //     }
-                    //     else {
-                    //         res.json(Result.SYS_ERROR_RESULT)
-                    //     }
-                    //     // console.log(data.data);
-                    // })
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

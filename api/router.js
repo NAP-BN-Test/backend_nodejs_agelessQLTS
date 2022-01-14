@@ -569,6 +569,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_invoice_paid').post(apiSpecializedSoftware.getListInvoicePaid);
     app.route('/qlnb/get_list_invoice_edit_request').post(apiSpecializedSoftware.getListInvoiceEditRequest);
     app.route('/qlnb/get_list_invoice_delete_request').post(apiSpecializedSoftware.getListInvoiceDeleteRequest);
+    app.route('/qlnb/get_list_invoice_payment_request').post(apiSpecializedSoftware.getListInvoicePaymentRequest);
 
     // --------------------------------CREDIT---------------------------------------------------------------------------------
     app.route('/qlnb/get_list_credit').post(apiSpecializedSoftware.getListCredit);
@@ -576,6 +577,7 @@ module.exports = function (app) {
     app.route('/qlnb/get_list_credit_paid').post(apiSpecializedSoftware.getListCreditPaid);
     app.route('/qlnb/get_list_credit_edit_request').post(apiSpecializedSoftware.getListCreditEditRequest);
     app.route('/qlnb/get_list_credit_delete_request').post(apiSpecializedSoftware.getListCreditDeleteRequest);
+    app.route('/qlnb/get_list_credit_payment_request').post(apiSpecializedSoftware.getListCreditPaymentRequest);
 
     // -------------------------------------------------------------------------------------------------------------------------------------------------------------------//
     app.route('/qlnb/approval_invoice_and_credit').post(apiSpecializedSoftware.approvalInvoiceAndCredit);

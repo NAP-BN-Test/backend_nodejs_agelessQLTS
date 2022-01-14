@@ -153,7 +153,9 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
 
 async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
     let arrayResult = [];
-    let totalMoney = 0;
+    let totalMoneyVND = 0;
+    let totalMoney = [];
+    let arrayCurrency = []
     let tblInvoice = mtblInvoice(db);
     let tblDMUser = mtblDMUser(db);
     let tblDMNhanvien = mtblDMNhanvien(db);
@@ -204,20 +206,61 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
         }
     ).then(async data => {
         for (let i = 0; i < data.length; i++) {
+            if (!checkDuplicate(arrayCurrency, data[i].TypeMoney)) {
+                arrayCurrency.push(data[i].TypeMoney)
+                totalMoney.push({
+                    total: Number(data[i].MoneyTotal ? data[i].MoneyTotal : 0),
+                    type: data[i].TypeMoney
+                })
+            } else {
+                for (let item of totalMoney) {
+                    if (data[i].TypeMoney == item.type) {
+                        item.total += Number(data[i].MoneyTotal ? data[i].MoneyTotal : 0)
+                    }
+                }
+            }
+            let refNumber = ''
+            if (data[i].RefNumber) {
+                let arrayRef = JSON.parse(data[i].RefNumber)
+                for (let i = 0; i < arrayRef.length; i++) {
+                    if (i >= (arrayRef.length - 1)) {
+                        if (arrayRef[i].agelessRef)
+                            refNumber += arrayRef[i].agelessRef
+                    } else
+                        if (arrayRef[i].agelessRef)
+                            refNumber += arrayRef[i].agelessRef + ', '
+                }
+            }
+            let createdDate = moment(data[i].CreatedDate).format("YYYY-MM-DD")
+            let rate = await mtblRate(db).findOne({
+                where: {
+                    IDCurrency: data[i].CurrencyID ? data[i].CurrencyID : null,
+                    Date: {
+                        [Op.substring]: createdDate
+                    },
+                }
+            })
             let obj = {
                 id: data[i].IDSpecializedSoftware ? data[i].IDSpecializedSoftware : null,
-                createdDate: data[i].CreatedDate,
-                refNumber: data[i].RefNumber ? JSON.parse(data[i].RefNumber) : '',
+                createdDate: createdDate,
+                refNumber: refNumber,
+                rate: rate ? rate.ExchangeRate : null,
                 invoiceNumber: data[i].InvoiceNumber,
                 typeMoney: data[i].TypeMoney,
                 moneyTotal: data[i].MoneyTotal,
                 statusName: data[i].Status,
                 idCustomer: data[i].IDCustomer,
+                initialAmount: data[i].InitialAmount ? data[i].InitialAmount : 0,
+                paidAmount: data[i].PaidAmount ? data[i].PaidAmount : 0,
+                unpaidAmount: data[i].UnpaidAmount ? data[i].UnpaidAmount : 0,
                 customerName: data[i].IDCustomer ? data[i].cus.Name : '',
+                customerAddress: data[i].IDCustomer ? data[i].cus.Address : '',
                 content: data[i].Contents,
                 request: data[i].Request,
                 userID: data[i].UserID,
                 userName: data[i].UserID ? data[i].user.Username : '',
+                employeeName: data[i].UserID ? (data[i].user.IDNhanvien ? data[i].user.staff.StaffName : '') : '',
+                employeeCode: data[i].UserID ? (data[i].user.IDNhanvien ? data[i].user.staff.StaffCode : '') : '',
                 departmentName: data[i].UserID ? (data[i].user.staff ? (data[i].user.staff.IDBoPhan ? data[i].user.staff.department.DepartmentName : null) : null) : '',
                 departmentID: data[i].UserID ? (data[i].user.staff ? data[i].user.staff.IDBoPhan : null) : '',
                 branchName: data[i].UserID ? (data[i].user.staff ? (data[i].user.staff.IDBoPhan ? (data[i].user.staff.department.IDChiNhanh ? data[i].user.staff.department.branch.BranchName : null) : null) : null) : null,
@@ -225,6 +268,8 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
                 AccountID: data[i] ? data[i].AccountID : null,
                 AccountName: data[i].AccountName,
             }
+            totalMoneyVND += await calculateMoneyFollowVND(db, data[i].TypeMoney, data[i].MoneyTotal, createdDate)
+
             let tblPaymentRInvoice = mtblPaymentRInvoice(db)
             tblPaymentRInvoice.belongsTo(mtblReceiptsPayment(db), { foreignKey: 'IDPayment', sourceKey: 'IDPayment', as: 'payment' })
             let arrayReceiptPayment = []
@@ -260,6 +305,7 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
         message: Constant.MESSAGE.ACTION_SUCCESS,
         all: count,
         totalMoney: totalMoney,
+        totalMoneyVND: totalMoneyVND,
     }
     return result
 }
