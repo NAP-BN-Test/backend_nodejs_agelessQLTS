@@ -151,11 +151,35 @@ async function getExchangeRateFromDate(db, typeMoney, date) {
 }
 
 
-async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
+async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}, paymentID = null) {
     let arrayResult = [];
     let totalMoneyVND = 0;
     let totalMoney = [];
     let arrayCurrency = []
+    let arrInvoiceIDPMCM = []
+    let arrayWhere = {}
+    let arrayUpdate = []
+    if (paymentID) {
+        await mtblPaymentRInvoice(db).findAll({
+            where: {
+                IDPayment: paymentID
+            }
+        }).then(data => {
+            for (let item of data) {
+                arrInvoiceIDPMCM.push(item.IDSpecializedSoftware)
+            }
+        })
+        arrayWhere = {
+            [Op.or]: [
+                whereObj,
+                {
+                    IDSpecializedSoftware: { [Op.in]: arrInvoiceIDPMCM }
+                }
+            ]
+        }
+    } else {
+        arrayWhere = whereObj
+    }
     let tblInvoice = mtblInvoice(db);
     let tblDMUser = mtblDMUser(db);
     let tblDMNhanvien = mtblDMNhanvien(db);
@@ -202,7 +226,7 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
             ],
             offset: Number(itemPerPage) * (Number(page) - 1),
             limit: Number(itemPerPage),
-            where: whereObj,
+            where: arrayWhere,
         }
     ).then(async data => {
         for (let i = 0; i < data.length; i++) {
@@ -240,6 +264,16 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
                     },
                 }
             })
+            let paymentAmount = 0
+            if (paymentID)
+                await mtblPaymentRInvoice(db).findOne({
+                    where: {
+                        IDSpecializedSoftware: data[i].IDSpecializedSoftware,
+                        IDPayment: paymentID
+                    }
+                }).then(data => {
+                    paymentAmount = data ? data.Amount : 0
+                })
             let obj = {
                 id: data[i].IDSpecializedSoftware ? data[i].IDSpecializedSoftware : null,
                 createdDate: createdDate,
@@ -248,11 +282,15 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
                 invoiceNumber: data[i].InvoiceNumber,
                 typeMoney: data[i].TypeMoney,
                 moneyTotal: data[i].MoneyTotal,
+                total: data[i].InitialAmount ? data[i].InitialAmount : 0,
+                totalMoneyDisplay: data[i].MoneyTotal,
                 statusName: data[i].Status,
                 idCustomer: data[i].IDCustomer,
                 initialAmount: data[i].InitialAmount ? data[i].InitialAmount : 0,
                 paidAmount: data[i].PaidAmount ? data[i].PaidAmount : 0,
                 unpaidAmount: data[i].UnpaidAmount ? data[i].UnpaidAmount : 0,
+                remainingAmount: data[i].UnpaidAmount ? data[i].UnpaidAmount : 0,
+                paymentAmount: paymentAmount,
                 customerName: data[i].IDCustomer ? data[i].cus.Name : '',
                 customerAddress: data[i].IDCustomer ? data[i].cus.Address : '',
                 content: data[i].Contents,
@@ -293,7 +331,13 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
                 }
             })
             obj['arrayReceiptPayment'] = arrayReceiptPayment
-            arrayResult.push(obj)
+            console.log(arrInvoiceIDPMCM);
+            if (checkDuplicate(arrInvoiceIDPMCM, data[i].IDSpecializedSoftware)) {
+                arrayUpdate.push(obj)
+            } else {
+                arrayResult.push(obj)
+                arrayUpdate.push(obj)
+            }
         }
     })
     var count = await mtblInvoice(db).count({
@@ -301,6 +345,8 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}) {
     })
     var result = {
         array: arrayResult,
+        arrayCreate: arrayResult,
+        arrayUpdate: arrayUpdate,
         status: Constant.STATUS.SUCCESS,
         message: Constant.MESSAGE.ACTION_SUCCESS,
         all: count,

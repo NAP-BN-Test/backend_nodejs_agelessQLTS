@@ -53,42 +53,50 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
                 }
             })
             if (data[d].IDSpecializedSoftware) {
-                await mtblInvoice(db).update({
-                    Status: 'Chờ thanh toán',
-                    PayDate: null,
-                    Payments: null,
-                }, {
+                let inv = await mtblInvoice(db).findOne({
                     where: {
                         IDSpecializedSoftware: data[d].IDSpecializedSoftware
                     }
                 })
-                let invoice = await mtblInvoice(db).findOne({
-                    where: {
-                        IDSpecializedSoftware: data[d].IDSpecializedSoftware
-                    }
-                })
-                let invoiceOld = await mtblInvoiceRCurrency(db).findAll({
-                    where: {
-                        InvoiceID: invoice ? invoice.ID : null,
-                        CurrencyID: payment ? payment.IDCurrency : null,
-                    }
-                })
-                for (let item of invoiceOld) {
-                    if (payment) {
-                        let paidAmount = Number(item.PaidAmount ? item.PaidAmount : 0) - Number(data[d].Amount ? data[d].Amount : 0);
-                        let unpaidAmount = Number(item.UnpaidAmount ? item.UnpaidAmount : 0) + Number(data[d].Amount ? data[d].Amount : 0)
-                        await mtblInvoiceRCurrency(db).update({
-                            UnpaidAmount: unpaidAmount,
-                            PaidAmount: paidAmount,
-                            Status: 'Chờ thanh toán'
-                        }, {
-                            where: {
-                                InvoiceID: item.InvoiceID,
-                                CurrencyID: item.CurrencyID,
-                            }
-                        })
-                    }
-                }
+                if (inv)
+                    await mtblInvoice(db).update({
+                        Status: 'Chờ thanh toán',
+                        PayDate: null,
+                        Payments: null,
+                        PaidAmount: inv.PaidAmount - data[d].Amount,
+                        UnpaidAmount: inv.PaidAmount + data[d].Amount,
+                    }, {
+                        where: {
+                            IDSpecializedSoftware: data[d].IDSpecializedSoftware
+                        }
+                    })
+                // let invoice = await mtblInvoice(db).findOne({
+                //     where: {
+                //         IDSpecializedSoftware: data[d].IDSpecializedSoftware
+                //     }
+                // })
+                // let invoiceOld = await mtblInvoiceRCurrency(db).findAll({
+                //     where: {
+                //         InvoiceID: invoice ? invoice.ID : null,
+                //         CurrencyID: payment ? payment.IDCurrency : null,
+                //     }
+                // })
+                // for (let item of invoiceOld) {
+                //     if (payment) {
+                //         let paidAmount = Number(item.PaidAmount ? item.PaidAmount : 0) - Number(data[d].Amount ? data[d].Amount : 0);
+                //         let unpaidAmount = Number(item.UnpaidAmount ? item.UnpaidAmount : 0) + Number(data[d].Amount ? data[d].Amount : 0)
+                //         await mtblInvoiceRCurrency(db).update({
+                //             UnpaidAmount: unpaidAmount,
+                //             PaidAmount: paidAmount,
+                //             Status: 'Chờ thanh toán'
+                //         }, {
+                //             where: {
+                //                 InvoiceID: item.InvoiceID,
+                //                 CurrencyID: item.CurrencyID,
+                //             }
+                //         })
+                //     }
+                // }
             }
         }
     })
@@ -125,13 +133,6 @@ async function deleteRelationshiptblReceiptsPayment(db, listID) {
     await mtblPaymentRPayment(db).destroy({
         where: {
             IDPayment: {
-                [Op.in]: listID
-            }
-        }
-    })
-    await mtblPaymentRPayment(db).destroy({
-        where: {
-            IDPaymentR: {
                 [Op.in]: listID
             }
         }
@@ -463,24 +464,9 @@ async function createAccountingBooks(db, listCredit, listDebit, idPayment, reaso
         })
     }
 }
-async function getDetailCustomer(id) {
-    database.connectDatabase().then(async db => {
-        if (db) {
-            try {
-                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
-                var obj = {}
-                dataCustomer.forEach(item => {
-                    if (item.id == id) {
-                        obj = item
-                    }
-                })
-                return obj
-            } catch (e) {
-                console.log(e + '' + 123);
-            }
-        }
-    })
-
+async function getDetailCustomer(db, id) {
+    let dataCustomer = await customerData.getListCustomerOfPMCM(db, id)
+    return dataCustomer[0]
 }
 async function getDetailStaff(id) {
     dataStaff = [
@@ -775,32 +761,35 @@ async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currency
             })
             if (invoiceOld.ID) {
                 // lấy lại trạng thái chờ thanh toán cho invoice khi xóa
+                console.log(invoiceOld.PaidAmount - item.Amount, invoiceOld.PaidAmount, item.Amount);
                 await mtblInvoice(db).update({
                     Status: 'Chờ thanh toán',
                     PayDate: null,
-                    Payments: null
+                    Payments: null,
+                    PaidAmount: invoiceOld.PaidAmount - item.Amount,
+                    UnpaidAmount: invoiceOld.UnpaidAmount + item.Amount,
                 }, {
                     where: {
                         ID: invoiceOld.ID
                     }
                 })
-                let InCurr = await mtblInvoiceRCurrency(db).findOne({
-                    where: {
-                        InvoiceID: invoiceOld.ID,
-                        CurrencyID: currencyID,
-                    }
-                })
-                if (InCurr)
-                    await mtblInvoiceRCurrency(db).update({
-                        UnpaidAmount: Number(InCurr.UnpaidAmount ? InCurr.UnpaidAmount : 0) + Number(item.Amount ? item.Amount : 0),
-                        PaidAmount: Number(InCurr.PaidAmount ? InCurr.PaidAmount : 0) - Number(item.Amount ? item.Amount : 0),
-                        Status: 'Chờ thanh toán'
-                    }, {
-                        where: {
-                            InvoiceID: invoiceOld.ID,
-                            CurrencyID: currencyID,
-                        }
-                    })
+                // let InCurr = await mtblInvoiceRCurrency(db).findOne({
+                //     where: {
+                //         InvoiceID: invoiceOld.ID,
+                //         CurrencyID: currencyID,
+                //     }
+                // })
+                // if (InCurr)
+                //     await mtblInvoiceRCurrency(db).update({
+                //         UnpaidAmount: Number(InCurr.UnpaidAmount ? InCurr.UnpaidAmount : 0) + Number(item.Amount ? item.Amount : 0),
+                //         PaidAmount: Number(InCurr.PaidAmount ? InCurr.PaidAmount : 0) - Number(item.Amount ? item.Amount : 0),
+                //         Status: 'Chờ thanh toán'
+                //     }, {
+                //         where: {
+                //             InvoiceID: invoiceOld.ID,
+                //             CurrencyID: currencyID,
+                //         }
+                //     })
             }
         }
     })
@@ -873,16 +862,16 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                 IDSpecializedSoftware: creditID
             }
         }).then(async data => {
-            let invoiceRCurrency = await mtblInvoiceRCurrency(db).findOne({
-                where: {
-                    CurrencyID: currencyID,
-                    InvoiceID: data.ID,
-                }
-            })
+            // let invoiceRCurrency = await mtblInvoiceRCurrency(db).findOne({
+            //     where: {
+            //         CurrencyID: currencyID,
+            //         InvoiceID: data.ID,
+            //     }
+            // })
             if (data.ID && amount > 0) {
-                let paidAmount = invoiceRCurrency ? invoiceRCurrency.PaidAmount : 0
-                let unpaidAmount = invoiceRCurrency ? invoiceRCurrency.UnpaidAmount : 0
-                let initialAmount = invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0
+                let paidAmount = data ? data.PaidAmount : 0
+                let unpaidAmount = data ? data.UnpaidAmount : 0
+                let initialAmount = data ? data.InitialAmount : 0
                 // ------------------------------------------------------------------------------------------------------------------------------
                 if (unpaidAmount >= amount) {
                     await mtblPaymentRInvoice(db).create({
@@ -894,15 +883,13 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                     if ((unpaidAmount - amount) == 0) {
                         status = 'Đã thanh toán'
                     }
-                    await mtblInvoiceRCurrency(db).update({
-                        InitialAmount: invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0,
-                        UnpaidAmount: unpaidAmount - amount,
-                        PaidAmount: paidAmount + amount,
+                    await mtblInvoice(db).update({
                         Status: status,
+                        PaidAmount: data.PaidAmount - amount,
+                        UnpaidAmount: data.PaidAmount + amount,
                     }, {
                         where: {
-                            CurrencyID: currencyID,
-                            InvoiceID: data.ID,
+                            ID: data.ID
                         }
                     })
                     // cập nhật trang thái đồng thời cho invoice để hiện thị dữ liệu trạng thái
@@ -913,27 +900,26 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                         IDSpecializedSoftware: creditID,
                         Amount: unpaidAmount,
                     })
-                    await mtblInvoiceRCurrency(db).update({
+                    await mtblInvoice(db).update({
                         InitialAmount: invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0,
                         UnpaidAmount: 0,
                         PaidAmount: initialAmount,
                         Status: 'Đã thanh toán',
                     }, {
                         where: {
-                            CurrencyID: currencyID,
-                            InvoiceID: data.ID,
+                            ID: data.ID
                         }
                     })
                     amount -= unpaidAmount
                 }
-                await isCheckAndUpdateInvoicePaid(db, data.ID, receiptsPaymentID)
+                // await isCheckAndUpdateInvoicePaid(db, data.ID, receiptsPaymentID)
             }
         })
     }
 }
 
 
-async function allotmentInvoiceOrCredit(db, array, receiptsPaymentID, currencyID) {
+async function allotmentInvoiceOrCredit(db, array, receiptsPaymentID, type = 'create') {
     for (let item of array) {
         await mtblInvoice(db).findOne({
             where: {
@@ -941,14 +927,8 @@ async function allotmentInvoiceOrCredit(db, array, receiptsPaymentID, currencyID
             }
         }).then(async data => {
             if (data) {
-                let invoiceRCurrency = await mtblInvoiceRCurrency(db).findOne({
-                    where: {
-                        CurrencyID: currencyID,
-                        InvoiceID: data.ID,
-                    }
-                })
-                let unpaidAmount = invoiceRCurrency ? invoiceRCurrency.UnpaidAmount : 0
-                let paidAmount = invoiceRCurrency ? invoiceRCurrency.PaidAmount : 0
+                let unpaidAmount = data ? data.UnpaidAmount : 0
+                let paidAmount = data ? data.PaidAmount : 0
                 let status = 'Chờ thanh toán'
                 if ((unpaidAmount - item.paymentAmount) == 0) {
                     status = 'Đã thanh toán'
@@ -958,18 +938,17 @@ async function allotmentInvoiceOrCredit(db, array, receiptsPaymentID, currencyID
                     IDSpecializedSoftware: item.id,
                     Amount: item.paymentAmount,
                 })
-                await mtblInvoiceRCurrency(db).update({
-                    InitialAmount: invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0,
-                    UnpaidAmount: unpaidAmount - item.paymentAmount,
-                    PaidAmount: paidAmount + item.paymentAmount,
-                    Status: status,
-                }, {
-                    where: {
-                        CurrencyID: currencyID,
-                        InvoiceID: data.ID,
-                    }
-                })
-                await isCheckAndUpdateInvoicePaid(db, data.ID, receiptsPaymentID)
+                if (type = 'create')
+                    await mtblInvoice(db).update({
+                        UnpaidAmount: unpaidAmount - item.paymentAmount,
+                        PaidAmount: paidAmount + item.paymentAmount,
+                        Status: status,
+                    }, {
+                        where: {
+                            ID: data.ID,
+                        }
+                    })
+                // await isCheckAndUpdateInvoicePaid(db, data.ID, receiptsPaymentID)
             }
         })
     }
@@ -979,7 +958,6 @@ module.exports = {
     //  get_detail_tbl_receipts_payment
     detailtblReceiptsPayment: async (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1268,7 +1246,7 @@ module.exports = {
                                     type: 'supplier',
                                 }
                             } else {
-                                let dataCus = await getDetailCustomer(data.IDCustomer)
+                                let dataCus = await getDetailCustomer(db, data.IDCustomer)
                                 obj['object'] = {
                                     name: dataCus ? dataCus.name : '',
                                     code: dataCus ? dataCus.customerCode : '',
@@ -1435,7 +1413,7 @@ module.exports = {
                     await mtblReceiptsPayment(db).create(objCreate).then(async data => {
                         let amountMin = 0
                         if (allotment.length > 0) {
-                            await allotmentInvoiceOrCredit(db, allotment, data.ID, body.idCurrency ? body.idCurrency : null)
+                            await allotmentInvoiceOrCredit(db, allotment, data.ID)
                         } else {
                             if (body.type == 'accounting') {
                                 if (Number(body.invoiceTotal) > Number(body.creditTotal)) {
@@ -1785,7 +1763,7 @@ module.exports = {
                             if (body.allotment)
                                 allotment = JSON.parse(body.allotment)
                             if (allotment.length > 0) {
-                                await allotmentInvoiceOrCredit(db, allotment, body.id, detail ? detail.IDCurrency : null)
+                                await allotmentInvoiceOrCredit(db, allotment, body.id, 'update')
                             } else {
                                 if (body.type == 'accounting') {
                                     if (Number(body.invoiceTotal) > Number(body.creditTotal)) {
@@ -2017,7 +1995,7 @@ module.exports = {
                     }).then(async data => {
                         var array = [];
                         for (var i = 0; i < data.length; i++) {
-                            let dataCus = await getDetailCustomer(data[i].IDCustomer)
+                            let dataCus = await getDetailCustomer(db, data[i].IDCustomer)
                             let dataStaff = await getDetailStaff(data[i].IDStaff)
                             var obj = {
                                 stt: stt,
