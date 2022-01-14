@@ -761,7 +761,6 @@ async function addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currency
             })
             if (invoiceOld.ID) {
                 // lấy lại trạng thái chờ thanh toán cho invoice khi xóa
-                console.log(invoiceOld.PaidAmount - item.Amount, invoiceOld.PaidAmount, item.Amount);
                 await mtblInvoice(db).update({
                     Status: 'Chờ thanh toán',
                     PayDate: null,
@@ -850,6 +849,7 @@ async function isCheckAndUpdateInvoicePaid(db, invoiceID, receiptsPaymentID) {
 
 // tính toán số tiền lại đã thanh toán, chưa thanh toán credit khi tạo phiếu thu
 async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPaymentID, type, currencyID) {
+    console.log(amount, listCreditID, receiptsPaymentID, type, currencyID);
     if (type == 'update')
         await addUpTheAmountForCreditsAndDelete(db, receiptsPaymentID, currencyID)
     // reListCreditID = listCreditID.reverse() // đổi vị trí ngược lại các phần tử trong mảng
@@ -873,6 +873,7 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                 let unpaidAmount = data ? data.UnpaidAmount : 0
                 let initialAmount = data ? data.InitialAmount : 0
                 // ------------------------------------------------------------------------------------------------------------------------------
+                console.log(amount, unpaidAmount);
                 if (unpaidAmount >= amount) {
                     await mtblPaymentRInvoice(db).create({
                         IDPayment: receiptsPaymentID,
@@ -885,8 +886,8 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                     }
                     await mtblInvoice(db).update({
                         Status: status,
-                        PaidAmount: data.PaidAmount - amount,
-                        UnpaidAmount: data.PaidAmount + amount,
+                        PaidAmount: data.PaidAmount + amount,
+                        UnpaidAmount: data.UnpaidAmount - amount,
                     }, {
                         where: {
                             ID: data.ID
@@ -901,7 +902,7 @@ async function recalculateTheAmountOfCredit(db, amount, listCreditID, receiptsPa
                         Amount: unpaidAmount,
                     })
                     await mtblInvoice(db).update({
-                        InitialAmount: invoiceRCurrency ? invoiceRCurrency.InitialAmount : 0,
+                        InitialAmount: data ? data.InitialAmount : 0,
                         UnpaidAmount: 0,
                         PaidAmount: initialAmount,
                         Status: 'Đã thanh toán',

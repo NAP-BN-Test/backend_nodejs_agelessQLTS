@@ -173,7 +173,8 @@ async function getDataInvoiceByCondition(db, itemPerPage, page, whereObj = {}, p
             [Op.or]: [
                 whereObj,
                 {
-                    IDSpecializedSoftware: { [Op.in]: arrInvoiceIDPMCM }
+                    IDSpecializedSoftware: { [Op.in]: arrInvoiceIDPMCM },
+                    IsInvoice: whereObj.IsInvoice
                 }
             ]
         }
