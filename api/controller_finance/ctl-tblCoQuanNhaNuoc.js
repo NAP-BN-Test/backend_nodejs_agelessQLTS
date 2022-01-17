@@ -546,33 +546,7 @@ module.exports = {
                 },
                 "type": body.type
             }
-            // await axios.post(`http://ageless-ldms-api.vnsolutiondev.com/api/v1/invoice/share`, obj).then(async data => {
-            //     if (data) {
-            //         if (data.data.status_code == 200) {
             if (dataCQNN) {
-                // var array = data.data.data.list;
-                // var array = dataCQNN;
-                // var stt = 1;
-                // for (var i = 0; i < array.length; i++) {
-                //     array[i]['stt'] = stt;
-                //     var inv = await mtblCoQuanNhaNuoc(db).findOne({
-                //         where: {
-                //             IDSpecializedSoftware: array[i].id
-                //         }
-                //     })
-                //     if (!inv) {
-                //         await mtblCoQuanNhaNuoc(db).create({
-                //             IDSpecializedSoftware: array[i].id ? array[i].id : null,
-                //             Status: array[i].statusName,
-                //         })
-                //         console.log(123);
-
-                //     } else {
-                //         array[i]['statusName'] = inv.Status;
-                //     }
-                //     stt += 1;
-                // }
-                // var count = await mtblCoQuanNhaNuoc(db).count()
                 let array = []
                 for (let item of dataCQNN) {
                     if (item.typeVoucher == 'Biên lai')
@@ -580,25 +554,15 @@ module.exports = {
                 }
                 var result = {
                     array: array,
-                    // array: data.data.data.list,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                     all: 10
-                    // all: count
                 }
                 res.json(result);
             }
             else {
                 res.json(Result.SYS_ERROR_RESULT)
             }
-            //         } else {
-            //             res.json(Result.SYS_ERROR_RESULT)
-            //         }
-            //     }
-            //     else {
-            //         res.json(Result.SYS_ERROR_RESULT)
-            //     }
-            // })
         })
     },
     // get_list_name_tbl_state_agencies

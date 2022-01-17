@@ -11,8 +11,6 @@ var mtblCurrency = require('../tables/financemanage/tblCurrency')
 var mtblCustomerRCurrency = require('../tables/financemanage/tblCustomerRCurrency')
 var mtblRate = require('../tables/financemanage/tblRate')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
-var dataCredit = customerData.dataCredit
-var dataInvoice = customerData.data
 var mtblInvoice = require('../tables/financemanage/tblInvoice')
 var mtblDMTaiKhoanKeToan = require('../tables/financemanage/tblDMTaiKhoanKeToan')
 async function deleteRelationshiptblAccountingBooks(db, listID) {
@@ -89,14 +87,6 @@ async function getInvoiceWaitForPayInDB(db, dataRequest, account, customerID = n
                 dataRequest[i].statusName = check.Status
                 dataRequest[i].request = check.Request
                 dataRequest[i]['invoiceID'] = check.ID
-                let arrayTotal = []
-                for (let m = 0; m < dataRequest[i].arrayMoney.length; m++) {
-                    arrayTotal.push({
-                        key: dataRequest[i].arrayMoney[m].typeMoney,
-                        value: dataRequest[i].arrayMoney[m].total,
-                    })
-                }
-                dataRequest[i]['arrayTotal'] = arrayTotal
                 // if (check.Status == 'Chờ thanh toán')
                 array.push(dataRequest[i])
             }
@@ -212,13 +202,8 @@ async function getDetailCustomer(id) {
     database.connectDatabase().then(async db => {
         if (db) {
             try {
-                let dataCustomer = await customerData.getListCustomerOfPMCM(db)
-                var obj = {}
-                dataCustomer.forEach(item => {
-                    if (item.id == id) {
-                        obj = item
-                    }
-                })
+                let dataCustomer = await customerData.getListCustomerOfPMCM(db, id)
+                var obj = dataCustomer[0]
                 return obj
             } catch (e) {
                 console.log(e + '' + 123);
@@ -268,139 +253,6 @@ function checkForDuplicateObjInArray(obj, array) {
     }
     return result
 }
-dataCustomer = [{
-    "customerCode": "KH0001",
-    "name": "Công ty tnhh An Phú",
-    "attributesChangeLog": "Công ty chuyên về lắp ráp linh kiện",
-    "tax": "123456789",
-    "countryName": "Việt Nam",
-    "address": "Số 2 Hoàng Mai Hà Nội",
-    "mobile": "098705124",
-    "fax": "01234567",
-    "email": "anphu@gmail.com",
-    "id": 1,
-},
-{
-    "customerCode": "KH0002",
-    "name": "Công ty tnhh Is Tech Vina",
-    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo ",
-    "tax": "01245870",
-    "countryName": "Việt Nam",
-    "address": "Số 35 Bạch mai Cầu Giấy Hà Nội",
-    "mobile": "082457145",
-    "fax": "0241368451",
-    "email": "istech@gmail.com",
-    "id": 2,
-},
-{
-    "customerCode": "KH0003",
-    "name": "Công ty cổ phần Orion Việt Nam",
-    "attributesChangeLog": "Công ty chuyên sản xuất bánh kẹo",
-    "tax": "012341250",
-    "countryName": "Việt nam",
-    "address": "Số 12 Bạch Mai Hà Nội",
-    "mobile": "0315456554",
-    "fax": "132456545",
-    "email": "orion13@gmail.com",
-    "id": 3,
-},
-{
-    "customerCode": "KH0004",
-    "name": "Công ty TNHH Rồng Việt",
-    "attributesChangeLog": "Công ty chuyên cung cấp thiết bị điện lạnh",
-    "tax": "01323255",
-    "countryName": "Việt Nam",
-    "address": "Số 11 Vĩnh Tuy Hai Bà Trưng Hà Nội",
-    "mobile": "0445445474",
-    "fax": "1135635",
-    "email": "rongviet@gmail.com",
-    "id": 4,
-},
-{
-    "customerCode": "KH0005",
-    "name": "Công ty cổ phần và thương mại Đức Việt",
-    "attributesChangeLog": "Công ty chuyên cung cấp thức ăn đông lạnh ",
-    "tax": "017654124",
-    "countryName": "Việt Nam",
-    "address": "Số 389 Lĩnh Nam Hoàng mai Hà Nội",
-    "mobile": "0444545401",
-    "fax": "75241241241",
-    "email": "ducviet0209@gmail.com",
-    "id": 5,
-},
-{
-    "customerCode": "KH0006",
-    "name": "Công ty TNHH 1 thành viên Bảo Minh",
-    "attributesChangeLog": "Công ty chuyên cung cấp cácclaoị thực phẩm khô",
-    "tax": "154654565",
-    "countryName": "Việt Nam",
-    "address": "Số 25 Ba Đình Hà Nội",
-    "mobile": "045102474",
-    "fax": "02137244",
-    "email": "baominh56@gmail.com",
-    "id": 6,
-},
-{
-    "customerCode": "KH0007",
-    "name": "Công ty Sx và Tm Minh Hòa",
-    "attributesChangeLog": "Công ty chuyên cung cấp lao động thời vụ",
-    "tax": "04785635432",
-    "countryName": "Việt Nam",
-    "address": "Số 21 Hàng Mã Hà Nội",
-    "mobile": "0045454510",
-    "fax": "415265654",
-    "email": "minhhoa1212@gmail.com",
-    "id": 7,
-},
-{
-    "customerCode": "KH0008",
-    "name": "Công ty cổ phần EC",
-    "attributesChangeLog": "Công ty chuyên cung cấp đồ gá khuôn jig",
-    "tax": "45454545",
-    "countryName": "Việt Nam",
-    "address": "Số 13 đường 17 KCN Tiên Sơn Bắc Ninh",
-    "mobile": "012345474",
-    "fax": "012244635",
-    "email": "ec1312@gmail.com",
-    "id": 8,
-},
-{
-    "customerCode": "KH0009",
-    "name": "Công ty cổ phần Thu Hương",
-    "attributesChangeLog": "Công ty chuyên cung cấp suất ăn công  nghiệp",
-    "tax": "012546565",
-    "countryName": "Việt Nam",
-    "address": "Số 24 Bạch Mai Hà Nội",
-    "mobile": "015245454",
-    "fax": "45552478",
-    "email": "thuhuong34@gmail.com",
-    "id": 9,
-},
-{
-    "customerCode": "KH0010",
-    "name": "Công ty tnhh Hòa Phát",
-    "attributesChangeLog": "Công ty chuyên sản xuất tôn ngói ",
-    "tax": "014775745",
-    "countryName": "Việt Nam",
-    "address": "Số 2 Phố Huế Hà Nội",
-    "mobile": "045245401",
-    "fax": "021455235",
-    "email": "hoaphat0102@gmail.com",
-    "id": 10,
-},
-{
-    "customerCode": "KH0011",
-    "name": "Cơ quan nhà nước",
-    "attributesChangeLog": "Cơ quan nhà nước",
-    "tax": "014775745",
-    "countryName": "Việt Nam",
-    "address": "Số 2 Phố Huế Hà Nội",
-    "mobile": "045245401",
-    "fax": "021455235",
-    "email": "cqnnvn@gmail.com",
-    "id": 11,
-},
-]
 async function findAcountingFollowLevel(db, level, idLevelAbove) {
     var result = []
     let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
@@ -678,11 +530,13 @@ module.exports = {
             dataSearch.dateFrom = null
             dataSearch.dateTo = null
         }
-        console.log(dataSearch);
+
         const currentYear = new Date().getFullYear()
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let dataCredit = await customerData.getListInvoiceAndCreditOfPMCM(db, 'credit')
+                    let dataInvoice = await customerData.getListInvoiceAndCreditOfPMCM(db, 'invoice')
                     let accountName = '';
                     var arrayIDAccount = []
                     let checkAccount111 = await mtblDMTaiKhoanKeToan(db).findOne({
@@ -985,7 +839,7 @@ module.exports = {
                         var array = [];
                         let objCustomer = {}
                         if (dataSearch.customerID) {
-                            objCustomer = await getDetailCustomer(dataSearch.customerID)
+                            objCustomer = await customerData.getListCustomerOfPMCM(db, dataSearch.customerID)
                         }
                         // Hàm lấy ra Những invoice chưa thanh toán tự động định khoản vào sổ tài khoản 131 và đối ứng là tài khoản 511
                         let tblDMTaiKhoanKeToan = mtblDMTaiKhoanKeToan(db);
@@ -1128,86 +982,82 @@ module.exports = {
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '131' || checkAccount.AccountingCode == '511')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
-                                for (let checkCurr of invoice.arrayTotal) {
-                                    if (!checkDuplicate(arrayCurrency, checkCurr.key)) {
-                                        arrayCurrency.push(checkCurr.key)
-                                        arrayCreditIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayCreaditSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                    }
+                                if (!checkDuplicate(arrayCurrency, invoice.typeMoney)) {
+                                    arrayCurrency.push(invoice.typeMoney)
+                                    arrayCreditIncurred.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtIncurred.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtSurplus.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayCreaditSurplus.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
                                 }
                                 let dateInvoice = moment(invoice.createdDate).format('YYYY-DD-MM')
                                 let dateFrom = moment(dataSearch.dateFrom).subtract(7, 'hours').format('YYYY-MM-DD')
                                 let dateTo = moment(dataSearch.dateTo).subtract(7, 'hours').format('YYYY-MM-DD')
                                 if (!dataSearch.accountSystemOtherID || checkCccountSystemOtherID && checkCccountSystemOtherID.AccountingCode == invoice.accountingCredit) {
                                     // vì là tài khoản lưỡng tính
-                                    for (let dataInvoice of invoice.arrayTotal) {
-                                        if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
-                                            let obj = {
-                                                stt: stt,
-                                                accountingName: 'Phải thu của khách hàng',
-                                                accountingCode: '131',
-                                                accountingReciprocalName: 'Doanh thu bán hàng',
-                                                accountingReciprocalCode: '511',
-                                                numberReceipts: '',
-                                                createDate: invoice.createdDate,
-                                                entryDate: invoice.createdDate,
-                                                number: invoice.invoiceNumber,
-                                                reason: invoice.customerName + ' chưa thanh toán',
-                                                idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
-                                                creditIncurred: null,
-                                                debtIncurred: dataInvoice.value,
-                                                debtSurplus: 0, // số dư phải tính
-                                                creaditSurplus: null,
-                                                numberOfReceipt: '',
-                                                numberOfPayment: '',
-                                                receiver: '',
-                                                customerName: invoice.customerName,
-                                                nameCurrency: dataInvoice.key
-                                            }
-                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                            if ((openingBalanceCredit != null)) {
-                                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, -Number(dataInvoice.value))
-                                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(obj.debtIncurred ? obj.debtIncurred : 0))
-                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                                for (let item of arrayCreaditSurplus) {
-                                                    if (item.key == dataInvoice.key) {
-                                                        creaditSurplus = item.value
-                                                    }
-                                                }
-                                                obj['creaditSurplus'] = creaditSurplus
-                                                obj['debtSurplus'] = null
-                                            } else {
-                                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, Number(obj.creditIncurred ? obj.creditIncurred : 0))
-                                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
-                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                                for (let item of arrayDebtSurplus) {
-                                                    if (item.key == dataInvoice.key) {
-                                                        debtSurplus = item.value
-                                                    }
-                                                }
-
-                                                obj['debtSurplus'] = debtSurplus
-                                                obj['creaditSurplus'] = null
-                                            }
-                                            array.push(obj);
-                                            stt += 1;
+                                    if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
+                                        let obj = {
+                                            stt: stt,
+                                            accountingName: 'Phải thu của khách hàng',
+                                            accountingCode: '131',
+                                            accountingReciprocalName: 'Doanh thu bán hàng',
+                                            accountingReciprocalCode: '511',
+                                            numberReceipts: '',
+                                            createDate: invoice.createdDate ? moment(invoice.createdDate).format('DD/MM/YYYY') : null,
+                                            entryDate: invoice.createdDate ? moment(invoice.createdDate).format('DD/MM/YYYY') : null,
+                                            number: invoice.invoiceNumber,
+                                            reason: invoice.customerName + ' chưa thanh toán',
+                                            idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
+                                            creditIncurred: null,
+                                            debtIncurred: invoice.moneyTotal,
+                                            debtSurplus: 0, // số dư phải tính
+                                            creaditSurplus: null,
+                                            numberOfReceipt: '',
+                                            numberOfPayment: '',
+                                            receiver: '',
+                                            customerName: invoice.customerName,
+                                            nameCurrency: invoice.typeMoney
                                         }
+                                        arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, invoice.typeMoney, (invoice.moneyTotal ? Number(invoice.moneyTotal) : 0))
+                                        if ((openingBalanceCredit != null)) {
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, invoice.typeMoney, -Number(invoice.moneyTotal))
+                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, invoice.typeMoney, Number(obj.debtIncurred ? obj.debtIncurred : 0))
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                            for (let item of arrayCreaditSurplus) {
+                                                if (item.key == invoice.typeMoney) {
+                                                    creaditSurplus = item.value
+                                                }
+                                            }
+                                            obj['creaditSurplus'] = creaditSurplus
+                                            obj['debtSurplus'] = null
+                                        } else {
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, invoice.typeMoney, Number(obj.creditIncurred ? obj.creditIncurred : 0))
+                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, invoice.typeMoney, Number(invoice.moneyTotal))
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                            for (let item of arrayDebtSurplus) {
+                                                if (item.key == invoice.typeMoney) {
+                                                    debtSurplus = item.value
+                                                }
+                                            }
+
+                                            obj['debtSurplus'] = debtSurplus
+                                            obj['creaditSurplus'] = null
+                                        }
+                                        array.push(obj);
+                                        stt += 1;
                                     }
                                 }
                             }
@@ -1216,86 +1066,82 @@ module.exports = {
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount && checkAccount.AccountingCode == '331' || checkAccount.AccountingCode == '642')) {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
                             for (credit of arrayCredit) {
-                                for (let checkCurr of credit.arrayTotal) {
-                                    if (!checkDuplicate(arrayCurrency, checkCurr.key)) {
-                                        arrayCurrency.push(checkCurr.key)
-                                        arrayCreditIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayCreaditSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                    }
+                                if (!checkDuplicate(arrayCurrency, credit.typeMoney)) {
+                                    arrayCurrency.push(credit.typeMoney)
+                                    arrayCreditIncurred.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtIncurred.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtSurplus.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayCreaditSurplus.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
                                 }
                                 let dateInvoice = moment(credit.createdDate).format('YYYY-DD-MM')
                                 let dateFrom = moment(dataSearch.dateFrom).subtract(7, 'hours').format('YYYY-MM-DD')
                                 let dateTo = moment(dataSearch.dateTo).subtract(7, 'hours').format('YYYY-MM-DD')
                                 if (!dataSearch.accountSystemOtherID || checkCccountSystemOtherID && checkCccountSystemOtherID.AccountingCode == credit.accountingCredit) {
                                     // vì là tài khoản lưỡng tính
-                                    for (let dataCredit of credit.arrayTotal) {
-                                        if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
-                                            let obj = {
-                                                stt: stt,
-                                                accountingName: 'Phải trả',
-                                                accountingCode: '331',
-                                                accountingReciprocalName: 'Chi phí bán hàng',
-                                                accountingReciprocalCode: '642',
-                                                numberReceipts: '',
-                                                createDate: credit.createdDate,
-                                                entryDate: credit.createdDate,
-                                                number: credit.invoiceNumber,
-                                                reason: credit.customerName + ' chưa thanh toán',
-                                                idAccounting: credit.invoiceID ? credit.invoiceID : null,
-                                                creditIncurred: dataCredit.value,
-                                                debtIncurred: 0,
-                                                debtSurplus: null, // số dư phải tính
-                                                creaditSurplus: null,
-                                                numberOfReceipt: '',
-                                                numberOfPayment: '',
-                                                receiver: '',
-                                                customerName: credit.customerName,
-                                                nameCurrency: dataCredit.key
-                                            }
-                                            if ((openingBalanceDebit != null)) {
-                                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
-                                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, Number((obj.creditIncurred ? obj.creditIncurred : 0)))
-                                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataCredit.key, Number(dataCredit.value))
-                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                                for (let item of arrayDebtSurplus) {
-                                                    if (item.key == dataCredit.key) {
-                                                        debtSurplus = item.value
-                                                    }
-                                                }
-                                                obj['debtSurplus'] = debtSurplus
-                                                obj['creaditSurplus'] = null
-                                            } else {
-                                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataCredit.key, Number(obj.debtIncurred ? obj.creditIncurred : 0))
-                                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
-                                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataCredit.key, Number(dataCredit.value))
-                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                                for (let item of arrayCreaditSurplus) {
-                                                    if (item.key == dataCredit.key) {
-                                                        creaditSurplus = item.value
-                                                    }
-                                                }
-                                                obj['creaditSurplus'] = creaditSurplus
-                                                obj['debtSurplus'] = null
-                                            }
-                                            array.push(obj);
-                                            stt += 1;
+                                    if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
+                                        let obj = {
+                                            stt: stt,
+                                            accountingName: 'Phải trả',
+                                            accountingCode: '331',
+                                            accountingReciprocalName: 'Chi phí bán hàng',
+                                            accountingReciprocalCode: '642',
+                                            numberReceipts: '',
+                                            createDate: credit.createdDate ? moment(credit.createdDate).format('DD/MM/YYYY') : null,
+                                            entryDate: credit.createdDate ? moment(credit.createdDate).format('DD/MM/YYYY') : null,
+                                            number: credit.invoiceNumber,
+                                            reason: credit.customerName + ' chưa thanh toán',
+                                            idAccounting: credit.invoiceID ? credit.invoiceID : null,
+                                            creditIncurred: credit.moneyTotal,
+                                            debtIncurred: 0,
+                                            debtSurplus: null, // số dư phải tính
+                                            creaditSurplus: null,
+                                            numberOfReceipt: '',
+                                            numberOfPayment: '',
+                                            receiver: '',
+                                            customerName: credit.customerName,
+                                            nameCurrency: credit.typeMoney
                                         }
+                                        if ((openingBalanceDebit != null)) {
+                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, credit.typeMoney, (credit.moneyTotal ? Number(credit.moneyTotal) : 0))
+                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, credit.typeMoney, Number((obj.creditIncurred ? obj.creditIncurred : 0)))
+                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, credit.typeMoney, Number(credit.moneyTotal))
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                            for (let item of arrayDebtSurplus) {
+                                                if (item.key == credit.typeMoney) {
+                                                    debtSurplus = item.value
+                                                }
+                                            }
+                                            obj['debtSurplus'] = debtSurplus
+                                            obj['creaditSurplus'] = null
+                                        } else {
+                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, credit.typeMoney, Number(obj.debtIncurred ? obj.creditIncurred : 0))
+                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, credit.typeMoney, (credit.moneyTotal ? Number(credit.moneyTotal) : 0))
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, credit.typeMoney, Number(credit.moneyTotal))
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                            for (let item of arrayCreaditSurplus) {
+                                                if (item.key == credit.typeMoney) {
+                                                    creaditSurplus = item.value
+                                                }
+                                            }
+                                            obj['creaditSurplus'] = creaditSurplus
+                                            obj['debtSurplus'] = null
+                                        }
+                                        array.push(obj);
+                                        stt += 1;
                                     }
                                 }
                             }
@@ -1679,6 +1525,8 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let dataCredit = await customerData.getListInvoiceAndCreditOfPMCM(db, 'credit')
+                    let dataInvoice = await customerData.getListInvoiceAndCreditOfPMCM(db, 'invoice')
                     let accountName = '';
                     var arrayIDAccount = []
                     let checkAccount111 = await mtblDMTaiKhoanKeToan(db).findOne({
@@ -1953,145 +1801,141 @@ module.exports = {
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'all' || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131') || (!checkAccount131 && dataSearch.selection == 'all')) {
                             let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', dataSearch.customerID ? dataSearch.customerID : null)
                             for (invoice of arrayInvoice) {
-                                for (let checkCurr of invoice.arrayTotal) {
-                                    if (!checkDuplicate(arrayCurrency, checkCurr.key)) {
-                                        arrayCurrency.push(checkCurr.key)
-                                        arrayCreditIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayCreaditSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                    }
+                                if (!checkDuplicate(arrayCurrency, invoice.typeMoney)) {
+                                    arrayCurrency.push(invoice.typeMoney)
+                                    arrayCreditIncurred.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtIncurred.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtSurplus.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayCreaditSurplus.push({
+                                        key: invoice.typeMoney,
+                                        value: 0
+                                    })
                                 }
-                                let dateInvoice = moment(invoice.createdDate).format('YYYY-DD-MM')
-                                let dateFrom = moment(dataSearch.dateFrom).subtract(7, 'hours').format('YYYY-MM-DD')
-                                let dateTo = moment(dataSearch.dateTo).subtract(7, 'hours').format('YYYY-MM-DD')
-                                if (!dataSearch.accountSystemOtherID || checkCccountSystemOtherID && checkCccountSystemOtherID.AccountingCode == invoice.accountingCredit) {
-                                    // vì là tài khoản lưỡng tính
-                                    for (let dataInvoice of invoice.arrayTotal) {
-                                        if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
-                                            let obj = {
-                                                stt: stt,
-                                                accountingName: 'Phải thu của khách hàng',
-                                                accountingCode: '131',
-                                                accountingReciprocalName: 'Doanh thu bán hàng',
-                                                accountingReciprocalCode: '511',
-                                                numberReceipts: '',
-                                                createDate: invoice.createdDate,
-                                                entryDate: invoice.createdDate,
-                                                number: invoice.invoiceNumber,
-                                                reason: invoice.customerName + ' chưa thanh toán',
-                                                idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
-                                                creditIncurred: dataInvoice.value,
-                                                debtIncurred: dataInvoice.value,
-                                                debtSurplus: 0, // số dư phải tính
-                                                creaditSurplus: null,
-                                                numberOfReceipt: '',
-                                                numberOfPayment: '',
-                                                receiver: '',
-                                                customerName: invoice.customerName,
-                                                nameCurrency: dataInvoice.key
-                                            }
-                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
-                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, Number(dataInvoice.value))
-                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                            for (let item of arrayDebtSurplus) {
-                                                if (item.key == dataInvoice.key) {
-                                                    debtSurplus = item.value
-                                                }
-                                            }
-                                            obj['debtSurplus'] = debtSurplus
-                                            array.push(obj);
-                                            stt += 1;
+                            }
+                            let dateInvoice = moment(invoice.createdDate).format('YYYY-DD-MM')
+                            let dateFrom = moment(dataSearch.dateFrom).subtract(7, 'hours').format('YYYY-MM-DD')
+                            let dateTo = moment(dataSearch.dateTo).subtract(7, 'hours').format('YYYY-MM-DD')
+                            if (!dataSearch.accountSystemOtherID || checkCccountSystemOtherID && checkCccountSystemOtherID.AccountingCode == invoice.accountingCredit) {
+                                // vì là tài khoản lưỡng tính
+                                if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
+                                    let obj = {
+                                        stt: stt,
+                                        accountingName: 'Phải thu của khách hàng',
+                                        accountingCode: '131',
+                                        accountingReciprocalName: 'Doanh thu bán hàng',
+                                        accountingReciprocalCode: '511',
+                                        numberReceipts: '',
+                                        createDate: invoice.createdDate,
+                                        entryDate: invoice.createdDate,
+                                        number: invoice.invoiceNumber,
+                                        reason: invoice.customerName + ' chưa thanh toán',
+                                        idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
+                                        creditIncurred: invoice.moneyTotal,
+                                        debtIncurred: invoice.moneyTotal,
+                                        debtSurplus: 0, // số dư phải tính
+                                        creaditSurplus: null,
+                                        numberOfReceipt: '',
+                                        numberOfPayment: '',
+                                        receiver: '',
+                                        customerName: invoice.customerName,
+                                        nameCurrency: invoice.typeMoney
+                                    }
+                                    arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, invoice.typeMoney, (invoice.moneyTotal ? Number(invoice.moneyTotal) : 0))
+                                    arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, invoice.typeMoney, (invoice.moneyTotal ? Number(invoice.moneyTotal) : 0))
+                                    arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, invoice.typeMoney, Number(invoice.moneyTotal))
+                                    arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, invoice.typeMoney, Number(invoice.moneyTotal))
+                                    totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                    totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                    for (let item of arrayDebtSurplus) {
+                                        if (item.key == invoice.typeMoney) {
+                                            debtSurplus = item.value
                                         }
                                     }
+                                    obj['debtSurplus'] = debtSurplus
+                                    array.push(obj);
+                                    stt += 1;
                                 }
+
                             }
                         }
                         //  lấy dữ liệu credit Những credit chưa thanh toán tự động định khoản vào sổ tài khoản (tài khoản lấy theo pmcm gửi về)
                         if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount331 && checkAccount331.AccountingCode == '331') || (!checkAccount331 && dataSearch.selection == 'all')) {
                             let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', dataSearch.customerID ? dataSearch.customerID : null)
                             for (credit of arrayCredit) {
-                                for (let checkCurr of credit.arrayTotal) {
-                                    if (!checkDuplicate(arrayCurrency, checkCurr.key)) {
-                                        arrayCurrency.push(checkCurr.key)
-                                        arrayCreditIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtIncurred.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayDebtSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                        arrayCreaditSurplus.push({
-                                            key: checkCurr.key,
-                                            value: 0
-                                        })
-                                    }
+                                if (!checkDuplicate(arrayCurrency, credit.typeMoney)) {
+                                    arrayCurrency.push(credit.typeMoney)
+                                    arrayCreditIncurred.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtIncurred.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayDebtSurplus.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
+                                    arrayCreaditSurplus.push({
+                                        key: credit.typeMoney,
+                                        value: 0
+                                    })
                                 }
+
                                 let dateInvoice = moment(credit.createdDate).format('YYYY-DD-MM')
                                 let dateFrom = moment(dataSearch.dateFrom).subtract(7, 'hours').format('YYYY-MM-DD')
                                 let dateTo = moment(dataSearch.dateTo).subtract(7, 'hours').format('YYYY-MM-DD')
                                 if (!dataSearch.accountSystemOtherID || checkCccountSystemOtherID && checkCccountSystemOtherID.AccountingCode == credit.accountingCredit) {
                                     // vì là tài khoản lưỡng tính
-                                    for (let dataCredit of credit.arrayTotal) {
-                                        if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
-                                            let obj = {
-                                                stt: stt,
-                                                accountingName: 'Phải trả',
-                                                accountingCode: '331',
-                                                accountingReciprocalName: 'Chi phí bán hàng',
-                                                accountingReciprocalCode: '642',
-                                                numberReceipts: '',
-                                                createDate: credit.createdDate,
-                                                entryDate: credit.createdDate,
-                                                number: credit.invoiceNumber,
-                                                reason: credit.customerName + ' chưa thanh toán',
-                                                idAccounting: credit.invoiceID ? credit.invoiceID : null,
-                                                creditIncurred: dataCredit.value,
-                                                debtIncurred: dataCredit.value,
-                                                debtSurplus: null, // số dư phải tính
-                                                creaditSurplus: null,
-                                                numberOfReceipt: '',
-                                                numberOfPayment: '',
-                                                receiver: '',
-                                                customerName: credit.customerName,
-                                                nameCurrency: dataCredit.key
-                                            }
-                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
-                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataInvoice.key, Number(dataInvoice.value))
-                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                            for (let item of arrayCreaditSurplus) {
-                                                if (item.key == dataCredit.key) {
-                                                    creaditSurplus = item.value
-                                                }
-                                            }
-                                            obj['creaditSurplus'] = creaditSurplus
-                                            array.push(obj);
-                                            stt += 1;
+
+                                    if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
+                                        let obj = {
+                                            stt: stt,
+                                            accountingName: 'Phải trả',
+                                            accountingCode: '331',
+                                            accountingReciprocalName: 'Chi phí bán hàng',
+                                            accountingReciprocalCode: '642',
+                                            numberReceipts: '',
+                                            createDate: credit.createdDate,
+                                            entryDate: credit.createdDate,
+                                            number: credit.invoiceNumber,
+                                            reason: credit.customerName + ' chưa thanh toán',
+                                            idAccounting: credit.invoiceID ? credit.invoiceID : null,
+                                            creditIncurred: credit.moneyTotal,
+                                            debtIncurred: credit.moneyTotal,
+                                            debtSurplus: null, // số dư phải tính
+                                            creaditSurplus: null,
+                                            numberOfReceipt: '',
+                                            numberOfPayment: '',
+                                            receiver: '',
+                                            customerName: credit.customerName,
+                                            nameCurrency: credit.typeMoney
                                         }
+                                        arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, credit.typeMoney, (credit.moneyTotal ? Number(credit.moneyTotal) : 0))
+                                        arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, credit.typeMoney, (credit.moneyTotal ? Number(credit.moneyTotal) : 0))
+                                        arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, credit.typeMoney, Number(credit.moneyTotal))
+                                        arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, credit.typeMoney, Number(credit.moneyTotal))
+                                        totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                        totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                        for (let item of arrayCreaditSurplus) {
+                                            if (item.key == credit.typeMoney) {
+                                                creaditSurplus = item.value
+                                            }
+                                        }
+                                        obj['creaditSurplus'] = creaditSurplus
+                                        array.push(obj);
+                                        stt += 1;
                                     }
+
                                 }
                             }
                         }
@@ -2345,6 +2189,9 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    let dataCredit = await customerData.getListInvoiceAndCreditOfPMCM(db, 'credit')
+                    let dataInvoice = await customerData.getListInvoiceAndCreditOfPMCM(db, 'invoice')
+                    let dataCustomer = await customerData.getListCustomerOfPMCM(db)
                     let arrayResponse = [];
                     let sttReponse = 1;
                     for (let customer of dataCustomer) {
@@ -2602,54 +2449,46 @@ module.exports = {
                             })
                             // Xử lý khi chọn tk 131 hay 331 khi chọn khách hàng sẽ lấy số dư đầu kì của khách hàng
                             if (checkAccount131 && checkAccount131.AccountingCode == '131' || checkAccount131.AccountingCode == '331') {
-                                let customerArr = [];
                                 arrayGetOpeningBalanceDebt = []
-                                customerArr = await mtblCustomer(db).findAll({
-                                    where: {
-                                        IDSpecializedSoftware: customer.id
-                                    }
-                                })
                                 let tblCustomerRCurrency = mtblCustomerRCurrency(db);
                                 tblCustomerRCurrency.belongsTo(mtblCurrency(db), { foreignKey: 'CurrencyID', sourceKey: 'CurrencyID', as: 'currency' })
                                 let arrayCheckCurrenCyCustomer = []
-                                for (let customer of customerArr) {
-                                    let whereCustomer = {}
-                                    whereCustomer = {
-                                        CustomerID: customer ? customer.ID : null,
-                                        AccountID: dataSearch.accountSystemID
-                                    }
-                                    await tblCustomerRCurrency.findAll({
-                                        where: whereCustomer,
-                                        include: [{
-                                            model: mtblCurrency(db),
-                                            required: false,
-                                            as: 'currency'
-                                        },],
-                                    }).then(async cus => {
-                                        for (let item of cus) {
-                                            let currencyNameCus = (item.currency ? item.currency.ShortName : 'VND');
-                                            if (!checkDuplicate(arrayCheckCurrenCyCustomer, currencyNameCus)) {
-                                                if (item.IsDebtAccount) {
-                                                    arrayGetOpeningBalanceDebt.push({
-                                                        key: currencyNameCus,
-                                                        value: 0,
-                                                    })
-                                                } else {
-                                                    arrayGetOpeningBalanceCredit.push({
-                                                        key: currencyNameCus,
-                                                        value: 0,
-                                                    })
-                                                }
-                                                arrayCheckCurrenCyCustomer.push(currencyNameCus)
-                                            }
-                                            if (item.IsDebtAccount) {
-                                                arrayGetOpeningBalanceDebt = await addValueOfArray(arrayGetOpeningBalanceDebt, currencyNameCus, item.Surplus)
-                                            } else {
-                                                arrayGetOpeningBalanceCredit = await addValueOfArray(arrayGetOpeningBalanceCredit, currencyNameCus, item.Surplus)
-                                            }
-                                        }
-                                    })
+                                let whereCustomer = {}
+                                whereCustomer = {
+                                    CustomerID: customer ? customer.id : null,
+                                    AccountID: dataSearch.accountSystemID
                                 }
+                                await tblCustomerRCurrency.findAll({
+                                    where: whereCustomer,
+                                    include: [{
+                                        model: mtblCurrency(db),
+                                        required: false,
+                                        as: 'currency'
+                                    },],
+                                }).then(async cus => {
+                                    for (let item of cus) {
+                                        let currencyNameCus = (item.currency ? item.currency.ShortName : 'VND');
+                                        if (!checkDuplicate(arrayCheckCurrenCyCustomer, currencyNameCus)) {
+                                            if (item.IsDebtAccount) {
+                                                arrayGetOpeningBalanceDebt.push({
+                                                    key: currencyNameCus,
+                                                    value: 0,
+                                                })
+                                            } else {
+                                                arrayGetOpeningBalanceCredit.push({
+                                                    key: currencyNameCus,
+                                                    value: 0,
+                                                })
+                                            }
+                                            arrayCheckCurrenCyCustomer.push(currencyNameCus)
+                                        }
+                                        if (item.IsDebtAccount) {
+                                            arrayGetOpeningBalanceDebt = await addValueOfArray(arrayGetOpeningBalanceDebt, currencyNameCus, item.Surplus)
+                                        } else {
+                                            arrayGetOpeningBalanceCredit = await addValueOfArray(arrayGetOpeningBalanceCredit, currencyNameCus, item.Surplus)
+                                        }
+                                    }
+                                })
                             }
                             let checkCccountSystemOtherID;
                             if (dataSearch.accountSystemOtherID)
@@ -2692,70 +2531,66 @@ module.exports = {
                             if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount131 && checkAccount131.AccountingCode == '131')) {
                                 let arrayInvoice = await getInvoiceWaitForPayInDB(db, dataInvoice, '131', customer.id ? customer.id : null)
                                 for (invoice of arrayInvoice) {
-                                    for (let checkCurr of invoice.arrayTotal) {
-                                        if (!checkDuplicate(arrayCurrency, checkCurr.key)) {
-                                            arrayCurrency.push(checkCurr.key)
-                                            arrayCreditIncurred.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                            arrayDebtIncurred.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                            arrayDebtSurplus.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                            arrayCreaditSurplus.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                        }
+                                    if (!checkDuplicate(arrayCurrency, invoice.typeMoney)) {
+                                        arrayCurrency.push(invoice.typeMoney)
+                                        arrayCreditIncurred.push({
+                                            key: invoice.typeMoney,
+                                            value: 0
+                                        })
+                                        arrayDebtIncurred.push({
+                                            key: invoice.typeMoney,
+                                            value: 0
+                                        })
+                                        arrayDebtSurplus.push({
+                                            key: invoice.typeMoney,
+                                            value: 0
+                                        })
+                                        arrayCreaditSurplus.push({
+                                            key: invoice.typeMoney,
+                                            value: 0
+                                        })
                                     }
                                     let dateInvoice = moment(invoice.createdDate).format('YYYY-DD-MM')
                                     let dateFrom = moment(dataSearch.dateFrom).subtract(7, 'hours').format('YYYY-MM-DD')
                                     let dateTo = moment(dataSearch.dateTo).subtract(7, 'hours').format('YYYY-MM-DD')
                                     if (!dataSearch.accountSystemOtherID || checkCccountSystemOtherID && checkCccountSystemOtherID.AccountingCode == invoice.accountingCredit) {
                                         // vì là tài khoản lưỡng tính
-                                        for (let dataInvoice of invoice.arrayTotal) {
-                                            if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
-                                                let obj = {
-                                                    stt: stt,
-                                                    accountingName: 'Phải thu của khách hàng',
-                                                    accountingCode: '131',
-                                                    accountingReciprocalName: 'Doanh thu bán hàng',
-                                                    accountingReciprocalCode: '511',
-                                                    numberReceipts: '',
-                                                    createDate: invoice.createdDate,
-                                                    entryDate: invoice.createdDate,
-                                                    number: invoice.invoiceNumber,
-                                                    reason: invoice.customerName + ' chưa thanh toán',
-                                                    idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
-                                                    creditIncurred: 0,
-                                                    debtIncurred: dataInvoice.value,
-                                                    debtSurplus: 0, // số dư phải tính
-                                                    creaditSurplus: null,
-                                                    numberOfReceipt: '',
-                                                    numberOfPayment: '',
-                                                    receiver: '',
-                                                    customerName: invoice.customerName,
-                                                    nameCurrency: dataInvoice.key
-                                                }
-                                                arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, dataInvoice.key, (dataInvoice.value ? Number(dataInvoice.value) : 0))
-                                                // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataInvoice.key, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
-                                                arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, dataInvoice.key, Number(dataInvoice.value))
-                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
-                                                for (let item of arrayDebtSurplus) {
-                                                    if (item.key == dataInvoice.key) {
-                                                        debtSurplus = item.value
-                                                    }
-                                                }
-                                                obj['debtSurplus'] = debtSurplus
-                                                array.push(obj);
-                                                stt += 1;
+                                        if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
+                                            let obj = {
+                                                stt: stt,
+                                                accountingName: 'Phải thu của khách hàng',
+                                                accountingCode: '131',
+                                                accountingReciprocalName: 'Doanh thu bán hàng',
+                                                accountingReciprocalCode: '511',
+                                                numberReceipts: '',
+                                                createDate: invoice.createdDate,
+                                                entryDate: invoice.createdDate,
+                                                number: invoice.invoiceNumber,
+                                                reason: invoice.customerName + ' chưa thanh toán',
+                                                idAccounting: invoice.invoiceID ? invoice.invoiceID : null,
+                                                creditIncurred: 0,
+                                                debtIncurred: invoice.moneyTotal,
+                                                debtSurplus: 0, // số dư phải tính
+                                                creaditSurplus: null,
+                                                numberOfReceipt: '',
+                                                numberOfPayment: '',
+                                                receiver: '',
+                                                customerName: invoice.customerName,
+                                                nameCurrency: invoice.typeMoney
                                             }
+                                            arrayDebtIncurred = await addValueOfArray(arrayDebtIncurred, invoice.typeMoney, (invoice.moneyTotal ? Number(invoice.moneyTotal) : 0))
+                                            // arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, invoice.typeMoney, (objWaitForPay.creditIncurred ? objWaitForPay.creditIncurred : 0))
+                                            arrayDebtSurplus = await addValueOfArray(arrayDebtSurplus, invoice.typeMoney, Number(invoice.moneyTotal))
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            totalDebtSurplus += (obj.debtSurplus ? obj.debtSurplus : 0);
+                                            for (let item of arrayDebtSurplus) {
+                                                if (item.key == invoice.typeMoney) {
+                                                    debtSurplus = item.value
+                                                }
+                                            }
+                                            obj['debtSurplus'] = debtSurplus
+                                            array.push(obj);
+                                            stt += 1;
                                         }
                                     }
                                 }
@@ -2769,68 +2604,64 @@ module.exports = {
                             if (dataSearch.selection && (dataSearch.dateTo || dataSearch.selection == 'two_quarter' || dataSearch.selection == 'all' || dataSearch.selection == 'this_year' || dataSearch.selection == 'first_six_months') && (checkAccount331 && checkAccount331.AccountingCode == '331')) {
                                 let arrayCredit = await getInvoiceWaitForPayInDB(db, dataCredit, '331', customer.id ? customer.id : null)
                                 for (credit of arrayCredit) {
-                                    for (let checkCurr of credit.arrayTotal) {
-                                        if (!checkDuplicate(arrayCurrency, checkCurr.key)) {
-                                            arrayCurrency.push(checkCurr.key)
-                                            arrayCreditIncurred.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                            arrayDebtIncurred.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                            arrayDebtSurplus.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                            arrayCreaditSurplus.push({
-                                                key: checkCurr.key,
-                                                value: 0
-                                            })
-                                        }
+                                    if (!checkDuplicate(arrayCurrency, credit.typeMoney)) {
+                                        arrayCurrency.push(credit.typeMoney)
+                                        arrayCreditIncurred.push({
+                                            key: credit.typeMoney,
+                                            value: 0
+                                        })
+                                        arrayDebtIncurred.push({
+                                            key: credit.typeMoney,
+                                            value: 0
+                                        })
+                                        arrayDebtSurplus.push({
+                                            key: credit.typeMoney,
+                                            value: 0
+                                        })
+                                        arrayCreaditSurplus.push({
+                                            key: credit.typeMoney,
+                                            value: 0
+                                        })
                                     }
                                     let dateInvoice = moment(credit.createdDate).format('YYYY-DD-MM')
                                     let dateFrom = moment(dataSearch.dateFrom).subtract(7, 'hours').format('YYYY-MM-DD')
                                     let dateTo = moment(dataSearch.dateTo).subtract(7, 'hours').format('YYYY-MM-DD')
                                     if (!dataSearch.accountSystemOtherID || checkCccountSystemOtherID && checkCccountSystemOtherID.AccountingCode == credit.accountingCredit) {
                                         // vì là tài khoản lưỡng tính
-                                        for (let dataCredit of credit.arrayTotal) {
-                                            if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
-                                                let obj = {
-                                                    stt: stt,
-                                                    accountingName: 'Phải trả',
-                                                    accountingCode: '331',
-                                                    accountingReciprocalName: 'Chi phí bán hàng',
-                                                    accountingReciprocalCode: '642',
-                                                    numberReceipts: '',
-                                                    createDate: credit.createdDate,
-                                                    entryDate: credit.createdDate,
-                                                    number: credit.invoiceNumber,
-                                                    reason: credit.customerName + ' chưa thanh toán',
-                                                    idAccounting: credit.invoiceID ? credit.invoiceID : null,
-                                                    creditIncurred: dataCredit.value,
-                                                    debtIncurred: 0,
-                                                    debtSurplus: null, // số dư phải tính
-                                                    creaditSurplus: null,
-                                                    numberOfReceipt: '',
-                                                    numberOfPayment: '',
-                                                    receiver: '',
-                                                    customerName: credit.customerName,
-                                                    nameCurrency: dataCredit.key
-                                                }
-                                                arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, dataCredit.key, (dataCredit.value ? Number(dataCredit.value) : 0))
-                                                arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, dataCredit.key, Number(dataCredit.value))
-                                                for (let item of arrayCreaditSurplus) {
-                                                    if (item.key == dataCredit.key) {
-                                                        creaditSurplus = item.value
-                                                    }
-                                                }
-                                                obj['creaditSurplus'] = creaditSurplus
-                                                totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
-                                                array.push(obj);
-                                                stt += 1;
+                                        if (!dataSearch.dateFrom || !dataSearch.dateTo || (moment(dateTo).isAfter(dateInvoice) && moment(dateFrom).isBefore(dateInvoice) || moment(dateTo).isSame(dateInvoice) || moment(dateFrom).isSame(dateInvoice))) {
+                                            let obj = {
+                                                stt: stt,
+                                                accountingName: 'Phải trả',
+                                                accountingCode: '331',
+                                                accountingReciprocalName: 'Chi phí bán hàng',
+                                                accountingReciprocalCode: '642',
+                                                numberReceipts: '',
+                                                createDate: credit.createdDate,
+                                                entryDate: credit.createdDate,
+                                                number: credit.invoiceNumber,
+                                                reason: credit.customerName + ' chưa thanh toán',
+                                                idAccounting: credit.invoiceID ? credit.invoiceID : null,
+                                                creditIncurred: credit.moneyTotal,
+                                                debtIncurred: 0,
+                                                debtSurplus: null, // số dư phải tính
+                                                creaditSurplus: null,
+                                                numberOfReceipt: '',
+                                                numberOfPayment: '',
+                                                receiver: '',
+                                                customerName: credit.customerName,
+                                                nameCurrency: credit.moneyTotal
                                             }
+                                            arrayCreditIncurred = await addValueOfArray(arrayCreditIncurred, credit.typeMoney, (credit.moneyTotal ? Number(credit.moneyTotal) : 0))
+                                            arrayCreaditSurplus = await addValueOfArray(arrayCreaditSurplus, credit.typeMoney, Number(credit.moneyTotal))
+                                            for (let item of arrayCreaditSurplus) {
+                                                if (item.key == credit.typeMoney) {
+                                                    creaditSurplus = item.value
+                                                }
+                                            }
+                                            obj['creaditSurplus'] = creaditSurplus
+                                            totalCreaditSurplus += (obj.creaditSurplus ? obj.creaditSurplus : 0);
+                                            array.push(obj);
+                                            stt += 1;
                                         }
                                     }
                                 }
