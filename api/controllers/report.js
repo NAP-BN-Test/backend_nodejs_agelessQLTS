@@ -27,6 +27,7 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
             array.push(element.ID);
         });
     })
+    console.log(array);
     await mThemVPPChiTiet(db).findAll({
         where: {
             [Op.and]: [
@@ -39,6 +40,7 @@ async function getOpeningBalance(db, idVPP, dateFrom) {
             ]
         }
     }).then(detail => {
+        console.log(detail);
         detail.forEach(item => {
             result += item.Amount ? item.Amount : 0;
         })
@@ -232,7 +234,7 @@ async function calculateDepreciationForTheFollowingYears(year, time, dateAssetDe
         yearEndResidualValue = originalPrice - accumulatedDepreciationEndYear
         if (((y - yearAsset) * 12 - monthAsset + 12) >= time) {
             let balance = 0 // số tháng dư
-            //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
+                //  lấy số tháng dư trừ 1 để lấy số tháng còn lại của năm sau
             balance = (12 - (((y - yearAsset) * 12 - monthAsset + 12) - time))
             for (month = 1; month < balance; month++) {
                 objGoods['discountedValue' + month] = monthlyDepreciationRate
@@ -272,7 +274,7 @@ async function getDetailAsset(db, idGoods, goodsName, year) {
             model: mtblTaiSanADD(db),
             required: false,
             as: 'asset'
-        },],
+        }, ],
     }).then(async asset => {
         let stt = 1;
         for (let s = 0; s < asset.length; s++) {
@@ -326,7 +328,7 @@ async function getInfoAssetFromIDTypeAsset(db, typeAssetID, year) {
     }).then(async goods => {
         for (var g = 0; g < goods.length; g++) {
             let arrayAsset = await getDetailAsset(db, goods[g].ID, goods[g].Name, year)
-            // console.log(arrayAsset);
+                // console.log(arrayAsset);
             Array.prototype.push.apply(arrayResult, arrayAsset);
         }
 
@@ -342,10 +344,15 @@ module.exports = {
             if (db) {
                 try {
                     let stt = 1;
+                    let whereVPP = {}
+                    if (body.idVPP > 0) {
+                        whereVPP = { ID: body.idVPP }
+                    }
                     mtblVanPhongPham(db).findAll({
                         order: [
                             ['ID', 'DESC']
                         ],
+                        where: whereVPP,
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                     }).then(async data => {
@@ -356,7 +363,9 @@ module.exports = {
                             var duringBalance = 0;
                             var outputPeriod = 0;
                             if (body.dateFrom && body.dateTo) {
+                                console.log(1);
                                 openingBalance = await getOpeningBalance(db, data[i].ID, body.dateFrom);
+                                console.log(openingBalance);
                                 duringBalance = await getDuringBalance(db, data[i].ID, body.dateFrom, body.dateTo);
                                 outputPeriod = await getOutputPeriod(db, data[i].ID, body.dateFrom, body.dateTo);
                                 closingBalance = Number(openingBalance) + Number(duringBalance) - Number(outputPeriod);

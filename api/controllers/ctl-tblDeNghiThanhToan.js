@@ -7,6 +7,8 @@ var database = require('../database');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMUser = require('../tables/constants/tblDMUser');
+var mtblRole = require('../tables/constants/tblRole');
+var mtblRoleUser = require('../tables/constants/tblRRoleUser');
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 var mtblYeuCauMuaSam = require('../tables/qlnb/tblYeuCauMuaSam')
@@ -24,6 +26,8 @@ var mThemVPPChiTiet = require('../tables/qlnb/ThemVPPChiTiet');
 var mtblPaymentRCredit = require('../tables/financemanage/tblPaymentRCredit')
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
 var mtblCurrency = require('../tables/financemanage/tblCurrency')
+
+let dataCustomer = customerData.getCustomerOfPMCM()
 async function deleteRelationshiptblDeNghiThanhToan(db, listID) {
     let arrayReceiptsPayment = []
 
@@ -78,30 +82,30 @@ async function getDetailYCMS(db, id) {
             ['ID', 'DESC']
         ],
         include: [{
-            model: mtblDMBoPhan(db),
-            required: false,
-            as: 'phongban'
-        },
-        {
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'NhanVien'
-        },
-        {
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'PheDuyet1',
-        },
-        {
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'PheDuyet2',
-        },
-        {
-            model: tblYeuCauMuaSamDetail,
-            required: false,
-            as: 'line'
-        },
+                model: mtblDMBoPhan(db),
+                required: false,
+                as: 'phongban'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'NhanVien'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet1',
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet2',
+            },
+            {
+                model: tblYeuCauMuaSamDetail,
+                required: false,
+                as: 'line'
+            },
         ],
         // offset: Number(body.itemPerPage) * (Number(body.page) - 1),
         // limit: Number(body.itemPerPage),
@@ -146,7 +150,7 @@ async function getDetailYCMS(db, id) {
                             model: mtblDMLoaiTaiSan(db),
                             required: false,
                             as: 'loaiTaiSan'
-                        },],
+                        }, ],
                     }).then(data => {
                         if (data)
                             arrayTaiSan.push({
@@ -207,16 +211,16 @@ async function getDetailYCMS(db, id) {
 }
 var mModules = require('../constants/modules');
 async function getDetailCustomer(id) {
-    await database.connectDatabase().then(async db => {
-        let dataCustomer = await customerData.getListCustomerOfPMCM(db)
-        var obj = {}
-        dataCustomer.forEach(item => {
-            if (item.id == id) {
-                obj = item
-            }
-        })
-        return obj
-    })
+    let dataCustomer = await customerData.getDetailCustomerOfPMCM(id)
+        // var obj = {}
+        // dataCustomer.data.forEach(item => {
+        //     if (item.id == id) {
+        //         obj = item
+        //     }
+        // })
+        // console.log(obj);
+    return dataCustomer.data
+
 }
 
 module.exports = {
@@ -236,7 +240,7 @@ module.exports = {
                         CostText: body.costText ? body.costText : null,
                         IDNhanVienKTPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
-                        IDNhanVienLDPD: body.idNhanVienKTPD ? body.idNhanVienKTPD : null,
+                        IDNhanVienLDPD: body.idNhanVienLDPD ? body.idNhanVienLDPD : null,
                         Description: body.description ? body.description : '',
                         TrangThaiPheDuyetLD: 'Chờ phê duyệt',
                         Link: body.linkPayroll ? body.linkPayroll : '',
@@ -334,8 +338,7 @@ module.exports = {
                         if (body.object.type == 'customer') {
                             update.push({ key: 'CustomerID', value: body.object.id });
                             update.push({ key: 'IDSupplier', value: null });
-                        }
-                        else {
+                        } else {
                             update.push({ key: 'CustomerID', value: null });
                             update.push({ key: 'IDSupplier', value: body.object.id });
                         }
@@ -443,15 +446,15 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [{
-                                        StaffCode: {
-                                            [Op.like]: '%' + data.search + '%'
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
                                         }
-                                    },
-                                    {
-                                        StaffName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -461,15 +464,15 @@ module.exports = {
                             })
                             where = {
                                 [Op.or]: [{
-                                    IDNhanVien: {
-                                        [Op.in]: list
+                                        IDNhanVien: {
+                                            [Op.in]: list
+                                        }
+                                    },
+                                    {
+                                        PaymentOrderCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
                                     }
-                                },
-                                {
-                                    PaymentOrderCode: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                }
                                 ]
                             };
                         } else {
@@ -477,7 +480,7 @@ module.exports = {
                                 Contents: {
                                     [Op.ne]: '%%'
                                 }
-                            },];
+                            }, ];
                         }
                         whereObj[Op.and] = where
                         if (data.items) {
@@ -527,7 +530,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'NỘI DUNG THANH TOÁN') {
-                                    userFind['Contents'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Contents'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -549,7 +554,9 @@ module.exports = {
                                             array.push(item.ID)
                                         }
                                     })
-                                    userFind['IDNhanVien'] = { [Op.in]: array }
+                                    userFind['IDNhanVien'] = {
+                                        [Op.in]: array
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -564,8 +571,10 @@ module.exports = {
                                     let array = []
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
-                                    array.sort(function (a, b) { return a - b });
-                                    userFind['Cost'] = { [Op.between]: array }
+                                    array.sort(function(a, b) { return a - b });
+                                    userFind['Cost'] = {
+                                        [Op.between]: array
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -583,12 +592,39 @@ module.exports = {
                             let staff = await mtblDMUser(db).findOne({
                                 where: { ID: body.userID }
                             })
-                            if (staff && staff.Username.toUpperCase() != 'ADMIN') {
-                                arraySearchOr.push({ IDNhanVien: staff.IDNhanvien })
-                                arraySearchOr.push({ IDNhanVienKTPD: staff.IDNhanvien })
-                                arraySearchOr.push({ IDNhanVienLDPD: staff.IDNhanvien })
+                            let role = await mtblRole(db).findAll({
+                                where: {
+                                    [Op.or]: [{
+                                            Code: 'KTV'
+                                        },
+                                        {
+                                            Code: 'KTT'
+                                        },
+                                        {
+                                            Code: 'ADMIN'
+                                        }
+                                    ]
+                                }
+                            })
+                            if (role) {
+                                let arridrole = []
+                                role.forEach(item => {
+                                    arridrole.push(item.ID)
+                                })
+                                let objRoleUser = await mtblRoleUser(db).findAll({
+                                    where: {
+                                        RoleID: {
+                                            [Op.in]: arridrole
+                                        },
+                                        UserID: body.userID
+                                    }
+                                })
+                                if (!objRoleUser[0]) {
+                                    arraySearchOr.push({ IDNhanVien: staff.IDNhanvien })
+                                    arraySearchOr.push({ IDNhanVienKTPD: staff.IDNhanvien })
+                                    arraySearchOr.push({ IDNhanVienLDPD: staff.IDNhanvien })
+                                }
                             }
-
                         }
                         if (userObj.length > 0)
                             arraySearchOr.push(userObj)
@@ -616,35 +652,35 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         include: [{
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'NhanVien',
-                            include: [{
-                                model: mtblDMBoPhan(db),
+                                model: tblDMNhanvien,
                                 required: false,
-                                as: 'bp'
-                            },]
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'KTPD'
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'LDPD'
-                        },
-                        {
-                            model: mtblDMNhaCungCap(db),
-                            required: false,
-                            as: 'supplier'
-                        },
-                        {
-                            model: mtblCurrency(db),
-                            required: false,
-                            as: 'currency'
-                        },
+                                as: 'NhanVien',
+                                include: [{
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'bp'
+                                }, ]
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'KTPD'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'LDPD'
+                            },
+                            {
+                                model: mtblDMNhaCungCap(db),
+                                required: false,
+                                as: 'supplier'
+                            },
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -783,35 +819,35 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         include: [{
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'NhanVien',
-                            include: [{
-                                model: tblDMBoPhan,
+                                model: tblDMNhanvien,
                                 required: false,
-                                as: 'bophan',
+                                as: 'NhanVien',
                                 include: [{
-                                    model: mtblDMChiNhanh(db),
+                                    model: tblDMBoPhan,
                                     required: false,
-                                    as: 'chinhanh'
-                                },],
-                            },],
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'KTPD'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'LDPD'
-                        },
-                        {
-                            model: mtblDMNhaCungCap(db),
-                            required: false,
-                            as: 'supplier'
-                        },
+                                    as: 'bophan',
+                                    include: [{
+                                        model: mtblDMChiNhanh(db),
+                                        required: false,
+                                        as: 'chinhanh'
+                                    }, ],
+                                }, ],
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'KTPD'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'LDPD'
+                            },
+                            {
+                                model: mtblDMNhaCungCap(db),
+                                required: false,
+                                as: 'supplier'
+                            },
                         ],
                     }).then(async data => {
                         var obj = {
@@ -1138,8 +1174,7 @@ module.exports = {
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
                         where: {
-                            [Op.or]: [
-                                {
+                            [Op.or]: [{
                                     TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                                 },
                                 {
@@ -1148,35 +1183,35 @@ module.exports = {
                             ]
                         },
                         include: [{
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'NhanVien',
-                            include: [{
-                                model: mtblDMBoPhan(db),
+                                model: tblDMNhanvien,
                                 required: false,
-                                as: 'bp'
-                            },]
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'KTPD'
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'LDPD'
-                        },
-                        {
-                            model: mtblDMNhaCungCap(db),
-                            required: false,
-                            as: 'supplier'
-                        },
-                        {
-                            model: mtblCurrency(db),
-                            required: false,
-                            as: 'currency'
-                        },
+                                as: 'NhanVien',
+                                include: [{
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'bp'
+                                }, ]
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'KTPD'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'LDPD'
+                            },
+                            {
+                                model: mtblDMNhaCungCap(db),
+                                required: false,
+                                as: 'supplier'
+                            },
+                            {
+                                model: mtblCurrency(db),
+                                required: false,
+                                as: 'currency'
+                            },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -1272,8 +1307,7 @@ module.exports = {
                         }
                         var count = await mtblDeNghiThanhToan(db).count({
                             where: {
-                                [Op.or]: [
-                                    {
+                                [Op.or]: [{
                                         TrangThaiPheDuyetKT: 'Chờ phê duyệt',
                                     },
                                     {

@@ -21,6 +21,8 @@ async function deleteRelationshiptblDMNhaCungCap(db, listID) {
     })
 }
 var customerData = require('../controller_finance/ctl-apiSpecializedSoftware')
+
+let dataCustomer = customerData.getCustomerOfPMCM()
 module.exports = {
     deleteRelationshiptblDMNhaCungCap,
     // add_tbl_dmnhacungcap
@@ -372,7 +374,6 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let dataCustomer = await customerData.getListCustomerOfPMCM(db)
                     mtblDMNhaCungCap(db).findAll({
                         order: [
                             ['SupplierName', 'ASC']

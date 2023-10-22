@@ -44,8 +44,8 @@ async function getPermissionForUser(userID) {
                             }
                         }
                     }
-                }
 
+                }
             })
         }
     })
@@ -68,13 +68,13 @@ module.exports = {
                     let count = await tblDMUser.count({ where: whereOjb })
                     tblDMUser.findOne({
                         include: [{
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                        },
-                        {
-                            model: mtblDMPermission(db),
-                            required: false,
-                        }
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                            },
+                            {
+                                model: mtblDMPermission(db),
+                                required: false,
+                            }
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -105,7 +105,7 @@ module.exports = {
                                 model: mtblRole(db),
                                 required: false,
                                 as: 'role'
-                            },],
+                            }, ],
                         }).then(user => {
                             let users = []
                             for (let u = 0; u < user.length; u++) {
@@ -467,7 +467,7 @@ module.exports = {
                                         PermissionName: {
                                             [Op.like]: '%' + data.search + '%'
                                         }
-                                    },]
+                                    }, ]
                                 }
                             }).then(data => {
                                 data.forEach(item => {
@@ -481,15 +481,15 @@ module.exports = {
                             await mtblDMNhanvien(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                        StaffName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    },
-                                    {
-                                        StaffCode: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    },
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
                                     ]
                                 },
                                 order: [
@@ -502,41 +502,41 @@ module.exports = {
                             })
                             if (active !== '')
                                 where = [{
-                                    IDPermission: {
-                                        [Op.in]: permission
-                                    }
-                                },
-                                {
-                                    Username: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                { Active: active },
-                                {
-                                    IDNhanvien: {
-                                        [Op.in]: employeeIDS
-                                    }
-                                },
-                                ];
-                            else
-                                where = [{
-                                    IDPermission: {
-                                        [Op.in]: permission
-                                    }
-                                },
-                                {
-                                    Username: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                // { Active: active },
-                                {
-                                    [Op.and]: {
+                                        IDPermission: {
+                                            [Op.in]: permission
+                                        }
+                                    },
+                                    {
+                                        Username: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    { Active: active },
+                                    {
                                         IDNhanvien: {
                                             [Op.in]: employeeIDS
                                         }
-                                    }
-                                },
+                                    },
+                                ];
+                            else
+                                where = [{
+                                        IDPermission: {
+                                            [Op.in]: permission
+                                        }
+                                    },
+                                    {
+                                        Username: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    // { Active: active },
+                                    {
+                                        [Op.and]: {
+                                            IDNhanvien: {
+                                                [Op.in]: employeeIDS
+                                            }
+                                        }
+                                    },
                                 ];
                             console.log(where);
                         } else {
@@ -544,7 +544,7 @@ module.exports = {
                                 Username: {
                                     [Op.ne]: '%%'
                                 }
-                            },];
+                            }, ];
                         }
                         whereOjb = {
                             [Op.or]: where
@@ -560,7 +560,7 @@ module.exports = {
                                                 StaffName: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            },]
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -588,7 +588,7 @@ module.exports = {
                                                 StaffCode: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            },]
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -647,7 +647,7 @@ module.exports = {
                                                 PermissionName: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            },]
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -677,13 +677,13 @@ module.exports = {
                     let count = await tblDMUser.count({ where: whereOjb })
                     tblDMUser.findAll({
                         include: [{
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                        },
-                        {
-                            model: mtblDMPermission(db),
-                            required: false,
-                        }
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                            },
+                            {
+                                model: mtblDMPermission(db),
+                                required: false,
+                            }
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -717,7 +717,7 @@ module.exports = {
                                     model: mtblRole(db),
                                     required: false,
                                     as: 'role'
-                                },],
+                                }, ],
                             }).then(user => {
                                 let users = []
                                 for (let u = 0; u < user.length; u++) {
@@ -796,25 +796,25 @@ module.exports = {
                 var data = await tblDMUser.findOne({
                     where: { UserName: body.userName, Password: body.password },
                     include: [{
-                        model: tblDMNhanvien,
-                        required: false,
-                        as: 'nv',
-                        include: [{
-                            model: tblDMBoPhan,
+                            model: tblDMNhanvien,
                             required: false,
-                            as: 'bp',
+                            as: 'nv',
                             include: [{
-                                model: mtblDMChiNhanh(db),
+                                model: tblDMBoPhan,
                                 required: false,
-                                as: 'chinhanh'
-                            },],
-                        }],
-                    },
-                    {
-                        model: mtblDMPermission(db),
-                        required: false,
-                        as: 'pms',
-                    }
+                                as: 'bp',
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
+                                    required: false,
+                                    as: 'chinhanh'
+                                }, ],
+                            }],
+                        },
+                        {
+                            model: mtblDMPermission(db),
+                            required: false,
+                            as: 'pms',
+                        }
                     ],
                 })
                 if (data) {
@@ -840,12 +840,12 @@ module.exports = {
                         permissions: data.Permissions ? data.Permissions : '',
                     }
                     payload = {
-                        "Username": req.body.userName,
-                        // standard fields
-                        // - Xác thực người tạo
-                        "iss": "Tungnn",
-                    }
-                    // payload = { username: 'haidn', password: '123456a$' }
+                            "Username": req.body.userName,
+                            // standard fields
+                            // - Xác thực người tạo
+                            "iss": "Tungnn",
+                        }
+                        // payload = { username: 'haidn', password: '123456a$' }
                     let token = jwt.sign(payload,
                         'abcdxys', { expiresIn: '30d' }
                     );
@@ -857,7 +857,7 @@ module.exports = {
                             model: mtblRole(db),
                             required: false,
                             as: 'role'
-                        },],
+                        }, ],
                     }).then(user => {
                         let objRole = {}
                         for (let u = 0; u < user.length; u++) {

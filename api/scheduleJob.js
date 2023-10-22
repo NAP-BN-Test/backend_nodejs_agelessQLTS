@@ -69,19 +69,19 @@ async function converFromSecondsToHourLate(number) {
     var result = 'M' + Math.floor(number / 60);
     if (Math.floor(number / 60) == 0)
         result = ''
-    // let h = Math.floor(number / 60)
-    // if (h > 0) {
-    //     result = 'M' + h + 'h'
-    //     var remainder = Math.floor((number - (h * 3600)) / 60)
-    //     if (remainder > 0) {
-    //         result += (Math.floor((remainder / 5)) * 5 + "'")
-    //     }
-    // } else {
-    //     var remainder = Math.floor((number - (h * 3600)) / 60)
-    //     if (remainder > 0) {
-    //         result += ('M' + Math.floor((remainder / 5)) * 5 + "'")
-    //     }
-    // }
+        // let h = Math.floor(number / 60)
+        // if (h > 0) {
+        //     result = 'M' + h + 'h'
+        //     var remainder = Math.floor((number - (h * 3600)) / 60)
+        //     if (remainder > 0) {
+        //         result += (Math.floor((remainder / 5)) * 5 + "'")
+        //     }
+        // } else {
+        //     var remainder = Math.floor((number - (h * 3600)) / 60)
+        //     if (remainder > 0) {
+        //         result += ('M' + Math.floor((remainder / 5)) * 5 + "'")
+        //     }
+        // }
 
     return result;
 }
@@ -97,14 +97,14 @@ async function converFromSecondsToHourAftersoon(number) {
     var result = "S" + Math.floor(number / 60);
     if (Math.floor(number / 60) == 0)
         result = ''
-    // let h = Math.floor(number / 3600)
-    // if (h > 0) {
-    //     result = h + 'h'
-    // }
-    // var remainder = Math.floor((number - (h * 3600)) / 60)
-    // if (remainder > 0) {
-    //     result += (Math.floor((remainder / 5)) * 5 + "'")
-    // }
+        // let h = Math.floor(number / 3600)
+        // if (h > 0) {
+        //     result = h + 'h'
+        // }
+        // var remainder = Math.floor((number - (h * 3600)) / 60)
+        // if (remainder > 0) {
+        //     result += (Math.floor((remainder / 5)) * 5 + "'")
+        // }
     return result;
 }
 // ghi dữ liệu từ máy chấm công vào database
@@ -113,10 +113,10 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
     var summaryEndDateC = 0;
     var statusMorning = '';
     var statusAfternoon = '';
-    let seventeenH = 3600 * 17 + 30 * 60
-    let eightH = 3600 * 8
-    let twelveH = 3600 * 12 + 30 * 60
-    let thirteenH = 3600 * 13
+    let seventeenH = 3600 * 17 + 25 * 60
+    let eightH = 3600 * 8 + 20 * 60
+    let twelveH = 3600 * 12
+    let thirteenH = 3600 * 13 + 30 * 60
     let arrayTimeOfDate = await filterByDate(userID, date, arrayData, month, year)
     let maxTime = await maxTimeArray(arrayTimeOfDate);
     let minTime = await minTimeArray(arrayTimeOfDate);
@@ -164,7 +164,7 @@ async function writeDataFromTimekeeperToDatabase(db, userID, arrayData, month, y
             if (minTime >= thirteenH) {
                 statusMorning = '0.5'
                 summaryEndDateS = 0.5
-                // check chiều
+                    // check chiều
                 if (thirteenH <= minTime) {
                     statusAfternoon = await converFromSecondsToHourLate(minTime - thirteenH)
                     summaryEndDateC = await roundNumberMinutes(minTime - thirteenH)
@@ -237,7 +237,9 @@ async function take7thDataToWork(db, year, month, dateRequest = 10) {
     dateMonthFirst = moment(dateMonthFirst).add(7, 'hours')
     await mtblConfigWorkday(db).findAll({
         where: {
-            Date: { [Op.between]: [dateMonthFirst, dateWhere] },
+            Date: {
+                [Op.between]: [dateMonthFirst, dateWhere]
+            },
         },
         order: [
             ['Date', 'DESC']
@@ -251,7 +253,7 @@ async function take7thDataToWork(db, year, month, dateRequest = 10) {
             }
     })
     return array7thDB
-    // ----------------------------------------------------------------------
+        // ----------------------------------------------------------------------
 }
 const axios = require('axios');
 async function getListHoliday(db, year, month, dateFinal) {
@@ -296,7 +298,9 @@ async function takeDataToWork(db, year, month, dateRequest = 10) {
     dateMonthFirst = moment(dateMonthFirst).add(7, 'hours')
     await mtblConfigWorkday(db).findAll({
         where: {
-            Date: { [Op.between]: [dateMonthFirst, dateWhere] },
+            Date: {
+                [Op.between]: [dateMonthFirst, dateWhere]
+            },
         },
         order: [
             ['Date', 'DESC']
@@ -309,7 +313,7 @@ async function takeDataToWork(db, year, month, dateRequest = 10) {
             }
     })
     return array7thDB
-    // ----------------------------------------------------------------------
+        // ----------------------------------------------------------------------
 }
 // Tạo dữ liệu chấm công
 async function createAttendanceData(db, staffID, date, Time, status, reason, type, SummaryEndDate) {
@@ -355,7 +359,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
                 let dateStart = moment(date[i].DateStart).subtract(7, 'hours').date()
                 let dateEnd = moment(date[i].DateEnd).subtract(7, 'hours').date()
                 let dateEndMonth = moment(date[i].DateEnd).subtract(7, 'hours').month()
-                // lấy tháng bị trừ 1
+                    // lấy tháng bị trừ 1
                 let signObj = await mtblLoaiChamCong(db).findOne({ where: { ID: date[i].IDLoaiChamCong } })
                 signLeave = signObj ? signObj.Code : ''
                 if (signObj && signObj.Code == 'O' || signObj.Code == 'CT' || signObj.Code == 'TS' || signObj.Code == 'CÐ') {
@@ -398,6 +402,7 @@ async function getListleaveDate(db, month, year, staffID, dateFinal) {
     }
     return objResult
 }
+
 function checkDuplicate(array, elm) {
     var check = false;
     array.forEach(item => {
@@ -427,7 +432,7 @@ async function createDataTimeKeeping(db, year, month, date, staffID, IDMayChamCo
             await createAttendanceData(db, staffID, dateMonth, null, 'Holiday', 'Nghỉ lễ', false, 0)
         } else {
             var arrayLeaveDay = await getListleaveDate(db, month, year, staffID, dateFinal)
-            // check xem có trong ngày nghỉ phép không ?
+                // check xem có trong ngày nghỉ phép không ?
             if (checkDuplicate(arrayLeaveDay.array, date)) {
                 for (let i = 0; i < arrayLeaveDay.arrayObj.length; i++) {
                     if (arrayLeaveDay.arrayObj[i].date == date) {
@@ -447,7 +452,7 @@ async function createDataTimeKeeping(db, year, month, date, staffID, IDMayChamCo
 }
 
 module.exports = {
-    editStatus24HourEveryday: async (req, res) => {
+    editStatus24HourEveryday: async(req, res) => {
         database.connectDatabase().then(async db => {
             try {
                 let now = moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
@@ -455,7 +460,9 @@ module.exports = {
                 let leave = await mtblNghiPhep(db).findAll({
                     where: {
                         Type: 'SignUp',
-                        Status: { [Op.ne]: 'Hoàn thành' },
+                        Status: {
+                            [Op.ne]: 'Hoàn thành'
+                        },
                     }
                 })
                 for (let l = 0; l < leave.length; l++) {
@@ -477,7 +484,7 @@ module.exports = {
                         }
                     })
                 }
-                var job = schedule.scheduleJob({ hour: 23, minute: 59 }, async function () {
+                var job = schedule.scheduleJob({ hour: 23, minute: 59 }, async function() {
                     let nowCur = moment().add(14, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
                     await mtblCurrency(db).findAll().then(async data => {
                         for (let i = 0; i < data.length; i++) {
@@ -510,7 +517,9 @@ module.exports = {
                     for (let monthYear = 0; monthYear < arrayMonthCheck.length; monthYear++) {
                         await mtblChamCong(db).destroy({
                             where: {
-                                Date: { [Op.substring]: arrayMonthCheck[monthYear] }
+                                Date: {
+                                    [Op.substring]: arrayMonthCheck[monthYear]
+                                }
                             }
                         })
                     }
@@ -551,7 +560,9 @@ module.exports = {
                                         let timeKeeping = await mtblChamCong(db).findOne({
                                             where: {
                                                 IDNhanVien: staffObj[staff].ID,
-                                                Date: { [Op.substring]: dateCheck },
+                                                Date: {
+                                                    [Op.substring]: dateCheck
+                                                },
                                             }
                                         })
                                         if (!timeKeeping) {
@@ -582,7 +593,7 @@ module.exports = {
                         }
                     })
                 });
-                schedule.scheduleJob({ hour: 11, minute: 59 }, async function () {
+                schedule.scheduleJob({ hour: 11, minute: 59 }, async function() {
                     let arrayData = [];
                     await axios.get(`http://dbdev.namanphu.vn:1333/dulieuchamcong/index`).then(data => {
                         if (data.data.length > 0)
@@ -597,7 +608,9 @@ module.exports = {
                     for (let monthYear = 0; monthYear < arrayMonthCheck.length; monthYear++) {
                         await mtblChamCong(db).destroy({
                             where: {
-                                Date: { [Op.substring]: arrayMonthCheck[monthYear] }
+                                Date: {
+                                    [Op.substring]: arrayMonthCheck[monthYear]
+                                }
                             }
                         })
                     }
@@ -638,7 +651,9 @@ module.exports = {
                                         let timeKeeping = await mtblChamCong(db).findOne({
                                             where: {
                                                 IDNhanVien: staffObj[staff].ID,
-                                                Date: { [Op.substring]: dateCheck },
+                                                Date: {
+                                                    [Op.substring]: dateCheck
+                                                },
                                             }
                                         })
                                         if (!timeKeeping) {

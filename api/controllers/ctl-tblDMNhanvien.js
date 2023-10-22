@@ -2,6 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
+var assert = require('underscore');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mtblDMChiNhanh = require('../tables/constants/tblDMChiNhanh')
 var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
@@ -24,6 +25,8 @@ var mtblDMGiaDinh = require('../tables/hrmanage/tblDMGiaDinh')
 var mtblDeNghiThanhToan = require('../tables/qlnb/tblDeNghiThanhToan')
 const Sequelize = require('sequelize');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
+var mtblRRoleUser = require('../tables/constants/tblRRoleUser');
+var mtblRole = require('../tables/constants/tblRole')
 
 // nhân sự
 var mtblChamCong = require('../tables/hrmanage/tblChamCong')
@@ -39,6 +42,30 @@ var mtblDecidedInsuranceSalary = require('../tables/hrmanage/tblDecidedInsurance
 var mtblRewardPunishmentRStaff = require('../tables/hrmanage/tblRewardPunishmentRStaff')
 
 var database = require('../database');
+async function handleCalculateAdvancePayment(db, idStaff) {
+    let staffData = await mtblHopDongNhanSu(db).findOne({
+        where: { IDNhanVien: idStaff },
+        order: [
+            ['ID', 'ASC']
+        ],
+    })
+    var diff;
+    if (staffData) {
+        let now = new Date()
+        let dateSign = new Date(staffData.Date)
+        diff = await monthDiff(now, dateSign)
+        if (diff > 12) {
+            diff = 12 + Math.floor(diff/60)
+        }
+
+    }
+    return diff ? diff : 0
+}
+async function monthDiff(d1, d2) {
+    var months = 0;
+    months = (Number(moment(d1).format('MM')) + (Number(moment(d1).format('YY')) * 12)) - (Number(moment(d2).format('MM')) + (12 * Number(moment(d2).format('YY'))))
+    return months;
+}
 async function deleteRelationshiptblDMNhanvien(db, listID) {
     await mtblIncreaseSalariesAndStaff(db).destroy({
         where: {
@@ -87,18 +114,17 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
         }
     })
     await mtblChamCong(db).destroy({
-        where: {
-            IDNhanVien: {
-                [Op.in]: listID
+            where: {
+                IDNhanVien: {
+                    [Op.in]: listID
+                }
             }
-        }
-    })
-    // ---------------------------------------------------------------------------------------------------------------
+        })
+        // ---------------------------------------------------------------------------------------------------------------
     let listLeave = []
     await mtblNghiPhep(db).findAll({
         where: {
-            [Op.or]: [
-                {
+            [Op.or]: [{
                     IDNhanVien: {
                         [Op.in]: listID
                     }
@@ -154,13 +180,13 @@ async function deleteRelationshiptblDMNhanvien(db, listID) {
         }
     })
     await mtblNghiPhep(db).destroy({
-        where: {
-            IDAdministrationHR: {
-                [Op.in]: listID
+            where: {
+                IDAdministrationHR: {
+                    [Op.in]: listID
+                }
             }
-        }
-    })
-    // -----------------------------------------------------------------------------------------------------------------------------------------------------
+        })
+        // -----------------------------------------------------------------------------------------------------------------------------------------------------
     await mtblQuyetDinhTangLuong(db).destroy({
         where: {
             IDNhanVien: {
@@ -304,7 +330,7 @@ module.exports = {
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'nv'
-                            },],
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -323,7 +349,7 @@ module.exports = {
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'nv'
-                            },],
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -344,7 +370,7 @@ module.exports = {
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'nv'
-                            },],
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -368,7 +394,7 @@ module.exports = {
                                 model: mtblDMNhanvien(db),
                                 required: false,
                                 as: 'nv'
-                            },],
+                            }, ],
                         }).then(data => {
                             data.forEach(item => {
                                 array.push({
@@ -417,23 +443,23 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: { ID: body.id },
                         include: [{
-                            model: tblDMBoPhan,
-                            required: false,
-                            as: 'bophan',
-                            include: [{
-                                model: mtblDMChiNhanh(db)
-                            }]
-                        },
-                        {
-                            model: mtblDMChucVu(db),
-                            required: false,
-                            as: 'chucvu',
-                        },
-                        {
-                            model: mtblFileAttach(db),
-                            required: false,
-                            as: 'file',
-                        },
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'bophan',
+                                include: [{
+                                    model: mtblDMChiNhanh(db)
+                                }]
+                            },
+                            {
+                                model: mtblDMChucVu(db),
+                                required: false,
+                                as: 'chucvu',
+                            },
+                            {
+                                model: mtblFileAttach(db),
+                                required: false,
+                                as: 'file',
+                            },
                         ],
                     }).then(async data => {
                         var obj = {
@@ -472,6 +498,7 @@ module.exports = {
                             statusEmployee: data.Status ? data.Status : '',
                             productivityWages: data.ProductivityWages ? data.ProductivityWages : '',
                             coefficientsSalary: data.CoefficientsSalary ? data.CoefficientsSalary : 0,
+                            nodateoff: data.NoDateOff ? data.NoDateOff : 0,
                         }
                         obj['fileAttach'] = {
                             id: data.file ? data.file.ID : null,
@@ -492,7 +519,7 @@ module.exports = {
                                 model: mtblLoaiHopDong(db),
                                 required: false,
                                 as: 'loaiHD'
-                            },],
+                            }, ],
                         }).then(hd => {
                             // workingSalary ghi đè lên bảng employee
                             obj['contractCode'] = hd ? hd.ContractCode : '';
@@ -530,6 +557,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    var idNhanVien
                     let check = await mtblDMNhanvien(db).findOne({
                         where: {
                             StaffCode: body.staffCode,
@@ -571,7 +599,9 @@ module.exports = {
                             IDSpecializedSoftware: body.idSpecializedSoftware ? body.idSpecializedSoftware : null,
                             IDMayChamCong: body.idMayChamCong ? body.idMayChamCong : null,
                             FileAttachID: body.fileAttach ? body.fileAttach.id : null,
+                            NoDateOff: body.nodateoff ? body.nodateoff : null,
                         }).then(async data => {
+                            idNhanVien = data.ID
                             await mtblBangLuong(db).create({
                                 Date: body.signDate ? body.signDate : null,
                                 WorkingSalary: body.workingSalary ? body.workingSalary : 0,
@@ -599,6 +629,18 @@ module.exports = {
                                 Status: body.status ? body.status : '',
                                 ProductivityWages: body.productivityWages ? body.productivityWages : null,
                                 CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
+                            }).then(async data => {
+                                var nodateoff
+                                if (!body.nodateoff) {
+                                    nodateoff = await handleCalculateAdvancePayment(db, idNhanVien)
+                                    await mtblDMNhanvien(db).update({
+                                        NoDateOff: nodateoff,
+                                    }, {
+                                        where: {
+                                            ID: idNhanVien
+                                        }
+                                    })
+                                }
                             })
                             var result = {
                                 contractID: contractID.ID,
@@ -632,6 +674,7 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    let updatenghiphep = [];
                     let idCHamCong = await mtblDMNhanvien(db).findOne({
                         where: {
                             ID: body.id,
@@ -765,6 +808,14 @@ module.exports = {
                             update.push({ key: 'ContactUrgent', value: body.contactUrgent });
                         if (body.email || body.email === '')
                             update.push({ key: 'Email', value: body.email });
+                        if (body.nodateoff || body.nodateoff === '') {
+                            if (body.nodateoff === '') {
+                                update.push({ key: 'NoDateOff', value: null });
+                            }else{
+                                update.push({ key: 'NoDateOff', value: body.nodateoff });
+
+                            }
+                        }
                         if (body.idMayChamCong || body.idMayChamCong === '') {
                             if (body.idMayChamCong === '')
                                 update.push({ key: 'IDMayChamCong', value: null });
@@ -773,6 +824,13 @@ module.exports = {
                         }
                         database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
                             if (response == 1) {
+                                mtblNghiPhep(db).update({
+                                    AdvancePayment: body.nodateoff ? body.nodateoff : null,
+                                }, {
+                                    where: {
+                                        IDNhanVien: body.id
+                                    }
+                                })
                                 res.json(Result.ACTION_SUCCESS);
                             } else {
                                 res.json(Result.SYS_ERROR_RESULT);
@@ -836,15 +894,15 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [{
-                                        DepartmentCode: {
-                                            [Op.like]: '%' + data.search + '%'
+                                            DepartmentCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            DepartmentName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
                                         }
-                                    },
-                                    {
-                                        DepartmentName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -853,42 +911,42 @@ module.exports = {
                                 })
                             })
                             where = [{
-                                StaffCode: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
-                            {
-                                StaffName: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
-                            {
-                                Address: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
-                            {
-                                Email: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
-                            {
-                                Gender: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
-                            {
-                                IDBoPhan: {
-                                    [Op.in]: list
-                                }
-                            },
+                                    StaffCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    StaffName: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Address: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Email: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Gender: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    IDBoPhan: {
+                                        [Op.in]: list
+                                    }
+                                },
                             ];
                         } else {
                             where = [{
                                 StaffName: {
                                     [Op.ne]: '%%'
                                 }
-                            },];
+                            }, ];
                         }
                         whereOjb = {
                             [Op.and]: [{
@@ -1085,22 +1143,34 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [{
-                            model: tblDMBoPhan,
-                            required: false,
-                            as: 'bophan',
-                            include: [{
-                                model: mtblDMChiNhanh(db)
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'bophan',
+                                include: [{
+                                    model: mtblDMChiNhanh(db)
+                                }, ]
                             },
-                            ]
-                        },
-                        {
-                            model: mtblFileAttach(db),
-                            required: false,
-                            as: 'file',
-                        },],
+                            {
+                                model: mtblFileAttach(db),
+                                required: false,
+                                as: 'file',
+                            },
+                        ],
                     }).then(data => {
                         var array = [];
-                        data.forEach(element => {
+                        data.forEach(async element => {
+                            var nodateoff
+                            if (!element.NoDateOff) {
+                                nodateoff = await handleCalculateAdvancePayment(db, element.ID)
+                                console.log(nodateoff);
+                                await tblDMNhanvien.update({
+                                    NoDateOff: nodateoff,
+                                }, {
+                                    where: {
+                                        ID: element.ID
+                                    }
+                                })
+                            }
                             var obj = {
                                 stt: stt,
                                 id: Number(element.ID),
@@ -1168,41 +1238,381 @@ module.exports = {
             if (db) {
                 try {
                     let tblDMNhanvien = mtblDMNhanvien(db);
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                        // tblHopDongNhanSu.hasMany(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'hdns' })
 
                     tblDMNhanvien.findAll({
                         include: [{
                             model: mtblDMBoPhan(db),
                             required: false,
                             as: 'bp'
-                        },],
+                        }],
                     }).then(async staff => {
                         var array = [];
                         for (let i = 0; i < staff.length; i++) {
-                            let salary = 0;
-                            if (body.date) {
-                                let dateSearch = moment(data.date).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
-                                await mtblIncreaseSalariesAndStaff(db).findAll({
-                                    where: {
-                                        Date: {
-                                            [Op.lte]: dateSearch
-                                        },
-                                        StaffID: staff[i].ID,
-                                    },
-                                }).then(async data => {
-                                    data.forEach(element => {
-                                        salary += element.Increase
-                                    })
-                                })
+
+                            await tblHopDongNhanSu.findAll({
+                                where: {
+                                    Status: "Có hiệu lực",
+                                    IDNhanVien: staff[i].ID,
+                                },
+                            }).then(async datas => {
+                                if (datas[0]) {
+                                    let salary = 0;
+                                    if (body.date) {
+                                        let dateSearch = moment(data.date).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                                        await mtblIncreaseSalariesAndStaff(db).findAll({
+                                            where: {
+                                                Date: {
+                                                    [Op.lte]: dateSearch
+                                                },
+                                                StaffID: staff[i].ID,
+                                            },
+                                        }).then(async data => {
+                                            data.forEach(element => {
+                                                salary += element.Increase
+                                            })
+                                        })
+                                    }
+                                    var obj = {
+                                        id: Number(staff[i].ID),
+                                        staffCode: staff[i].StaffCode ? staff[i].StaffCode : '',
+                                        staffName: staff[i].StaffName ? staff[i].StaffName : '',
+                                        departmentName: staff[i].bp ? staff[i].bp.DepartmentName : '',
+                                        productivityWagesPresent: Number(staff[i].ProductivityWages ? staff[i].ProductivityWages : 0) + Number(salary),
+                                    }
+                                    array.push(obj);
+                                }
+                            })
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_name_truongbophan
+    getListNameTruongBoPhan: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var arriduser = []
+                    var arridnv = []
+                    let tblRRoleUser = mtblRRoleUser(db);
+                    tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
+                    await tblRRoleUser.findAll({
+                        include: [{
+                            model: mtblRole(db),
+                            where: {
+                                Code: {
+                                    [Op.in]: ['TBCM', 'TBHC', 'KTT', 'KTV']
+                                }
+                            },
+                            required: true,
+                            as: 'role'
+                        }, ],
+                    }).then(user => {
+                        for (let u = 0; u < user.length; u++) {
+                            arriduser.push(user[u].UserID)
+                        }
+                    })
+                    let tblDMUser = mtblDMUser(db);
+                    await tblDMUser.findAll({
+                        where: {
+                            ID: {
+                                [Op.in]: arriduser
                             }
-                            var obj = {
-                                id: Number(staff[i].ID),
-                                staffCode: staff[i].StaffCode ? staff[i].StaffCode : '',
-                                staffName: staff[i].StaffName ? staff[i].StaffName : '',
-                                departmentName: staff[i].bp ? staff[i].bp.DepartmentName : '',
-                                productivityWagesPresent: Number(staff[i].ProductivityWages ? staff[i].ProductivityWages : 0) + Number(salary),
+                        },
+                    }).then(user => {
+                        for (let u = 0; u < user.length; u++) {
+                            arridnv.push(user[u].IDNhanvien)
+                        }
+                    })
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                        // tblHopDongNhanSu.hasMany(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'hdns' })
+
+                    tblDMNhanvien.findAll({
+                        where: {
+                            ID: {
+                                [Op.in]: arridnv
                             }
-                            array.push(obj);
+                        },
+                        include: [{
+                            model: mtblDMBoPhan(db),
+                            required: false,
+                            as: 'bp'
+                        }],
+                    }).then(async staff => {
+                        var array = [];
+                        for (let i = 0; i < staff.length; i++) {
+
+                            await tblHopDongNhanSu.findAll({
+                                where: {
+                                    Status: "Có hiệu lực",
+                                    IDNhanVien: staff[i].ID,
+                                },
+                            }).then(async datas => {
+                                if (datas[0]) {
+                                    let salary = 0;
+                                    if (body.date) {
+                                        let dateSearch = moment(data.date).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                                        await mtblIncreaseSalariesAndStaff(db).findAll({
+                                            where: {
+                                                Date: {
+                                                    [Op.lte]: dateSearch
+                                                },
+                                                StaffID: staff[i].ID,
+                                            },
+                                        }).then(async data => {
+                                            data.forEach(element => {
+                                                salary += element.Increase
+                                            })
+                                        })
+                                    }
+                                    var obj = {
+                                        id: Number(staff[i].ID),
+                                        staffCode: staff[i].StaffCode ? staff[i].StaffCode : '',
+                                        staffName: staff[i].StaffName ? staff[i].StaffName : '',
+                                        departmentName: staff[i].bp ? staff[i].bp.DepartmentName : '',
+                                        productivityWagesPresent: Number(staff[i].ProductivityWages ? staff[i].ProductivityWages : 0) + Number(salary),
+                                    }
+                                    array.push(obj);
+                                }
+                            })
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_name_hanhchinhnhansu
+    getListNameHanhChinhNhanSu: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var arriduser = []
+                    var arridnv = []
+                    let tblRRoleUser = mtblRRoleUser(db);
+                    tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
+                    await tblRRoleUser.findAll({
+                        include: [{
+                            model: mtblRole(db),
+                            where: {
+                                Code: {
+                                    [Op.in]: ['TBHC', 'KTT', 'KTV']
+                                }
+                            },
+                            required: true,
+                            as: 'role'
+                        }, ],
+                    }).then(user => {
+                        for (let u = 0; u < user.length; u++) {
+                            arriduser.push(user[u].UserID)
+                        }
+                    })
+                    let tblDMUser = mtblDMUser(db);
+                    await tblDMUser.findAll({
+                        where: {
+                            ID: {
+                                [Op.in]: arriduser
+                            }
+                        },
+                    }).then(user => {
+                        for (let u = 0; u < user.length; u++) {
+                            arridnv.push(user[u].IDNhanvien)
+                        }
+                    })
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                        // tblHopDongNhanSu.hasMany(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'hdns' })
+
+                    tblDMNhanvien.findAll({
+                        where: {
+                            ID: {
+                                [Op.in]: arridnv
+                            }
+                        },
+                        include: [{
+                            model: mtblDMBoPhan(db),
+                            required: true,
+                            as: 'bp'
+                        }],
+                    }).then(async staff => {
+                        var array = [];
+                        for (let i = 0; i < staff.length; i++) {
+
+                            await tblHopDongNhanSu.findAll({
+                                where: {
+                                    Status: "Có hiệu lực",
+                                    IDNhanVien: staff[i].ID,
+                                },
+                            }).then(async datas => {
+                                if (datas[0]) {
+                                    let salary = 0;
+                                    if (body.date) {
+                                        let dateSearch = moment(data.date).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                                        await mtblIncreaseSalariesAndStaff(db).findAll({
+                                            where: {
+                                                Date: {
+                                                    [Op.lte]: dateSearch
+                                                },
+                                                StaffID: staff[i].ID,
+                                            },
+                                        }).then(async data => {
+                                            data.forEach(element => {
+                                                salary += element.Increase
+                                            })
+                                        })
+                                    }
+                                    var obj = {
+                                        id: Number(staff[i].ID),
+                                        staffCode: staff[i].StaffCode ? staff[i].StaffCode : '',
+                                        staffName: staff[i].StaffName ? staff[i].StaffName : '',
+                                        departmentName: staff[i].bp ? staff[i].bp.DepartmentName : '',
+                                        productivityWagesPresent: Number(staff[i].ProductivityWages ? staff[i].ProductivityWages : 0) + Number(salary),
+                                    }
+                                    array.push(obj);
+                                }
+                            })
+                        }
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_name_thutruong
+    getListNameThuTruong: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var arriduser = []
+                    var arridnv = []
+                    let tblRRoleUser = mtblRRoleUser(db);
+                    tblRRoleUser.belongsTo(mtblRole(db), { foreignKey: 'RoleID', sourceKey: 'RoleID', as: 'role' })
+                    await tblRRoleUser.findAll({
+                        include: [{
+                            model: mtblRole(db),
+                            where: {
+                                Code: {
+                                    [Op.in]: ['ADMIN']
+                                }
+                            },
+                            required: true,
+                            as: 'role'
+                        }, ],
+                    }).then(user => {
+                        for (let u = 0; u < user.length; u++) {
+                            arriduser.push(user[u].UserID)
+                        }
+                    })
+                    let tblDMUser = mtblDMUser(db);
+                    await tblDMUser.findAll({
+                        where: {
+                            ID: {
+                                [Op.in]: arriduser
+                            }
+                        },
+                    }).then(user => {
+                        for (let u = 0; u < user.length; u++) {
+                            arridnv.push(user[u].IDNhanvien)
+                        }
+                    })
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+
+                    // tblHopDongNhanSu.hasMany(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'hdns' })
+
+                    tblDMNhanvien.findAll({
+                        where: {
+                            ID: {
+                                [Op.in]: arridnv
+                            }
+                        },
+                        include: [{
+                            model: mtblDMBoPhan(db),
+                            required: true,
+                            as: 'bp'
+                        }],
+                    }).then(async staff => {
+                        var array = [];
+                        for (let i = 0; i < staff.length; i++) {
+
+                            await tblHopDongNhanSu.findAll({
+                                where: {
+                                    Status: "Có hiệu lực",
+                                    IDNhanVien: staff[i].ID,
+                                },
+                            }).then(async datas => {
+                                if (datas[0]) {
+                                    let salary = 0;
+                                    if (body.date) {
+                                        let dateSearch = moment(data.date).add(30, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                                        await mtblIncreaseSalariesAndStaff(db).findAll({
+                                            where: {
+                                                Date: {
+                                                    [Op.lte]: dateSearch
+                                                },
+                                                StaffID: staff[i].ID,
+                                            },
+                                        }).then(async data => {
+                                            data.forEach(element => {
+                                                salary += element.Increase
+                                            })
+                                        })
+                                    }
+                                    var obj = {
+                                        id: Number(staff[i].ID),
+                                        staffCode: staff[i].StaffCode ? staff[i].StaffCode : '',
+                                        staffName: staff[i].StaffName ? staff[i].StaffName : '',
+                                        departmentName: staff[i].bp ? staff[i].bp.DepartmentName : '',
+                                        productivityWagesPresent: Number(staff[i].ProductivityWages ? staff[i].ProductivityWages : 0) + Number(salary),
+                                    }
+                                    array.push(obj);
+                                }
+                            })
                         }
                         var result = {
                             array: array,
@@ -1250,20 +1660,20 @@ module.exports = {
                                         IDTaiSanBanGiao: data[i].ID,
                                     },
                                     include: [{
-                                        model: tblTaiSan,
-                                        required: false,
-                                        as: 'taisan',
-                                        include: [{
-                                            model: mtblDMHangHoa(db),
+                                            model: tblTaiSan,
                                             required: false,
-                                            as: 'hanghoa'
-                                        },],
-                                    },
-                                    {
-                                        model: mtblTaiSanBanGiao(db),
-                                        required: false,
-                                        as: 'bg',
-                                    },
+                                            as: 'taisan',
+                                            include: [{
+                                                model: mtblDMHangHoa(db),
+                                                required: false,
+                                                as: 'hanghoa'
+                                            }, ],
+                                        },
+                                        {
+                                            model: mtblTaiSanBanGiao(db),
+                                            required: false,
+                                            as: 'bg',
+                                        },
                                     ],
                                 }).then(tsht => {
                                     if (tsht)
@@ -1318,7 +1728,7 @@ module.exports = {
                                         model: mtblVanPhongPham(db),
                                         required: false,
                                         as: 'vpp'
-                                    },],
+                                    }, ],
                                 }).then(detail => {
                                     detail.forEach(element => {
                                         array.push({
@@ -1361,6 +1771,7 @@ module.exports = {
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
                     let all = await tblDMNhanvien.count({ where: whereOjb, })
+                    let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblDMNhanvien.findAll({
                         order: [
                             ['ID', 'DESC']
@@ -1375,44 +1786,54 @@ module.exports = {
                             include: [{
                                 model: mtblDMChiNhanh(db)
                             }]
-                        },],
-                    }).then(data => {
+                        }, ],
+                    }).then(async data => {
                         var array = [];
-                        data.forEach(element => {
-                            var obj = {
-                                stt: stt,
-                                id: Number(element.ID),
-                                staffCode: element.StaffCode ? element.StaffCode : '',
-                                staffName: element.StaffName ? element.StaffName : '',
-                                cmndNumber: element.CMNDNumber ? element.CMNDNumber : '',
-                                address: element.Address ? element.Address : '',
-                                idNation: element.IDNation ? element.IDNation : null,
-                                phoneNumber: element.PhoneNumber ? element.PhoneNumber : '',
-                                gender: element.Gender ? element.Gender : '',
-                                idBoPhan: element.IDBoPhan ? element.IDBoPhan : null,
-                                departmentName: element.bophan ? element.bophan.DepartmentName : null,
-                                departmentCode: element.bophan ? element.bophan.DepartmentCode : null,
-                                branchCode: element.bophan ? element.bophan.tblDMChiNhanh ? element.bophan.tblDMChiNhanh.BranchCode : null : null,
-                                branchName: element.bophan ? element.bophan.tblDMChiNhanh ? element.bophan.tblDMChiNhanh.BranchName : null : null,
-                                idChucVu: element.IDChucVu ? element.IDChucVu : null,
-                                taxCode: element.TaxCode ? element.TaxCode : '',
-                                bankNumber: element.BankNumber ? element.BankNumber : '',
-                                bankName: element.BankName ? element.BankName : '',
-                                birthday: element.Birthday ? element.Birthday : '',
-                                degree: element.Degree ? element.Degree : '',
-                                dermanentResidence: element.DermanentResidence ? element.DermanentResidence : '',
-                                probationaryDate: element.ProbationaryDate ? element.ProbationaryDate : '',
-                                probationarySalary: element.ProbationarySalary ? element.ProbationarySalary : null,
-                                workingDate: element.WorkingDate ? element.WorkingDate : null,
-                                workingSalary: element.WorkingSalary ? element.WorkingSalary : null,
-                                bhxhSalary: element.BHXHSalary ? element.BHXHSalary : null,
-                                contactUrgent: element.ContactUrgent ? element.ContactUrgent : '',
-                                idMayChamCong: element.IDMayChamCong ? element.IDMayChamCong : null,
-                                email: element.Email ? element.Email : '',
-                            }
-                            array.push(obj);
-                            stt += 1;
-                        });
+                        for (let i = 0; i < data.length; i++) {
+                            await tblHopDongNhanSu.findAll({
+                                where: {
+                                    Status: "Có hiệu lực",
+                                    IDNhanVien: data[i].ID,
+                                },
+                            }).then(async datas => {
+                                if (datas[0]) {
+                                    var obj = {
+                                        stt: stt,
+                                        id: Number(data[i].ID),
+                                        staffCode: data[i].StaffCode ? data[i].StaffCode : '',
+                                        staffName: data[i].StaffName ? data[i].StaffName : '',
+                                        cmndNumber: data[i].CMNDNumber ? data[i].CMNDNumber : '',
+                                        address: data[i].Address ? data[i].Address : '',
+                                        idNation: data[i].IDNation ? data[i].IDNation : null,
+                                        phoneNumber: data[i].PhoneNumber ? data[i].PhoneNumber : '',
+                                        gender: data[i].Gender ? data[i].Gender : '',
+                                        idBoPhan: data[i].IDBoPhan ? data[i].IDBoPhan : null,
+                                        departmentName: data[i].bophan ? data[i].bophan.DepartmentName : null,
+                                        departmentCode: data[i].bophan ? data[i].bophan.DepartmentCode : null,
+                                        branchCode: data[i].bophan ? data[i].bophan.tblDMChiNhanh ? data[i].bophan.tblDMChiNhanh.BranchCode : null : null,
+                                        branchName: data[i].bophan ? data[i].bophan.tblDMChiNhanh ? data[i].bophan.tblDMChiNhanh.BranchName : null : null,
+                                        idChucVu: data[i].IDChucVu ? data[i].IDChucVu : null,
+                                        taxCode: data[i].TaxCode ? data[i].TaxCode : '',
+                                        bankNumber: data[i].BankNumber ? data[i].BankNumber : '',
+                                        bankName: data[i].BankName ? data[i].BankName : '',
+                                        birthday: data[i].Birthday ? data[i].Birthday : '',
+                                        degree: data[i].Degree ? data[i].Degree : '',
+                                        dermanentResidence: data[i].DermanentResidence ? data[i].DermanentResidence : '',
+                                        probationaryDate: data[i].ProbationaryDate ? data[i].ProbationaryDate : '',
+                                        probationarySalary: data[i].ProbationarySalary ? data[i].ProbationarySalary : null,
+                                        workingDate: data[i].WorkingDate ? data[i].WorkingDate : null,
+                                        workingSalary: data[i].WorkingSalary ? data[i].WorkingSalary : null,
+                                        bhxhSalary: data[i].BHXHSalary ? data[i].BHXHSalary : null,
+                                        contactUrgent: data[i].ContactUrgent ? data[i].ContactUrgent : '',
+                                        idMayChamCong: data[i].IDMayChamCong ? data[i].IDMayChamCong : null,
+                                        email: data[i].Email ? data[i].Email : '',
+                                    }
+                                    array.push(obj);
+                                    stt += 1;
+                                }
+                            })
+
+                        };
                         var result = {
                             array: array,
                             all: all,

@@ -4,6 +4,7 @@ const Result = require('../constants/result');
 var moment = require('moment');
 var mtblCoQuanNhaNuoc = require('../tables/financemanage/tblCoQuanNhaNuoc')
 var ctlReceiptsPayment = require('../controller_finance/ctl-tblReceiptsPayment')
+var ctlPMCM = require('../controller_finance/ctl-apiSpecializedSoftware')
 var database = require('../database');
 const axios = require('axios');
 async function deleteRelationshiptblCoQuanNhaNuoc(db, listID) {
@@ -395,39 +396,6 @@ var mtblRate = require('../tables/financemanage/tblRate')
 
 module.exports = {
     deleteRelationshiptblCoQuanNhaNuoc,
-    //  add_tbl_state_agencies
-    // detailtblCoQuanNhaNuoc: (req, res) => {
-    //     let body = req.body;
-    //     database.connectDatabase().then(async db => {
-    //         if (db) {
-    //             try {
-    //                 mtblCoQuanNhaNuoc(db).findOne({ where: { ID: body.id } }).then(data => {
-    //                     if (data) {
-    //                         var obj = {
-    //                             id: data.ID,
-    //                             name: data.Name,
-    //                             code: data.Code,
-    //                         }
-    //                         var result = {
-    //                             obj: obj,
-    //                             status: Constant.STATUS.SUCCESS,
-    //                             message: Constant.MESSAGE.ACTION_SUCCESS,
-    //                         }
-    //                         res.json(result);
-    //                     } else {
-    //                         res.json(Result.NO_DATA_RESULT)
-
-    //                     }
-
-    //                 })
-    //             } catch (error) {
-    //                 res.json(Result.SYS_ERROR_RESULT)
-    //             }
-    //         } else {
-    //             res.json(Constant.MESSAGE.USER_FAIL)
-    //         }
-    //     })
-    // },
     // add_tbl_state_agencies
     addtblCoQuanNhaNuoc: (req, res) => {
         let body = req.body;
@@ -535,35 +503,16 @@ module.exports = {
         })
     },
     // get_list_tbl_state_agencies
-    getListtblCoQuanNhaNuoc: (req, res) => {
+    getListtblCoQuanNhaNuoc: async (req, res) => {
         let body = req.body;
-        database.connectDatabase().then(async db => {
-            var obj = {
-                "paging":
-                {
-                    "pageSize": body.itemPerPage ? body.itemPerPage : 0,
-                    "currentPage": body.page ? body.page : 0
-                },
-                "type": body.type
-            }
-            if (dataCQNN) {
-                let array = []
-                for (let item of dataCQNN) {
-                    if (item.typeVoucher == 'Biên lai')
-                        array.push(item)
-                }
-                var result = {
-                    array: array,
-                    status: Constant.STATUS.SUCCESS,
-                    message: Constant.MESSAGE.ACTION_SUCCESS,
-                    all: 10
-                }
-                res.json(result);
-            }
-            else {
-                res.json(Result.SYS_ERROR_RESULT)
-            }
-        })
+        let dataReciept = await ctlPMCM.getListReceiptOfPMCM(body.page ? body.page : 1, body.itemPerPage ? body.itemPerPage : null)
+        var result = {
+            array: dataReciept.data,
+            all: dataReciept.count,
+            status: Constant.STATUS.SUCCESS,
+            message: Constant.MESSAGE.ACTION_SUCCESS,
+        }
+        res.json(result);
     },
     // get_list_name_tbl_state_agencies
     getListNametblCoQuanNhaNuoc: (req, res) => {

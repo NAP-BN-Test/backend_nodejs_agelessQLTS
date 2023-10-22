@@ -78,30 +78,30 @@ async function getDetailYCMS(db, id) {
             ['ID', 'DESC']
         ],
         include: [{
-            model: mtblDMBoPhan(db),
-            required: false,
-            as: 'phongban'
-        },
-        {
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'NhanVien'
-        },
-        {
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'PheDuyet1',
-        },
-        {
-            model: mtblDMNhanvien(db),
-            required: false,
-            as: 'PheDuyet2',
-        },
-        {
-            model: tblYeuCauMuaSamDetail,
-            required: false,
-            as: 'line'
-        },
+                model: mtblDMBoPhan(db),
+                required: false,
+                as: 'phongban'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'NhanVien'
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet1',
+            },
+            {
+                model: mtblDMNhanvien(db),
+                required: false,
+                as: 'PheDuyet2',
+            },
+            {
+                model: tblYeuCauMuaSamDetail,
+                required: false,
+                as: 'line'
+            },
         ],
         where: { ID: id }
     }).then(async data => {
@@ -141,7 +141,7 @@ async function getDetailYCMS(db, id) {
                         model: mtblDMLoaiTaiSan(db),
                         required: false,
                         as: 'loaiTaiSan'
-                    },],
+                    }, ],
                 }).then(data => {
                     if (data)
                         arrayTaiSan.push({
@@ -404,6 +404,7 @@ function getDateFinal(monthYear) {
     return dateFinal
 }
 var mModules = require('../constants/modules');
+
 function convertNumber(number) {
     if (number < 10) {
         return '0' + number
@@ -638,7 +639,7 @@ module.exports = {
                             ws.cell(row, 4).string(data[i].nameIDNhanVien).style(stylecell);
                             ws.cell(row, 5).string(data[i].requireDate).style(stylecell);
                             ws.cell(row, 11).string(transform(data[i].price ? data[i].price : 0) + '').style(stylecellNumber);
-                            ws.cell(row, 13,).string(data[i].reason).style(stylecell);
+                            ws.cell(row, 13, ).string(data[i].reason).style(stylecell);
                             // ws.cell(row, 12,).string(data[i].status).style(stylecell);
                         }
                     }
@@ -803,7 +804,7 @@ module.exports = {
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
                             row = checkMaxRow + 4
-                        // bản ghi đầu tiên
+                            // bản ghi đầu tiên
                         else
                             row = i + 5
                         if (data[i].arrayFileExport.length) {
@@ -995,7 +996,7 @@ module.exports = {
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
                             row = checkMaxRow + 4
-                        // bản ghi đầu tiên
+                            // bản ghi đầu tiên
                         else
                             row = i + 5
                         checkMaxRow += 1;
@@ -1192,7 +1193,7 @@ module.exports = {
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
                             row = checkMaxRow + 4
-                        // bản ghi đầu tiên
+                            // bản ghi đầu tiên
                         else
                             row = i + 5
                         checkMaxRow += 1;
@@ -1378,7 +1379,7 @@ module.exports = {
                         // Hàng lớn nhất của bản ghi trước
                         if (i > 0)
                             row = checkMaxRow + 4
-                        // bản ghi đầu tiên
+                            // bản ghi đầu tiên
                         else
                             row = i + 5
                         checkMaxRow += 1;
@@ -1510,16 +1511,16 @@ module.exports = {
                         } else if (i > 5 && i <= 10) {
                             if (i < 10)
                                 ws.cell(5, row)
-                                    .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
-                                    .style(styleHearderT);
+                                .string(arrayHeader[i] + ' ' + arrayReduct[i] + '%')
+                                .style(styleHearderT);
                             else if (i = 10) {
                                 ws.cell(5, row)
                                     .string(arrayHeader[i])
                                     .style(styleHearderT);
                             } else
                                 ws.cell(5, row)
-                                    .string(arrayHeader[i])
-                                    .style(styleHearderT);
+                                .string(arrayHeader[i])
+                                .style(styleHearderT);
                         } else {
                             ws.cell(4, row, 5, row, true)
                                 .string(arrayHeader[i])
@@ -1582,7 +1583,7 @@ module.exports = {
         })
     },
     // export_to_file_excel_timekeeping
-    exportToFileExcelTimekeeping: async (req, res) => {
+    exportToFileExcelTimekeeping: async(req, res) => {
         var wb = new xl.Workbook();
         var styleHearderT = wb.createStyle(styleHearderText);
         var styleHearderN = wb.createStyle(styleHearderNumber);
@@ -1680,7 +1681,7 @@ module.exports = {
         })
     },
     // export_tofile_excel_insurance_premiums
-    exportToFileExcelInsutancePremiums: async (req, res) => {
+    exportToFileExcelInsutancePremiums: async(req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
         var styleHearderT = wb.createStyle(styleHearderText);
@@ -2035,7 +2036,7 @@ module.exports = {
                 var numberRandom = Math.floor(Math.random() * 1000000);
                 nameMiddle = numberRandom.toString();
                 var dir = 'photo-' + nameMiddle + '.jpg';
-                require("fs").writeFile('C:/images_services/struck_web/' + dir, buf, function (err) {
+                require("fs").writeFile('C:/images_services/struck_web/' + dir, buf, function(err) {
                     if (err) console.log(err + '');
                 });
                 var result = {
@@ -2050,7 +2051,7 @@ module.exports = {
             }
         })
     },
-    exportToFileExcelVPP: async (req, res) => {
+    exportToFileExcelVPP: async(req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
         var styleHearder = wb.createStyle({
@@ -2155,18 +2156,18 @@ module.exports = {
         let body = req.body;
         let data = JSON.parse(body.data)
         let arrayHeader = [
-            'MÃ VPP',
-            'TÊN VPP',
-            'ĐƠN VỊ TÍNH',
-            'SỐ LƯỢNG',
-            'TRẠNG THÁI',
-            'NGƯỜI SỞ HỮU',
-            'NGÀY TIẾP NHẬN',
-            // 'NGƯỜI PHÊ DUYỆT TRƯỚC',
-            // 'NGƯỜI PHÊ DUYỆT SAU',
-        ]
-        // Add Worksheets to the workbook
-        // Add Worksheets to the workbook
+                'MÃ VPP',
+                'TÊN VPP',
+                'ĐƠN VỊ TÍNH',
+                'SỐ LƯỢNG',
+                'TRẠNG THÁI',
+                'NGƯỜI SỞ HỮU',
+                'NGÀY TIẾP NHẬN',
+                // 'NGƯỜI PHÊ DUYỆT TRƯỚC',
+                // 'NGƯỜI PHÊ DUYỆT SAU',
+            ]
+            // Add Worksheets to the workbook
+            // Add Worksheets to the workbook
         var ws = wb.addWorksheet('Sheet 1');
         var row = 1
         ws.column(row).setWidth(5);
@@ -2188,7 +2189,7 @@ module.exports = {
             // Hàng lớn nhất của bản ghi trước
             if (i > 0)
                 row = checkMaxRow + 4
-            // bản ghi đầu tiên
+                // bản ghi đầu tiên
             else
                 row = i + 5
             if (data[i].line.length) {
@@ -2227,7 +2228,7 @@ module.exports = {
 
     //  tổng hợp chấm công
     // export_excel_synthetic_timekeeping
-    exportToFileExcelSyntheticTimekeeping: async (req, res) => {
+    exportToFileExcelSyntheticTimekeeping: async(req, res) => {
         var wb = new xl.Workbook();
         // Create a reusable style
         var styleHearderT = wb.createStyle(styleHearderText);
@@ -2324,7 +2325,7 @@ module.exports = {
             for (let i = 0; i < data.length; i++) {
                 if (i > 0)
                     row = checkMaxRow + 4
-                // bản ghi đầu tiên
+                    // bản ghi đầu tiên
                 else
                     row = i + 5
                 checkMaxRow += 1;

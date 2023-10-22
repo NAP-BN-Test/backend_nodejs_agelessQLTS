@@ -29,7 +29,7 @@ module.exports = function (db) {
         Unknown: Sequelize.BOOLEAN,
         ExchangeRate: Sequelize.FLOAT,
         IDStaff: Sequelize.INTEGER,
-        IDCustomer: Sequelize.BIGINT,
+        IDCustomer: Sequelize.INTEGER,
         IDPartner: Sequelize.INTEGER,
         RPType: Sequelize.STRING,
         ApplicantReceiverName: Sequelize.STRING,

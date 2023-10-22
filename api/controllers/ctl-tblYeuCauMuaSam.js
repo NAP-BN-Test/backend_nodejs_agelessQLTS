@@ -467,16 +467,16 @@ module.exports = {
                     let min;
                     if (body.type == 'end') {
                         arraySearchOr.push({ Status: 'Từ chối' })
-                        // arraySearchOr.push({ Status: 'Đã thanh toán' })
+                            // arraySearchOr.push({ Status: 'Đã thanh toán' })
                         arraySearchOr.push({ Status: 'Đã thêm mới tài sản' })
                         arraySearchOr.push({ Status: 'Đã nhập văn phòng phẩm' })
                     } else {
                         arraySearchAnd.push({
-                            Status: {
-                                [Op.ne]: 'Từ chối'
-                            }
-                        })
-                        // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
+                                Status: {
+                                    [Op.ne]: 'Từ chối'
+                                }
+                            })
+                            // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
                         arraySearchAnd.push({
                             Status: {
                                 [Op.ne]: 'Đã thêm mới tài sản'
@@ -495,15 +495,15 @@ module.exports = {
                             await mtblDMNhanvien(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                        StaffName: {
-                                            [Op.like]: '%' + data.search + '%'
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
                                         }
-                                    },
-                                    {
-                                        StaffCode: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -515,15 +515,15 @@ module.exports = {
                             await mtblDMBoPhan(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                        DepartmentCode: {
-                                            [Op.like]: '%' + data.search + '%'
+                                            DepartmentCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            DepartmentName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
                                         }
-                                    },
-                                    {
-                                        DepartmentName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -536,15 +536,15 @@ module.exports = {
                             await mtblDMHangHoa(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                        Name: {
-                                            [Op.like]: '%' + data.search + '%'
+                                            Name: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            Code: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
                                         }
-                                    },
-                                    {
-                                        Code: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -567,37 +567,37 @@ module.exports = {
                             })
                             if (data.search) {
                                 where = [{
-                                    Status: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    RequestCode: {
-                                        [Op.like]: '%' + data.search + '%'
-                                    }
-                                },
-                                {
-                                    IDNhanVien: {
-                                        [Op.in]: listStaff
-                                    }
-                                },
-                                {
-                                    IDPhongBan: {
-                                        [Op.in]: listDepartment
-                                    }
-                                },
-                                {
-                                    ID: {
-                                        [Op.in]: listYCMS
-                                    }
-                                },
+                                        Status: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        RequestCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        IDNhanVien: {
+                                            [Op.in]: listStaff
+                                        }
+                                    },
+                                    {
+                                        IDPhongBan: {
+                                            [Op.in]: listDepartment
+                                        }
+                                    },
+                                    {
+                                        ID: {
+                                            [Op.in]: listYCMS
+                                        }
+                                    },
                                 ];
                             } else {
                                 where = [{
-                                    RequestCode: {
-                                        [Op.ne]: '%%'
-                                    }
-                                },
+                                        RequestCode: {
+                                            [Op.ne]: '%%'
+                                        }
+                                    },
 
                                 ];
                             }
@@ -770,7 +770,7 @@ module.exports = {
                                                 Name: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            },]
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -807,11 +807,13 @@ module.exports = {
                                     let array = []
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
-                                    array.sort(function (a, b) { return a - b });
+                                    array.sort(function(a, b) { return a - b });
                                     var listYCMS = [];
                                     await mtblYeuCauMuaSamDetail(db).findAll({
                                         where: {
-                                            Price: { [Op.between]: array }
+                                            Price: {
+                                                [Op.between]: array
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -835,11 +837,13 @@ module.exports = {
                                     let array = []
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
-                                    array.sort(function (a, b) { return a - b });
+                                    array.sort(function(a, b) { return a - b });
                                     var listYCMS = [];
                                     await mtblYeuCauMuaSamDetail(db).findAll({
                                         where: {
-                                            Amount: { [Op.between]: array }
+                                            Amount: {
+                                                [Op.between]: array
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -863,11 +867,13 @@ module.exports = {
                                     let array = []
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
-                                    array.sort(function (a, b) { return a - b });
+                                    array.sort(function(a, b) { return a - b });
                                     var listGoods = [];
                                     await mtblVanPhongPham(db).findAll({
                                         where: {
-                                            RemainingAmount: { [Op.between]: array }
+                                            RemainingAmount: {
+                                                [Op.between]: array
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -904,24 +910,24 @@ module.exports = {
                                     max = (data.items[i].value1 > data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
                                     min = (data.items[i].value1 < data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
                                     body.itemPerPage = 1000000
-                                    // var listYCMS = [];
-                                    // let query = `SELECT [ID], [IDYeuCauMuaSam], [IDDMHangHoa], [Amount], [Price], [IDVanPhongPham], [AssetName] FROM [tblYeuCauMuaSamDetail] AS [tblYeuCauMuaSamDetail] WHERE [tblYeuCauMuaSamDetail].[Amount] * Price BETWEEN '` + min + `' AND '` + max + `';`
-                                    // let dataResult = await db.query(query)
-                                    // for (let item of dataResult[0]) {
-                                    //     listYCMS.push(item.IDYeuCauMuaSam)
-                                    // }
-                                    // userFind['ID'] = {
-                                    //     [Op.in]: listYCMS
-                                    // }
-                                    // if (data.items[i].conditionFields['name'] == 'And') {
-                                    //     arraySearchAnd.push(userFind)
-                                    // }
-                                    // if (data.items[i].conditionFields['name'] == 'Or') {
-                                    //     arraySearchOr.push(userFind)
-                                    // }
-                                    // if (data.items[i].conditionFields['name'] == 'Not') {
-                                    //     arraySearchNot.push(userFind)
-                                    // }
+                                        // var listYCMS = [];
+                                        // let query = `SELECT [ID], [IDYeuCauMuaSam], [IDDMHangHoa], [Amount], [Price], [IDVanPhongPham], [AssetName] FROM [tblYeuCauMuaSamDetail] AS [tblYeuCauMuaSamDetail] WHERE [tblYeuCauMuaSamDetail].[Amount] * Price BETWEEN '` + min + `' AND '` + max + `';`
+                                        // let dataResult = await db.query(query)
+                                        // for (let item of dataResult[0]) {
+                                        //     listYCMS.push(item.IDYeuCauMuaSam)
+                                        // }
+                                        // userFind['ID'] = {
+                                        //     [Op.in]: listYCMS
+                                        // }
+                                        // if (data.items[i].conditionFields['name'] == 'And') {
+                                        //     arraySearchAnd.push(userFind)
+                                        // }
+                                        // if (data.items[i].conditionFields['name'] == 'Or') {
+                                        //     arraySearchOr.push(userFind)
+                                        // }
+                                        // if (data.items[i].conditionFields['name'] == 'Not') {
+                                        //     arraySearchNot.push(userFind)
+                                        // }
                                 }
                             }
                         }
@@ -994,35 +1000,761 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [{
-                            model: tblDMBoPhan,
-                            required: false,
-                            as: 'phongban',
-                            include: [{
-                                model: mtblDMChiNhanh(db),
+                                model: tblDMBoPhan,
                                 required: false,
-                                as: 'chinhanh',
-                            }]
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'NhanVien'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet1',
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet2',
-                        },
-                        {
-                            model: tblYeuCauMuaSamDetail,
-                            required: false,
-                            as: 'line'
-                        },
+                                as: 'phongban',
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
+                                    required: false,
+                                    as: 'chinhanh',
+                                }]
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'NhanVien'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet1',
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet2',
+                            },
+                            {
+                                model: tblYeuCauMuaSamDetail,
+                                required: false,
+                                as: 'line'
+                            },
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: whereObj
+                    }).then(async data => {
+                        var array = [];
+                        var arrayResult = [];
+                        data.forEach(element => {
+                            var reasonReject = '';
+                            if (element.ReasonReject1) {
+                                reasonReject = 'Người phê duyệt trước đã từ chối: ' + element.ReasonReject1
+                            }
+                            if (element.ReasonReject2) {
+                                reasonReject = 'Người phê duyệt sau đã từ chối: ' + element.ReasonReject2
+                            }
+                            if (element.ReasonReject) {
+                                reasonReject = 'Người mua đã từ chối: ' + element.ReasonReject
+                            }
+                            var obj = {
+                                stt: stt,
+                                id: Number(element.ID),
+                                type: element.Type ? element.Type : '',
+                                requestCode: element.RequestCode ? element.RequestCode : '',
+                                idNhanVien: element.IDNhanVien ? element.IDNhanVien : null,
+                                nameIDNhanVien: element.NhanVien ? element.NhanVien.StaffName : null,
+                                idPhongBan: element.IDPhongBan ? element.IDPhongBan : null,
+                                codePhongBan: element.phongban ? element.phongban.DepartmentCode : null,
+                                namePhongBan: element.phongban ? element.phongban.DepartmentName : null,
+                                branchName: element.phongban ? element.phongban.chinhanh ? element.phongban.chinhanh.BranchName : '' : '',
+                                requireDate: element.RequireDate ? moment(element.RequireDate).format('DD/MM/YYYY') : null,
+                                reason: element.Reason ? element.Reason : '',
+                                status: element.Status ? element.Status : '',
+                                assetName: element.AssetName ? element.AssetName : '',
+                                idPheDuyet1: element.IDPheDuyet1 ? element.IDPheDuyet1 : null,
+                                idNhaCungCap: element.IDSupplier ? Number(element.IDSupplier) : null,
+                                namePheDuyet1: element.PheDuyet1 ? element.PheDuyet1.StaffName : null,
+                                idPheDuyet2: element.IDPheDuyet2 ? element.IDPheDuyet2 : null,
+                                namePheDuyet2: element.PheDuyet2 ? element.PheDuyet2.StaffName : null,
+                                reasonReject: reasonReject,
+                                line: element.line,
+                            }
+                            array.push(obj);
+                            stt += 1;
+                        });
+                        for (let i = 0; i < array.length; i++) {
+                            var arrayTaiSan = []
+                            var arrayFile = []
+                            var total = 0;
+                            for (var j = 0; j < array[i].line.length; j++) {
+                                if (array[i].type == 'Tài sản') {
+                                    await mtblDMHangHoa(db).findOne({ where: { ID: array[i].line[j].IDDMHangHoa } }).then(data => {
+                                        var price = array[i].line[j].Price ? array[i].line[j].Price : 0
+                                        var amount = array[i].line[j].Amount ? array[i].line[j].Amount : 0
+
+                                        if (data) {
+                                            total += amount * price
+                                            arrayTaiSan.push({
+                                                name: data.Name,
+                                                code: data.Code,
+                                                remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
+                                                amount: amount,
+                                                unitPrice: price,
+                                                id: array[i].line[j].ID,
+                                                assetName: array[i].line[j].AssetName ? array[i].line[j].AssetName : '',
+                                            })
+                                        }
+                                    })
+                                } else {
+                                    await mtblVanPhongPham(db).findOne({ where: { ID: array[i].line[j].IDVanPhongPham } }).then(data => {
+                                        var price = array[i].line[j].Price ? array[i].line[j].Price : 0
+                                        var amount = array[i].line[j].Amount ? array[i].line[j].Amount : 0
+
+                                        if (data) {
+                                            total += amount * price
+                                            arrayTaiSan.push({
+                                                name: data.VPPName ? data.VPPName : '',
+                                                code: data.VPPCode ? data.VPPCode : '',
+                                                remainingAmount: data.RemainingAmount ? data.RemainingAmount : 0,
+                                                amount: amount,
+                                                unitPrice: price,
+                                                id: array[i].line[j].ID,
+                                                assetName: array[i].line[j].AssetName ? array[i].line[j].AssetName : '',
+                                            })
+                                        }
+                                    })
+                                }
+                            }
+                            array[i]['price'] = total;
+                            await mtblFileAttach(db).findAll({ where: { IDYeuCauMuaSam: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                            id: file[e].id
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['arrayTaiSan'] = arrayTaiSan;
+                            array[i]['arrayTaiSanApp'] = JSON.stringify(arrayTaiSan);
+                            array[i]['arrayFile'] = arrayFile;
+                            if (max && min) {
+                                if (total < min || total > max) {
+                                    sub += 1
+                                } else {
+                                    arrayResult.push(array[i])
+                                }
+                            } else {
+                                arrayResult.push(array[i])
+                            }
+                        }
+                        var count = await tblYeuCauMuaSam.count({ where: whereObj })
+                        var result = {
+                            array: arrayResult,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count - sub
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_tbl_yeucaumuasam user
+    getListtblYeuCauMuaSamUser: (req, res) => {
+        let body = req.body;
+        console.log(body);
+        let arrayPermission = []
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    if (body.userID)
+                        arrayPermission = await ctltblDMUser.getPermissionForUser(body.userID)
+                    console.log(arrayPermission);
+                    var user = await mtblDMUser(db).findOne({ where: { ID: body.userID } });
+                    let whereObj = []
+                    let where = []
+                    let whereSecond = []
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
+                    let sub = 0;
+                    let max;
+                    let min;
+                    if (body.type == 'end') {
+                        arraySearchOr.push({ Status: 'Từ chối' })
+                            // arraySearchOr.push({ Status: 'Đã thanh toán' })
+                        arraySearchOr.push({ Status: 'Đã thêm mới tài sản' })
+                        arraySearchOr.push({ Status: 'Đã nhập văn phòng phẩm' })
+                    } else {
+                        arraySearchAnd.push({
+                                Status: {
+                                    [Op.ne]: 'Từ chối'
+                                }
+                            })
+                            // arraySearchAnd.push({ Status: { [Op.ne]: 'Đã thanh toán' } })
+                        arraySearchAnd.push({
+                            Status: {
+                                [Op.ne]: 'Đã thêm mới tài sản'
+                            }
+                        })
+                        arraySearchAnd.push({
+                            Status: {
+                                [Op.ne]: 'Đã nhập văn phòng phẩm'
+                            }
+                        })
+                    }
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
+                        if (data.search) {
+                            var listStaff = [];
+                            await mtblDMNhanvien(db).findAll({
+                                where: {
+                                    [Op.or]: [{
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listStaff.push(item.ID);
+                                })
+                            })
+                            var listDepartment = [];
+                            await mtblDMBoPhan(db).findAll({
+                                where: {
+                                    [Op.or]: [{
+                                            DepartmentCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            DepartmentName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listDepartment.push(item.ID);
+                                })
+                            })
+
+                            var listGoods = [];
+                            await mtblDMHangHoa(db).findAll({
+                                where: {
+                                    [Op.or]: [{
+                                            Name: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            Code: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listGoods.push(item.ID);
+                                })
+                            })
+
+                            var listYCMS = [];
+                            await mtblYeuCauMuaSamDetail(db).findAll({
+                                where: {
+                                    IDDMHangHoa: {
+                                        [Op.in]: listGoods
+                                    }
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    listYCMS.push(item.IDYeuCauMuaSam);
+                                })
+                            })
+                            if (data.search) {
+                                where = [{
+                                        Status: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        RequestCode: {
+                                            [Op.like]: '%' + data.search + '%'
+                                        }
+                                    },
+                                    {
+                                        IDNhanVien: {
+                                            [Op.in]: listStaff
+                                        }
+                                    },
+                                    {
+                                        IDPhongBan: {
+                                            [Op.in]: listDepartment
+                                        }
+                                    },
+                                    {
+                                        ID: {
+                                            [Op.in]: listYCMS
+                                        }
+                                    },
+                                ];
+                            } else {
+                                where = [{
+                                        RequestCode: {
+                                            [Op.ne]: '%%'
+                                        }
+                                    },
+
+                                ];
+                            }
+                            whereOjb = {
+                                [Op.and]: [{
+                                    [Op.or]: where
+                                }],
+                                [Op.or]: [{
+                                    ID: {
+                                        [Op.ne]: null
+                                    }
+                                }],
+                            };
+                        } else {
+                            whereSecond.push({
+                                Status: {
+                                    [Op.like]: '%%'
+                                },
+                            })
+                        }
+                        if (where.length < 1)
+                            whereObj = {
+                                // [Op.or]: where,
+                                [Op.and]: [{
+                                    [Op.or]: whereSecond
+                                }]
+                            }
+                        else
+                            whereObj = {
+                                [Op.or]: where,
+                                [Op.and]: [{
+                                    [Op.or]: whereSecond
+                                }]
+                            }
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'LOẠI YÊU CẦU') {
+                                    userFind['Type'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LÝ DO') {
+                                    userFind['Reason'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ YCMS') {
+                                    userFind['RequestCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGÀY ĐỀ XUẤT') {
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    userFind['RequireDate'] = {
+                                        [Op.between]: [startDate, endDate]
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NHÂN VIÊN') {
+                                    userFind['IDNhanVien'] = {
+                                        [Op.eq]: data.items[i]['searchFields']
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'MÃ TS/TB/LK') {
+                                    var listGoods = [];
+                                    await mtblDMHangHoa(db).findAll({
+                                        where: {
+                                            [Op.or]: [{
+                                                Code: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listGoods.push(item.ID);
+                                        })
+                                    })
+
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            IDDMHangHoa: {
+                                                [Op.in]: listGoods
+                                            }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TÊN TS/TB/LK') {
+                                    var listGoods = [];
+                                    await mtblDMHangHoa(db).findAll({
+                                        where: {
+                                            [Op.or]: [{
+                                                Name: {
+                                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                                }
+                                            }, ]
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listGoods.push(item.ID);
+                                        })
+                                    })
+
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            IDDMHangHoa: {
+                                                [Op.in]: listGoods
+                                            }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'ĐƠN GIÁ') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function(a, b) { return a - b });
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            Price: {
+                                                [Op.between]: array
+                                            }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ LƯỢNG') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function(a, b) { return a - b });
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            Amount: {
+                                                [Op.between]: array
+                                            }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'SỐ TỒN') {
+                                    let array = []
+                                    array.push(data.items[i].value1)
+                                    array.push(data.items[i].value2)
+                                    array.sort(function(a, b) { return a - b });
+                                    var listGoods = [];
+                                    await mtblVanPhongPham(db).findAll({
+                                        where: {
+                                            RemainingAmount: {
+                                                [Op.between]: array
+                                            }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listGoods.push(item.ID);
+                                        })
+                                    })
+
+                                    var listYCMS = [];
+                                    await mtblYeuCauMuaSamDetail(db).findAll({
+                                        where: {
+                                            IDVanPhongPham: {
+                                                [Op.in]: listGoods
+                                            }
+                                        }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            listYCMS.push(item.IDYeuCauMuaSam);
+                                        })
+                                    })
+                                    userFind['ID'] = {
+                                        [Op.in]: listYCMS
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TỔNG TIỀN') {
+                                    max = (data.items[i].value1 > data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    min = (data.items[i].value1 < data.items[i].value2) ? data.items[i].value1 : data.items[i].value2
+                                    body.itemPerPage = 1000000
+                                        // var listYCMS = [];
+                                        // let query = `SELECT [ID], [IDYeuCauMuaSam], [IDDMHangHoa], [Amount], [Price], [IDVanPhongPham], [AssetName] FROM [tblYeuCauMuaSamDetail] AS [tblYeuCauMuaSamDetail] WHERE [tblYeuCauMuaSamDetail].[Amount] * Price BETWEEN '` + min + `' AND '` + max + `';`
+                                        // let dataResult = await db.query(query)
+                                        // for (let item of dataResult[0]) {
+                                        //     listYCMS.push(item.IDYeuCauMuaSam)
+                                        // }
+                                        // userFind['ID'] = {
+                                        //     [Op.in]: listYCMS
+                                        // }
+                                        // if (data.items[i].conditionFields['name'] == 'And') {
+                                        //     arraySearchAnd.push(userFind)
+                                        // }
+                                        // if (data.items[i].conditionFields['name'] == 'Or') {
+                                        //     arraySearchOr.push(userFind)
+                                        // }
+                                        // if (data.items[i].conditionFields['name'] == 'Not') {
+                                        //     arraySearchNot.push(userFind)
+                                        // }
+                                }
+                            }
+                        }
+                    }
+                    if (arraySearchOr.length > 0)
+                        whereObj[Op.or] = arraySearchOr
+                    if (arraySearchAnd.length >= 0) {
+                        if (checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && !checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
+                            arraySearchAnd.push({
+                                Type: 'Tài sản'
+                            })
+                        } else if (!checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
+                            arraySearchAnd.push({
+                                Type: 'Văn phòng phẩm'
+                            })
+                        } else if (!checkDuplicate(arrayPermission, 'isAllAssetsYCMS') && !checkDuplicate(arrayPermission, 'isAllVPPYCMS')) {
+                            if (checkDuplicate(arrayPermission, 'isCreateEditPersonalYCMS')) {
+
+                                if (checkDuplicate(arrayPermission, 'isApprovalYCMS')) {
+                                    arraySearchAnd.push({
+                                        [Op.or]: [
+                                            { IDPheDuyet1: user.IDNhanvien },
+                                            { IDPheDuyet2: user.IDNhanvien },
+                                            { IDNhanVien: user.IDNhanvien },
+                                        ]
+                                    })
+                                } else {
+                                    arraySearchAnd.push({
+                                        IDNhanVien: user.IDNhanvien
+                                    })
+                                }
+                            } else {
+                                if (checkDuplicate(arrayPermission, 'isApprovalYCMS')) {
+                                    arraySearchAnd.push({
+                                        [Op.or]: [
+                                            { IDPheDuyet1: user.IDNhanvien },
+                                            { IDPheDuyet2: user.IDNhanvien },
+                                        ]
+                                    })
+                                } else {
+                                    arraySearchAnd.push({
+                                        IDNhanVien: 0
+                                    })
+                                }
+                            }
+                        }
+                        arraySearchAnd.push({
+                            [Op.or]: [{
+                                    IDNhanVien: user.IDNhanvien
+                                }, {
+                                    IDPheDuyet1: user.IDNhanvien
+                                }, {
+                                    IDPheDuyet2: user.IDNhanvien
+                                }]
+                                // IDNhanVien: user.IDNhanvien
+                        })
+                        whereObj[Op.and] = arraySearchAnd
+                    }
+                    if (arraySearchNot.length > 0)
+                        whereObj[Op.not] = arraySearchNot
+                    let stt = 1;
+                    let tblYeuCauMuaSam = mtblYeuCauMuaSam(db); // bắt buộc
+                    let tblDMBoPhan = mtblDMBoPhan(db); // bắt buộc
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'NhanVien' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet1', sourceKey: 'IDPheDuyet1', as: 'PheDuyet1' })
+                    tblYeuCauMuaSam.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDPheDuyet2', sourceKey: 'IDPheDuyet2', as: 'PheDuyet2' })
+                    tblYeuCauMuaSam.belongsTo(tblDMBoPhan, { foreignKey: 'IDPhongBan', sourceKey: 'IDPhongBan', as: 'phongban' })
+                    tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh', as: 'chinhanh' })
+                    let tblYeuCauMuaSamDetail = mtblYeuCauMuaSamDetail(db);
+                    tblYeuCauMuaSam.hasMany(tblYeuCauMuaSamDetail, { foreignKey: 'IDYeuCauMuaSam', as: 'line' })
+                    if (body.type == 'approval') {
+                        whereObj = [{
+                            Status: 'Chờ phê duyệt'
+                        }]
+                    }
+                    // whereObj[Op.and] = [{ IDNhanvien: objectNhanVien.IDNhanvien }]
+                    // console.log(whereObj);
+                    tblYeuCauMuaSam.findAll({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        include: [{
+                                model: tblDMBoPhan,
+                                required: false,
+                                as: 'phongban',
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
+                                    required: false,
+                                    as: 'chinhanh',
+                                }]
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'NhanVien'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet1',
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet2',
+                            },
+                            {
+                                model: tblYeuCauMuaSamDetail,
+                                required: false,
+                                as: 'line'
+                            },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -1173,30 +1905,30 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [{
-                            model: mtblDMBoPhan(db),
-                            required: false,
-                            as: 'phongban'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'NhanVien'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet1',
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet2',
-                        },
-                        {
-                            model: tblYeuCauMuaSamDetail,
-                            required: false,
-                            as: 'line'
-                        },
+                                model: mtblDMBoPhan(db),
+                                required: false,
+                                as: 'phongban'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'NhanVien'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet1',
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet2',
+                            },
+                            {
+                                model: tblYeuCauMuaSamDetail,
+                                required: false,
+                                as: 'line'
+                            },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -1243,7 +1975,7 @@ module.exports = {
                                         model: mtblDMLoaiTaiSan(db),
                                         required: false,
                                         as: 'loaiTaiSan'
-                                    },],
+                                    }, ],
                                 }).then(data => {
                                     if (data)
                                         arrayTaiSan.push({
@@ -1336,35 +2068,35 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [{
-                            model: tblDMBoPhan,
-                            required: false,
-                            as: 'phongban',
-                            include: [{
-                                model: mtblDMChiNhanh(db),
+                                model: tblDMBoPhan,
                                 required: false,
-                                as: 'chinhanh',
-                            }]
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'NhanVien'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet1',
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet2',
-                        },
-                        {
-                            model: tblYeuCauMuaSamDetail,
-                            required: false,
-                            as: 'line'
-                        },
+                                as: 'phongban',
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
+                                    required: false,
+                                    as: 'chinhanh',
+                                }]
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'NhanVien'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet1',
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet2',
+                            },
+                            {
+                                model: tblYeuCauMuaSamDetail,
+                                required: false,
+                                as: 'line'
+                            },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),
@@ -1529,35 +2261,35 @@ module.exports = {
                             ['ID', 'DESC']
                         ],
                         include: [{
-                            model: tblDMBoPhan,
-                            required: false,
-                            as: 'phongban',
-                            include: [{
-                                model: mtblDMChiNhanh(db),
+                                model: tblDMBoPhan,
                                 required: false,
-                                as: 'chinhanh',
-                            }]
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'NhanVien'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet1',
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'PheDuyet2',
-                        },
-                        {
-                            model: tblYeuCauMuaSamDetail,
-                            required: false,
-                            as: 'line'
-                        },
+                                as: 'phongban',
+                                include: [{
+                                    model: mtblDMChiNhanh(db),
+                                    required: false,
+                                    as: 'chinhanh',
+                                }]
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'NhanVien'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet1',
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'PheDuyet2',
+                            },
+                            {
+                                model: tblYeuCauMuaSamDetail,
+                                required: false,
+                                as: 'line'
+                            },
                         ],
                         offset: Number(body.itemPerPage) * (Number(body.page) - 1),
                         limit: Number(body.itemPerPage),

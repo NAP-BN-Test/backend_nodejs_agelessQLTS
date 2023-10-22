@@ -11,16 +11,18 @@ var mtblHopDongNhanSu = require('../tables/hrmanage/tblHopDongNhanSu')
 var mtblDateOfLeave = require('../tables/hrmanage/tblDateOfLeave')
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMUser = require('../tables/constants/tblDMUser');
+var mtblRole = require('../tables/constants/tblRole');
+var mtblRoleUser = require('../tables/constants/tblRRoleUser');
 var mtblDMPermission = require('../tables/constants/tblDMPermission');
 var mtblConfigWorkday = require('../tables/hrmanage/tblConfigWorkday')
 async function convertNumber(number) {
     if (number < 10) {
         return '0' + number
-    }
-    else
+    } else
         return number
 }
 async function deleteRelationshiptblNghiPhep(db, listID) {
+    console.log(listID);
     await mtblDateOfLeave(db).destroy({
         where: {
             LeaveID: {
@@ -38,7 +40,7 @@ async function deleteRelationshiptblNghiPhep(db, listID) {
 }
 var mModules = require('../constants/modules');
 
-var enumerateDaysBetweenDates = function (startDate, endDate) {
+var enumerateDaysBetweenDates = function(startDate, endDate) {
     var dates = [];
     var currDate = moment(startDate).startOf('day');
     var lastDate = moment(endDate).startOf('day');
@@ -109,9 +111,8 @@ async function take7thDataToWork(year, month) {
                     }
             })
             return array
-            // ----------------------------------------------------------------------
-        }
-        else {
+                // ----------------------------------------------------------------------
+        } else {
             array = []
         }
     })
@@ -119,6 +120,7 @@ async function take7thDataToWork(year, month) {
 
 }
 async function handleCalculateDayOff(dateStart, dateEnd) {
+    console.log(dateStart, dateEnd);
     let result = 0;
     let subtractHalfDay = 0;
     let arrayMonth = []
@@ -128,6 +130,7 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
         arrayMonth.push(m)
     }
     let days = await enumerateDaysBetweenDates(dateStart, dateEnd)
+    console.log("days", days);
     let array7th = [];
     for (var i = 0; i < days.length; i++) {
         var monthOfDay = moment(days[i]).add(14, 'hours').format('MM')
@@ -149,28 +152,42 @@ async function handleCalculateDayOff(dateStart, dateEnd) {
     let arrayWorkStart = await take7thDataToWork(yearOfDayStart, monthOfDayStart)
     let arrayWorkEnd = await take7thDataToWork(yearOfDayEnd, monthOfDayEnd)
     if (mModules.checkDuplicate(arrayWorkStart, Number(dayStart))) {
-        if (checkDateStart >= 13) {
+        console.log("1111111", checkDateStart);
+        if (checkDateStart <= 12) {
             subtractHalfDay += 0.5
         } else {
             subtractHalfDay += 1
         }
     }
     if (mModules.checkDuplicate(arrayWorkEnd, Number(dayEnd))) {
+        console.log("2222222", checkDateEnd);
         if (checkDateEnd <= 13) {
             subtractHalfDay += 0.5
         } else {
             subtractHalfDay += 1
         }
     }
+    console.log(subtractHalfDay);
     if (days.length < 1) {
-        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10)))
-            if (checkDateEnd < 17)
+        console.log("333333333333333", checkDateStart);
+
+        if (Number(dateStart.slice(8, 10)) != Number(dateEnd.slice(8, 10))) {
+            if ((checkDateStart <= 12 && checkDateEnd <= 13) || ((checkDateStart >= 12 && checkDateEnd >= 13)))
                 result = 1.5
+            if ((checkDateStart == 12 && checkDateEnd == 13) || ((checkDateStart >= checkDateEnd)))
+                result = 1
             else
                 result = 2
+        }
+        // if (checkDateStart >= 12)
+        //     result = 1.5
+        // else
+        //     result = 2
         else {
-            if (checkDateEnd < 17)
+            if ((checkDateStart <= 12 && checkDateEnd <= 13) || ((checkDateStart >= 12 && checkDateEnd >= 13)))
                 result = 0.5
+            if ((checkDateStart == 12 && checkDateEnd == 13) || ((checkDateStart >= checkDateEnd)))
+                result = 0
             else
                 result = 1
         }
@@ -238,8 +255,8 @@ module.exports = {
                     let arrayRespone = JSON.parse(body.array)
                     if (body.type == 'TakeLeave') {
                         seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
-                        // var quotient = Math.floor(y / x);  // lấy nguyên
-                        // var remainder = y % x; // lấy dư
+                            // var quotient = Math.floor(y / x);  // lấy nguyên
+                            // var remainder = y % x; // lấy dư
                         if (seniority > 12) {
                             advancePayment = 12 + Math.floor(seniority / 60)
                         } else {
@@ -259,9 +276,9 @@ module.exports = {
                         for (let i = 0; i < arrayRespone.length; i++) {
                             let numberHolidayArray = 0
                             if (!arrayRespone[i].timeStart)
-                                arrayRespone[i].timeStart = "08:00"
+                                arrayRespone[i].timeStart = "08:20"
                             if (!arrayRespone[i].timeEnd)
-                                arrayRespone[i].timeEnd = "17:30"
+                                arrayRespone[i].timeEnd = "17:25"
                             numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart, arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd)
                             numberHoliday += numberHolidayArray
                             let typeTime = await mtblLoaiChamCong(db).findOne({
@@ -387,9 +404,9 @@ module.exports = {
                     for (let i = 0; i < arrayRespone.length; i++) {
                         let numberHolidayArray = 0
                         if (!arrayRespone[i].timeStart)
-                            arrayRespone[i].timeStart = "08:00"
+                            arrayRespone[i].timeStart = "08:20"
                         if (!arrayRespone[i].timeEnd)
-                            arrayRespone[i].timeEnd = "17:30"
+                            arrayRespone[i].timeEnd = "17:25"
                         if (body.type != 'TakeLeave') {
                             numberHolidayArray = await handleCalculateDayOff(arrayRespone[i].date + ' ' + arrayRespone[i].timeStart, arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd)
 
@@ -501,6 +518,29 @@ module.exports = {
                 try {
                     let listID = JSON.parse(body.listID);
                     // await deleteRelationshiptblNghiPhep(db, listID);
+                    let iduser
+                    let idroleadmin
+                    await mtblDMUser(db).findOne({
+                        where: {
+                            IDNhanVien: body.staffID
+                        }
+                    }).then(async data => {
+                        iduser = data.ID
+                    })
+                    await mtblRole(db).findOne({
+                        where: {
+                            Code: 'ADMIN'
+                        }
+                    }).then(async data => {
+                        idroleadmin = data.ID
+                    })
+                    let objRoleUser = await mtblRoleUser(db).findOne({
+                        where: {
+                            RoleID: idroleadmin,
+                            UserID: iduser
+                        }
+                    })
+                    console.log(objRoleUser);
                     await mtblNghiPhep(db).findAll({
                         where: {
                             ID: {
@@ -512,11 +552,12 @@ module.exports = {
                         let array = []
                         let mess = Constant.MESSAGE.ACTION_SUCCESS
                         for (let i = 0; i < data.length; i++) {
-                            if (data[i].Status == 'Hoàn thành') {
+                            if (data[i].Status == 'Hoàn thành' && !objRoleUser) {
+                                console.log("đã hoàn thành và k phải admin");
                                 check = false
-                            } else
+                            } else {
                                 array.push(data[i].ID)
-
+                            }
                         }
                         await deleteRelationshiptblNghiPhep(db, array);
                         if (!check)
@@ -561,7 +602,7 @@ module.exports = {
                                 model: mtblDMPermission(db),
                                 required: false,
                                 as: 'permission'
-                            },],
+                            }, ],
                         }).then(user => {
                             if (user)
                                 if (user.permission && user.permission.PermissionName != 'Admin') {
@@ -587,15 +628,15 @@ module.exports = {
                                 ],
                                 where: {
                                     [Op.or]: [{
-                                        StaffCode: {
-                                            [Op.like]: '%' + data.search + '%'
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
                                         }
-                                    },
-                                    {
-                                        StaffName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -604,27 +645,27 @@ module.exports = {
                                 })
                             })
                             where = [{
-                                IDNhanVien: {
-                                    [Op.in]: list
-                                }
-                            },
-                            {
-                                NumberLeave: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
+                                    IDNhanVien: {
+                                        [Op.in]: list
+                                    }
+                                },
+                                {
+                                    NumberLeave: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
                             ];
                         } else {
                             where = [{
                                 NumberLeave: {
                                     [Op.ne]: '%%'
                                 }
-                            },];
+                            }, ];
                         }
                         arraySearchAnd.push({
-                            [Op.or]: where
-                        })
-                        // arraySearchOr.push({ ID: { [Op.ne]: null } })
+                                [Op.or]: where
+                            })
+                            // arraySearchOr.push({ ID: { [Op.ne]: null } })
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
@@ -747,35 +788,35 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         include: [{
-                            model: mtblLoaiChamCong(db),
-                            required: false,
-                            as: 'loaiChamCong'
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'nv',
-                            include: [{
-                                model: mtblDMBoPhan(db),
+                                model: mtblLoaiChamCong(db),
                                 required: false,
-                                as: 'bp'
-                            },]
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'headDepartment'
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'adminHR'
-                        },
-                        {
-                            model: tblDMNhanvien,
-                            required: false,
-                            as: 'heads'
-                        },
+                                as: 'loaiChamCong'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'nv',
+                                include: [{
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'bp'
+                                }, ]
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'headDepartment'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'adminHR'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'heads'
+                            },
                         ],
                         order: [
                             ['ID', 'DESC']
@@ -834,7 +875,379 @@ module.exports = {
                                     model: mtblLoaiChamCong(db),
                                     required: false,
                                     as: 'lcc'
-                                },],
+                                }, ],
+                            }).then(date => {
+                                let arrayDate = []
+                                if (obj.type == 'TakeLeave')
+                                    date.forEach(item => {
+                                        arrayDate.push({
+                                            dateStart: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                            timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
+                                            dateEnd: moment(item.DateEnd).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                            timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
+                                            idLoaiChamCong: item.IDLoaiChamCong ? Number(item.IDLoaiChamCong) : null
+                                        })
+                                    })
+                                else {
+                                    date.forEach(item => {
+                                        arrayDate.push({
+                                            date: moment(item.DateStart).subtract(7, 'hour').format('YYYY-MM-DD'),
+                                            timeStart: moment(item.DateStart).subtract(7, 'hour').format('HH:mm'),
+                                            timeEnd: moment(item.DateEnd).subtract(7, 'hour').format('HH:mm'),
+                                            workContent: item.WorkContent ? item.WorkContent : '',
+                                            workResult: item.WorkResult ? item.WorkResult : '',
+                                            timeStartReal: item.TimeStartReal ? moment(item.TimeStartReal).subtract(7, 'hour').format('HH:mm') : null,
+                                            timeEndReal: item.TimeEndReal ? moment(item.TimeEndReal).subtract(7, 'hour').format('HH:mm') : null,
+                                        })
+                                    })
+                                }
+                                obj['array'] = arrayDate
+                            })
+                            array.push(obj);
+                            stt += 1;
+                        }
+                        for (var i = 0; i < array.length; i++) {
+                            var arrayFile = []
+                            await mtblFileAttach(db).findAll({ where: { IDTakeLeave: array[i].id } }).then(file => {
+                                if (file.length > 0) {
+                                    for (var e = 0; e < file.length; e++) {
+                                        arrayFile.push({
+                                            id: file[e].ID ? file[e].ID : '',
+                                            name: file[e].Name ? file[e].Name : '',
+                                            link: file[e].Link ? file[e].Link : '',
+                                        })
+                                    }
+                                }
+                            })
+                            array[i]['fileAttach'] = arrayFile;
+                        }
+                        var count = await mtblNghiPhep(db).count({ where: whereObj, })
+                        var result = {
+                            array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // get_list_tbl_nghiphep user
+    getListtblNghiPhepUser: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    var whereObj = {
+                        [Op.or]: [{
+                            IDNhanVien: body.staffID
+                        }, {
+                            IDHeadDepartment: body.staffID
+                        }, {
+                            IDAdministrationHR: body.staffID
+                        }, {
+                            IDHeads: body.staffID
+                        }]
+                    };
+                    let arraySearchAnd = [];
+                    let arraySearchOr = [];
+                    let arraySearchNot = [];
+                    if (body.type == 'TakeLeave') {
+                        arraySearchAnd.push({ Type: 'TakeLeave' })
+                    } else {
+                        arraySearchAnd.push({ Type: 'SignUp' })
+                    }
+                    if (body.staffID) {
+                        let tblDMUser = mtblDMUser(db);
+                        tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission', as: 'permission' })
+                        await tblDMUser.findOne({
+                            where: { IDNhanvien: body.staffID },
+                            include: [{
+                                model: mtblDMPermission(db),
+                                required: false,
+                                as: 'permission'
+                            }, ],
+                        }).then(user => {
+                            if (user)
+                                if (user.permission && user.permission.PermissionName != 'Admin') {
+                                    arraySearchAnd.push({
+                                        [Op.or]: [
+                                            { IDNhanVien: body.staffID },
+                                            { IDHeads: body.staffID },
+                                            { IDAdministrationHR: body.staffID },
+                                            { IDHeadDepartment: body.staffID },
+                                        ]
+                                    })
+                                }
+                        })
+                    }
+                    if (body.dataSearch) {
+                        var data = JSON.parse(body.dataSearch)
+
+                        if (data.search) {
+                            var list = [];
+                            await mtblDMNhanvien(db).findAll({
+                                order: [
+                                    ['ID', 'DESC']
+                                ],
+                                where: {
+                                    [Op.or]: [{
+                                            StaffCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            StaffName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        }
+                                    ]
+                                }
+                            }).then(data => {
+                                data.forEach(item => {
+                                    list.push(item.ID);
+                                })
+                            })
+                            where = [{
+                                    IDNhanVien: {
+                                        [Op.in]: list
+                                    }
+                                },
+                                {
+                                    NumberLeave: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                            ];
+                        } else {
+                            where = [{
+                                NumberLeave: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
+                        }
+                        arraySearchAnd.push({
+                                [Op.or]: where
+                            })
+                            // arraySearchOr.push({ ID: { [Op.ne]: null } })
+                        if (data.items) {
+                            for (var i = 0; i < data.items.length; i++) {
+                                let userFind = {};
+                                if (data.items[i].fields['name'] === 'SỐ ĐƠN') {
+                                    var list = [];
+                                    userFind['NumberLeave'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGƯỜI LÀM ĐƠN') {
+                                    var list = [];
+                                    userFind['IDNhanVien'] = {
+                                        [Op.eq]: data.items[i]['searchFields']
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'BỘ PHẬN') {
+                                    var list = [];
+                                    await mtblDMNhanvien(db).findAll({
+                                        where: { IDBoPhan: data.items[i]['searchFields'] }
+                                    }).then(data => {
+                                        data.forEach(item => {
+                                            list.push(item.ID)
+                                        })
+                                    })
+                                    userFind['IDNhanVien'] = {
+                                        [Op.in]: list
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'NGÀY LÀM ĐƠN') {
+                                    let startDate = moment(data.items[i]['startDate']).add(7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    let endDate = moment(data.items[i]['endDate']).add(23 + 7, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                                    userFind['Date'] = {
+                                        [Op.between]: [startDate, endDate]
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                                if (data.items[i].fields['name'] === 'LÝ DO TỪ CHỐI') {
+                                    userFind['Reason'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'And') {
+                                        arraySearchAnd.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Or') {
+                                        arraySearchOr.push(userFind)
+                                    }
+                                    if (data.items[i].conditionFields['name'] == 'Not') {
+                                        arraySearchNot.push(userFind)
+                                    }
+                                }
+                            }
+                        }
+                        if (arraySearchOr.length > 0)
+                            whereObj[Op.or] = arraySearchOr
+                        if (arraySearchAnd.length > 0)
+                            whereObj[Op.and] = arraySearchAnd
+                        if (arraySearchNot.length > 0)
+                            whereObj[Op.not] = arraySearchNot
+                    }
+                    let stt = 1;
+                    let tblNghiPhep = mtblNghiPhep(db);
+                    let tblDMNhanvien = mtblDMNhanvien(db);
+                    tblNghiPhep.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'loaiChamCong' })
+                    tblNghiPhep.belongsTo(tblDMNhanvien, { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
+                    tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bp' })
+                    tblNghiPhep.belongsTo(tblDMNhanvien, { foreignKey: 'IDHeadDepartment', sourceKey: 'IDHeadDepartment', as: 'headDepartment' })
+                    tblNghiPhep.belongsTo(tblDMNhanvien, { foreignKey: 'IDAdministrationHR', sourceKey: 'IDAdministrationHR', as: 'adminHR' })
+                    tblNghiPhep.belongsTo(tblDMNhanvien, { foreignKey: 'IDHeads', sourceKey: 'IDHeads', as: 'heads' })
+                    tblNghiPhep.findAll({
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: whereObj,
+                        include: [{
+                                model: mtblLoaiChamCong(db),
+                                required: false,
+                                as: 'loaiChamCong'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'nv',
+                                include: [{
+                                    model: mtblDMBoPhan(db),
+                                    required: false,
+                                    as: 'bp'
+                                }, ]
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'headDepartment'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'adminHR'
+                            },
+                            {
+                                model: tblDMNhanvien,
+                                required: false,
+                                as: 'heads'
+                            },
+                        ],
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                    }).then(async data => {
+                        var array = [];
+                        for (var i = 0; i < data.length; i++) {
+                            let remaining = 0
+                            if (data[i].Status == 'Hoàn thành') {
+                                remaining = data[i].AdvancePayment - data[i].UsedLeave - data[i].Deducted
+                            } else {
+                                remaining = data[i].AdvancePayment - data[i].UsedLeave
+                            }
+                            var obj = {
+                                stt: stt,
+                                id: Number(data[i].ID),
+                                dateEnd: data[i].DateEnd ? moment(data[i].DateEnd).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
+                                dateStart: data[i].DateStart ? moment(data[i].DateStart).subtract(7, 'hours').format('DD/MM/YYYY HH:mm:ss') : '',
+                                idLoaiChamCong: data[i].loaiChamCong ? data[i].loaiChamCong.ID : '',
+                                nameLoaiChamCong: data[i].loaiChamCong ? data[i].loaiChamCong.Name : '',
+                                codeLoaiChamCong: data[i].loaiChamCong ? data[i].loaiChamCong.Code : '',
+                                idNhanVien: data[i].IDNhanVien ? data[i].IDNhanVien : '',
+                                staffCode: data[i].nv ? data[i].nv.StaffCode : '',
+                                staffName: data[i].nv ? data[i].nv.StaffName : '',
+                                departmentName: data[i].nv ? data[i].nv.bp ? data[i].nv.bp.DepartmentName : '' : '',
+                                departmentID: data[i].nv ? data[i].nv.bp ? data[i].nv.bp.ID : '' : '',
+                                numberLeave: data[i].NumberLeave ? data[i].NumberLeave : '',
+                                content: data[i].ContentLeave ? data[i].ContentLeave : '',
+                                status: data[i].Status ? data[i].Status : '',
+                                type: data[i].Type ? data[i].Type : '',
+                                date: data[i].Date ? moment(data[i].Date).format('DD/MM/YYYY') : null,
+                                remaining: remaining,
+                                numberHoliday: data[i].NumberHoliday,
+                                advancePayment: data[i].AdvancePayment,
+                                usedLeave: data[i].UsedLeave,
+                                idHeadDepartment: data[i].IDHeadDepartment ? data[i].IDHeadDepartment : '',
+                                headDepartmentCode: data[i].headDepartment ? data[i].headDepartment.StaffCode : '',
+                                headDepartmentName: data[i].headDepartment ? data[i].headDepartment.StaffName : '',
+                                idAdministrationHR: data[i].IDAdministrationHR ? data[i].IDAdministrationHR : '',
+                                administrationHRCode: data[i].adminHR ? data[i].adminHR.StaffCode : '',
+                                administrationHRName: data[i].adminHR ? data[i].adminHR.StaffName : '',
+                                idHeads: data[i].IDHeads ? data[i].IDHeads : '',
+                                headsCode: data[i].heads ? data[i].heads.StaffCode : '',
+                                headsName: data[i].heads ? data[i].heads.StaffName : '',
+                                reason: data[i].Reason ? data[i].Reason : '',
+                                time: data[i].Time ? data[i].Time : '',
+                                note: data[i].Note ? data[i].Note : '',
+                                work: data[i].WorkContent ? data[i].WorkContent : '',
+                            }
+                            let tblDateOfLeave = mtblDateOfLeave(db);
+                            tblDateOfLeave.belongsTo(mtblLoaiChamCong(db), { foreignKey: 'IDLoaiChamCong', sourceKey: 'IDLoaiChamCong', as: 'lcc' })
+
+                            await tblDateOfLeave.findAll({
+                                where: { LeaveID: data[i].ID },
+                                include: [{
+                                    model: mtblLoaiChamCong(db),
+                                    required: false,
+                                    as: 'lcc'
+                                }, ],
                             }).then(date => {
                                 let arrayDate = []
                                 if (obj.type == 'TakeLeave')
@@ -940,29 +1353,31 @@ module.exports = {
             if (db) {
                 try {
                     let leave = await mtblNghiPhep(db).findOne({
-                        where: { ID: body.id }
-                    })
-                    let tblDateOfLeave = mtblDateOfLeave(db);
-                    await tblDateOfLeave.findAll({
-                        where: { LeaveID: leave.ID },
-                    }).then(date => {
-                        for (let d = 0; d < date.length; d++) {
-                            var time = moment(date[d].DateEnd).add(17, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
-                            let dbCon = db
-                            let idN = body.id
-                            var job = schedule.scheduleJob(time, async function () {
-                                await mtblNghiPhep(dbCon).update({
-                                    Status: 'Từ chối',
-                                }, {
-                                    where: {
-                                        ID: idN,
-                                        Status: { [Op.ne]: 'Hoàn thành' },
-                                    }
-                                })
-                            });
-                            console.log(job);
-                        }
-                    })
+                            where: { ID: body.id }
+                        })
+                        // let tblDateOfLeave = mtblDateOfLeave(db);
+                        // await tblDateOfLeave.findAll({
+                        //     where: { LeaveID: leave.ID },
+                        // }).then(date => {
+                        //     for (let d = 0; d < date.length; d++) {
+                        //         var time = moment(date[d].DateEnd).add(17, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS');
+                        //         let dbCon = db
+                        //         let idN = body.id
+                        //         var job = schedule.scheduleJob(time, async function() {
+                        //             await mtblNghiPhep(dbCon).update({
+                        //                 Status: 'Từ chối',
+                        //             }, {
+                        //                 where: {
+                        //                     ID: idN,
+                        //                     Status: {
+                        //                         [Op.ne]: 'Hoàn thành'
+                        //                     },
+                        //                 }
+                        //             })
+                        //         });
+                        //         console.log(job);
+                        //     }
+                        // })
                     if (leave.Type == 'TakeLeave')
                         await mtblNghiPhep(db).update({
                             Status: 'Chờ hành chính nhân sự phê duyệt',
@@ -1070,8 +1485,7 @@ module.exports = {
                             })
                         })
                         await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
-                    }
-                    else {
+                    } else {
                         await mtblNghiPhep(db).update({
                             Status: 'Hoàn thành',
                         }, { where: { ID: body.id } })
@@ -1266,8 +1680,8 @@ module.exports = {
                             }
                         else {
                             let seniority = await handleCalculateAdvancePayment(db, body.staffID) // thâm niên
-                            // var quotient = Math.floor(y / x);  // lấy nguyên
-                            // var remainder = y % x; // lấy dư
+                                // var quotient = Math.floor(y / x);  // lấy nguyên
+                                // var remainder = y % x; // lấy dư
                             let advancePayment = 0
                             if (seniority > 12) {
                                 advancePayment = 12 + Math.floor(seniority / 60)

@@ -8,7 +8,9 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 async function deleteRelationshiptblMinWageConfig(db, listID) {
     await mtblMinWageConfig(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -161,13 +163,17 @@ module.exports = {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
-                            where = [
-                                { StartDate: { [Op.like]: '%' + data.search + '%' } },
-                            ];
+                            where = [{
+                                StartDate: {
+                                    [Op.like]: '%' + data.search + '%'
+                                }
+                            }, ];
                         } else {
-                            where = [
-                                { ID: { [Op.ne]: null } },
-                            ];
+                            where = [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }, ];
                         }
                         whereObj[Op.and] = where
                         if (data.items) {

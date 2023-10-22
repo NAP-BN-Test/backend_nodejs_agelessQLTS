@@ -76,13 +76,11 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id) {
                 where: {
                     IncreaseSalariesID: id,
                 },
-                include: [
-                    {
-                        model: mtblDMNhanvien(db),
-                        required: false,
-                        as: 'staff'
-                    },
-                ],
+                include: [{
+                    model: mtblDMNhanvien(db),
+                    required: false,
+                    as: 'staff'
+                }, ],
             }).then(data => {
                 data.forEach(element => {
                     arrayStaff.push(element.StaffID)
@@ -100,13 +98,11 @@ async function getDetailDecidedToIncreaseTheSalaries(db, id) {
                         },
                         StaffID: arrayStaff[s],
                     },
-                    include: [
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'staff'
-                        },
-                    ],
+                    include: [{
+                        model: mtblDMNhanvien(db),
+                        required: false,
+                        as: 'staff'
+                    }, ],
                 }).then(data => {
                     productivityWages = data[0].staff ? data[0].staff.ProductivityWages : 0
                     obj = {
@@ -147,22 +143,25 @@ async function checkIncreaseTheSalariesExistForStaff(db, staffArray, date) {
         let dateM = moment(date).add(7, 'hours').format('YYYY-MM').toString()
         await tblQuyetDinhTangLuong.findOne({
             where: {
-                [Op.or]: [
-                    {
+                [Op.or]: [{
                         StopDate: {
                             [Op.gte]: date
                         },
                         DecisionDate: {
                             [Op.lte]: date
                         },
-                        ID: { [Op.in]: arrayDecision },
+                        ID: {
+                            [Op.in]: arrayDecision
+                        },
                     },
                     {
                         StopDate: null,
                         DecisionDate: {
                             [Op.substring]: dateM
                         },
-                        ID: { [Op.in]: arrayDecision },
+                        ID: {
+                            [Op.in]: arrayDecision
+                        },
                     }
                 ]
             },
@@ -423,15 +422,15 @@ module.exports = {
 
                         if (data.search) {
                             where = [{
-                                DecisionCode: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
-                            {
-                                Status: {
-                                    [Op.like]: '%' + data.search + '%'
-                                }
-                            },
+                                    DecisionCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    Status: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
                             ];
                         } else {
                             where = {
@@ -464,8 +463,10 @@ module.exports = {
                                     let array = []
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
-                                    array.sort(function (a, b) { return a - b });
-                                    userFind['Increase'] = { [Op.between]: array }
+                                    array.sort(function(a, b) { return a - b });
+                                    userFind['Increase'] = {
+                                        [Op.between]: array
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         arraySearchAnd.push(userFind)
                                     }
@@ -546,15 +547,15 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereObj,
                         include: [{
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'employee'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'employeeApp'
-                        },
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'employee'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'employeeApp'
+                            },
                         ],
                         order: [
                             ['ID', 'DESC']
@@ -589,7 +590,7 @@ module.exports = {
                                     model: mtblDMNhanvien(db),
                                     required: false,
                                     as: 'staff'
-                                },],
+                                }, ],
                             }).then(inc => {
                                 inc.forEach(item => {
                                     arrayStaff.push({
@@ -738,7 +739,9 @@ module.exports = {
                     })
                     await mtblQuyetDinhTangLuong(db).findAll({
                         where: {
-                            ID: { [Op.in]: arrayDecisionID }
+                            ID: {
+                                [Op.in]: arrayDecisionID
+                            }
                         }
                     }).then(async decision => {
                         if (decision.length > 0) {
@@ -768,13 +771,11 @@ module.exports = {
                                     where: {
                                         IncreaseSalariesID: decision[d].ID,
                                     },
-                                    include: [
-                                        {
-                                            model: mtblDMNhanvien(db),
-                                            required: false,
-                                            as: 'staff'
-                                        },
-                                    ],
+                                    include: [{
+                                        model: mtblDMNhanvien(db),
+                                        required: false,
+                                        as: 'staff'
+                                    }, ],
                                 }).then(data => {
                                     data.forEach(element => {
                                         arrayStaff.push(element.StaffID)
@@ -790,13 +791,11 @@ module.exports = {
                                             },
                                             StaffID: arrayStaff[s],
                                         },
-                                        include: [
-                                            {
-                                                model: mtblDMNhanvien(db),
-                                                required: false,
-                                                as: 'staff'
-                                            },
-                                        ],
+                                        include: [{
+                                            model: mtblDMNhanvien(db),
+                                            required: false,
+                                            as: 'staff'
+                                        }, ],
                                     }).then(data => {
                                         obj = {
                                             id: arrayStaff[s],

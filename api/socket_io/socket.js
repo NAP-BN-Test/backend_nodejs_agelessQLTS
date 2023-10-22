@@ -24,9 +24,9 @@ async function connectDatabase(dbname) {
 }
 
 module.exports = {
-    sockketIO: async (io) => {
-        io.on("connection", async function (socket) {
-            socket.on("sendrequest", async function (data) {
+    sockketIO: async(io) => {
+        io.on("connection", async function(socket) {
+            socket.on("sendrequest", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
@@ -72,22 +72,22 @@ module.exports = {
                     io.sockets.emit("sendrequest", []);
                 }
             });
-            socket.on("notification-zalo", async function (data) {
+            socket.on("notification-zalo", async function(data) {
                 io.sockets.emit("notification-zalo", { dbname: data.dbname });
             });
-            socket.on("notification-thaydoidiadiem", async function (data) {
+            socket.on("notification-thaydoidiadiem", async function(data) {
                 io.sockets.emit("notification-thaydoidiadiem", { dbname: data.dbnamenhaxe, donhang_thongbao: data.donhang_thongbao });
             });
-            socket.on("notification-thaydoichiphi", async function (data) {
+            socket.on("notification-thaydoichiphi", async function(data) {
                 io.sockets.emit("notification-thaydoichiphi", { dbname: data.dbnamenhaxe, donhang_thongbao: data.donhang_thongbao });
             });
-            socket.on("notification-yeucaupheduyet", async function (data) {
+            socket.on("notification-yeucaupheduyet", async function(data) {
                 io.sockets.emit("notification-yeucaupheduyet", { dbname: data.dbname, donhang_thongbao: data.donhang_thongbao });
             });
-            socket.on("notification-nhaxehoanthanh", async function (data) {
+            socket.on("notification-nhaxehoanthanh", async function(data) {
                 io.sockets.emit("notification-nhaxehoanthanh", { dbname: data.dbnamenhaxe, donhang_thongbao: data.donhang_thongbao });
             });
-            socket.on("change-received-status", async function (data) {
+            socket.on("change-received-status", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
                 let dbName1 = await connectDatabase(data.dbname1)
@@ -107,7 +107,7 @@ module.exports = {
                 io.sockets.emit("sendrequest", []);
 
             });
-            socket.on("send-plan-cost", async function (data) {
+            socket.on("send-plan-cost", async function(data) {
                 let status = 'XÁC NHẬN KẾ HOẠCH'
                 if (data.type == 'CHIPHI')
                     status = 'XÁC NHẬN CHI PHÍ'
@@ -225,7 +225,7 @@ module.exports = {
                 io.sockets.emit("send-plan-cost", objResult);
 
             });
-            socket.on("confirm-plan-cost", async function (data) {
+            socket.on("confirm-plan-cost", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
                     host: 'dbdev.namanphu.vn',
@@ -311,7 +311,7 @@ module.exports = {
                         let TypeLoaiHinhVanChuyen;
                         let IDKhachHang;
                         let IDDonHangs
-                        // let IDDMXeCongTy = data.xecongty == null ? null : data.xecongty.id;
+                            // let IDDMXeCongTy = data.xecongty == null ? null : data.xecongty.id;
                         let SoLuongVo = objOrder.SoLuongVo;
                         let IDLoaiVo;
                         let IDHangTau;
@@ -458,7 +458,7 @@ module.exports = {
                 let KeyConnect;
                 let IDNhaXe;
                 let dbMaster = await connectDatabase('STRUCK_CUSTOMER_DB')
-                // check dbname khách hàng
+                    // check dbname khách hàng
                 if (!objOrder.IDKhachHang) {
                     dbnameKH = null
                 } else {
@@ -523,16 +523,16 @@ module.exports = {
             console.log('The user is connecting : ' + socket.id);
         })
     },
-    socketEmit: async (io, dbname) => {
+    socketEmit: async(io, dbname) => {
         io.sockets.emit("notification-zalo", { dbname: dbname });
     },
-    socketEmitNotifiPlan: async (io, dbname) => {
+    socketEmitNotifiPlan: async(io, dbname) => {
         io.sockets.emit("notification-kehoach", { dbname: dbname });
     },
-    socketEmitNotifiCost: async (io, dbname) => {
+    socketEmitNotifiCost: async(io, dbname) => {
         io.sockets.emit("notification-chiphi", { dbname: dbname });
     },
-    socketEmitNotifiRequest: async (io, dbname) => {
+    socketEmitNotifiRequest: async(io, dbname) => {
         io.sockets.emit("sendrequest", { dbname: dbname });
     },
 }

@@ -12,23 +12,41 @@ var database = require('../database');
 async function deleteRelationshiptblVanPhongPham(db, listID) {
     await mtblFileAttach(db).destroy({
         where: {
-            IDVanPhongPham: { [Op.in]: listID }
+            IDVanPhongPham: {
+                [Op.in]: listID
+            }
         }
     })
     await mtblYeuCauMuaSamDetail(db).destroy({
         where: {
-            IDVanPhongPham: { [Op.in]: listID }
+            IDVanPhongPham: {
+                [Op.in]: listID
+            }
         }
     })
     await mThemVPPChiTiet(db).update({
         IDVanPhongPham: null,
-    }, { where: { IDVanPhongPham: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDVanPhongPham: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblPhanPhoiVPPChiTiet(db).update({
         IDVanPhongPham: null,
-    }, { where: { IDVanPhongPham: { [Op.in]: listID } } })
+    }, {
+        where: {
+            IDVanPhongPham: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblVanPhongPham(db).destroy({
         where: {
-            ID: { [Op.in]: listID }
+            ID: {
+                [Op.in]: listID
+            }
         }
     })
 }
@@ -47,8 +65,7 @@ module.exports = {
                             message: 'Đã có mã này. Vui lòng kiểm tra lại !',
                         }
                         res.json(result);
-                    }
-                    else
+                    } else
                         mtblVanPhongPham(db).create({
                             VPPCode: body.vppCode ? body.vppCode : '',
                             VPPName: body.vppName ? body.vppName : '',
@@ -145,25 +162,42 @@ module.exports = {
                         var data = JSON.parse(body.dataSearch)
 
                         if (data.search) {
-                            where = [
-                                { VPPName: { [Op.like]: '%' + data.search + '%' } },
-                                { VPPCode: { [Op.like]: '%' + data.search + '%' } },
+                            where = [{
+                                    VPPName: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
+                                {
+                                    VPPCode: {
+                                        [Op.like]: '%' + data.search + '%'
+                                    }
+                                },
 
                             ];
                         } else {
-                            where = [
-                                { VPPName: { [Op.ne]: '%%' } },
-                            ];
+                            where = [{
+                                VPPName: {
+                                    [Op.ne]: '%%'
+                                }
+                            }, ];
                         }
                         whereOjb = {
-                            [Op.and]: [{ [Op.or]: where }],
-                            [Op.or]: [{ ID: { [Op.ne]: null } }],
+                            [Op.and]: [{
+                                [Op.or]: where
+                            }],
+                            [Op.or]: [{
+                                ID: {
+                                    [Op.ne]: null
+                                }
+                            }],
                         };
                         if (data.items) {
                             for (var i = 0; i < data.items.length; i++) {
                                 let userFind = {};
                                 if (data.items[i].fields['name'] === 'TÊN VPP') {
-                                    userFind['VPPName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['VPPName'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -175,7 +209,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'MÃ VPP') {
-                                    userFind['VPPCode'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['VPPCode'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and].push(userFind)
                                     }
@@ -251,6 +287,41 @@ module.exports = {
                         });
                         var result = {
                             array: array,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+
+    // get_detail_tbl_vanphongpham
+    getDetailtblVanPhongPham: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    mtblVanPhongPham(db).findOne({
+                        where: { ID: body.id }
+                    }).then(element => {
+                        var obj = {
+                            id: Number(element.ID),
+                            vppName: element.VPPName ? element.VPPName : '',
+                            vppCode: element.VPPCode ? element.VPPCode : '',
+                            unit: element.Unit ? element.Unit : '',
+                            remainingAmount: element.RemainingAmount ? element.RemainingAmount : 0,
+                        }
+
+                        var result = {
+                            array: obj,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

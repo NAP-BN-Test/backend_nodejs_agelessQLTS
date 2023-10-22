@@ -39,6 +39,7 @@ module.exports = function (db) {
         FileAttachID: Sequelize.BIGINT,
         OldProductivity: Sequelize.FLOAT,
         Increase: Sequelize.FLOAT,
+        NoDateOff: Sequelize.FLOAT,
     });
 
     return table;

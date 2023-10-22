@@ -39,11 +39,12 @@ module.exports = {
     //         encrypt: false,
     //     },
     // },
+
     config: {
         user: 'sa',
         password: 'Viet@solution$213%171^198', // Viet@solution$213%171^198
-        server: 'dbdev.namanphu.vn', //dbdev.namanphu.vn , 192.168.23.16
-        database: 'TXAGELESS_QLNB', // GELESS_QLNB con demo
+        server: 'dbdev.namanphu.vn', //dbdev.namanphu.vn , dbdev.namanphu.vn
+        database: 'TXAGELESS_QLNB', // AGELESS_QLNB con demo
         options: {
             encrypt: false,
         },
@@ -57,7 +58,7 @@ module.exports = {
             encrypt: false,
         },
     },
-    connectDatabase: async function () {
+    connectDatabase: async function() {
         try {
             const db = new Sequelize(this.config.database, this.config.user, this.config.password, {
                 host: this.config.server,
@@ -95,7 +96,7 @@ module.exports = {
     },
     // -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    checkServerInvalid: async function (userID) {
+    checkServerInvalid: async function(userID) {
         let customer;
         try {
             await connectDatabase(this.config.database, this.config.user, this.config.password, this.config.server).then(async dbCustomer => {
@@ -114,8 +115,7 @@ module.exports = {
             if (customer) {
                 let db = await connectDatabase(customer.DatabaseName, customer.UsernameDB, customer.PassworDB, customer.ServerIP);
                 return db;
-            }
-            else return null;
+            } else return null;
         } catch (error) {
             console.log(error);
             return null;
@@ -124,7 +124,7 @@ module.exports = {
 
     // -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    updateTable: async function (listObj, table, id) {
+    updateTable: async function(listObj, table, id) {
         let updateObj = {};
         for (let field of listObj) {
             updateObj[field.key] = field.value

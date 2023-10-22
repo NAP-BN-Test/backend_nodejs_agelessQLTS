@@ -16,6 +16,13 @@ async function deleteRelationshipTBLPhanPhoiVPP(db, listID) {
     //         IDDeNghiThanhToan: { [Op.in]: listID }
     //     }
     // })
+    await mtblPhanPhoiVPPChiTiet(db).destroy({
+        where: {
+            IDPhanPhoiVPP: {
+                [Op.in]: listID
+            }
+        }
+    })
     await mtblPhanPhoiVPP(db).destroy({
         where: {
             ID: {
@@ -152,6 +159,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
+                    console.log(db);
                     let listID = JSON.parse(body.listID);
                     await deleteRelationshipTBLPhanPhoiVPP(db, listID);
                     var result = {
@@ -183,15 +191,15 @@ module.exports = {
                             await mtblVanPhongPham(db).findAll({
                                 where: {
                                     [Op.or]: [{
-                                        VPPCode: {
-                                            [Op.like]: '%' + data.search + '%'
+                                            VPPCode: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
+                                        },
+                                        {
+                                            VPPName: {
+                                                [Op.like]: '%' + data.search + '%'
+                                            }
                                         }
-                                    },
-                                    {
-                                        VPPName: {
-                                            [Op.like]: '%' + data.search + '%'
-                                        }
-                                    }
                                     ]
                                 }
                             }).then(data => {
@@ -215,13 +223,13 @@ module.exports = {
                                 ID: {
                                     [Op.in]: list
                                 }
-                            },];
+                            }, ];
                         } else {
                             where = [{
                                 ID: {
                                     [Op.ne]: null
                                 }
-                            },];
+                            }, ];
                         }
                         whereOjb = {
                             [Op.or]: where
@@ -265,10 +273,12 @@ module.exports = {
                                     let list = []
                                     array.push(data.items[i].value1)
                                     array.push(data.items[i].value2)
-                                    array.sort(function (a, b) { return a - b });
+                                    array.sort(function(a, b) { return a - b });
                                     await mtblPhanPhoiVPPChiTiet(db).findAll({
                                         where: {
-                                            Amount: { [Op.between]: array }
+                                            Amount: {
+                                                [Op.between]: array
+                                            }
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -296,7 +306,7 @@ module.exports = {
                                                 Unit: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            },]
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -336,7 +346,7 @@ module.exports = {
                                                 VPPCode: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            },]
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -376,7 +386,7 @@ module.exports = {
                                                 VPPName: {
                                                     [Op.like]: '%' + data.items[i]['searchFields'] + '%'
                                                 }
-                                            },]
+                                            }, ]
                                         }
                                     }).then(data => {
                                         data.forEach(item => {
@@ -409,7 +419,9 @@ module.exports = {
                                     }
                                 }
                                 if (data.items[i].fields['name'] === 'TRẠNG THÁI') {
-                                    userFind['Status'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                    userFind['Status'] = {
+                                        [Op.like]: '%' + data.items[i]['searchFields'] + '%'
+                                    }
                                     if (data.items[i].conditionFields['name'] == 'And') {
                                         whereOjb[Op.and] = userFind
                                     }
@@ -439,30 +451,30 @@ module.exports = {
                         limit: Number(body.itemPerPage),
                         where: whereOjb,
                         include: [{
-                            model: tblPhanPhoiVPPChiTiet,
-                            required: false,
-                            as: 'line',
-                            include: [{
-                                model: mtblVanPhongPham(db),
+                                model: tblPhanPhoiVPPChiTiet,
                                 required: false,
-                                as: 'vpp'
-                            },]
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'nvbg'
-                        },
-                        {
-                            model: mtblDMNhanvien(db),
-                            required: false,
-                            as: 'nvsh'
-                        },
-                        {
-                            model: mtblDMBoPhan(db),
-                            required: false,
-                            as: 'bp'
-                        },
+                                as: 'line',
+                                include: [{
+                                    model: mtblVanPhongPham(db),
+                                    required: false,
+                                    as: 'vpp'
+                                }, ]
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nvbg'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nvsh'
+                            },
+                            {
+                                model: mtblDMBoPhan(db),
+                                required: false,
+                                as: 'bp'
+                            },
                         ],
                     }).then(async data => {
                         var array = [];
@@ -546,5 +558,105 @@ module.exports = {
                 res.json(Constant.MESSAGE.USER_FAIL)
             }
         })
-    }
+    },
+
+    getDetailTBLPhanPhoiVPP: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    let tblPhanPhoiVPP = mtblPhanPhoiVPP(db);
+                    let tblPhanPhoiVPPChiTiet = mtblPhanPhoiVPPChiTiet(db);
+                    tblPhanPhoiVPP.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienBanGiao', sourceKey: 'IDNhanVienBanGiao', as: 'nvbg' })
+                    tblPhanPhoiVPP.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVienSoHuu', sourceKey: 'IDNhanVienSoHuu', as: 'nvsh' })
+                    tblPhanPhoiVPP.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhanSoHuu', sourceKey: 'IDBoPhanSoHuu', as: 'bp' })
+                    tblPhanPhoiVPP.hasMany(tblPhanPhoiVPPChiTiet, { foreignKey: 'IDPhanPhoiVPP', as: 'line' })
+                    tblPhanPhoiVPPChiTiet.belongsTo(mtblVanPhongPham(db), { foreignKey: 'IDVanPhongPham', sourceKey: 'IDVanPhongPham', as: 'vpp' })
+                    var stt = 1;
+                    tblPhanPhoiVPP.findOne({
+                        order: [
+                            ['ID', 'DESC']
+                        ],
+                        offset: Number(body.itemPerPage) * (Number(body.page) - 1),
+                        limit: Number(body.itemPerPage),
+                        where: { ID: body.id },
+                        include: [{
+                                model: tblPhanPhoiVPPChiTiet,
+                                required: false,
+                                as: 'line',
+                                include: [{
+                                    model: mtblVanPhongPham(db),
+                                    required: false,
+                                    as: 'vpp'
+                                }, ]
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nvbg'
+                            },
+                            {
+                                model: mtblDMNhanvien(db),
+                                required: false,
+                                as: 'nvsh'
+                            },
+                            {
+                                model: mtblDMBoPhan(db),
+                                required: false,
+                                as: 'bp'
+                            },
+                        ],
+                    }).then(async element => {
+                        // var array = [];
+                        // data.forEach(element => {
+                        var arrayLine = [];
+                        var obj = {
+                            stt: stt,
+                            id: Number(element.ID),
+                            idNhanVienBanGiao: element.IDNhanVienBanGiao ? element.IDNhanVienBanGiao : null,
+                            nameNhanVienBanGiao: element.nvbg ? element.nvbg.StaffName : '',
+                            idNhanVienSoHuu: element.IDNhanVienSoHuu ? element.IDNhanVienSoHuu : null,
+                            nameNhanVienSoHuu: element.nvsh ? element.nvsh.StaffName : '',
+                            idBoPhanSoHuu: element.IDBoPhanSoHuu ? element.IDBoPhanSoHuu : null,
+                            nameBoPhanSoHuu: element.bp ? element.bp.DepartmentName : null,
+                            date: element.Date ? moment(element.Date).format('DD/MM/YYYY') : null,
+                            // vppName: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPName : '' : '',
+                            // vppCode: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.VPPCode : '' : '',
+                            // unit: element.line[0] ? element.line[0].vpp ? element.line[0].vpp.Unit : '' : '',
+                            // amount: element.line[0] ? element.line[0].Amount : '',
+                            status: element.Status ? element.Status : '',
+                        }
+                        element.line.forEach(item => {
+                            arrayLine.push({
+                                idVanPhongPham: item ? item.vpp ? item.vpp.ID : '' : '',
+                                vppName: item ? item.vpp ? item.vpp.VPPName : '' : '',
+                                vppCode: item ? item.vpp ? item.vpp.VPPCode : '' : '',
+                                unit: item ? item.vpp ? item.vpp.Unit : '' : '',
+                                amount: item ? item.Amount : '',
+                                describe: item ? item.Describe : '',
+                            })
+                        })
+                        stt += 1;
+                        obj['line'] = arrayLine
+                            // array.push(obj);
+                            // });
+                        var count = await mtblPhanPhoiVPP(db).count({ where: { ID: body.id }, })
+                        var result = {
+                            array: obj,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
+                            all: count
+                        }
+                        res.json(result);
+                    })
+
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
 }

@@ -35,7 +35,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'employee'
-                        },],
+                        }, ],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -254,7 +254,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'employee'
-                        },],
+                        }, ],
                         order: [
                             ['ID', 'DESC']
                         ],
@@ -357,7 +357,7 @@ module.exports = {
                             model: mtblDMNhanvien(db),
                             required: false,
                             as: 'staff'
-                        },],
+                        }, ],
                     }).then(async training => {
                         if (training) {
                             let contract = await mtblHopDongNhanSu(db).findOne({

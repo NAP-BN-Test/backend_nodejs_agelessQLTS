@@ -7,8 +7,7 @@ var database = require('../database');
 async function deleteRelationshiptblDMNation(db, listID) {
     await mtblDMMation(db).destroy({
         where: {
-            ID: {
-                [Op.in]: listID }
+            ID: { [Op.in]: listID }
         }
     })
 }
@@ -96,23 +95,19 @@ module.exports = {
 
                     if (data.search) {
                         where = [
-                            { NationName: {
-                                    [Op.like]: '%' + data.search + '%' } },
+                            { NationName: { [Op.like]: '%' + data.search + '%' } },
                         ];
                     } else {
                         where = [
-                            { NationName: {
-                                    [Op.ne]: '%%' } },
+                            { NationName: { [Op.ne]: '%%' } },
                         ];
                     }
-                    let whereOjb = {
-                        [Op.or]: where };
+                    let whereOjb = { [Op.or]: where };
                     if (data.items) {
                         for (var i = 0; i < data.items.length; i++) {
                             let userFind = {};
                             if (data.items[i].fields['name'] === 'TÊN CHỨC VỤ') {
-                                userFind['NationName'] = {
-                                    [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
+                                userFind['NationName'] = { [Op.like]: '%' + data.items[i]['searchFields'] + '%' }
                                 if (data.items[i].conditionFields['name'] == 'And') {
                                     whereOjb[Op.and] = userFind
                                 }
