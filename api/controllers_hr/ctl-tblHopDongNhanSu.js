@@ -593,7 +593,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereOjb = [];
+                    var whereOjb = {};
                     if (body.dataSearch) {
                         var data = JSON.parse(body.dataSearch)
                         var list = [];
@@ -867,6 +867,9 @@ module.exports = {
                         }
                     }
                     let stt = 1;
+                    whereOjb[Op.and].push({
+                        Status:  'Có hiệu lực',
+                    })
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
                     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })

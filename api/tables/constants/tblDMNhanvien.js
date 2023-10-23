@@ -40,6 +40,7 @@ module.exports = function (db) {
         OldProductivity: Sequelize.FLOAT,
         Increase: Sequelize.FLOAT,
         NoDateOff: Sequelize.FLOAT,
+        remainingSpells : Sequelize.FLOAT,
     });
 
     return table;

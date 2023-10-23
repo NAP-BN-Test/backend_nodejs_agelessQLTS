@@ -103,6 +103,7 @@ module.exports = function(app) {
     app.route('/qlnb/get_list_name_thutruong').post(tblDMNhanvien.getListNameThuTruong);
     app.route('/qlnb/get_employee_from_department').post(checkToken.checkToken, tblDMNhanvien.getEmployeeFromDepartment);
     app.route('/qlnb/get_number_leave_day').post(checkToken.checkToken, tblDMNhanvien.getNumberLeaveDay);
+    app.route('/qlnb/update_remaining_spells').post(checkToken.checkToken, tblDMNhanvien.updateRemainingSpells);
 
     // Lịch sử sử dụng của nhân viên 
     app.route('/qlnb/get_list_history_nhanvien').post(checkToken.checkToken, tblDMNhanvien.getListHistoryNhanVien);

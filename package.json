@@ -5,12 +5,13 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon",
     "build": "nexe -i 'app.js' -r 'public/**/*.html' -o dist/agelessQlnb.exe -t x64-14.15.3"
   },
   "author": "tungnn",
   "license": "ISC",
   "dependencies": {
-    "@pdftron/pdfnet-node": "^8.1.0",
+    "@pdftron/pdfnet-node": "^18.13.0",
     "awesome-unoconv": "^1.0.1",
     "axios": "^0.20.0",
     "body-parser": "^1.19.0",

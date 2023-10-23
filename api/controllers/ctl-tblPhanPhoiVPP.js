@@ -8,7 +8,7 @@ var mtblDMBoPhan = require('../tables/constants/tblDMBoPhan')
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var database = require('../database');
 var mtblVanPhongPham = require('../tables/qlnb/tblVanPhongPham')
-var mModules = require('../constants/modules');
+var _ = require('lodash');
 
 async function deleteRelationshipTBLPhanPhoiVPP(db, listID) {
     // await mtblFileAttach(db).destroy({
@@ -130,12 +130,13 @@ module.exports = {
                         update.push({ key: 'Status', value: body.status });
                     }
                     for (var i = 0; i < body.line; i++) {
+                        const idVpp = _.get(body.line[i], 'idVanPhongPham.id')
                         await mtblPhanPhoiVPPChiTiet(db).create({
                             IDPhanPhoiVPP: body.id,
                             IDVanPhongPham: body.line[i].idVanPhongPham ? body.line[i].idVanPhongPham : null,
                             Amount: body.line[i].amount ? body.line[i].amount : null,
                             Describe: body.line[i].describe ? body.line[i].describe : '',
-                        }, { where: { ID: body.line[i].idLine } })
+                        }, { where: { ID: idVpp } })
                     }
                     database.updateTable(update, mtblPhanPhoiVPP(db), body.id).then(response => {
                         if (response == 1) {
