@@ -12,6 +12,7 @@ var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
 var mModules = require('../constants/modules');
 var mtblFileAttach = require('../tables/constants/tblFileAttach');
 var mtblDMChucVu = require('../tables/constants/tblDMChucVu');
+const { CONTRACT_TYPE } = require('../constants/constant');
 // / Covert Tiền chữ từ số
 async function readGroup(group) {
     let readDigit = [
@@ -527,6 +528,7 @@ module.exports = {
                     await mtblDMNhanvien(db).update({
                         CoefficientsSalary: body.coefficientsSalary ? body.coefficientsSalary : null,
                         ProductivityWages: body.productivityWages ? body.productivityWages : null,
+                        remainingSpells: body.remainingSpells ? body.remainingSpells : null,
                     }, { where: { ID: contract.IDNhanVien } })
                     if (!bl)
                         await mtblBangLuong(db).create({
@@ -867,9 +869,15 @@ module.exports = {
                         }
                     }
                     let stt = 1;
-                    whereOjb[Op.and].push({
-                        Status:  'Có hiệu lực',
-                    })
+                    if(body.status === CONTRACT_TYPE.Effective) {
+                        whereOjb[Op.and].push({
+                            Status:  CONTRACT_TYPE.Effective,
+                        })
+                    } else {
+                        whereOjb[Op.and].push({
+                            Status:  CONTRACT_TYPE.Expire,
+                        })
+                    }
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
                     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })

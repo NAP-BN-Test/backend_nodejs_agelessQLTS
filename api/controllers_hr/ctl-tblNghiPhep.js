@@ -1513,7 +1513,7 @@ module.exports = {
                         where: { ID: body.id }
                     })
                     if (leave && leave.Type == 'TakeLeave') {
-                        await updateRemainingSpells(db, body.idNhanVien, Number(_.get( leave, 'Deducted', 0)));
+                        await updateRemainingSpells(db, leave.IDNhanVien, Number(_.get( leave, 'Deducted', 0)));
                         await mtblNghiPhep(db).update({
                             Status: 'Hoàn thành',
                         }, { where: { ID: body.id } })

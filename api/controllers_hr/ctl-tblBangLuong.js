@@ -1692,30 +1692,6 @@ async function getDetailPayrollForMonthYear(db, monthYear, departmentID) {
     }
 }
 
-async function getDecidedInsuranceSalary(db, staffID, dateStart, dateEnd) {
-    let insuranceSalaryIncrease = null
-    insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findAll({
-        where: {
-            [Op.and]: [{
-                    StartDate: {
-                        [Op.gte]: dateStart
-                    },
-                },
-                {
-                    StartDate: {
-                        [Op.lte]: dateEnd
-                    }
-                },
-                { IDStaff: staffID },
-            ]
-        },
-        order: [
-            ['ID', 'DESC']
-        ],
-    })
-    return insuranceSalaryIncrease
-}
-
 async function getDecidedInsuranceSalaryOfStaff(db, dateSearch, staffID) {
     let insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findAll({
         where: {
@@ -1757,11 +1733,9 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
     let whereObj = {
         Date: {
             [Op.lte]: date
-        },
-        DateEnd: {
-            [Op.gte]: date
         }
     }
+
     if (departmentID) {
         let arrayStaff = []
         await mtblDMNhanvien(db).findAll({

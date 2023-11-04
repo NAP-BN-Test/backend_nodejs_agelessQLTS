@@ -715,7 +715,7 @@ module.exports = {
                 if (obj && obj.type == 'TakeLeave') {
                     let roomLeave = _.get(io, 'sockets.adapter.rooms["isNotiApprovalTakeLeave"].sockets')
                     if (obj.status == 'Đã được duyệt') {
-                        roomLeave = io.sockets.adapter.rooms['isNotiPersonalTakeLeave'].sockets
+                        roomLeave = _.get(io, 'sockets.adapter.rooms["isNotiPersonalTakeLeave"].sockets', '')
                     }
                     //  Laays danh sách socket trong room
                     roomLeave = roomLeave ? Object.keys(roomLeave) : [];
