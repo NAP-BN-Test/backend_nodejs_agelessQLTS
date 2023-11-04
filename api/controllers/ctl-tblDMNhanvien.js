@@ -857,7 +857,6 @@ module.exports = {
     deletetblDMNhanvien: (req, res) => {
         let body = req.body;
         database.connectDatabase().then(async db => {
-            let body = req.body;
             if (db) {
                 try {
                     let listID = JSON.parse(body.listID);
@@ -879,7 +878,6 @@ module.exports = {
     // get_list_tbl_dmnhanvien
     getListtblDMNhanvien: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1882,6 +1880,29 @@ module.exports = {
                         res.json(result);
                     })
 
+                } catch (error) {
+                    console.log(error);
+                    res.json(Result.SYS_ERROR_RESULT)
+                }
+            } else {
+                res.json(Constant.MESSAGE.USER_FAIL)
+            }
+        })
+    },
+    // update_remaining_spells
+    updateRemainingSpells: (req, res) => {
+        let body = req.body;
+        database.connectDatabase().then(async db => {
+            if (db) {
+                try {
+                    await mtblDMNhanvien(db).update({
+                        remainingSpells: body.remainingSpells
+                    }, { where: { ID: body.staffID } })
+                    var result = {
+                        status: Constant.STATUS.SUCCESS,
+                        message: Constant.MESSAGE.ACTION_SUCCESS,
+                    }
+                    res.json(result);
                 } catch (error) {
                     console.log(error);
                     res.json(Result.SYS_ERROR_RESULT)

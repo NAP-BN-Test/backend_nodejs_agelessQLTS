@@ -2,6 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
+var _ = require('lodash');
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mtblChamCong = require('../tables/hrmanage/tblChamCong')
 var database = require('../database');
@@ -1385,8 +1386,7 @@ async function getDataTimeKeeping(dateRes, departmentID) {
 
 async function getMinWageConfig(db, year, month) {
     let minimumWage = 0;
-    let minimumWageDate = moment(year + '-' + await convertNumber(month + 1) + '-01').format('YYYY-MM-DD HH:mm:ss.SSS')
-    console.log(minimumWageDate);
+    let minimumWageDate = moment(year + '-' + await convertNumber(month + 1) + '-01').format('YYYY-MM-DD HH:mm:ss.SSS');
     await mtblMinWageConfig(db).findOne({
         order: [
             ['ID', 'DESC']
@@ -1692,30 +1692,6 @@ async function getDetailPayrollForMonthYear(db, monthYear, departmentID) {
     }
 }
 
-async function getDecidedInsuranceSalary(db, staffID, dateStart, dateEnd) {
-    let insuranceSalaryIncrease = null
-    insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findAll({
-        where: {
-            [Op.and]: [{
-                    StartDate: {
-                        [Op.gte]: dateStart
-                    },
-                },
-                {
-                    StartDate: {
-                        [Op.lte]: dateEnd
-                    }
-                },
-                { IDStaff: staffID },
-            ]
-        },
-        order: [
-            ['ID', 'DESC']
-        ],
-    })
-    return insuranceSalaryIncrease
-}
-
 async function getDecidedInsuranceSalaryOfStaff(db, dateSearch, staffID) {
     let insuranceSalaryIncrease = await mtblDecidedInsuranceSalary(db).findAll({
         where: {
@@ -1747,9 +1723,8 @@ async function getDecidedInsuranceSalaryOfStaff(db, dateSearch, staffID) {
 
 async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dateString) {
     var date = dateResponse + '-01 07:00:00.000'
-    var monthFirst = Number(dateResponse.slice(5, 7)); // January
+    var monthFirst = Number(dateResponse.slice(5, 7));
     var yearFirst = Number(dateResponse.slice(0, 4));
-    var dateFrom = yearFirst + '-' + await convertNumber(monthFirst)
     var objInsurance = await getMucDongBaoHiem(db, yearFirst, monthFirst);
     let tblBangLuong = mtblBangLuong(db);
     let tblDMNhanvien = mtblDMNhanvien(db)
@@ -1758,11 +1733,9 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
     let whereObj = {
         Date: {
             [Op.lte]: date
-        },
-        DateEnd: {
-            [Op.gte]: date
         }
     }
+
     if (departmentID) {
         let arrayStaff = []
         await mtblDMNhanvien(db).findAll({
@@ -1810,7 +1783,6 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
             let arrayDecided = await getDecidedInsuranceSalaryOfStaff(db, dateResponse, data[i].IDNhanVien)
             if (arrayDecided.length <= 0) {
                 var coefficientsSalary = data[i].nv ? data[i].nv.CoefficientsSalary : 0;
-                // chị thảo bảo lm như này
                 let bhxhSalary = coefficientsSalary * minimumWage;
                 await mtblDMGiaDinh(db).findAll({
                     where: { IDNhanVien: data[i].IDNhanVien }
@@ -1819,7 +1791,6 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
                         reduce += Number(element.Reduce);
                     });
                 })
-                console.log(reduce);
                 bhxhSalaryTotal += bhxhSalary
                 bhxhCTTotal += (bhxhSalary * objInsurance['companyBHXH'] / 100)
                 bhxhNVTotal += (bhxhSalary * objInsurance['staffBHXH'] / 100)
@@ -2363,7 +2334,6 @@ module.exports = {
     // track_insurance_premiums
     trackInsurancePremiums: (req, res) => {
         let body = req.body;
-        console.log(body);
         let arrayResult = []
         database.connectDatabase().then(async db => {
             if (db) {
@@ -2406,7 +2376,7 @@ module.exports = {
                         resultOfMonth['monthString'] = await convertNumber(monthStart) + '/' + yearStart
                         strMonthExcel = await convertNumber(monthStart) + '/' + yearStart
                         resultOfMonth['strMonthExcel'] = strMonthExcel
-                        if (resultOfMonth.array.length > 0)
+                        if (_.get(resultOfMonth, 'array').length > 0)
                             arrayResult.push(resultOfMonth)
                     }
                     // thêm số thứ tự

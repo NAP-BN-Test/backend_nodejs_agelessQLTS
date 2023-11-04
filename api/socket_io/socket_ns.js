@@ -647,6 +647,8 @@ async function getDetailLeaveOrOvertime(id) {
     })
     return obj
 }
+var _ = require('lodash');
+
 module.exports = {
     sockketIO: async (io) => {
         io.on("connection", async function (socket) {
@@ -711,13 +713,12 @@ module.exports = {
                 let obj = await getDetailLeaveOrOvertime(data)
                 console.log(data, '---------------------------------notice-create-leave-or-overtime-------------------------------------');
                 if (obj && obj.type == 'TakeLeave') {
-                    let roomLeave = io.sockets.adapter.rooms['isNotiApprovalTakeLeave'].sockets
+                    let roomLeave = _.get(io, 'sockets.adapter.rooms["isNotiApprovalTakeLeave"].sockets')
                     if (obj.status == 'Đã được duyệt') {
-                        roomLeave = io.sockets.adapter.rooms['isNotiPersonalTakeLeave'].sockets
+                        roomLeave = _.get(io, 'sockets.adapter.rooms["isNotiPersonalTakeLeave"].sockets', '')
                     }
                     //  Laays danh sách socket trong room
-                    roomLeave = Object.keys(roomLeave)
-                    console.log(roomLeave);
+                    roomLeave = roomLeave ? Object.keys(roomLeave) : [];
                     for (let s = 0; s < roomLeave.length; s++) {
                         let socketGet = io.sockets.connected[roomLeave[s]]
                         console.log(socketGet.userID);

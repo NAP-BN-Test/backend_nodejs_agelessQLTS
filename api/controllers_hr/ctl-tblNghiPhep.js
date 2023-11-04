@@ -2,6 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
+var _ = require('lodash');
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
 var database = require('../database');
 var mtblDMNhanvien = require('../tables/constants/tblDMNhanvien');
@@ -22,7 +23,6 @@ async function convertNumber(number) {
         return number
 }
 async function deleteRelationshiptblNghiPhep(db, listID) {
-    console.log(listID);
     await mtblDateOfLeave(db).destroy({
         where: {
             LeaveID: {
@@ -216,13 +216,68 @@ async function handleCalculatePreviousYear(db, idStaff, currentYear) {
 }
 var mModules = require('../constants/modules');
 let ctlTimeAttendanceSummary = require('./ctl-tblBangLuong')
-var schedule = require('node-schedule');
+async function handleCalculateRemainingSpells(db, staffID){
+    var result = 0;
+    await mtblNghiPhep(db).findOne({
+        where: {
+            IDNhanVien: staffID,
+            Type: 'TakeLeave',
+        },
+        order: [
+            ['ID', 'DESC']
+        ],
+    }).then(async data => {
+        if (data) {
+            var AdvancePayment = data.AdvancePayment;
+            if (data.Status == 'Hoàn thành') {
+                result = AdvancePayment - data.UsedLeave - data.Deducted
+            } else {
+                result = AdvancePayment - data.UsedLeave
+            }
+        } else {
+            result = handleCalculateAdvancePaymentTotal(db, staffID)
+        }
+    })
+    return result;
+}
+async function handleCalculateAdvancePaymentTotal(db, staffID) {
+    let seniority = await handleCalculateAdvancePayment(db, staffID) // thâm niên
+    if (seniority > 12) {
+        advancePayment = 12 + Math.floor(seniority / 60)
+    } else {
+        let staffData = await mtblHopDongNhanSu(db).findOne({
+            where: { IDNhanVien: staffID },
+            order: [
+                ['ID', 'ASC']
+            ],
+        })
+        if (staffData) {
+            let dateSign = new Date(staffData.Date)
+            advancePayment = 12 - Number(moment(dateSign).format('MM'))
+            if (Number(moment(dateSign).format('DD')) == 1)
+                advancePayment += 1
+        }
+    }
+}
+
+async function updateRemainingSpells(db, staffId,  deducted, type='create'){
+    let staff = await mtblDMNhanvien(db).findOne({
+        where: { ID: staffId }
+    })
+    let remainingSpells = Number(_.get(staff, 'remainingSpells', 0)) - deducted;
+    if(type === 'Delete') {
+        remainingSpells = Number(_.get(staff, 'remainingSpells', 0)) + deducted;
+    }
+    await mtblDMNhanvien(db).update({
+        remainingSpells: remainingSpells 
+    }, { where: { ID: staffId } })
+}
+
 module.exports = {
     deleteRelationshiptblNghiPhep,
     // add_tbl_nghiphep
     addtblNghiPhep: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -246,7 +301,6 @@ module.exports = {
                             }
                     })
                     code += number
-                    let seniority = 0;
                     let advancePayment = 0;
                     let usedLeave = 0;
                     let numberHoliday = 0;
@@ -254,25 +308,20 @@ module.exports = {
                     let deducted = 0 // số lương phép bị trừ
                     let arrayRespone = JSON.parse(body.array)
                     if (body.type == 'TakeLeave') {
-                        seniority = await handleCalculateAdvancePayment(db, body.idNhanVien) // thâm niên
-                            // var quotient = Math.floor(y / x);  // lấy nguyên
-                            // var remainder = y % x; // lấy dư
-                        if (seniority > 12) {
-                            advancePayment = 12 + Math.floor(seniority / 60)
-                        } else {
-                            let staffData = await mtblHopDongNhanSu(db).findOne({
-                                where: { IDNhanVien: body.idNhanVien },
-                                order: [
-                                    ['ID', 'ASC']
-                                ],
-                            })
-                            if (staffData) {
-                                let dateSign = new Date(staffData.Date)
-                                advancePayment = 12 - Number(moment(dateSign).format('MM'))
-                                if (Number(moment(dateSign).format('DD')) == 1)
-                                    advancePayment += 1
+                        await mtblDMNhanvien(db).findOne({
+                            where: {
+                                ID: body.idNhanVien
+                            },
+                        }).then(async (staff) => {
+                            if(!staff.remainingSpells) {
+                                advancePayment = await handleCalculateRemainingSpells(db, body.idNhanVien)
+                                await mtblDMNhanvien(db).update({
+                                    remainingSpells: advancePayment
+                                }, { where: { ID: body.idNhanVien } })
+                            } else {
+                                advancePayment = staff.remainingSpells;
                             }
-                        }
+                        })
                         for (let i = 0; i < arrayRespone.length; i++) {
                             let numberHolidayArray = 0
                             if (!arrayRespone[i].timeStart)
@@ -284,6 +333,7 @@ module.exports = {
                             let typeTime = await mtblLoaiChamCong(db).findOne({
                                 where: { ID: arrayRespone[i].idLoaiChamCong }
                             })
+                            // Những loại xin nghỉ trừ phép hay không trừ phép
                             if (typeTime.Compensation == false) {
                                 deducted += numberHolidayArray
                             }
@@ -303,79 +353,70 @@ module.exports = {
                             numberHoliday = 0
                         }
                     }
-                    let checkErr = advancePayment - usedLeave
-                    if (checkErr < deducted && body.type == 'TakeLeave') {
+                    await mtblNghiPhep(db).create({
+                        // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                        // DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
+                        IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
+                        IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
+                        NumberLeave: code,
+                        Type: body.type ? body.type : '',
+                        ContentLeave: body.content ? body.content : '',
+                        Date: body.date ? body.date : null,
+                        IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
+                        IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
+                        IDHeads: body.idHeads ? body.idHeads : null,
+                        Status: 'Chờ trưởng bộ phận phê duyệt',
+                        AdvancePayment: advancePayment,
+                        UsedLeave: usedLeave,
+                        Deducted: deducted,
+                        RemainingPreviousYear: remainingPreviousYear,
+                        NumberHoliday: numberHoliday,
+                        Time: body.time ? body.time : '',
+                        Note: body.note ? body.note : '',
+                        WorkContent: body.work ? body.work : ''
+                    }).then(async data => {
+                        if (data)
+                            if (body.type == 'TakeLeave') {
+                                for (let i = 0; i < arrayRespone.length; i++) {
+                                    await mtblDateOfLeave(db).create({
+                                        DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
+                                        DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
+                                        LeaveID: data.ID,
+                                        IDLoaiChamCong: arrayRespone[i].idLoaiChamCong,
+                                    })
+                                }
+                            } else {
+                                for (let i = 0; i < arrayRespone.length; i++) {
+                                    await mtblDateOfLeave(db).create({
+                                        DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
+                                        DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
+                                        WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
+                                        WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
+                                        TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : arrayRespone[i].timeStart),
+                                        TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : arrayRespone[i].timeEnd),
+                                        LeaveID: data.ID,
+                                    })
+                                }
+                            }
+                        if (body.type == 'TakeLeave') {
+                            body.fileAttach = JSON.parse(body.fileAttach)
+                            if (body.fileAttach.length > 0)
+                                for (var j = 0; j < body.fileAttach.length; j++)
+                                    await mtblFileAttach(db).update({
+                                        IDTakeLeave: data.ID,
+                                    }, {
+                                        where: {
+                                            ID: body.fileAttach[j].id
+                                        }
+                                    })
+                        }
                         var result = {
-                            status: Constant.STATUS.FAIL,
-                            message: 'Số ngày nghỉ : ' + deducted + ' đã quá số phép còn lại. Vui lòng kiểm tra lại!',
+                            id: data ? data.ID : null,
+                            status: Constant.STATUS.SUCCESS,
+                            message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
                         res.json(result);
-                    } else {
-                        await mtblNghiPhep(db).create({
-                            // DateStart: body.dateStart ? moment(body.dateStart).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
-                            // DateEnd: body.dateEnd ? moment(body.dateEnd).format('YYYY-MM-DD HH:mm:ss.SSS') : null,
-                            IDNhanVien: body.idNhanVien ? body.idNhanVien : null,
-                            IDLoaiChamCong: body.idLoaiChamCong ? body.idLoaiChamCong : null,
-                            NumberLeave: code,
-                            Type: body.type ? body.type : '',
-                            ContentLeave: body.content ? body.content : '',
-                            Date: body.date ? body.date : null,
-                            IDHeadDepartment: body.idHeadDepartment ? body.idHeadDepartment : null,
-                            IDAdministrationHR: body.idAdministrationHR ? body.idAdministrationHR : null,
-                            IDHeads: body.idHeads ? body.idHeads : null,
-                            Status: 'Chờ trưởng bộ phận phê duyệt',
-                            AdvancePayment: advancePayment,
-                            UsedLeave: usedLeave,
-                            Deducted: deducted,
-                            RemainingPreviousYear: remainingPreviousYear,
-                            NumberHoliday: numberHoliday,
-                            Time: body.time ? body.time : '',
-                            Note: body.note ? body.note : '',
-                            WorkContent: body.work ? body.work : ''
-                        }).then(async data => {
-                            if (data)
-                                if (body.type == 'TakeLeave') {
-                                    for (let i = 0; i < arrayRespone.length; i++) {
-                                        await mtblDateOfLeave(db).create({
-                                            DateStart: arrayRespone[i].dateStart + ' ' + arrayRespone[i].timeStart,
-                                            DateEnd: arrayRespone[i].dateEnd + ' ' + arrayRespone[i].timeEnd,
-                                            LeaveID: data.ID,
-                                            IDLoaiChamCong: arrayRespone[i].idLoaiChamCong,
-                                        })
-                                    }
-                                } else {
-                                    for (let i = 0; i < arrayRespone.length; i++) {
-                                        await mtblDateOfLeave(db).create({
-                                            DateStart: arrayRespone[i].date + ' ' + arrayRespone[i].timeStart,
-                                            DateEnd: arrayRespone[i].date + ' ' + arrayRespone[i].timeEnd,
-                                            WorkContent: arrayRespone[i].workContent ? arrayRespone[i].workContent : '',
-                                            WorkResult: arrayRespone[i].workResult ? arrayRespone[i].workResult : '',
-                                            TimeStartReal: arrayRespone[i].date + ' ' + (arrayRespone[i].timeStartReal == '' ? arrayRespone[i].timeStartReal : arrayRespone[i].timeStart),
-                                            TimeEndReal: arrayRespone[i].date + ' ' + (arrayRespone[i].TimeEndReal == '' ? arrayRespone[i].TimeEndReal : arrayRespone[i].timeEnd),
-                                            LeaveID: data.ID,
-                                        })
-                                    }
-                                }
-                            if (body.type == 'TakeLeave') {
-                                body.fileAttach = JSON.parse(body.fileAttach)
-                                if (body.fileAttach.length > 0)
-                                    for (var j = 0; j < body.fileAttach.length; j++)
-                                        await mtblFileAttach(db).update({
-                                            IDTakeLeave: data.ID,
-                                        }, {
-                                            where: {
-                                                ID: body.fileAttach[j].id
-                                            }
-                                        })
-                            }
-                            var result = {
-                                id: data ? data.ID : null,
-                                status: Constant.STATUS.SUCCESS,
-                                message: Constant.MESSAGE.ACTION_SUCCESS,
-                            }
-                            res.json(result);
-                        })
-                    }
+                    })
 
                 } catch (error) {
                     console.log(error);
@@ -540,7 +581,6 @@ module.exports = {
                             UserID: iduser
                         }
                     })
-                    console.log(objRoleUser);
                     await mtblNghiPhep(db).findAll({
                         where: {
                             ID: {
@@ -553,14 +593,16 @@ module.exports = {
                         let mess = Constant.MESSAGE.ACTION_SUCCESS
                         for (let i = 0; i < data.length; i++) {
                             if (data[i].Status == 'Hoàn thành' && !objRoleUser) {
-                                console.log("đã hoàn thành và k phải admin");
                                 check = false
                             } else {
+                                if(data[i].Status == 'Hoàn thành') {
+                                    await updateRemainingSpells(db, data[i].IDNhanVien, data[i].Deducted, 'Delete')
+                                }
                                 array.push(data[i].ID)
                             }
                         }
                         await deleteRelationshiptblNghiPhep(db, array);
-                        if (!check)
+                        if (!check) 
                             mess = 'Không thể xóa những bản ghi đã hoàn thành. Vui lòng kiểm tra lại !'
                         var result = {
                             status: Constant.STATUS.SUCCESS,
@@ -826,9 +868,9 @@ module.exports = {
                         for (var i = 0; i < data.length; i++) {
                             let remaining = 0
                             if (data[i].Status == 'Hoàn thành') {
-                                remaining = data[i].AdvancePayment - data[i].UsedLeave - data[i].Deducted
+                                remaining = data[i].AdvancePayment - data[i].Deducted
                             } else {
-                                remaining = data[i].AdvancePayment - data[i].UsedLeave
+                                remaining = data[i].AdvancePayment
                             }
                             var obj = {
                                 stt: stt,
@@ -1348,7 +1390,6 @@ module.exports = {
     // approval_head_department
     approvalHeadDepartment: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
@@ -1471,7 +1512,8 @@ module.exports = {
                     let leave = await mtblNghiPhep(db).findOne({
                         where: { ID: body.id }
                     })
-                    if (leave.Type == 'TakeLeave') {
+                    if (leave && leave.Type == 'TakeLeave') {
+                        await updateRemainingSpells(db, leave.IDNhanVien, Number(_.get( leave, 'Deducted', 0)));
                         await mtblNghiPhep(db).update({
                             Status: 'Hoàn thành',
                         }, { where: { ID: body.id } })
@@ -1498,8 +1540,9 @@ module.exports = {
                                     min = Number(moment(element.DateStart).format('MM'))
                             })
                         })
-                        console.log(min, Number(moment().format('YYYY')), leave.IDNhanVien);
-                        await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien)
+                        if(leave) {
+                            await ctlTimeAttendanceSummary.createTimeAttendanceSummaryFollowMonth(min, Number(moment().format('YYYY')), leave.IDNhanVien);
+                        }
                     }
                     var result = {
                         status: Constant.STATUS.SUCCESS,
@@ -1662,49 +1705,14 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    let result = 0
-                    await mtblNghiPhep(db).findOne({
+                    const staff = await mtblDMNhanvien(db).findOne({
                         where: {
-                            IDNhanVien: body.staffID,
-                            Type: 'TakeLeave',
+                            ID: body.staffID
                         },
-                        order: [
-                            ['ID', 'DESC']
-                        ],
-                    }).then(async data => {
-                        if (data)
-                            if (data.Status == 'Hoàn thành') {
-                                result = data.AdvancePayment - data.UsedLeave - data.Deducted
-                            } else {
-                                result = data.AdvancePayment - data.UsedLeave
-                            }
-                        else {
-                            let seniority = await handleCalculateAdvancePayment(db, body.staffID) // thâm niên
-                                // var quotient = Math.floor(y / x);  // lấy nguyên
-                                // var remainder = y % x; // lấy dư
-                            let advancePayment = 0
-                            if (seniority > 12) {
-                                advancePayment = 12 + Math.floor(seniority / 60)
-                            } else {
-                                let staffData = await mtblHopDongNhanSu(db).findOne({
-                                    where: { IDNhanVien: body.staffID },
-                                    order: [
-                                        ['ID', 'ASC']
-                                    ],
-                                })
-                                if (staffData) {
-                                    let dateSign = new Date(staffData.Date)
-                                    advancePayment = 12 - Number(moment(dateSign).format('MM'))
-                                    if (Number(moment(dateSign).format('DD')) == 1)
-                                        advancePayment += 1
-                                }
-                            }
-                            result = advancePayment
-                        }
                     })
 
                     var resultRes = {
-                        result: result,
+                        result: staff.remainingSpells,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }

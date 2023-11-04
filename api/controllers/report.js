@@ -405,7 +405,6 @@ module.exports = {
     // depreciation_table
     depreciationTable: (req, res) => {
         let body = req.body;
-        console.log(body);
         database.connectDatabase().then(async db => {
             if (db) {
                 try {

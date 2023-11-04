@@ -72,5 +72,10 @@ module.exports = {
         APPROVALED: 4,
         CANCEL_PURCHASE: 5,
         PURCHASED: 6,
+    },
+
+    CONTRACT_TYPE: {
+        Expire: 'Hết hiệu lực',
+        Effective: 'Có hiệu lực',
     }
 }

@@ -32,19 +32,28 @@ async function connectDatabase(dbName, user, pass, ip) {
 module.exports = {
     // config: {
     //     user: 'sa',
-    //     password: '1234',
+    //     password: '123456',
     //     server: 'localhost',
-    //     database: 'AGELESS_QLNB',
+    //     database: 'TXAGELESS_QLNB',
     //     options: {
     //         encrypt: false,
     //     },
     // },
 
+    // config: {
+    //     user: 'sa',
+    //     password: '123456a$', // Viet@solution$213%171^198
+    //     server: '192.168.23.9', //dbdev.namanphu.vn , dbdev.namanphu.vn
+    //     database: 'TXAGELESS_QLNB', // AGELESS_QLNB con demo
+    //     options: {
+    //         encrypt: false,s
+    //     },
+    // },
     config: {
         user: 'sa',
         password: 'Viet@solution$213%171^198', // Viet@solution$213%171^198
         server: 'dbdev.namanphu.vn', //dbdev.namanphu.vn , dbdev.namanphu.vn
-        database: 'TXAGELESS_QLNB', // AGELESS_QLNB con demo
+        database: 'TXAGELESS_QLNB_TEST', // AGELESS_QLNB con demo
         options: {
             encrypt: false,
         },
