@@ -1527,7 +1527,6 @@ async function getDetailPayrollForMonthYear(db, monthYear, departmentID) {
                 },
             ]
         }
-        console.log(whereArray);
         let whereObj = {
             [Op.or]: whereArray
         }
