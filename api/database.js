@@ -40,11 +40,20 @@ module.exports = {
     //     },
     // },
 
+    // config: {
+    //     user: 'sa',
+    //     password: '123456a$', // Viet@solution$213%171^198
+    //     server: '192.168.23.9', //dbdev.namanphu.vn , dbdev.namanphu.vn
+    //     database: 'TXAGELESS_QLNB', // AGELESS_QLNB con demo
+    //     options: {
+    //         encrypt: false,s
+    //     },
+    // },
     config: {
         user: 'sa',
         password: 'Viet@solution$213%171^198', // Viet@solution$213%171^198
         server: 'dbdev.namanphu.vn', //dbdev.namanphu.vn , dbdev.namanphu.vn
-        database: 'TXAGELESS_QLNB', // AGELESS_QLNB con demo
+        database: 'TXAGELESS_QLNB_TEST', // AGELESS_QLNB con demo
         options: {
             encrypt: false,
         },

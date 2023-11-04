@@ -2,6 +2,7 @@ const Constant = require('../constants/constant');
 const Op = require('sequelize').Op;
 const Result = require('../constants/result');
 var moment = require('moment');
+var _ = require('lodash');
 var mtblBangLuong = require('../tables/hrmanage/tblBangLuong')
 var mtblChamCong = require('../tables/hrmanage/tblChamCong')
 var database = require('../database');
@@ -1748,7 +1749,6 @@ async function getDetailPayroll(db, dateResponse, departmentID, minimumWage, dat
     var date = dateResponse + '-01 07:00:00.000'
     var monthFirst = Number(dateResponse.slice(5, 7));
     var yearFirst = Number(dateResponse.slice(0, 4));
-    var dateFrom = yearFirst + '-' + await convertNumber(monthFirst)
     var objInsurance = await getMucDongBaoHiem(db, yearFirst, monthFirst);
     let tblBangLuong = mtblBangLuong(db);
     let tblDMNhanvien = mtblDMNhanvien(db)
@@ -2402,7 +2402,7 @@ module.exports = {
                         resultOfMonth['monthString'] = await convertNumber(monthStart) + '/' + yearStart
                         strMonthExcel = await convertNumber(monthStart) + '/' + yearStart
                         resultOfMonth['strMonthExcel'] = strMonthExcel
-                        if (resultOfMonth.array.length > 0)
+                        if (_.get(resultOfMonth, 'array').length > 0)
                             arrayResult.push(resultOfMonth)
                     }
                     // thêm số thứ tự
