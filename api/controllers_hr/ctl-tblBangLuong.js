@@ -895,89 +895,100 @@ async function calculateNumberLeave(db, staffID, date, type = 'time') {
 
 // Tính số ngày tồn từ tháng trước
 async function calculateRemainingPreviousYear(db, staffID, date) {
+    let staff = await mtblDMNhanvien(db).findOne({
+        where: {
+            ID: staffID
+        },
+    })
     // Tính ngày thời gian thêm giờ
     let remainingPreviousYear = 0
     let result = 0
-    let freeBreak = 0;
     let lateDay = 0;
+    let freeBreak = 0;
     let overtime = 0
     var month = Number(date.slice(5, 7));
     var year = Number(date.slice(0, 4));
-    await mtblNghiPhep(db).findAll({
-        where: {
-            Type: 'TakeLeave',
-            IDNhanVien: staffID,
-            Status: 'Hoàn thành',
-        }
-    }).then(async leave => {
-        for (let i = 0; i < leave.length; i++) {
-            for (m = 1; m < month; m++) {
-                let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
-                WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + m + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
-                let date = await db.query(query)
-                date = date[0]
-                for (let j = 0; j < date.length; j++) {
-                    if (leave[i].Deducted != 0)
-                        result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
-                }
+    if(_.get(staff, 'remainingSpellsUpdateDate')
+        && moment(_.get(staff, 'remainingSpellsUpdateDate')).add(7, 'hours').format('MM') == month) {
+        remainingPreviousYear = Number(_.get(staff, 'remainingSpells'));
+    } else {
+        await mtblNghiPhep(db).findAll({
+            where: {
+                Type: 'TakeLeave',
+                IDNhanVien: staffID,
+                Status: 'Hoàn thành',
             }
-        }
-        let freeBreakPlus = 0
-        let lateDayPlus = 0
-        let overtimePlus = 0
-        for (m = 1; m < month; m++) {
-            let dateWhere = year + '-' + await convertNumber(m)
-            overtimePlus = await calculateOvertime(db, staffID, dateWhere)
-
-            await mtblChamCong(db).findAll({
-                order: [
-                    ['ID', 'DESC']
-                ],
-                where: {
-                    IDNhanVien: staffID,
-                    Date: {
-                        [Op.substring]: '%' + dateWhere + '%'
+        }).then(async leave => {
+            for (let i = 0; i < leave.length; i++) {
+                for (m = 1; m < month; m++) {
+                    let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+                    WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + m + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
+                    let date = await db.query(query)
+                    date = date[0]
+                    for (let j = 0; j < date.length; j++) {
+                        if (leave[i].Deducted != 0)
+                            result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
                     }
                 }
-            }).then(data => {
-                if (data)
-                    data.forEach(item => {
-                        if (item.Status == 'KL' && item.Status == 'KL') {
-                            freeBreakPlus += 1
-                        } else if (item.Status != '+') {
-                            if (item.Status && item.Status != '0.5' && !item.Reason) {
-                                lateDayPlus += (Number(item.Status.slice(1, 10)) / 60 / 8)
-                            }
+            }
+            let freeBreakPlus = 0
+            let lateDayPlus = 0
+            let overtimePlus = 0
+            for (m = 1; m < month; m++) {
+                let dateWhere = year + '-' + await convertNumber(m)
+                overtimePlus = await calculateOvertime(db, staffID, dateWhere)
+    
+                await mtblChamCong(db).findAll({
+                    order: [
+                        ['ID', 'DESC']
+                    ],
+                    where: {
+                        IDNhanVien: staffID,
+                        Date: {
+                            [Op.substring]: '%' + dateWhere + '%'
                         }
-                    })
-            })
-        }
-        freeBreak += freeBreakPlus
-        lateDay += lateDayPlus
-        overtime += overtimePlus
-    })
-    lateDay = lateDay.toFixed(2)
-    let advancePayment = 0
-    seniority = await handleCalculateAdvancePayment(db, staffID) // thâm niên
-        // var quotient = Math.floor(y / x);  // lấy nguyên
-        // var remainder = y % x; // lấy dư
-    if (seniority > 12) {
-        advancePayment = 12 + Math.floor(seniority / 60)
-    } else {
-        let staffData = await mtblHopDongNhanSu(db).findOne({
-            where: { IDNhanVien: staffID },
-            order: [
-                ['ID', 'ASC']
-            ],
+                    }
+                }).then(data => {
+                    if (data)
+                        data.forEach(item => {
+                            if (item.Status == 'KL' && item.Status == 'KL') {
+                                freeBreakPlus += 1
+                            } else if (item.Status != '+') {
+                                if (item.Status && item.Status != '0.5' && !item.Reason) {
+                                    lateDayPlus += (Number(item.Status.slice(1, 10)) / 60 / 8)
+                                }
+                            }
+                        })
+                })
+            }
+            freeBreak += freeBreakPlus
+            lateDay += lateDayPlus
+            overtime += overtimePlus
         })
-        if (staffData) {
-            let dateSign = new Date(staffData.Date)
-            advancePayment = 12 - Number(moment(dateSign).format('MM'))
-            if (Number(moment(dateSign).format('DD')) == 1)
-                advancePayment += 1
+        lateDay = lateDay.toFixed(2)
+        let advancePayment = 0
+        seniority = await handleCalculateAdvancePayment(db, staffID) // thâm niên
+            // var quotient = Math.floor(y / x);  // lấy nguyên
+            // var remainder = y % x; // lấy dư
+        if (seniority > 12) {
+            advancePayment = 12 + Math.floor(seniority / 60)
+        } else {
+            let staffData = await mtblHopDongNhanSu(db).findOne({
+                where: { IDNhanVien: staffID },
+                order: [
+                    ['ID', 'ASC']
+                ],
+            })
+            if (staffData) {
+                let dateSign = new Date(staffData.Date)
+                advancePayment = 12 - Number(moment(dateSign).format('MM'))
+                if (Number(moment(dateSign).format('DD')) == 1)
+                    advancePayment += 1
+            }
         }
+        remainingPreviousYear = advancePayment + overtime / 8 - lateDay - result
     }
-    remainingPreviousYear = advancePayment + overtime / 8 - lateDay - result
+    
     return remainingPreviousYear
 }
 
@@ -2627,7 +2638,6 @@ module.exports = {
     // synthetic_information_monthly
     syntheticInformationMonthly: async(req, res) => {
         let body = req.body;
-        console.log(body);
         // await createTimeAttendanceSummary()
         database.connectDatabase().then(async db => {
             if (db) {

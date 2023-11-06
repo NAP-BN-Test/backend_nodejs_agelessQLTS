@@ -41,6 +41,7 @@ module.exports = function (db) {
         Increase: Sequelize.FLOAT,
         NoDateOff: Sequelize.FLOAT,
         remainingSpells : Sequelize.FLOAT,
+        remainingSpellsUpdateDate : Sequelize.DATE,
     });
 
     return table;

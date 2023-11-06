@@ -31,7 +31,8 @@ var mtblRole = require('../tables/constants/tblRole')
 // nhân sự
 var mtblChamCong = require('../tables/hrmanage/tblChamCong')
 var mtblNghiPhep = require('../tables/hrmanage/tblNghiPhep')
-var mtblNghiLe = require('../tables/hrmanage/tblNghiLe')
+var _ = require('lodash');
+
 var mtblDateOfLeave = require('../tables/hrmanage/tblDateOfLeave')
 
 var mtblPhanPhoiVPP = require('../tables/qlnb/tblPhanPhoiVPP')
@@ -499,6 +500,7 @@ module.exports = {
                             productivityWages: data.ProductivityWages ? data.ProductivityWages : '',
                             coefficientsSalary: data.CoefficientsSalary ? data.CoefficientsSalary : 0,
                             nodateoff: data.NoDateOff ? data.NoDateOff : 0,
+                            remainingSpells: data.remainingSpells ? data.remainingSpells : null
                         }
                         obj['fileAttach'] = {
                             id: data.file ? data.file.ID : null,
@@ -669,12 +671,10 @@ module.exports = {
     // update_tbl_dmnhanvien
     updatetblDMNhanvien: (req, res) => {
         let body = req.body;
-        let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     let update = [];
-                    let updatenghiphep = [];
                     let idCHamCong = await mtblDMNhanvien(db).findOne({
                         where: {
                             ID: body.id,
@@ -822,6 +822,7 @@ module.exports = {
                             else
                                 update.push({ key: 'IDMayChamCong', value: body.idMayChamCong });
                         }
+                        update.push({ key: 'remainingSpells', value: _.get(body, 'remainingSpells', null) })
                         database.updateTable(update, mtblDMNhanvien(db), body.id).then(response => {
                             if (response == 1) {
                                 mtblNghiPhep(db).update({
@@ -1892,11 +1893,14 @@ module.exports = {
     // update_remaining_spells
     updateRemainingSpells: (req, res) => {
         let body = req.body;
+        console.log(body);
+        let now = moment().format('DD-MM-YYYY HH:mm:ss.SSS');
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
                     await mtblDMNhanvien(db).update({
-                        remainingSpells: body.remainingSpells
+                        remainingSpells: body.remainingSpells,
+                        remainingSpellsUpdateDate: now
                     }, { where: { ID: body.staffID } })
                     var result = {
                         status: Constant.STATUS.SUCCESS,

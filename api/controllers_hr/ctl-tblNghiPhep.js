@@ -1710,9 +1710,9 @@ module.exports = {
                             ID: body.staffID
                         },
                     })
-
+                    let remainingSpells = staff.remainingSpells ? staff.remainingSpells : await handleCalculateAdvancePaymentTotal(db, staff.ID);
                     var resultRes = {
-                        result: staff.remainingSpells,
+                        result: remainingSpells,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
