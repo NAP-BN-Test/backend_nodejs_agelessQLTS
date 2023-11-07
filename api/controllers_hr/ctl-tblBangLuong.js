@@ -895,11 +895,6 @@ async function calculateNumberLeave(db, staffID, date, type = 'time') {
 
 // Tính số ngày tồn từ tháng trước
 async function calculateRemainingPreviousYear(db, staffID, date) {
-    let staff = await mtblDMNhanvien(db).findOne({
-        where: {
-            ID: staffID
-        },
-    })
     // Tính ngày thời gian thêm giờ
     let remainingPreviousYear = 0
     let result = 0
@@ -908,86 +903,82 @@ async function calculateRemainingPreviousYear(db, staffID, date) {
     let overtime = 0
     var month = Number(date.slice(5, 7));
     var year = Number(date.slice(0, 4));
-    if(_.get(staff, 'remainingSpellsUpdateDate')
-        && moment(_.get(staff, 'remainingSpellsUpdateDate')).add(7, 'hours').format('MM') == month) {
-        remainingPreviousYear = Number(_.get(staff, 'remainingSpells'));
-    } else {
-        await mtblNghiPhep(db).findAll({
-            where: {
-                Type: 'TakeLeave',
-                IDNhanVien: staffID,
-                Status: 'Hoàn thành',
-            }
-        }).then(async leave => {
-            for (let i = 0; i < leave.length; i++) {
-                for (m = 1; m < month; m++) {
-                    let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
-                    WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + m + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
-                    let date = await db.query(query)
-                    date = date[0]
-                    for (let j = 0; j < date.length; j++) {
-                        if (leave[i].Deducted != 0)
-                            result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
-                    }
+
+    await mtblNghiPhep(db).findAll({
+        where: {
+            Type: 'TakeLeave',
+            IDNhanVien: staffID,
+            Status: 'Hoàn thành',
+        }
+    }).then(async leave => {
+        for (let i = 0; i < leave.length; i++) {
+            for (m = 1; m < month; m++) {
+                let query = `SELECT [ID], [LeaveID], [DateEnd], [DateStart] FROM [tblDateOfLeave] AS [tblDateOfLeave] 
+                WHERE (DATEPART(yy, [tblDateOfLeave].[DateEnd]) = ` + year + ` AND DATEPART(mm, [tblDateOfLeave].[DateEnd]) = ` + m + `) AND ([tblDateOfLeave].[LeaveID] = N'` + leave[i].ID + `');`
+                let date = await db.query(query)
+                date = date[0]
+                for (let j = 0; j < date.length; j++) {
+                    if (leave[i].Deducted != 0)
+                        result += await handleCalculateDayOff(moment(date[j].DateStart).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'), moment(date[j].DateEnd).subtract(7, 'hours').format('YYYY-MM-DD HH:mm'))
                 }
             }
-            let freeBreakPlus = 0
-            let lateDayPlus = 0
-            let overtimePlus = 0
-            for (m = 1; m < month; m++) {
-                let dateWhere = year + '-' + await convertNumber(m)
-                overtimePlus = await calculateOvertime(db, staffID, dateWhere)
-    
-                await mtblChamCong(db).findAll({
-                    order: [
-                        ['ID', 'DESC']
-                    ],
-                    where: {
-                        IDNhanVien: staffID,
-                        Date: {
-                            [Op.substring]: '%' + dateWhere + '%'
-                        }
-                    }
-                }).then(data => {
-                    if (data)
-                        data.forEach(item => {
-                            if (item.Status == 'KL' && item.Status == 'KL') {
-                                freeBreakPlus += 1
-                            } else if (item.Status != '+') {
-                                if (item.Status && item.Status != '0.5' && !item.Reason) {
-                                    lateDayPlus += (Number(item.Status.slice(1, 10)) / 60 / 8)
-                                }
-                            }
-                        })
-                })
-            }
-            freeBreak += freeBreakPlus
-            lateDay += lateDayPlus
-            overtime += overtimePlus
-        })
-        lateDay = lateDay.toFixed(2)
-        let advancePayment = 0
-        seniority = await handleCalculateAdvancePayment(db, staffID) // thâm niên
-            // var quotient = Math.floor(y / x);  // lấy nguyên
-            // var remainder = y % x; // lấy dư
-        if (seniority > 12) {
-            advancePayment = 12 + Math.floor(seniority / 60)
-        } else {
-            let staffData = await mtblHopDongNhanSu(db).findOne({
-                where: { IDNhanVien: staffID },
-                order: [
-                    ['ID', 'ASC']
-                ],
-            })
-            if (staffData) {
-                let dateSign = new Date(staffData.Date)
-                advancePayment = 12 - Number(moment(dateSign).format('MM'))
-                if (Number(moment(dateSign).format('DD')) == 1)
-                    advancePayment += 1
-            }
         }
-        remainingPreviousYear = advancePayment + overtime / 8 - lateDay - result
+        let freeBreakPlus = 0
+        let lateDayPlus = 0
+        let overtimePlus = 0
+        for (m = 1; m < month; m++) {
+            let dateWhere = year + '-' + await convertNumber(m)
+            overtimePlus = await calculateOvertime(db, staffID, dateWhere)
+
+            await mtblChamCong(db).findAll({
+                order: [
+                    ['ID', 'DESC']
+                ],
+                where: {
+                    IDNhanVien: staffID,
+                    Date: {
+                        [Op.substring]: '%' + dateWhere + '%'
+                    }
+                }
+            }).then(data => {
+                if (data)
+                    data.forEach(item => {
+                        if (item.Status == 'KL' && item.Status == 'KL') {
+                            freeBreakPlus += 1
+                        } else if (item.Status != '+') {
+                            if (item.Status && item.Status != '0.5' && !item.Reason) {
+                                lateDayPlus += (Number(item.Status.slice(1, 10)) / 60 / 8)
+                            }
+                        }
+                    })
+            })
+        }
+        freeBreak += freeBreakPlus
+        lateDay += lateDayPlus
+        overtime += overtimePlus
+    })
+    lateDay = lateDay.toFixed(2)
+    let advancePayment = 0
+    seniority = await handleCalculateAdvancePayment(db, staffID) // thâm niên
+        // var quotient = Math.floor(y / x);  // lấy nguyên
+        // var remainder = y % x; // lấy dư
+    if (seniority > 12) {
+        advancePayment = 12 + Math.floor(seniority / 60)
+    } else {
+        let staffData = await mtblHopDongNhanSu(db).findOne({
+            where: { IDNhanVien: staffID },
+            order: [
+                ['ID', 'ASC']
+            ],
+        })
+        if (staffData) {
+            let dateSign = new Date(staffData.Date)
+            advancePayment = 12 - Number(moment(dateSign).format('MM'))
+            if (Number(moment(dateSign).format('DD')) == 1)
+                advancePayment += 1
+        }
     }
+    remainingPreviousYear = advancePayment + overtime / 8 - lateDay - result
     
     return remainingPreviousYear
 }
@@ -1070,26 +1061,17 @@ async function createTimeAttendanceSummary() {
                 }).then(async data => {
                     for (var i = 0; i < data.length; i++) {
                         let objResult = await aggregateTimekeepingForEachMonth(db, data[i], year + '-' + await convertNumber(month))
-                        let remainingPreviousYear = await calculateRemainingPreviousYear(db, data[i].ID, year + '-' + await convertNumber(month))
+                        let remainingPreviousYear = 0;                      
+                        if(data[i].remainingSpellsUpdateDate 
+                            && Number(moment(data[i].remainingSpellsUpdateDate).format('DD')) === month) {
+                                remainingPreviousYear = _.get(data[i], 'remainingSpells', 0)
+                        } else {
+                            remainingPreviousYear = await calculateRemainingPreviousYear(db, data[i].ID, year + '-' + await convertNumber(month));
+                        }
                         let remaining = Number(remainingPreviousYear) + Number(objResult.overtime) - Number(objResult.lateDay) - Number(objResult.numberHoliday)
                         objResult['remaining'] = remaining.toFixed(2)
                         objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
                         let objLeave = await getListleaveDate(db, month, year, data[i].ID, dateFinal)
-                        console.log({
-                            StaffID: objResult.staffID,
-                            StaffName: objResult.staffName,
-                            StaffCode: objResult.staffCode,
-                            DepartmentName: objResult.departmentName,
-                            Overtime: objResult.overtime,
-                            NumberHoliday: objResult.numberHoliday,
-                            FreeBreak: objResult.freeBreak,
-                            LateDay: objResult.lateDay,
-                            Remaining: objResult.remaining,
-                            RemainingPreviousYear: objResult.remainingPreviousYear,
-                            Month: year + '-' + await convertNumber(month),
-                            SickLeave: objLeave.arrayO.length,
-                            RegimeLeave: objLeave.arrayRegimeLeave.length - objLeave.arrayO.length,
-                        });
                         await mtblTimeAttendanceSummary(db).create({
                             StaffID: objResult.staffID,
                             StaffName: objResult.staffName,
@@ -1148,12 +1130,16 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
 
                             }
                         })
-                        remainingPreviousYear = remainingPreviousYear ? remainingPreviousYear.Remaining : 0
+                        if(data[i].remainingSpellsUpdateDate 
+                            && Number(moment(data[i].remainingSpellsUpdateDate).format('DD')) === month) {
+                                remainingPreviousYear = _.get(staff, 'remainingSpells', 0)
+                        } else {
+                            remainingPreviousYear = _.get(remainingPreviousYear, 'Remaining', 0)
+                        }
                         let remaining = Number(remainingPreviousYear) + Number(objResult.overtime) - Number(objResult.lateDay) - Number(objResult.numberHoliday)
                         objResult['remaining'] = remaining.toFixed(2)
                         objResult['remainingPreviousYear'] = remainingPreviousYear.toFixed(2)
                         let objLeave = await getListleaveDate(db, month, year, data[i].ID, dateFinal)
-
                         await mtblTimeAttendanceSummary(db).create({
                             StaffID: objResult.staffID,
                             StaffName: objResult.staffName,
@@ -2066,8 +2052,22 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
         order: [
             ['ID', 'DESC']
         ],
-    }).then(data => {
+    }).then(async data => {
         for (let i = 0; i < data.length; i++) {
+            let remainingPreviousYear = data[i].RemainingPreviousYear
+            let remaining = data[i].Remaining
+            // Nếu admin cấu hình lại số phép tồn của nhân viên vào tháng search thì sẽ thay bằng tháng đó
+            await mtblDMNhanvien(db).findOne({
+                where: { 
+                    ID: data[i].StaffID,
+                }
+            }).then(staff => {
+                if(staff.remainingSpellsUpdateDate 
+                    && Number(moment(staff.remainingSpellsUpdateDate).format('DD')) === monthStart) {
+                        remainingPreviousYear = _.get(staff, 'remainingSpells', 0)
+                        remaining = remainingPreviousYear + Number(data[i].Overtime) - Number(data[i].LateDay) - Number(data[i].NumberHoliday);
+                    } 
+            })
             array.push({
                 staffID: data[i].StaffID,
                 staffName: data[i].StaffName,
@@ -2077,10 +2077,10 @@ async function getDetailSyntheticTimkeeping(db, departmentID, dateStart, dateEnd
                 numberHoliday: data[i].NumberHoliday,
                 freeBreak: data[i].FreeBreak,
                 lateDay: data[i].LateDay,
-                remaining: data[i].Remaining,
+                remaining: remaining,
                 sickLeave: data[i].SickLeave,
                 regimeLeave: data[i].RegimeLeave,
-                remainingPreviousYear: data[i].RemainingPreviousYear,
+                remainingPreviousYear: remainingPreviousYear,
                 month: data[i].Month
             })
         }
