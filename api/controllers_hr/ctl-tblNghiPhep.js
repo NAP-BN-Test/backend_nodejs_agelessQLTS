@@ -559,28 +559,36 @@ module.exports = {
                 try {
                     let listID = JSON.parse(body.listID);
                     // await deleteRelationshiptblNghiPhep(db, listID);
-                    let iduser
-                    let idroleadmin
+                    let iduser;
+                    let idroleadmin;
+                    console.log(body);
                     await mtblDMUser(db).findOne({
                         where: {
                             IDNhanVien: body.staffID
                         }
                     }).then(async data => {
-                        iduser = data.ID
+                        if(data) {
+                            iduser = data.ID
+                        }
                     })
                     await mtblRole(db).findOne({
                         where: {
                             Code: 'ADMIN'
                         }
                     }).then(async data => {
-                        idroleadmin = data.ID
-                    })
-                    let objRoleUser = await mtblRoleUser(db).findOne({
-                        where: {
-                            RoleID: idroleadmin,
-                            UserID: iduser
+                        if(data) {
+                            idroleadmin = data.ID
                         }
                     })
+                    let objRoleUser;
+                    if(idroleadmin && iduser) {
+                        objRoleUser = await mtblRoleUser(db).findOne({
+                            where: {
+                                RoleID: idroleadmin,
+                                UserID: iduser
+                            }
+                        })
+                    }
                     await mtblNghiPhep(db).findAll({
                         where: {
                             ID: {

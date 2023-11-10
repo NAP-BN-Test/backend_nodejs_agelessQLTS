@@ -46,7 +46,7 @@ module.exports = {
     //     server: '192.168.23.9', //dbdev.namanphu.vn , dbdev.namanphu.vn
     //     database: 'TXAGELESS_QLNB', // AGELESS_QLNB con demo
     //     options: {
-    //         encrypt: false,s
+    //         encrypt: false,
     //     },
     // },
     config: {

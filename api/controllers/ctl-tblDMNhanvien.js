@@ -43,6 +43,7 @@ var mtblDecidedInsuranceSalary = require('../tables/hrmanage/tblDecidedInsurance
 var mtblRewardPunishmentRStaff = require('../tables/hrmanage/tblRewardPunishmentRStaff')
 
 var database = require('../database');
+const { CONTRACT_TYPE } = require('../constants/constant');
 async function handleCalculateAdvancePayment(db, idStaff) {
     let staffData = await mtblHopDongNhanSu(db).findOne({
         where: { IDNhanVien: idStaff },
@@ -491,7 +492,7 @@ module.exports = {
                             probationaryDate: data.ProbationaryDate ? data.ProbationaryDate : '',
                             probationarySalary: data.ProbationarySalary ? data.ProbationarySalary : null,
                             workingDate: data.WorkingDate ? data.WorkingDate : null,
-                            workingSalary: data.WorkingSalary ? data.WorkingSalary : null,
+                            // workingSalary: data.WorkingSalary ? data.WorkingSalary : null,
                             bhxhSalary: data.BHXHSalary ? data.BHXHSalary : null,
                             contactUrgent: data.ContactUrgent ? data.ContactUrgent : '',
                             idMayChamCong: data.IDMayChamCong ? data.IDMayChamCong : null,
@@ -675,6 +676,45 @@ module.exports = {
             if (db) {
                 try {
                     let update = [];
+                    let updateContract = [];
+                    if (body.signDate || body.signDate === '') {
+                        if (body.signDate === '')
+                            updateContract.push({ key: 'Date', value: null });
+                        else
+                            updateContract.push({ key: 'Date', value: body.signDate });
+                    }
+                    if (body.workingSalary || body.workingSalary === '') {
+                        if (body.workingSalary === '')
+                            updateContract.push({ key: 'SalaryNumber', value: null });
+                        else
+                            updateContract.push({ key: 'SalaryNumber', value: body.workingSalary });
+                    }
+                    if (body.contractDateEnd || body.contractDateEnd === '') {
+                        if (moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') > moment().format('YYYY-MM-DD HH:mm:ss.SSS'))
+                            updateContract.push({ key: 'NoticeTime', value: moment(body.contractDateEnd).add(7, 'hours').subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss.SSS') });
+                        else
+                            updateContract.push({ key: 'NoticeTime', value: moment().add(7, 'hours').format('YYYY-MM-DD HH:mm:ss.SSS') });
+
+                        updateContract.push({ key: 'ContractDateEnd', value: body.contractDateEnd });
+                    }
+                    if (body.contractDateStart || body.contractDateStart === '') {
+                        updateContract.push({ key: 'ContractDateStart', value: body.contractDateStart });
+                    }
+                    if (body.status || body.status === '')
+                        updateContract.push({ key: 'Status', value: body.status });
+                    if (body.coefficientsSalary || body.coefficientsSalary === '') {
+                        if (body.coefficientsSalary === '')
+                            updateContract.push({ key: 'CoefficientsSalary', value: null });
+                        else
+                            updateContract.push({ key: 'CoefficientsSalary', value: body.coefficientsSalary });
+                    }
+                    if (body.productivityWages || body.productivityWages === '') {
+                        if (body.productivityWages === '')
+                            updateContract.push({ key: 'ProductivityWages', value: null });
+                        else
+                            updateContract.push({ key: 'ProductivityWages', value: body.productivityWages });
+                    }
+                    await database.updateTable(updateContract, mtblHopDongNhanSu(db), body.idContract);
                     let idCHamCong = await mtblDMNhanvien(db).findOne({
                         where: {
                             ID: body.id,
@@ -1128,12 +1168,12 @@ module.exports = {
                         }
                     }
                     let stt = 1;
+                    let count = 0;
                     let tblDMNhanvien = mtblDMNhanvien(db);
                     tblDMNhanvien.belongsTo(mtblDMBoPhan(db), { foreignKey: 'IDBoPhan', sourceKey: 'IDBoPhan', as: 'bophan' })
                     tblDMNhanvien.belongsTo(mtblFileAttach(db), { foreignKey: 'FileAttachID', sourceKey: 'FileAttachID', as: 'file' })
                     let tblDMBoPhan = mtblDMBoPhan(db);
                     tblDMBoPhan.belongsTo(mtblDMChiNhanh(db), { foreignKey: 'IDChiNhanh', sourceKey: 'IDChiNhanh' })
-                    let all = await tblDMNhanvien.count({ where: whereOjb, })
                     tblDMNhanvien.findAll({
                         order: [
                             ['ID', 'DESC']
@@ -1155,13 +1195,22 @@ module.exports = {
                                 as: 'file',
                             },
                         ],
-                    }).then(data => {
+                    }).then(async data => {
                         var array = [];
-                        data.forEach(async element => {
-                            var nodateoff
+                        for (let index = 0; index < data.length; index++) {
+                            let element = data[index];
+                            var nodateoff;
+                            var contractActive = [];
+                            await mtblHopDongNhanSu(db).findAll({
+                                where: {
+                                    IDNhanVien: element.ID,
+                                    Status: CONTRACT_TYPE.Effective,
+                                }
+                            }).then((contracts) => {
+                                contractActive = contracts;
+                            })
                             if (!element.NoDateOff) {
                                 nodateoff = await handleCalculateAdvancePayment(db, element.ID)
-                                console.log(nodateoff);
                                 await tblDMNhanvien.update({
                                     NoDateOff: nodateoff,
                                 }, {
@@ -1209,12 +1258,15 @@ module.exports = {
                                 name: element.file ? element.file.Name : null,
                                 link: element.file ? element.file.Link : null,
                             }
-                            array.push(obj);
-                            stt += 1;
-                        });
+                            if(body.type !== 'expire' || (body.type === 'expire' && contractActive.length < 1)) {
+                                array.push(obj);
+                                stt += 1;
+                                count += 1;
+                            }
+                        }
                         var result = {
                             array: array,
-                            all: all,
+                            all: count,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }

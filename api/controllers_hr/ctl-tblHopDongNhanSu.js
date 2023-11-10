@@ -878,6 +878,27 @@ module.exports = {
                             Status:  CONTRACT_TYPE.Expire,
                         })
                     }
+                    const arrayStaffEligible = []
+                    await mtblDMNhanvien(db).findAll().then(async staffs => {
+                        for (let i = 0; i < staffs.length; i++) {
+                            const element = staffs[i];
+                            await mtblHopDongNhanSu(db).findOne({
+                                where: {
+                                    IDNhanVien: element.ID,
+                                    Status: CONTRACT_TYPE.Effective,
+                                }
+                            }).then((contract) => {
+                                if(!contract) {
+                                    arrayStaffEligible.push(element.ID)
+                                }
+                            })
+                        }
+                    })
+                    whereOjb[Op.and].push({
+                        IDNhanVien:  {
+                            [Op.in]: arrayStaffEligible
+                        },
+                    })
                     let tblHopDongNhanSu = mtblHopDongNhanSu(db);
                     tblHopDongNhanSu.belongsTo(mtblLoaiHopDong(db), { foreignKey: 'IDLoaiHopDong', sourceKey: 'IDLoaiHopDong', as: 'lhd' })
                     tblHopDongNhanSu.belongsTo(mtblDMNhanvien(db), { foreignKey: 'IDNhanVien', sourceKey: 'IDNhanVien', as: 'nv' })
