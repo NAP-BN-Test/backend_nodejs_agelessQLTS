@@ -1132,7 +1132,7 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
                         })
                         if(data[i].remainingSpellsUpdateDate 
                             && Number(moment(data[i].remainingSpellsUpdateDate).format('DD')) === month) {
-                                remainingPreviousYear = _.get(staff, 'remainingSpells', 0)
+                                remainingPreviousYear = _.get(data[i], 'remainingSpells', 0)
                         } else {
                             remainingPreviousYear = _.get(remainingPreviousYear, 'Remaining', 0)
                         }

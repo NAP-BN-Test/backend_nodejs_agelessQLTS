@@ -643,7 +643,6 @@ module.exports = {
                     } else {
                         arraySearchAnd.push({ Type: 'SignUp' })
                     }
-                    console.log(body);
                     if (body.staffID) {
                         let tblDMUser = mtblDMUser(db);
                         tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission', as: 'permission' })
@@ -997,17 +996,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 try {
-                    var whereObj = {
-                        [Op.or]: [{
-                            IDNhanVien: body.staffID
-                        }, {
-                            IDHeadDepartment: body.staffID
-                        }, {
-                            IDAdministrationHR: body.staffID
-                        }, {
-                            IDHeads: body.staffID
-                        }]
-                    };
+                    var whereObj = {};
                     let arraySearchAnd = [];
                     let arraySearchOr = [];
                     let arraySearchNot = [];
@@ -1017,6 +1006,17 @@ module.exports = {
                         arraySearchAnd.push({ Type: 'SignUp' })
                     }
                     if (body.staffID) {
+                        whereObj = {
+                            [Op.or]: [{
+                                IDNhanVien: body.staffID
+                            }, {
+                                IDHeadDepartment: body.staffID
+                            }, {
+                                IDAdministrationHR: body.staffID
+                            }, {
+                                IDHeads: body.staffID
+                            }]
+                        };
                         let tblDMUser = mtblDMUser(db);
                         tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission', as: 'permission' })
                         await tblDMUser.findOne({
