@@ -820,7 +820,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/' + 'Bảng tổng hợp doanh thi trên debinote năm ' + body.year + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Bảng tổng hợp doanh thi trên debinote năm ' + body.year + '.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/' + 'Bảng tổng hợp doanh thi trên debinote năm ' + body.year + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -985,7 +985,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/' + 'Doanh thu tiền về năm ' + body.year + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Doanh thu tiền về năm ' + body.year + '.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/' + 'Doanh thu tiền về năm ' + body.year + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1024,7 +1024,7 @@ module.exports = {
                     await mModules.convertDataAndRenderExcelFile(values, path + 'template-average-monthly-revenue-by-year.xlsx', path + 'Doanh thu bình quân tháng của các ban theo năm.xlsx')
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'Doanh thu bình quân tháng của các ban theo năm.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/' + 'Doanh thu bình quân tháng của các ban theo năm.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1189,7 +1189,7 @@ module.exports = {
                     await mModules.convertDocxToPDF(pathlink, pathEx)
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + nameFilePDF,
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/' + nameFilePDF,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1251,7 +1251,7 @@ module.exports = {
             await mModules.convertDataAndRenderExcelFile(objKey, path + readName, path + writeName)
             setTimeout(() => {
                 var result = {
-                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + writeName,
+                    link: 'http://192.168.23.9:1357/ageless_sendmail/' + writeName,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                 }

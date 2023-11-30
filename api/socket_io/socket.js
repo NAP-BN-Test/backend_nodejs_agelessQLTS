@@ -2,7 +2,7 @@ var moment = require('moment');
 const Sequelize = require('sequelize');
 async function connectDatabase(dbname) {
     const db = new Sequelize(dbname, 'struck_user', '123456a$', {
-        host: 'dbdev.namanphu.vn',
+        host: '192.168.23.9',
         dialect: 'mssql',
         operatorsAliases: '0',
         // Bắt buộc phải có
@@ -29,7 +29,7 @@ module.exports = {
             socket.on("sendrequest", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
-                    host: 'dbdev.namanphu.vn',
+                    host: '192.168.23.9',
                     dialect: 'mssql',
                     operatorsAliases: '0',
                     // Bắt buộc phải có
@@ -113,7 +113,7 @@ module.exports = {
                     status = 'XÁC NHẬN CHI PHÍ'
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
-                    host: 'dbdev.namanphu.vn',
+                    host: '192.168.23.9',
                     dialect: 'mssql',
                     operatorsAliases: '0',
                     // Bắt buộc phải có
@@ -228,7 +228,7 @@ module.exports = {
             socket.on("confirm-plan-cost", async function(data) {
                 let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
                 const db = new Sequelize(data.dbname, 'struck_user', '123456a$', {
-                    host: 'dbdev.namanphu.vn',
+                    host: '192.168.23.9',
                     dialect: 'mssql',
                     operatorsAliases: '0',
                     // Bắt buộc phải có
@@ -247,7 +247,7 @@ module.exports = {
                     }
                 });
                 const db2 = new Sequelize(data.dbname2, 'struck_user', '123456a$', {
-                    host: 'dbdev.namanphu.vn',
+                    host: '192.168.23.9',
                     dialect: 'mssql',
                     operatorsAliases: '0',
                     // Bắt buộc phải có

@@ -1164,7 +1164,7 @@ async function createTimeAttendanceSummaryFollowMonth(monthRespone, year, staffI
 async function getDataTimeKeeping(dateRes, departmentID) {
     var result = {}
     await database.connectDatabase().then(async db => {
-        // await axios.get(`http://dbdev.namanphu.vn:1333/dulieuchamcong/`).then(data => {
+        // await axios.get(`http://192.168.23.9:1333/dulieuchamcong/`).then(data => {
         //     if (data.length > 0)
         //         arrayData = JSON.parse(data)
         // })
@@ -2625,7 +2625,7 @@ module.exports = {
     // delete_all_timekeeping
     deleteAllTimekeeping: async(req, res) => {
         let body = req.body;
-        await axios.get(`http://dbdev.namanphu.vn:1333/dulieuchamcong/deleteall`).then(data => {
+        await axios.get(`http://192.168.23.9:1333/dulieuchamcong/deleteall`).then(data => {
             if (data == 'done') {
                 var result = {
                     status: Constant.STATUS.SUCCESS,
@@ -2666,7 +2666,7 @@ module.exports = {
         database.connectDatabase().then(async db => {
             if (db) {
                 let arrayData = []
-                await axios.get(`http://dbdev.namanphu.vn:1333/dulieuchamcong/index`).then(data => {
+                await axios.get(`http://192.168.23.9:1333/dulieuchamcong/index`).then(data => {
                     if (data.data.length > 0)
                         arrayData = data.data
                 })

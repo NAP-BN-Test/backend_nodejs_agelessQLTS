@@ -14,7 +14,7 @@ var mtblFileAttach = require('../tables/constants/tblFileAttach');
 // var io = require("socket.io")(server, {
 //     cors: {
 //         wsEngine: 'eiows',
-//         origin: ["http://dbdev.namanphu.vn:8692", "http://localhost:4200"],
+//         origin: ["http://192.168.23.9:8692", "http://localhost:4200"],
 //         methods: ["GET", "POST"],
 //         credentials: true,
 //     }

@@ -643,6 +643,7 @@ module.exports = {
                     } else {
                         arraySearchAnd.push({ Type: 'SignUp' })
                     }
+                    console.log(body);
                     if (body.staffID) {
                         let tblDMUser = mtblDMUser(db);
                         tblDMUser.belongsTo(mtblDMPermission(db), { foreignKey: 'IDPermission', sourceKey: 'IDPermission', as: 'permission' })

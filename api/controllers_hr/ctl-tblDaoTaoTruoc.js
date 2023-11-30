@@ -388,7 +388,7 @@ module.exports = {
                             }
                             await mModules.convertDataAndRenderWordFile(obj, 'template_training.docx', 'quyetdinhcudidaotao.docx')
                             var result = {
-                                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/quyetdinhcudidaotao.docx',
+                                link: 'http://192.168.23.9:1357/ageless_sendmail/quyetdinhcudidaotao.docx',
                                 status: Constant.STATUS.SUCCESS,
                                 message: Constant.MESSAGE.ACTION_SUCCESS,
                             }

@@ -429,7 +429,7 @@ module.exports = {
                 // Here in done you have pdf file which you can save or transfer in another stream
                 fs.writeFileSync(pathEx, done);
                 var result = {
-                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_pdf_file.pdf',
+                    link: 'http://192.168.23.9:1357/ageless_sendmail/export_pdf_file.pdf',
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                 }
@@ -646,7 +646,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/Danh sách yêu cầu mua sắm.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách yêu cầu mua sắm.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/Danh sách yêu cầu mua sắm.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -838,7 +838,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/Danh sách đề nghị thanh toán.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1014,7 +1014,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/Báo cáo xuất nhập tồn văn phòng phẩm ' + dayFrom + ' - ' + dayTo + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Báo cáo xuất nhập tồn văn phòng phẩm ' + dayFrom + ' - ' + dayTo + '.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/Báo cáo xuất nhập tồn văn phòng phẩm ' + dayFrom + ' - ' + dayTo + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1228,7 +1228,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/Danh sách tài sản' + (body.type == 'liquidation' ? ' thanh lý' : '') + '.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách tài sản' + (body.type == 'liquidation' ? ' thanh lý' : '') + '.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/Danh sách tài sản' + (body.type == 'liquidation' ? ' thanh lý' : '') + '.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1392,7 +1392,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/Quản lý văn phòng phẩm.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Quản lý văn phòng phẩm.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/Quản lý văn phòng phẩm.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1566,7 +1566,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/' + strFile);
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/' + strFile,
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -1668,7 +1668,7 @@ module.exports = {
                 await wb.write('C:/images_services/ageless_sendmail/' + strFile);
                 setTimeout(() => {
                     var result = {
-                        link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                        link: 'http://192.168.23.9:1357/ageless_sendmail/' + strFile,
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -1856,7 +1856,7 @@ module.exports = {
             await wb.write('C:/images_services/ageless_sendmail/' + strFile);
             setTimeout(() => {
                 var result = {
-                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                    link: 'http://192.168.23.9:1357/ageless_sendmail/' + strFile,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                 }
@@ -2010,7 +2010,7 @@ module.exports = {
                     await wb.write('C:/images_services/ageless_sendmail/export_excel_ycms.xlsx');
                     setTimeout(() => {
                         var result = {
-                            link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/export_excel_ycms.xlsx',
+                            link: 'http://192.168.23.9:1357/ageless_sendmail/export_excel_ycms.xlsx',
                             status: Constant.STATUS.SUCCESS,
                             message: Constant.MESSAGE.ACTION_SUCCESS,
                         }
@@ -2040,7 +2040,7 @@ module.exports = {
                     if (err) console.log(err + '');
                 });
                 var result = {
-                    link: 'http://dbdev.namanphu.vn:1357/struck_web/' + dir,
+                    link: 'http://192.168.23.9:1357/struck_web/' + dir,
                     name: body.data.name,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
@@ -2216,7 +2216,7 @@ module.exports = {
         await wb.write('C:/images_services/ageless_sendmail/Danh sách bàn giao văn phòng phẩm.xlsx');
         setTimeout(() => {
             var result = {
-                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/Danh sách bàn giao văn phòng phẩm.xlsx',
+                link: 'http://192.168.23.9:1357/ageless_sendmail/Danh sách bàn giao văn phòng phẩm.xlsx',
                 status: Constant.STATUS.SUCCESS,
                 message: Constant.MESSAGE.ACTION_SUCCESS,
             }
@@ -2346,7 +2346,7 @@ module.exports = {
             await wb.write('C:/images_services/ageless_sendmail/' + strFile);
             setTimeout(() => {
                 var result = {
-                    link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + strFile,
+                    link: 'http://192.168.23.9:1357/ageless_sendmail/' + strFile,
                     status: Constant.STATUS.SUCCESS,
                     message: Constant.MESSAGE.ACTION_SUCCESS,
                 }

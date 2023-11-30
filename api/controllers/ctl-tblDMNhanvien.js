@@ -1200,15 +1200,6 @@ module.exports = {
                         for (let index = 0; index < data.length; index++) {
                             let element = data[index];
                             var nodateoff;
-                            var contractActive = [];
-                            await mtblHopDongNhanSu(db).findAll({
-                                where: {
-                                    IDNhanVien: element.ID,
-                                    Status: CONTRACT_TYPE.Effective,
-                                }
-                            }).then((contracts) => {
-                                contractActive = contracts;
-                            })
                             if (!element.NoDateOff) {
                                 nodateoff = await handleCalculateAdvancePayment(db, element.ID)
                                 await tblDMNhanvien.update({
@@ -1258,11 +1249,18 @@ module.exports = {
                                 name: element.file ? element.file.Name : null,
                                 link: element.file ? element.file.Link : null,
                             }
-                            if(body.type !== 'expire' || (body.type === 'expire' && contractActive.length < 1)) {
-                                array.push(obj);
-                                stt += 1;
-                                count += 1;
-                            }
+                            await mtblHopDongNhanSu(db).findOne({
+                                where: {
+                                    IDNhanVien: element.ID,
+                                    Status: CONTRACT_TYPE.Effective,
+                                }
+                            }).then((contract) => {
+                                if(contract) {
+                                    array.push(obj);
+                                    stt += 1;
+                                    count += 1;
+                                }
+                            })
                         }
                         var result = {
                             array: array,

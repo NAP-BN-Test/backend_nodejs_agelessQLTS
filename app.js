@@ -95,10 +95,10 @@ app.post('/qlnb/upload', getDateInt, upload.array('photo', 12), async function(r
             pathFinal = pathFinal.slice(36, 100)
             let idLink = await mtblFileAttach(db).create({
                 Name: nameFile + pathFile,
-                Link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + pathFinal,
+                Link: 'http://192.168.23.9:1357/ageless_sendmail/' + pathFinal,
             })
             return res.send({
-                link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + pathFinal,
+                link: 'http://192.168.23.9:1357/ageless_sendmail/' + pathFinal,
                 name: nameFile + pathFile,
                 id: idLink.ID,
                 success: true
@@ -347,7 +347,7 @@ app.post('/qlnb/render_automatic_work', async function(req, res) {
                     // var randomOutput = 'output-' + Math.floor(Math.random() * Math.floor(100000000000)) + '.docx';
                     fs.writeFileSync(path.resolve(pathTo, 'export-file-word.docx'), buf);
                     var result = {
-                        link: 'http://dbdev.namanphu.vn:1357/ageless_sendmail/' + 'export-file-word.docx',
+                        link: 'http://192.168.23.9:1357/ageless_sendmail/' + 'export-file-word.docx',
                         status: Constant.STATUS.SUCCESS,
                         message: Constant.MESSAGE.ACTION_SUCCESS,
                     }
@@ -372,7 +372,7 @@ const port = process.env.PORT || 3101
 var io = require("socket.io")(server, {
     cors: {
         wsEngine: 'eiows',
-        origin: ["http://dbdev.namanphu.vn:8692", "http://localhost:4210", "http://dbdev.namanphu.vn:8693", "http://dbdev.namanphu.vn:8694"],
+        origin: ["http://192.168.23.9:8692", "http://localhost:4210", "http://192.168.23.9:8693", "http://192.168.23.9:8694"],
         methods: ["GET", "POST"],
         credentials: true,
     }
